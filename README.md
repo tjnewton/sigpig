@@ -1,7 +1,7 @@
 # sigpig
 Seismology and Signal Processing Toolkit 
 
-sigpig.core.figures generates various figures:  
+### sigpig.core.figures generates various figures:  
 Time series and spectrogram plotting  
 ```
 # define dates of interest
