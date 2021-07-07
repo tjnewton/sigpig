@@ -1,6 +1,20 @@
 # sigpig
 Seismology and Signal Processing Toolkit 
 
+### sigpig.core.data downloads data:  
+Time series data from IRIS DMC  
+```
+network = "AK"
+stations = ["BAL", "BARN", "DHY", "DIV", "DOT", "GHO", "GLB", "K218",
+            "KLU", "KNK", "MCAR", "MCK", "PAX", "PTPK", "RIDG", "RND",
+            "SAW", "SCM", "VRDI", "WAT1", "WAT6", "WAT7"]
+location = "**"
+channels = ["BHZ", "BNZ", "HNZ"]
+start_Time = UTCDateTime("2016-06-15T00:00:00.0Z")
+end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
+get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+```
+
 ### sigpig.core.figures generates various figures:  
 Time series and spectrogram plotting  
 ```
