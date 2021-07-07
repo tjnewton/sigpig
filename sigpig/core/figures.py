@@ -59,7 +59,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		doi_end = UTCDateTime("2016-09-26T09:26:53.0Z") # period end
 
 		# define time series files path
-		files_path = "./subset_stations"
+		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations"
 
 		# bandpass filter from 2-8 Hz
 		bandpass = [2, 8]
@@ -113,7 +113,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		y_labels.append(f"{trace.stats.network}.{trace.stats.station}"
 						f".{trace.stats.channel}")
 
-		print(trace.stats.sampling_rate)
+		# print(trace.stats.sampling_rate)
 
 		# build information for spectrogram
 		duration = doi_end - doi
