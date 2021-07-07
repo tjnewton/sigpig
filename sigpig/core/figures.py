@@ -47,7 +47,7 @@ def max_Amplitude(timeSeries):
 				  "that is not 1D or 2D ;(")
 
 def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
-									 bandpass=[]):
+									 bandpass=[], time_markers={}):
 	"""
 	Plots time series and spectrograms for all files in the `files_path` for
 	the specified time period starting at `doi` and ending at `doi_end`. Data
@@ -64,8 +64,17 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		# bandpass filter from 2-8 Hz
 		bandpass = [2, 8]
 
+		# plot time markers on specified stations
+		time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:50.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.0Z")],
+						"TA.N25K": [UTCDateTime("2016-09-26T09:25:52.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:06.5Z")],
+						"YG.MCR3": [UTCDateTime("2016-09-26T09:25:52.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:06.0Z")]}
+
 		fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
-											   filter=True, bandpass=bandpass)
+											   filter=True, bandpass=bandpass,
+											   time_markers=time_markers)
 
 	"""
 
@@ -109,9 +118,25 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 						  np.min(trace.data)) * 1.25 + index
 		# add trace to waveform plot
 		amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
+
+		# plot time markers for this trace if they exist
+		network_station = f"{trace.stats.network}.{trace.stats.station}"
+		if network_station in time_markers:
+			time_marker = time_markers[network_station]
+			# plot time_marker box
+			x_vals = [time_marker[0].matplotlib_date,
+					  time_marker[0].matplotlib_date,
+					  time_marker[1].matplotlib_date,
+					  time_marker[1].matplotlib_date,
+					  time_marker[0].matplotlib_date]
+			y_vals = [min(norm_amplitude), max(norm_amplitude),
+					  max(norm_amplitude), min(norm_amplitude),
+					  min(norm_amplitude)]
+			amplitude_plot.plot_date(x_vals, y_vals,
+									 fmt="r-", linewidth=1.0)
+
 		# add station name to list of y labels
-		y_labels.append(f"{trace.stats.network}.{trace.stats.station}"
-						f".{trace.stats.channel}")
+		y_labels.append(f"{network_station}.{trace.stats.channel}")
 
 		# print(trace.stats.sampling_rate)
 

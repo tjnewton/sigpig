@@ -14,6 +14,14 @@ files_path = "files_path = "/Users/human/Dropbox/Research/Alaska/build_templates
 # bandpass filter from 2-8 Hz
 bandpass = [2, 8]
 
-fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=True, bandpass=bandpass)
+# plot time markers on specified stations
+time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:50.0Z"),
+					 		UTCDateTime("2016-09-26T09:26:04.0Z")],
+				"TA.N25K": [UTCDateTime("2016-09-26T09:25:52.5Z"),
+					 		UTCDateTime("2016-09-26T09:26:06.5Z")],
+				"YG.MCR3": [UTCDateTime("2016-09-26T09:25:52.0Z"),
+					 		UTCDateTime("2016-09-26T09:26:06.0Z")]}
+
+fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=True, bandpass=bandpass, time_markers=time_markers)
 ```
 ![](doc/images/ts-spect.png?raw=true)
