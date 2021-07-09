@@ -72,10 +72,23 @@ def detect_LFEs(templates, template_files, station_dict,
     # TODO:
 
     Example:
-        templates = ["# 2016  9 26  9 25 49.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        templates = ["# 2016  9 26  9 25 46.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "GLB     4.000  1       P\n",
+                     "PTPK   19.000  1       P\n",
+                     "GLB     4.000  1       P\n",
                      "WASW    0.000  1       P\n",
-                     "MCR3    3.000  1       P\n",
-                     "N25K    3.500  1       P\n"]
+                     "MCR4    7.000  1       P\n",
+                     "NEB3    8.500  1       P\n",
+                     "MCR1    8.500  1       P\n",
+                     "RH08   16.500  1       P\n",
+                     "RH10   15.500  1       P\n",
+                     "RH09   15.500  1       P\n",
+                     "WACK    3.500  1       P\n",
+                     "NEB1   10.500  1       P\n",
+                     "N25K    3.500  1       P\n",
+                     "MCR3    3.500  1       P\n",
+                     "KLU    21.000  1       P\n",
+                     "MCR2    1.500  1       P\n"]
 
         # build stream of all station files for templates
         files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
@@ -85,9 +98,21 @@ def detect_LFEs(templates, template_files, station_dict,
                                       f"-{doi.day:02}.ms")
 
         # station dict to add data needed by EQcorrscan
-        station_dict = {"WASW": {"network": "AV", "channel": "SHZ"},
+        station_dict = {"GLB": {"network": "AK", "channel": "BHZ"},
+                        "PTPK": {"network": "AK", "channel": "BHZ"},
+                        "WASW": {"network": "AV", "channel": "SHZ"},
+                        "MCR4": {"network": "YG", "channel": "BHZ"},
+                        "NEB3": {"network": "YG", "channel": "BHZ"},
+                        "MCR1": {"network": "YG", "channel": "BHZ"},
+                        "RH08": {"network": "YG", "channel": "BHZ"},
+                        "RH10": {"network": "YG", "channel": "BHZ"},
+                        "RH09": {"network": "YG", "channel": "BHZ"},
+                        "WACK": {"network": "AV", "channel": "BHZ"},
+                        "NEB1": {"network": "YG", "channel": "BHZ"},
+                        "N25K": {"network": "TA", "channel": "BHZ"},
                         "MCR3": {"network": "YG", "channel": "BHZ"},
-                        "N25K": {"network": "TA", "channel": "BHZ"}}
+                        "KLU": {"network": "AK", "channel": "BHZ"},
+                        "MCR2": {"network": "YG", "channel": "BHZ"}}
 
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
