@@ -112,9 +112,9 @@ def detect_LFEs(templates, template_files, station_dict,
         st += read(file)
 
     # detect
-    party, st = tribe.detect(stream=st, threshold=9.0, daylong=True,
-                             threshold_type="MAD", trig_int=4.0,
-                             plot=False, return_stream=True,
+    party = tribe.detect(stream=st, threshold=7.0, daylong=True,
+                             threshold_type="MAD", trig_int=12.0,
+                             plot=False, return_stream=False,
                              parallel_process=True)
 
-    return party, st
+    return party
