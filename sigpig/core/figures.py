@@ -5,8 +5,6 @@ Functions to generate various figures.
 import obspy
 from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
-from obspy.clients.fdsn import Client
-import calendar
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from matplotlib.dates import DateFormatter, AutoDateLocator
@@ -62,18 +60,45 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations"
 
 		# bandpass filter from 2-8 Hz
-		bandpass = [1, 10]
+		filter = True
+		bandpass = [2, 8]
 
 		# plot time markers on specified stations
-		time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:49.0Z"),
-							 		UTCDateTime("2016-09-26T09:26:03.0Z")],
-						"TA.N25K": [UTCDateTime("2016-09-26T09:25:52.5Z"),
-							 		UTCDateTime("2016-09-26T09:26:06.5Z")],
-						"YG.MCR3": [UTCDateTime("2016-09-26T09:25:52.0Z"),
-							 		UTCDateTime("2016-09-26T09:26:06.0Z")]}
+		time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:25:50.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:05.0Z")],
+						"AK.PTPK": [UTCDateTime("2016-09-26T09:26:05.0Z"),
+									UTCDateTime("2016-09-26T09:26:20.0Z")],
+						"AV.WASW": [UTCDateTime("2016-09-26T09:25:46.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:01.0Z")],
+						"YG.MCR4": [UTCDateTime("2016-09-26T09:25:53.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:08.0Z")],
+						"YG.NEB3": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:09.5Z")],
+						"YG.MCR1": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:09.5Z")],
+						"YG.RH08": [UTCDateTime("2016-09-26T09:26:02.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:17.5Z")],
+						"YG.RH10": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+						"YG.RH09": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+						"AV.WACK": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"YG.NEB1": [UTCDateTime("2016-09-26T09:25:56.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:11.5Z")],
+						"TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"YG.MCR3": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"AK.KLU": [UTCDateTime("2016-09-26T09:26:07.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:22.0Z")],
+						"YG.MCR2": [UTCDateTime("2016-09-26T09:25:47.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:02.5Z")],
+							 		}
 
 		fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
-											   filter=True, bandpass=bandpass,
+											   filter=filter,
+											   bandpass=bandpass,
 											   time_markers=time_markers)
 
 	"""
@@ -95,7 +120,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
 	# initialize figure and set the figure size
 	figureWidth = 50
-	figureHeight = 3.5 * len(st) # 0.6 for all stations
+	figureHeight = 3.5 * len(st) # 0.6 for all stations # 3.5
 	fig = plt.figure(figsize=(figureWidth, figureHeight))
 	gs = fig.add_gridspec(3, 1)
 	amplitude_plot = fig.add_subplot(gs[0,:])
@@ -180,6 +205,138 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 	# frequency_plot.set_xlabel('Time (s)')
 	frequency_plot.set_yticks([])
 	frequency_plot.set_xticks([])
+	# fig.tight_layout()
+	fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
+				f"{doi.minute:02}.png", dpi=300)
+
+	plt.show()
+
+def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
+					 time_markers={}):
+	"""
+	Plots time series for all files in the `files_path` for
+	the specified time period starting at `doi` and ending at `doi_end`. Data
+	are first bandpass filtered if `filter=True`.
+
+	Example:
+		# define dates of interest
+		doi = UTCDateTime("2016-09-26T09:25:30.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:26:30.0Z") # period end
+
+		# define time series files path
+		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+
+		# bandpass filter from 2-8 Hz
+		filter = True
+		bandpass = [2, 8]
+
+		# plot time markers on specified stations
+		time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:25:50.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:05.0Z")],
+						"AK.PTPK": [UTCDateTime("2016-09-26T09:26:05.0Z"),
+									UTCDateTime("2016-09-26T09:26:20.0Z")],
+						"AV.WASW": [UTCDateTime("2016-09-26T09:25:46.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:01.0Z")],
+						"YG.MCR4": [UTCDateTime("2016-09-26T09:25:53.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:08.0Z")],
+						"YG.NEB3": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:09.5Z")],
+						"YG.MCR1": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:09.5Z")],
+						"YG.RH08": [UTCDateTime("2016-09-26T09:26:02.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:17.5Z")],
+						"YG.RH10": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+						"YG.RH09": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+						"AV.WACK": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"YG.NEB1": [UTCDateTime("2016-09-26T09:25:56.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:11.5Z")],
+						"TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"YG.MCR3": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"AK.KLU": [UTCDateTime("2016-09-26T09:26:07.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:22.0Z")],
+						"YG.MCR2": [UTCDateTime("2016-09-26T09:25:47.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:02.5Z")],
+							 		}
+
+		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
+							   bandpass=bandpass, time_markers=time_markers)
+
+	"""
+
+	# find all files for specified day
+	day_file_list = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
+							  f"-{doi.day:02}.ms")
+	# load files into stream
+	st = Stream()
+	for file in day_file_list:
+		st += read(file)
+
+		# filter before trimming to avoid edge effects
+		if filter:
+			# bandpass filter specified frequencies
+			st.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
+
+		st.trim(doi, doi_end)
+
+	# initialize figure and set the figure size
+	figureWidth = 50 # 80
+	figureHeight = 1.5 * len(st) # 0.6 for all stations # 3.5
+	fig = plt.figure(figsize=(figureWidth, figureHeight))
+	amplitude_plot = fig.add_subplot()
+	# make a subplot of subplots for spectrograms
+	# amplitude_plot = plt.subplot(2, 1, 1)
+
+	# loop through stream and generate plots
+	y_labels = []
+	for index, trace in enumerate(st):
+		# find max trace value for normalization
+		maxTraceValue = max_Amplitude(trace)
+
+		# define data to work with
+		time = trace.times("matplotlib")
+		norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
+						  np.min(trace.data)) * 1.25 + index
+		# add trace to waveform plot
+		amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
+
+		# plot time markers for this trace if they exist
+		network_station = f"{trace.stats.network}.{trace.stats.station}"
+		if network_station in time_markers:
+			time_marker = time_markers[network_station]
+			# plot time_marker box
+			x_vals = [time_marker[0].matplotlib_date,
+					  time_marker[0].matplotlib_date,
+					  time_marker[1].matplotlib_date,
+					  time_marker[1].matplotlib_date,
+					  time_marker[0].matplotlib_date]
+			y_vals = [min(norm_amplitude), max(norm_amplitude),
+					  max(norm_amplitude), min(norm_amplitude),
+					  min(norm_amplitude)]
+			amplitude_plot.plot_date(x_vals, y_vals,
+									 fmt="r-", linewidth=1.0)
+
+		# add station name to list of y labels
+		y_labels.append(f"{network_station}.{trace.stats.channel}")
+
+		# print(trace.stats.sampling_rate)
+
+	# set axes attributes
+	amplitude_plot.set_yticks(np.arange(0.5, len(st)+0.5))
+	amplitude_plot.set_yticklabels(y_labels)
+	amplitude_plot.set_ylabel('Station.Channel')
+	amplitude_plot.set_xlim([doi.matplotlib_date, doi_end.matplotlib_date])
+	amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {doi.month:02}-'
+							  f'{doi.day:02}-{doi.year}')
+	myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+	amplitude_plot.xaxis.set_major_formatter(myFmt)
+	locator_x = AutoDateLocator(minticks=10, maxticks=35)
+	amplitude_plot.xaxis.set_major_locator(locator_x)
+	amplitude_plot.set_ylim((0, len(st)+0.5))
 	# fig.tight_layout()
 	fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
 				f"{doi.minute:02}.png", dpi=300)

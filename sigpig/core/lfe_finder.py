@@ -76,24 +76,21 @@ def detect_LFEs(templates, template_files, station_dict,
                      "WASW    0.000  1       P\n",
                      "MCR3    3.000  1       P\n",
                      "N25K    3.500  1       P\n"]
-        # template_files = [
-        # "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/AV.WASW.SHZ.2016-09-26.ms",
-        # "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/YG.MCR3.BHZ.2016-09-26.ms",
-        # "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/TA.N25K.BHZ.2016-09-26.ms"]
 
-        # build stream of all stations for detection
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations"
+        # build stream of all station files for templates
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
         doi = UTCDateTime("2016-09-26T00:00:00.0Z")
         template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
                                       f"-{doi.day:02}.ms")
 
+        # station dict to add data needed by EQcorrscan
         station_dict = {"WASW": {"network": "AV", "channel": "SHZ"},
-                    "MCR3": {"network": "YG", "channel": "BHZ"},
-                    "N25K": {"network": "TA", "channel": "BHZ"}}
+                        "MCR3": {"network": "YG", "channel": "BHZ"},
+                        "N25K": {"network": "TA", "channel": "BHZ"}}
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations"
+        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         # define day of interest
         doi = UTCDateTime("2016-09-26T00:00:00.0Z")
 
