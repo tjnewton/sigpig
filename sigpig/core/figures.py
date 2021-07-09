@@ -227,7 +227,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
 		# bandpass filter from 2-8 Hz
-		filter = True
+		filter = False
 		bandpass = [2, 8]
 
 		# plot time markers on specified stations
@@ -266,11 +266,19 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 							   bandpass=bandpass, time_markers=time_markers)
 
+		# plot different date range without time markers
+		doi = UTCDateTime("2016-09-26T02:57:02.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T02:58:02.0Z") # period end
+
+		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
+							   bandpass=bandpass)
+
 	"""
 
 	# find all files for specified day
 	day_file_list = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
 							  f"-{doi.day:02}.ms")
+
 	# load files into stream
 	st = Stream()
 	for file in day_file_list:
