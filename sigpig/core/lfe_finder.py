@@ -76,10 +76,17 @@ def detect_LFEs(templates, template_files, station_dict,
                      "WASW    0.000  1       P\n",
                      "MCR3    3.000  1       P\n",
                      "N25K    3.500  1       P\n"]
-        template_files = [
-        "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/AV.WASW.SHZ.2016-09-26.ms",
-        "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/YG.MCR3.BHZ.2016-09-26.ms",
-        "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/TA.N25K.BHZ.2016-09-26.ms"]
+        # template_files = [
+        # "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/AV.WASW.SHZ.2016-09-26.ms",
+        # "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/YG.MCR3.BHZ.2016-09-26.ms",
+        # "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/TA.N25K.BHZ.2016-09-26.ms"]
+
+        # build stream of all stations for detection
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
+        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+        template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
+                                      f"-{doi.day:02}.ms")
 
         station_dict = {"WASW": {"network": "AV", "channel": "SHZ"},
                     "MCR3": {"network": "YG", "channel": "BHZ"},
@@ -91,8 +98,11 @@ def detect_LFEs(templates, template_files, station_dict,
         doi = UTCDateTime("2016-09-26T00:00:00.0Z")
 
         # run detection
-        party, st = detect_LFEs(templates, template_files, station_dict,
+        party = detect_LFEs(templates, template_files, station_dict,
                                 detection_files_path, doi)
+
+        # to inspect the catalog
+        catalog = party.get_catalog()
 
     """
     # set up logging
