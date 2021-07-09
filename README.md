@@ -1,6 +1,20 @@
 # sigpig
-Seismology and Signal Processing Toolkit 
+## Seismology and Signal Processing Toolkit 
 
+### To get started:
+Clone this repo in your preferred directory:  
+`git clone https://github.com/tjnewton/sigpig.git`  
+Move into the sigpig directory:  
+`cd sigpig`  
+Use conda to create a Python environment from the sigpig.yml file:  
+`conda env create -f sigpig.yml`  
+Activate the environment:  
+`conda activate sigpig`  
+Launch Jupyter Lab within snippets environment:  
+`jupyter lab`  
+Browse the repo directories and notebooks within Jupyter Lab :)
+
+## Functionality:
 ### sigpig.core.data downloads data:  
 Time series data from IRIS DMC  
 ```
