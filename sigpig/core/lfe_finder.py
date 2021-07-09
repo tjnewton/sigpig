@@ -126,6 +126,18 @@ def detect_LFEs(templates, template_files, station_dict,
         # to inspect the catalog
         catalog = party.get_catalog()
 
+        # inspect the party object
+        fig = party.plot(plot_grouped=True)
+
+        # peek at most productive family
+        family = sorted(party.families, key=lambda f: len(f))[-1]
+        print(family)
+        fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+
+        # look at first family detection
+        detection_1 = family.detections[0]
+        detection_1
+
     """
     # set up logging
     logging.basicConfig(
@@ -144,9 +156,9 @@ def detect_LFEs(templates, template_files, station_dict,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=7.0, daylong=True,
+    party = tribe.detect(stream=st, threshold=8.0, daylong=True,
                              threshold_type="MAD", trig_int=12.0,
-                             plot=False, return_stream=False,
+                             plot=True, return_stream=False,
                              parallel_process=True)
 
     return party
