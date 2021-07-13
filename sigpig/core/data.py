@@ -24,7 +24,8 @@ def get_Waveforms(network, stations, location, channels, start_Time,
                     "KLU", "KNK", "MCAR", "MCK", "PAX", "PTPK", "RIDG", "RND",
                     "SAW", "SCM", "VRDI", "WAT1", "WAT6", "WAT7"]
         location = "**"
-        channels = ["BHZ", "BNZ", "HNZ"]
+        # channels = ["BHZ", "BNZ", "HNZ"]
+        channels = ["BHN", "BNN", "HNN", "BHE", "BNE", "HNE"]
         start_Time = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
@@ -36,7 +37,8 @@ def get_Waveforms(network, stations, location, channels, start_Time,
         network = "AT"
         stations = ["MENT", "PMR"]
         location = "**"
-        channels = ["BHZ"]
+        # channels = ["BHZ"]
+        channels = ["BHN", "BHE"]
         start_Time = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
@@ -47,7 +49,8 @@ def get_Waveforms(network, stations, location, channels, start_Time,
         network = "AV"
         stations = ["WACK", "WASW", "WAZA"]
         location = "**"
-        channels = ["BHZ", "SHZ"]
+        # channels = ["BHZ", "SHZ"]
+        channels = ["BHN", "SHN", "BHE", "SHE"]
         start_Time = UTCDateTime("2016-07-17T00:00:00.0Z")
         end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
@@ -58,7 +61,8 @@ def get_Waveforms(network, stations, location, channels, start_Time,
         network = "NP"
         stations = ["2730", "2738", "2784", "8034", "AJKS", "AMJG"]
         location = "**"
-        channels = ["HNZ"]
+        # channels = ["HNZ"]
+        channels = ["HNN", "HNE"]
         start_Time = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
@@ -70,7 +74,8 @@ def get_Waveforms(network, stations, location, channels, start_Time,
         stations = ["HARP", "K24K", "L26K", "L27K", "M23K", "M24K", "M26K",
                     "M27K", "N25K"]
         location = "**"
-        channels = ["BHZ"]
+        # channels = ["BHZ"]
+        channels = ["BHN", "BHE"]
         start_Time = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
@@ -86,7 +91,8 @@ def get_Waveforms(network, stations, location, channels, start_Time,
                     "RH09", "RH10", "RH11", "RH12", "RH13", "RH14", "RH15", "TOK1",
                     "TOK2", "TOK3", "TOK4", "TOK5"]
         location = "**"
-        channels = ["BHZ"]
+        # channels = ["BHZ"]
+        channels = ["BHN", "BHE"]
         start_Time = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
@@ -138,7 +144,7 @@ def get_Waveforms(network, stations, location, channels, start_Time,
                         file_st.trim(file_start, file_end,
                                      nearest_sample=False, fill_value=0)
 
-                        file_st.write("./data/"+filename, format="MSEED")
+                        file_st.write("/Users/human/Dropbox/Research/Alaska/build_templates/data/"+filename, format="MSEED")
 
                         # update the next file start date
                         file_year = file_start.year
@@ -205,7 +211,7 @@ def get_Waveforms(network, stations, location, channels, start_Time,
                     file_st.trim(file_start, file_end,
                                  nearest_sample=False, fill_value=0)
 
-                    file_st.write("./data/" + filename, format="MSEED")
+                    file_st.write("/Users/human/Dropbox/Research/Alaska/build_templates/data/" + filename, format="MSEED")
 
                     # update the next file start date
                     file_year = file_start.year
