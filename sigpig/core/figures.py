@@ -53,15 +53,15 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
 	Example:
 		# define dates of interest
-		doi = UTCDateTime("2016-09-26T09:24:53.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T09:26:53.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:10:53.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:40:53.0Z") # period end
 
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
 		# bandpass filter from 2-8 Hz
-		filter = True
-		bandpass = [1e-9, 15]
+		filter = False
+		bandpass = [2, 8]
 
 		# plot time markers on specified stations
 		time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:25:50.0Z"),
@@ -116,7 +116,8 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 			# bandpass filter specified frequencies
 			st.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
 
-		st.trim(doi, doi_end)
+		# take the specified time period + and - 30 seconds for edge effects
+		st.trim(doi - 30, doi_end + 30)
 
 	# initialize figure and set the figure size
 	figureWidth = 50
@@ -166,8 +167,8 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		# print(trace.stats.sampling_rate)
 
 		# build information for spectrogram
-		duration = doi_end - doi
-		num_windows = (duration/60) * 40 - 1
+		duration = (doi_end + 30) - (doi - 30)
+		num_windows = (duration/60) * 40 - 2
 		window_duration = duration / num_windows
 		window_length = int(window_duration * trace.stats.sampling_rate)
 		nfftSTFT = window_length * 2 # nyquist
@@ -182,7 +183,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		# dB = 20*log() convention
 		spec.pcolormesh(tSTFT, fSTFT, 20 * np.log10(np.absolute(STFT)),
 						cmap='inferno')
-		spec.set_xlim([0, duration - window_length /trace.stats.sampling_rate])
+		spec.set_xlim([30, duration - 30])
 		spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
 						f"{trace.stats.channel}",
 						rotation=0, labelpad=40)
