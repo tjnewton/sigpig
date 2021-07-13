@@ -57,8 +57,8 @@ def make_Templates(templates, template_files, station_dict):
         st += read(file)
 
     tribe = Tribe().construct(
-        method="from_meta_file", meta_file=catalog, st=st, lowcut=1.0,
-        highcut=10.0,
+        method="from_meta_file", meta_file=catalog, st=st, lowcut=2.0,
+        highcut=8.0,
         samp_rate=40.0, length=14.0, filt_order=4, prepick=0.5, swin='all',
         process_len=86400, parallel=True)  # min_snr=5.0,
 
@@ -134,8 +134,19 @@ def detect_LFEs(templates, template_files, station_dict,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         # look at first family detection
-        detection_1 = family.detections[0]
-        detection_1
+        detection_1 = family.detections[1]
+        detection_1_time = detection_1.detect_time
+        from figures import plot_Time_Series
+        # define dates of interest
+		doi = detection_1_time - 30
+		doi_end = doi + 60
+		# define time series files path
+		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+		# bandpass filter from 1-10 Hz
+		filter = True
+		bandpass = [1, 10]
+		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
+							   bandpass=bandpass)
 
     """
     # set up logging
