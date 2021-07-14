@@ -53,15 +53,17 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
 	Example:
 		# define dates of interest
-		doi = UTCDateTime("2016-09-26T09:10:53.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T09:40:53.0Z") # period end
+		# doi = UTCDateTime("2016-09-26T09:24:53.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:26:53.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
 
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
 		# bandpass filter from 2-8 Hz
-		filter = False
-		bandpass = [2, 8]
+		filter = True
+		bandpass = [1, 15]
 
 		# plot time markers on specified stations
 		time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:25:50.0Z"),
@@ -104,8 +106,8 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 	"""
 
 	# find all files for specified day
-	day_file_list = glob.glob(f"{files_path}/*.BHZ.{doi.year}-{doi.month:02}"
-							  f"-{doi.day:02}.ms")
+	day_file_list = sorted(glob.glob(f"{files_path}/*.{doi.year}"
+									 f"-{doi.month:02}-{doi.day:02}.ms"))
 	# load files into stream
 	st = Stream()
 	for file in day_file_list:
@@ -209,7 +211,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 	frequency_plot.set_xticks([])
 	# fig.tight_layout()
 	fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
-				f"{doi.minute:02}.png", dpi=300)
+				f"{doi.minute:02}.pdf", dpi=200)
 
 	plt.show()
 
@@ -222,15 +224,17 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 
 	Example:
 		# define dates of interest
-		doi = UTCDateTime("2016-09-26T09:25:30.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T09:26:30.0Z") # period end
+		# doi = UTCDateTime("2016-09-26T09:25:30.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:26:30.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
 
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
 		# bandpass filter from 2-8 Hz
 		filter = True
-		bandpass = [2, 8]
+		bandpass = [1, 15]
 
 		# plot time markers on specified stations
 		time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:25:50.0Z"),
@@ -278,8 +282,8 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 	"""
 
 	# find all files for specified day
-	day_file_list = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
-							  f"-{doi.day:02}.ms")
+	day_file_list = sorted(glob.glob(f"{files_path}/*.{doi.year}"
+									 f"-{doi.month:02}-{doi.day:02}.ms"))
 
 	# load files into stream
 	st = Stream()
@@ -291,7 +295,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 			# bandpass filter specified frequencies
 			st.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
 
-		st.trim(doi, doi_end)
+		st.trim(doi - 30, doi_end + 30)
 
 	# initialize figure and set the figure size
 	figureWidth = 50 # 80
