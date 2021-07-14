@@ -5,6 +5,7 @@ Functions to find low-frequency earthquakes in time series.
 import logging
 from obspy import UTCDateTime, Stream, read, read_events
 from eqcorrscan import Tribe
+from eqcorrscan.utils.clustering import catalog_cluster
 import glob
 
 # function to build template for matched-filter
@@ -187,3 +188,22 @@ def detect_LFEs(templates, template_files, station_dict,
                              parallel_process=True)
 
     return party
+
+# function to generate phase-weighted waveform stack
+def stack_Waveforms(party):
+    """
+    # TODO:
+
+    Example:
+
+
+    """
+    # get the catalog
+    catalog = party.get_catalog()
+
+    # cluster with 2km spatial threshold
+    groups = catalog_cluster(catalog=catalog, metric="distance", thresh=2,
+                             show=True)
+
+
+    return # FIXME
