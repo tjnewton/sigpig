@@ -53,10 +53,10 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
 	Example:
 		# define dates of interest
-		# doi = UTCDateTime("2016-09-26T09:24:53.0Z") # period start
-		# doi_end = UTCDateTime("2016-09-26T09:26:53.0Z") # period end
-		doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:25:00.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:27:00.0Z") # period end
+		# doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
 
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
@@ -106,7 +106,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 	"""
 
 	# find all files for specified day
-	day_file_list = sorted(glob.glob(f"{files_path}/*.{doi.year}"
+	day_file_list = sorted(glob.glob(f"{files_path}/*Z.{doi.year}"
 									 f"-{doi.month:02}-{doi.day:02}.ms"))
 	# load files into stream
 	st = Stream()
@@ -161,7 +161,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 					  max(norm_amplitude), min(norm_amplitude),
 					  min(norm_amplitude)]
 			amplitude_plot.plot_date(x_vals, y_vals,
-									 fmt="r-", linewidth=1.0)
+									 fmt="r-", linewidth=2.0)
 
 		# add station name to list of y labels
 		y_labels.append(f"{network_station}.{trace.stats.channel}")
@@ -184,7 +184,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
 		# dB = 20*log() convention
 		spec.pcolormesh(tSTFT, fSTFT, 20 * np.log10(np.absolute(STFT)),
-						cmap='inferno')
+						cmap='magma')
 		spec.set_xlim([30, duration - 30])
 		spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
 						f"{trace.stats.channel}",
@@ -224,13 +224,14 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 
 	Example:
 		# define dates of interest
-		# doi = UTCDateTime("2016-09-26T09:25:30.0Z") # period start
-		# doi_end = UTCDateTime("2016-09-26T09:26:30.0Z") # period end
-		doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:25:30.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:26:30.0Z") # period end
+		# doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
 
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+		# files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
 
 		# bandpass filter from 2-8 Hz
 		filter = True
@@ -332,7 +333,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 					  max(norm_amplitude), min(norm_amplitude),
 					  min(norm_amplitude)]
 			amplitude_plot.plot_date(x_vals, y_vals,
-									 fmt="r-", linewidth=1.0)
+									 fmt="r-", linewidth=2.0)
 
 		# add station name to list of y labels
 		y_labels.append(f"{network_station}.{trace.stats.channel}")

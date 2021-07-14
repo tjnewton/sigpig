@@ -42,12 +42,25 @@ def make_Templates(templates, template_files, station_dict):
     catalog = read_events("templates.pha", format="HYPODDPHA")
     # complete missing catalog info (required by EQcorrscan)
     for event in catalog.events:
-        for pick in event.picks:
+        picks = event.picks.copy()
+        for index, pick in enumerate(event.picks):
             if pick.waveform_id.station_code in station_dict:
-                pick.waveform_id.network_code = \
+                picks[index].waveform_id.network_code = \
                 station_dict[pick.waveform_id.station_code]["network"]
-                pick.waveform_id.channel_code = \
+                picks[index].waveform_id.channel_code = \
                 station_dict[pick.waveform_id.station_code]["channel"]
+                # copy Z entry
+                pick_copy1 = picks[index].copy()
+                pick_copy2 = picks[index].copy()
+                # make N and E entries
+                pick_copy1.waveform_id.channel_code = \
+                    pick_copy1.waveform_id.channel_code[:-1] + 'N'
+                picks.append(pick_copy1)
+                pick_copy2.waveform_id.channel_code = \
+                    pick_copy2.waveform_id.channel_code[:-1] + 'E'
+                picks.append(pick_copy2)
+
+        event.picks = picks
 
     # fig = catalog.plot(projection="local", resolution="h")
 
@@ -57,10 +70,12 @@ def make_Templates(templates, template_files, station_dict):
         st += read(file)
 
     tribe = Tribe().construct(
-        method="from_meta_file", meta_file=catalog, st=st, lowcut=2.0,
-        highcut=8.0,
+        method="from_meta_file", meta_file=catalog, st=st, lowcut=1.0,
+        highcut=15.0,
         samp_rate=40.0, length=14.0, filt_order=4, prepick=0.5, swin='all',
         process_len=86400, parallel=True)  # min_snr=5.0,
+    # 46 detections for 2-8 Hz
+    # 56 detections for 1-15 Hz
 
     # print(tribe)
     return tribe
@@ -134,17 +149,17 @@ def detect_LFEs(templates, template_files, station_dict,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         # look at first family detection
-        detection_1 = family.detections[1]
+        detection_1 = family.detections[27]
         detection_1_time = detection_1.detect_time
         from figures import plot_Time_Series
         # define dates of interest
-		doi = detection_1_time - 30
-		doi_end = doi + 60
+		doi = detection_1_time - 40
+		doi_end = doi + 80
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-		# bandpass filter from 1-10 Hz
+		# bandpass filter from 1-15 Hz
 		filter = True
-		bandpass = [1, 10]
+		bandpass = [1, 15]
 		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 							   bandpass=bandpass)
 
