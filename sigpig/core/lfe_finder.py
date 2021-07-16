@@ -242,6 +242,9 @@ def stack_Waveforms(party, streams_path):
             if st[0].stats.sampling_rate < lowest_sr:
                 lowest_sr = st[0].stats.sampling_rate
 
+        # bandpass filter
+        st.filter('bandpass', freqmin=1, freqmax=15)
+
         # interpolate to lowest sampling rate
         st.interpolate(sampling_rate=lowest_sr)
 
@@ -273,7 +276,8 @@ def stack_Waveforms(party, streams_path):
 
     # align traces before stacking
     tr_list = align_traces(trace_list=group_streams[0], shift_len=1500,
-                           master=False, positive=False, plot=True)
+                           master=group_streams[0][14], positive=False,
+                           plot=True)
 
     # generate phase-weighted stack
     stack = PWS_stack(streams=group_streams)
