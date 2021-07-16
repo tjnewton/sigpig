@@ -78,7 +78,7 @@ def make_Templates(templates, template_files, station_dict):
         highcut=15.0,
         samp_rate=40.0, length=14.0, filt_order=4, prepick=0.5, swin='all',
         process_len=86400, parallel=True)  # min_snr=5.0,
-    # 46 detections for 2-8 Hz
+    # 46 detections for x2-8 Hz
     # 56 detections for 1-15 Hz
 
     # print(tribe)
@@ -221,7 +221,7 @@ def stack_Waveforms(party, streams_path):
             # station with earliest pick defines "pick time"
             if pick.waveform_id.station_code == "WASW" and \
                     pick.waveform_id.network_code == "AV" and \
-                    pick.waveform_id.channel_code == "BHZ":
+                    pick.waveform_id.channel_code == "SHZ":
                 pick_times.append(pick.time)
 
     # build streams from party families
@@ -237,10 +237,15 @@ def stack_Waveforms(party, streams_path):
         for file in day_file_list:
             st += read(file)
 
-    # gather stream file list from specified directory
-    stream_files = glob.glob(os.path.join(templates_path, '*'))
-    stream_list = [(read(stream_file), i) for i, stream_file in enumerate(
-                   stream_files)]
+        # trim streams to time period of interest
+        st.trim(pick_time - 10, pick_time + 50)
+
+        stream_list.append((st, index))
+
+    # # gather stream file list from specified directory
+    # stream_files = glob.glob(os.path.join(templates_path, '*'))
+    # stream_list = [(read(stream_file), i) for i, stream_file in enumerate(
+    #                stream_files)]
 
     # for st in stream_list:
     #     st[0].plot()
