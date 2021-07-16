@@ -4,12 +4,11 @@ Functions to find low-frequency earthquakes in time series.
 
 import logging
 from obspy import UTCDateTime, Stream, read, read_events
-from obspy.core.event import Origin
 from eqcorrscan import Tribe
 from eqcorrscan.utils.clustering import cluster
 from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
 import glob
-import os
+import pickle
 
 # function to build template for matched-filter
 def make_Templates(templates, template_files, station_dict):
@@ -193,7 +192,7 @@ def detect_LFEs(templates, template_files, station_dict,
     return party
 
 # function to generate phase-weighted waveform stack
-def stack_Waveforms(party, streams_path):
+def stack_Waveforms(party, streams_path, load_stream_list=False):
     """
     # TODO:
 
@@ -224,34 +223,46 @@ def stack_Waveforms(party, streams_path):
                     pick.waveform_id.channel_code == "SHZ":
                 pick_times.append(pick.time)
 
-    # build streams from party families
-    stream_list = []
-    for index, pick_time in enumerate(pick_times):
+    if not load_stream_list:
+        # build streams from party families
+        stream_list = []
+        for index, pick_time in enumerate(pick_times):
 
-        # build stream of all stations for detection
-        day_file_list = glob.glob(f"{streams_path}/*.{pick_time.year}"
-                                  f"-{pick_time.month:02}"
-                                  f"-{pick_time.day:02}.ms")
-        # load files into stream
-        st = Stream()
-        lowest_sr = 10000
-        for file in day_file_list:
-            st += read(file)
+            # build stream of all stations for detection
+            day_file_list = glob.glob(f"{streams_path}/*.{pick_time.year}"
+                                      f"-{pick_time.month:02}"
+                                      f"-{pick_time.day:02}.ms")
+            # load files into stream
+            st = Stream()
+            lowest_sr = 10000
+            for file in day_file_list:
+                st += read(file)
 
-            # check if lowest sampling rate
-            if st[0].stats.sampling_rate < lowest_sr:
-                lowest_sr = st[0].stats.sampling_rate
+                # check if lowest sampling rate
+                if st[0].stats.sampling_rate < lowest_sr:
+                    lowest_sr = st[0].stats.sampling_rate
 
-        # bandpass filter
-        st.filter('bandpass', freqmin=1, freqmax=15)
+            # bandpass filter
+            st.filter('bandpass', freqmin=1, freqmax=15)
 
-        # interpolate to lowest sampling rate
-        st.interpolate(sampling_rate=lowest_sr)
+            # interpolate to lowest sampling rate
+            st.interpolate(sampling_rate=lowest_sr)
 
-        # trim streams to time period of interest
-        st.trim(pick_time - 10, pick_time + 50)
+            # trim streams to time period of interest
+            st.trim(pick_time - 10, pick_time + 50)
 
-        stream_list.append((st, index))
+            stream_list.append((st, index))
+
+        # save stream list as pickle file
+        outfile = open('stream_list.pkl', 'wb')
+        pickle.dump(stream_list, outfile)
+        outfile.close()
+
+    else:
+        # load stream list from file
+        infile = open('stream_list.pkl', 'rb')
+        stream_list = pickle.load(infile)
+        infile.close()
 
     # # gather stream file list from specified directory
     # stream_files = glob.glob(os.path.join(templates_path, '*'))
@@ -264,27 +275,33 @@ def stack_Waveforms(party, streams_path):
     # # cluster via xcorr values
     groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1,cores=2)
 
-    # build groups manually
+    # or build a single group manually
     # groups = [stream_list]
 
-    # get group streams to stack
-    group_streams = [st_tuple[0] for st_tuple in groups[3]]
-    group_streams[0].plot()
+    # for index, group in enumerate(groups):
+    #     print(f"{index} {group[0][0][0].stats.starttime}")
+    # group = groups[3]
+    for group in groups:
+        # get group streams to stack
+        group_streams = [st_tuple[0] for st_tuple in group]
+        # group_streams[0].plot()
 
-    for index, group in enumerate(groups):
-        print(f"{index} {group[0][0][0].stats.starttime}")
+        aligned_group_streams = []
+        for group_stream in group_streams:
+            # align traces before stacking
+            tr_list = align_traces(trace_list=group_stream, shift_len=1000,
+                                   master=group_streams[0][14], positive=False,
+                                   plot=False)
+            aligned_streams =
 
-    # align traces before stacking
-    tr_list = align_traces(trace_list=group_streams[0], shift_len=1500,
-                           master=group_streams[0][14], positive=False,
-                           plot=True)
+            aligned_group_streams.append(aligned_streams)
 
-    # generate phase-weighted stack
-    stack = PWS_stack(streams=group_streams)
-    stack.plot()
-    # generate linear stack
-    lin_stack = linstack(streams=group_streams)
-    lin_stack.plot()
+        # generate phase-weighted stack
+        stack = PWS_stack(streams=aligned_group_streams)
+        stack.plot()
+        # generate linear stack
+        lin_stack = linstack(streams=aligned_group_streams)
+        lin_stack.plot()
 
 
     return # FIXME
