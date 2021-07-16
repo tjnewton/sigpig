@@ -234,8 +234,16 @@ def stack_Waveforms(party, streams_path):
                                   f"-{pick_time.day:02}.ms")
         # load files into stream
         st = Stream()
+        lowest_sr = 10000
         for file in day_file_list:
             st += read(file)
+
+            # check if lowest sampling rate
+            if st[0].stats.sampling_rate < lowest_sr:
+                lowest_sr = st[0].stats.sampling_rate
+
+        # interpolate to lowest sampling rate
+        st.interpolate(sampling_rate=lowest_sr)
 
         # trim streams to time period of interest
         st.trim(pick_time - 10, pick_time + 50)
@@ -250,9 +258,12 @@ def stack_Waveforms(party, streams_path):
     # for st in stream_list:
     #     st[0].plot()
 
-    # cluster via xcorr values
-    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.3,
-                     cores=2)
+    # # cluster via xcorr values
+    # groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1,
+    #                  cores=2)
+
+    # build groups manually
+    groups = []
 
     # get group streams to stack
     group_streams = [st_tuple[0] for st_tuple in groups[0]]
