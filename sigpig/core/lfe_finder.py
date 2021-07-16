@@ -7,7 +7,7 @@ from obspy import UTCDateTime, Stream, read, read_events
 from obspy.core.event import Origin
 from eqcorrscan import Tribe
 from eqcorrscan.utils.clustering import cluster
-from eqcorrscan.utils.stacking import PWS_stack, linstack
+from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
 import glob
 import os
 
@@ -259,20 +259,28 @@ def stack_Waveforms(party, streams_path):
     #     st[0].plot()
 
     # # cluster via xcorr values
-    # groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1,
-    #                  cores=2)
+    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1,cores=2)
 
     # build groups manually
-    groups = []
+    # groups = [stream_list]
 
     # get group streams to stack
-    group_streams = [st_tuple[0] for st_tuple in groups[0]]
+    group_streams = [st_tuple[0] for st_tuple in groups[3]]
+    group_streams[0].plot()
+
+    for index, group in enumerate(groups):
+        print(f"{index} {group[0][0][0].stats.starttime}")
 
     # align traces before stacking
+    tr_list = align_traces(trace_list=group_streams[0], shift_len=1500,
+                           master=False, positive=False, plot=True)
 
     # generate phase-weighted stack
     stack = PWS_stack(streams=group_streams)
+    stack.plot()
+    # generate linear stack
     lin_stack = linstack(streams=group_streams)
+    lin_stack.plot()
 
 
     return # FIXME
