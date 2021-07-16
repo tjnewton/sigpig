@@ -9,6 +9,29 @@ from eqcorrscan.utils.clustering import cluster
 from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
 import glob
 import pickle
+import numpy as np
+
+# helper function to shift trace times
+def time_Shift(trace, time_offset):
+    """
+    Shifts a trace in time by the specified time offset (in seconds).
+
+    Example:
+
+    """
+    frequencies = np.fft.fftfreq(trace.stats.npts, d=trace.stats.delta)
+    fourier_transform = np.fft.fft(trace.data)
+
+    # Shift
+    for index, freq in enumerate(frequencies):
+        fourier_transform[index] = fourier_transform[index] * np.exp(2.0
+                                             * np.pi * 1j * freq * time_offset)
+
+    # back fourier transform
+    trace.data = np.real(np.fft.ifft(fourier_transform))
+    trace.stats.starttime += time_offset
+
+    return trace
 
 # function to build template for matched-filter
 def make_Templates(templates, template_files, station_dict):
@@ -286,21 +309,29 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
         group_streams = [st_tuple[0] for st_tuple in group]
         # group_streams[0].plot()
 
-        aligned_group_streams = []
-        for group_stream in group_streams:
-            # align traces before stacking
+        for group_idx, group_stream in enumerate(group_streams):
+            # find location of WASW master trace
+            # FIXME:
+
+            # get trace offsets for allignment
             tr_list = align_traces(trace_list=group_stream, shift_len=1000,
                                    master=group_streams[0][14], positive=False,
                                    plot=False)
-            aligned_streams =
+            # align traces before stacking
+            for trace_idx, trace in enumerate(group_stream):
+                group_streams[group_idx][trace_idx] = time_Shift(trace,
+                                                         tr_list[0][trace_idx])
 
-            aligned_group_streams.append(aligned_streams)
+            # trim stream to template length
+            # FIXME:
+
+
 
         # generate phase-weighted stack
-        stack = PWS_stack(streams=aligned_group_streams)
+        stack = PWS_stack(streams=group_streams)
         stack.plot()
         # generate linear stack
-        lin_stack = linstack(streams=aligned_group_streams)
+        lin_stack = linstack(streams=group_streams)
         lin_stack.plot()
 
 
