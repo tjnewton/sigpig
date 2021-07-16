@@ -4,9 +4,12 @@ Functions to find low-frequency earthquakes in time series.
 
 import logging
 from obspy import UTCDateTime, Stream, read, read_events
+from obspy.core.event import Origin
 from eqcorrscan import Tribe
-from eqcorrscan.utils.clustering import catalog_cluster
+from eqcorrscan.utils.clustering import cluster
+from eqcorrscan.utils.stacking import PWS_stack, linstack
 import glob
+import os
 
 # function to build template for matched-filter
 def make_Templates(templates, template_files, station_dict):
@@ -190,20 +193,70 @@ def detect_LFEs(templates, template_files, station_dict,
     return party
 
 # function to generate phase-weighted waveform stack
-def stack_Waveforms(party):
+def stack_Waveforms(party, streams_path):
     """
     # TODO:
 
     Example:
+        streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
 
     """
-    # get the catalog
-    catalog = party.get_catalog()
+    # # get the catalog
+    # catalog = party.get_catalog()
+    #
+    # # store the information necessary for EQcorrscan clustering
+    # origin = Origin()
+    # origin.latitude = 61.8000
+    # origin.longitude = -144.0000
+    # origin.depth = 30.0
+    # # set origin for all events
+    # for index, _ in enumerate(catalog.events):
+    #     catalog.events[index].origins.append(origin)
 
-    # cluster with 2km spatial threshold
-    groups = catalog_cluster(catalog=catalog, metric="distance", thresh=2,
-                             show=True)
+    # extract pick times for each event from party object
+    pick_times = []
+    for event in party.families[0].catalog.events:
+        for pick in event.picks:
+            # station with earliest pick defines "pick time"
+            if pick.waveform_id.station_code == "WASW" and \
+                    pick.waveform_id.network_code == "AV" and \
+                    pick.waveform_id.channel_code == "BHZ":
+                pick_times.append(pick.time)
+
+    # build streams from party families
+    stream_list = []
+    for index, pick_time in enumerate(pick_times):
+
+        # build stream of all stations for detection
+        day_file_list = glob.glob(f"{streams_path}/*.{pick_time.year}"
+                                  f"-{pick_time.month:02}"
+                                  f"-{pick_time.day:02}.ms")
+        # load files into stream
+        st = Stream()
+        for file in day_file_list:
+            st += read(file)
+
+    # gather stream file list from specified directory
+    stream_files = glob.glob(os.path.join(templates_path, '*'))
+    stream_list = [(read(stream_file), i) for i, stream_file in enumerate(
+                   stream_files)]
+
+    # for st in stream_list:
+    #     st[0].plot()
+
+    # cluster via xcorr values
+    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.3,
+                     cores=2)
+
+    # get group streams to stack
+    group_streams = [st_tuple[0] for st_tuple in groups[0]]
+
+    # align traces before stacking
+
+    # generate phase-weighted stack
+    stack = PWS_stack(streams=group_streams)
+    lin_stack = linstack(streams=group_streams)
 
 
     return # FIXME
