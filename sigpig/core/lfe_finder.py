@@ -220,8 +220,11 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
     # TODO:
 
     Example:
+        party = detect_LFEs(templates, template_files, station_dict,
+                                detection_files_path, doi)
         streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-
+        load_stream_list = True
+        stack_Waveforms(party, streams_path, load_stream_list=load_stream_list)
 
     """
     # # get the catalog
@@ -296,7 +299,7 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
     #     st[0].plot()
 
     # # cluster via xcorr values
-    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1,cores=2)
+    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
 
     # or build a single group manually
     # groups = [stream_list]
