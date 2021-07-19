@@ -110,7 +110,9 @@ def make_Templates(templates, template_files, station_dict):
 def detect_LFEs(templates, template_files, station_dict,
                 detection_files_path, doi):
     """
-    # TODO:
+    Driver function to detect LFEs in time series via matched-filtering with a
+    specified template, stacking of LFEs found from that template,
+    and template matching of the stacked waveform template.
 
     Example:
         templates = ["# 2016  9 26  9 25 46.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
@@ -221,7 +223,7 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
     object (as returned by detect_LFEs), using the miniseed files present in
     the specified path (streams_path). Building streams for party families
     is slow, so previously generated stream lists can be used by specifying
-    load_stream_list=True. 
+    load_stream_list=True.
 
     Example:
         party = detect_LFEs(templates, template_files, station_dict,
