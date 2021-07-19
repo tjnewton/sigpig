@@ -217,7 +217,11 @@ def detect_LFEs(templates, template_files, station_dict,
 # function to generate phase-weighted waveform stack
 def stack_Waveforms(party, streams_path, load_stream_list=False):
     """
-    # TODO:
+    Generates stacks of waveforms from families specified within a Party
+    object (as returned by detect_LFEs), using the miniseed files present in
+    the specified path (streams_path). Building streams for party families
+    is slow, so previously generated stream lists can be used by specifying
+    load_stream_list=True. 
 
     Example:
         party = detect_LFEs(templates, template_files, station_dict,
