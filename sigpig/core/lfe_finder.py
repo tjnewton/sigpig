@@ -229,23 +229,12 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
         party = detect_LFEs(templates, template_files, station_dict,
                                 detection_files_path, doi)
         streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-        load_stream_list = True
+        load_stream_list = False
         stack_Waveforms(party, streams_path, load_stream_list=load_stream_list)
 
     """
-    # # get the catalog
-    # catalog = party.get_catalog()
-    #
-    # # store the information necessary for EQcorrscan clustering
-    # origin = Origin()
-    # origin.latitude = 61.8000
-    # origin.longitude = -144.0000
-    # origin.depth = 30.0
-    # # set origin for all events
-    # for index, _ in enumerate(catalog.events):
-    #     catalog.events[index].origins.append(origin)
-
     # extract pick times for each event from party object
+    # FIXME: check that pick time extraction is correct
     pick_times = []
     for event in party.families[0].catalog.events:
         for pick in event.picks:
@@ -281,7 +270,8 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
             st.interpolate(sampling_rate=lowest_sr)
 
             # trim streams to time period of interest
-            st.trim(pick_time - 10, pick_time + 50)
+            # st.trim(pick_time - 30, pick_time + 50)
+            st.trim(pick_time, pick_time + 14)
 
             stream_list.append((st, index))
 
@@ -296,52 +286,51 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
         stream_list = pickle.load(infile)
         infile.close()
 
-    # # gather stream file list from specified directory
-    # stream_files = glob.glob(os.path.join(templates_path, '*'))
-    # stream_list = [(read(stream_file), i) for i, stream_file in enumerate(
-    #                stream_files)]
+    # cluster via xcorr
+    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.05, cores=2)
 
-    # for st in stream_list:
-    #     st[0].plot()
-
-    # # cluster via xcorr values
-    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
-
-    # or build a single group manually
+    # # or build a single group manually
     # groups = [stream_list]
 
-    # for index, group in enumerate(groups):
-    #     print(f"{index} {group[0][0][0].stats.starttime}")
     # group = groups[3]
     for group in groups:
         # get group streams to stack
         group_streams = [st_tuple[0] for st_tuple in group]
-        # group_streams[0].plot()
 
         for group_idx, group_stream in enumerate(group_streams):
-            # find location of WASW master trace
-            # FIXME:
+            # find location of AV.WASW.SHZ master trace
+            master_trace = []
+            for trace_idx, trace in enumerate(group_stream):
+                if trace.stats.station == "WASW" and trace.stats.network == \
+                        "AV" and trace.stats.channel == "SHZ":
+                    master_trace.append(trace_idx)
+                    break
+
+            # the offset here (30 s) needs to match the offset for stream_list
+            trim_start = group_stream[master_trace[0]].stats.starttime + 30
+            trim_end = trim_start + 14 # 14 second template
 
             # get trace offsets for allignment
             tr_list = align_traces(trace_list=group_stream, shift_len=1000,
-                                   master=group_streams[0][14], positive=False,
-                                   plot=False)
+                                   master=group_stream[master_trace[0]],
+                                   positive=False, plot=False)
+
             # align traces before stacking
             for trace_idx, trace in enumerate(group_stream):
                 group_streams[group_idx][trace_idx] = time_Shift(trace,
                                                          tr_list[0][trace_idx])
 
             # trim stream to template length
-            # FIXME:
-
-
+            group_streams[group_idx].trim(starttime=trim_start,
+                                          endtime=trim_end)
 
         # generate phase-weighted stack
         stack = PWS_stack(streams=group_streams)
         stack.plot()
+
         # generate linear stack
-        lin_stack = linstack(streams=group_streams)
-        lin_stack.plot()
+        stack = linstack(streams=group_streams)
+        stack.plot()
 
 
-    return # FIXME
+    return stack
