@@ -277,7 +277,6 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
                                       f"-{pick_time.day:02}.ms")
             # load files into stream
             st = Stream()
-            day_tr = Trace()
             lowest_sr = 40
             for file in day_file_list:
                 # extract file info from file name
@@ -305,7 +304,7 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
                 #     lowest_sr = st[0].stats.sampling_rate
 
             stream_list.append((st, index))
-            st.plot()
+            # st.plot()
 
         # save stream list as pickle file
         outfile = open('stream_list.pkl', 'wb')
@@ -320,7 +319,7 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
 
     # cluster via xcorr
     groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
-    groups[0][0][0].plot()
+    # groups[0][0][0].plot()
 
     # # or build a single group manually
     # groups = [stream_list]
@@ -352,22 +351,21 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
             # FIXME: add alignment to take place of above commented code
             for trace_idx, trace in enumerate(group_stream):
                 # align traces from pick offset dict
+                shift = -1 * pick_offset[trace.stats.station]
 
+                group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
 
-                group_streams[group_idx][trace_idx] = time_Shift(trace,
-                                                         tr_list[0][trace_idx])
-
-            # trim stream to template length
-            group_streams[group_idx].trim(starttime=trim_start,
-                                          endtime=trim_end)
+            # # trim stream to template length
+            # group_streams[group_idx].trim(starttime=trim_start,
+            #                               endtime=trim_end)
 
         # generate phase-weighted stack
         stack = PWS_stack(streams=group_streams)
         stack.plot()
 
-        # # generate linear stack
-        # stack = linstack(streams=group_streams)
-        # stack.plot()
+        # generate linear stack
+        stack = linstack(streams=group_streams)
+        stack.plot()
 
         stack_list.append(stack)
 
