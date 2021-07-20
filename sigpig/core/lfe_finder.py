@@ -3,7 +3,7 @@ Functions to find low-frequency earthquakes in time series.
 """
 
 import logging
-from obspy import UTCDateTime, Stream, read, read_events
+from obspy import UTCDateTime, Stream, Trace, read, read_events
 from eqcorrscan import Tribe
 from eqcorrscan.utils.clustering import cluster
 from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
@@ -220,7 +220,7 @@ def detect_LFEs(templates, template_files, station_dict,
     return party
 
 # function to generate phase-weighted waveform stack
-def stack_Waveforms(party, streams_path, load_stream_list=False):
+def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
     """
     Generates stacks of waveforms from families specified within a Party
     object (as returned by detect_LFEs), using the miniseed files present in
@@ -229,11 +229,22 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
     load_stream_list=True.
 
     Example:
+        # get detections
         party = detect_LFEs(templates, template_files, station_dict,
                                 detection_files_path, doi)
+
+        # create pick offset dict for pick offset from master trace
+        pick_offset = {"GLB": 4.0, "PTPK": 19.0, "WASW": 0.0, "MCR4": 7.0,
+                       "NEB3": 8.5, "MCR1": 8.5, "RH08": 16.5, "RH10": 15.5,
+                       "RH09": 15.5, "WACK": 3.5, "NEB1": 10.5, "N25K": 3.5,
+                       "MCR3": 3.5, "KLU": 21.0, "MCR2": 1.5}
+
+        # define path where miniseed files are stored
         streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+
+        # load previous stream list?
         load_stream_list = False
-        stack_Waveforms(party, streams_path, load_stream_list=load_stream_list)
+        stack_Waveforms(party, pick_offset, streams_path, load_stream_list=load_stream_list)
 
     """
     # extract pick times for each event from party object
@@ -243,16 +254,8 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
     # FIXME: check threshold type (MAD, etc)
     ok
 
-    # pick_times = []
-    # for event in party.families[0].catalog.events:
-    #     for pick in event.picks:
-    #         # station with earliest pick defines "pick time"
-    #         if pick.waveform_id.station_code == "WASW" and \
-    #                 pick.waveform_id.network_code == "AV" and \
-    #                 pick.waveform_id.channel_code == "SHZ":
-    #             # FIXME: +0.5 because because this is specified prepick in make_Templates
-    #             pick_times.append(pick.time + 0.5)
-
+    # pick_times is a list of the pick times for the master trace (with
+    # earliest pick time)
     pick_times = []
     for event in party.families[0].catalog.events:
         for pick in event.picks:
@@ -260,8 +263,8 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
             if pick.waveform_id.station_code == "WASW" and \
                     pick.waveform_id.network_code == "AV" and \
                     pick.waveform_id.channel_code == "SHZ":
-                # FIXME: +0.5 because because this is specified prepick in make_Templates
-                pick_times.append(pick.time + 0.5)
+                # 14.5 s template because of specified prepick in make_Templates
+                pick_times.append(pick.time)
 
     if not load_stream_list:
         # build streams from party families
@@ -274,28 +277,35 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
                                       f"-{pick_time.day:02}.ms")
             # load files into stream
             st = Stream()
-            lowest_sr = 10000
+            day_tr = Trace()
+            lowest_sr = 40
             for file in day_file_list:
-                # FIXME: trim trace before adding to stream
-                # TODO:
+                # extract file info from file name
+                file_station = file[60:].split(".")[1]
 
-                st += read(file)
+                # load day file into stream
+                day_tr = read(file)
 
-                # check if lowest sampling rate
-                if st[0].stats.sampling_rate < lowest_sr:
-                    lowest_sr = st[0].stats.sampling_rate
+                # bandpass filter
+                day_tr.filter('bandpass', freqmin=1, freqmax=15)
 
-            # bandpass filter
-            st.filter('bandpass', freqmin=1, freqmax=15)
+                # interpolate to lowest sampling rate
+                day_tr.interpolate(sampling_rate=lowest_sr)
 
-            # interpolate to lowest sampling rate
-            st.interpolate(sampling_rate=lowest_sr)
+                # match station with specified pick offset
+                station_pick_time = pick_time + pick_offset[file_station]
 
-            # trim streams to time period of interest
-            # st.trim(pick_time - 30, pick_time + 50)
-            st.trim(pick_time, pick_time + 14)
+                # trim trace before adding to stream from pick_offset spec
+                day_tr.trim(station_pick_time, station_pick_time + 14.5)
+
+                st += day_tr
+
+                # # check if lowest sampling rate
+                # if st[0].stats.sampling_rate < lowest_sr:
+                #     lowest_sr = st[0].stats.sampling_rate
 
             stream_list.append((st, index))
+            st.plot()
 
         # save stream list as pickle file
         outfile = open('stream_list.pkl', 'wb')
@@ -315,31 +325,35 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
     # # or build a single group manually
     # groups = [stream_list]
 
-    # group = groups[3]
+    stack_list = []
     for group in groups:
         # get group streams to stack
         group_streams = [st_tuple[0] for st_tuple in group]
 
         for group_idx, group_stream in enumerate(group_streams):
-            # find location of AV.WASW.SHZ master trace
-            master_trace = []
-            for trace_idx, trace in enumerate(group_stream):
-                if trace.stats.station == "WASW" and trace.stats.network == \
-                        "AV" and trace.stats.channel == "SHZ":
-                    master_trace.append(trace_idx)
-                    break
-
-            # the offset here (30 s) needs to match the offset for stream_list
-            trim_start = group_stream[master_trace[0]].stats.starttime + 30
-            trim_end = trim_start + 14 # 14 second template
-
-            # get trace offsets for allignment
-            tr_list = align_traces(trace_list=group_stream, shift_len=1000,
-                                   master=group_stream[master_trace[0]],
-                                   positive=False, plot=False)
+            # # find location of AV.WASW.SHZ master trace
+            # master_trace = []
+            # for trace_idx, trace in enumerate(group_stream):
+            #     if trace.stats.station == "WASW" and trace.stats.network == \
+            #             "AV" and trace.stats.channel == "SHZ":
+            #         master_trace.append(trace_idx)
+            #         break
+            #
+            # # the offset here (30 s) needs to match the offset for stream_list
+            # trim_start = group_stream[master_trace[0]].stats.starttime
+            # trim_end = trim_start + 14.5 # 14 second template
+            #
+            # # get trace offsets for alignment
+            # tr_list = align_traces(trace_list=group_stream, shift_len=1000,
+            #                        master=group_stream[master_trace[0]],
+            #                        positive=False, plot=False)
 
             # align traces before stacking
+            # FIXME: add alignment to take place of above commented code
             for trace_idx, trace in enumerate(group_stream):
+                # align traces from pick offset dict
+
+
                 group_streams[group_idx][trace_idx] = time_Shift(trace,
                                                          tr_list[0][trace_idx])
 
@@ -351,9 +365,11 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
         stack = PWS_stack(streams=group_streams)
         stack.plot()
 
-        # generate linear stack
-        stack = linstack(streams=group_streams)
-        stack.plot()
+        # # generate linear stack
+        # stack = linstack(streams=group_streams)
+        # stack.plot()
+
+        stack_list.append(stack)
 
 
-    return stack
+    return stack_list
