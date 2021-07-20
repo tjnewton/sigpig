@@ -179,12 +179,12 @@ def detect_LFEs(templates, template_files, station_dict,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         # look at family detection at index 0
-        detection_1 = family.detections[1]
-        detection_1_time = detection_1.detect_time
+        detection = family.detections[0]
+        detection_time = detection.detect_time
         from figures import plot_Time_Series
         # define dates of interest
-        print(f"Detection time: {detection_1_time}")
-		doi = detection_1_time - 10
+        print(f"Detection time: {detection_time}")
+		doi = detection_time - 10
 		doi_end = doi + 30
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
@@ -212,10 +212,19 @@ def detect_LFEs(templates, template_files, station_dict,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=9.0, daylong=True,
-                             threshold_type="MAD", trig_int=12.0,
+    party = tribe.detect(stream=st, threshold=0.12, daylong=True,
+                             threshold_type="av_chan_corr", trig_int=12.0,
                              plot=True, return_stream=False,
                              parallel_process=True)
+    # 35 detections: "MAD" @ 9.0
+    # ----------------------------
+    # 24 detections: "abs" @ 0.1
+    # 11 detections: "abs" @ 0.12  <--- best stack so far
+    #  3 detections: "abs" @ 0.15
+    #  0 detections: "abs" @ 0.2
+    # ----------------------------
+    # 24 detections: "av_chan_corr" @ 0.1
+    # 11 detections: "av_chan_corr" @ 0.12
 
     return party
 
@@ -243,7 +252,7 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
         streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
         # load previous stream list?
-        load_stream_list = True
+        load_stream_list = False
         stack_list = stack_Waveforms(party, pick_offset, streams_path,
                                      load_stream_list=load_stream_list)
 
@@ -313,11 +322,11 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
         infile.close()
 
     # cluster via xcorr
-    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
+    # groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
     # groups[0][0][0].plot()
 
-    # # or build a single group manually
-    # groups = [stream_list]
+    # or build a single group manually
+    groups = [stream_list]
 
     stack_list = []
     # loop over each group of detections (from clustering)
@@ -337,7 +346,7 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
         stack = PWS_stack(streams=group_streams)
         stack.plot()
 
-        # generate linear stack
+        # or generate linear stack
         stack = linstack(streams=group_streams)
         stack.plot()
 
