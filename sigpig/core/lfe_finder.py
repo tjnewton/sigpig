@@ -202,6 +202,8 @@ def detect_LFEs(templates, template_files, station_dict,
 
     tribe = make_Templates(templates, template_files, station_dict)
 
+    # FIXME: detect on multiple days
+
     # build stream of all stations for detection
     day_file_list = glob.glob(f"{detection_files_path}/*.{doi.year}"
                               f"-{doi.month:02}"
@@ -212,14 +214,17 @@ def detect_LFEs(templates, template_files, station_dict,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=0.12, daylong=True,
-                             threshold_type="av_chan_corr", trig_int=12.0,
+    party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+                             threshold_type="MAD", trig_int=12.0,
                              plot=True, return_stream=False,
                              parallel_process=True)
+
+    # 17 detections: "MAD" @ 11.0  <---
     # 35 detections: "MAD" @ 9.0
+    # 56 detections: "MAD" @ 8.0
     # ----------------------------
     # 24 detections: "abs" @ 0.1
-    # 11 detections: "abs" @ 0.12  <--- best stack so far
+    # 11 detections: "abs" @ 0.12  <---
     #  3 detections: "abs" @ 0.15
     #  0 detections: "abs" @ 0.2
     # ----------------------------
