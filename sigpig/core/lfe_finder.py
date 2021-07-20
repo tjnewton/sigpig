@@ -165,8 +165,8 @@ def detect_LFEs(templates, template_files, station_dict,
         party = detect_LFEs(templates, template_files, station_dict,
                                 detection_files_path, doi)
 
-        # to inspect the catalog
-        catalog = party.get_catalog()
+        # # to inspect the catalog
+        # catalog = party.get_catalog()
 
         # inspect the party object
         fig = party.plot(plot_grouped=True)
@@ -174,15 +174,18 @@ def detect_LFEs(templates, template_files, station_dict,
         # peek at most productive family
         family = sorted(party.families, key=lambda f: len(f))[-1]
         print(family)
+
+        # look at family template
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
-        # look at first family detection
-        detection_1 = family.detections[27]
+        # look at family detection at index 0
+        detection_1 = family.detections[1]
         detection_1_time = detection_1.detect_time
         from figures import plot_Time_Series
         # define dates of interest
-		doi = detection_1_time - 40
-		doi_end = doi + 80
+        print(f"Detection time: {detection_1_time}")
+		doi = detection_1_time - 10
+		doi_end = doi + 30
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 		# bandpass filter from 1-15 Hz
@@ -209,7 +212,7 @@ def detect_LFEs(templates, template_files, station_dict,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+    party = tribe.detect(stream=st, threshold=9.0, daylong=True,
                              threshold_type="MAD", trig_int=12.0,
                              plot=True, return_stream=False,
                              parallel_process=True)
@@ -235,6 +238,21 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
     """
     # extract pick times for each event from party object
     # FIXME: check that pick time extraction is correct
+    party.families[0].catalog.events[0].picks[14].time
+
+    # FIXME: check threshold type (MAD, etc)
+    ok
+
+    # pick_times = []
+    # for event in party.families[0].catalog.events:
+    #     for pick in event.picks:
+    #         # station with earliest pick defines "pick time"
+    #         if pick.waveform_id.station_code == "WASW" and \
+    #                 pick.waveform_id.network_code == "AV" and \
+    #                 pick.waveform_id.channel_code == "SHZ":
+    #             # FIXME: +0.5 because because this is specified prepick in make_Templates
+    #             pick_times.append(pick.time + 0.5)
+
     pick_times = []
     for event in party.families[0].catalog.events:
         for pick in event.picks:
@@ -242,7 +260,8 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
             if pick.waveform_id.station_code == "WASW" and \
                     pick.waveform_id.network_code == "AV" and \
                     pick.waveform_id.channel_code == "SHZ":
-                pick_times.append(pick.time)
+                # FIXME: +0.5 because because this is specified prepick in make_Templates
+                pick_times.append(pick.time + 0.5)
 
     if not load_stream_list:
         # build streams from party families
@@ -257,6 +276,9 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
             st = Stream()
             lowest_sr = 10000
             for file in day_file_list:
+                # FIXME: trim trace before adding to stream
+                # TODO:
+
                 st += read(file)
 
                 # check if lowest sampling rate
@@ -287,7 +309,8 @@ def stack_Waveforms(party, streams_path, load_stream_list=False):
         infile.close()
 
     # cluster via xcorr
-    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.05, cores=2)
+    groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
+    groups[0][0][0].plot()
 
     # # or build a single group manually
     # groups = [stream_list]
