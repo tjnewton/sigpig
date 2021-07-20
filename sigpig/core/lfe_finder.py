@@ -243,17 +243,12 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
         streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
         # load previous stream list?
-        load_stream_list = False
-        stack_Waveforms(party, pick_offset, streams_path, load_stream_list=load_stream_list)
+        load_stream_list = True
+        stack_list = stack_Waveforms(party, pick_offset, streams_path,
+                                     load_stream_list=load_stream_list)
 
     """
     # extract pick times for each event from party object
-    # FIXME: check that pick time extraction is correct
-    party.families[0].catalog.events[0].picks[14].time
-
-    # FIXME: check threshold type (MAD, etc)
-    ok
-
     # pick_times is a list of the pick times for the master trace (with
     # earliest pick time)
     pick_times = []
@@ -325,39 +320,18 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
     # groups = [stream_list]
 
     stack_list = []
+    # loop over each group of detections (from clustering)
     for group in groups:
         # get group streams to stack
         group_streams = [st_tuple[0] for st_tuple in group]
 
+        # loop over each detection in group
         for group_idx, group_stream in enumerate(group_streams):
-            # # find location of AV.WASW.SHZ master trace
-            # master_trace = []
-            # for trace_idx, trace in enumerate(group_stream):
-            #     if trace.stats.station == "WASW" and trace.stats.network == \
-            #             "AV" and trace.stats.channel == "SHZ":
-            #         master_trace.append(trace_idx)
-            #         break
-            #
-            # # the offset here (30 s) needs to match the offset for stream_list
-            # trim_start = group_stream[master_trace[0]].stats.starttime
-            # trim_end = trim_start + 14.5 # 14 second template
-            #
-            # # get trace offsets for alignment
-            # tr_list = align_traces(trace_list=group_stream, shift_len=1000,
-            #                        master=group_stream[master_trace[0]],
-            #                        positive=False, plot=False)
-
             # align traces before stacking
-            # FIXME: add alignment to take place of above commented code
             for trace_idx, trace in enumerate(group_stream):
                 # align traces from pick offset dict
                 shift = -1 * pick_offset[trace.stats.station]
-
                 group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
-
-            # # trim stream to template length
-            # group_streams[group_idx].trim(starttime=trim_start,
-            #                               endtime=trim_end)
 
         # generate phase-weighted stack
         stack = PWS_stack(streams=group_streams)
@@ -368,6 +342,5 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
         stack.plot()
 
         stack_list.append(stack)
-
 
     return stack_list
