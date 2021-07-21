@@ -214,7 +214,7 @@ def detect_LFEs(templates, template_files, station_dict,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+    party = tribe.detect(stream=st, threshold=11.0, daylong=True,
                              threshold_type="MAD", trig_int=12.0,
                              plot=True, return_stream=False,
                              parallel_process=True)
@@ -258,9 +258,17 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
 
         # load previous stream list?
         load_stream_list = False
+        # get the stacks
         stack_list = stack_Waveforms(party, pick_offset, streams_path,
                                      load_stream_list=load_stream_list)
 
+        # loop over stack list and print the phase weighted stack and linear
+        # stack for each group
+        for group in stack_list:
+            stack_pw = group[0]
+            stack_pw.plot()
+            stack_lin = group[1]
+            stack_lin.plot()
     """
     # extract pick times for each event from party object
     # pick_times is a list of the pick times for the master trace (with
@@ -348,13 +356,11 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
                 group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
 
         # generate phase-weighted stack
-        stack = PWS_stack(streams=group_streams)
-        stack.plot()
+        stack_pw = PWS_stack(streams=group_streams)
 
         # or generate linear stack
-        stack = linstack(streams=group_streams)
-        stack.plot()
+        stack_lin = linstack(streams=group_streams)
 
-        stack_list.append(stack)
+        stack_list.append([stack_pw, stack_lin])
 
     return stack_list
