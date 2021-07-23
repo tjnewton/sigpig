@@ -56,3 +56,10 @@ fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
 				       time_markers=time_markers)
 ```
 ![](doc/images/ts-spect.png?raw=true)
+
+Time series only plotting  
+```
+fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
+		       bandpass=bandpass)
+```
+![](doc/images/ts.png?raw=true)
