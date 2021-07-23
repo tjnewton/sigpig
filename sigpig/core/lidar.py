@@ -7,9 +7,6 @@ import numpy as np
 from osgeo import gdal
 from osgeo.gdalconst import *
 import struct
-
-
-# FIXME: pptk doesn't pip install
 import pptk
 
 def visualize_Point_Cloud(filename):
