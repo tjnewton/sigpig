@@ -1,5 +1,5 @@
 """
-Functions to find low-frequency earthquakes in time series. 
+Functions to find low-frequency earthquakes in seismic time series data.
 """
 
 import logging
@@ -17,7 +17,9 @@ def time_Shift(trace, time_offset):
     Shifts a trace in time by the specified time offset (in seconds).
 
     Example:
-
+        # shift trace times by -2 seconds
+        shift = -2
+        shifted_trace = time_Shift(trace, shift)
     """
     frequencies = np.fft.fftfreq(trace.stats.npts, d=trace.stats.delta)
     fourier_transform = np.fft.fft(trace.data)
@@ -36,7 +38,12 @@ def time_Shift(trace, time_offset):
 # function to build template for matched-filter
 def make_Templates(templates, template_files, station_dict):
     """
-    # TODO:
+    Generates an EQcorrscan Tribe object which stores templates for
+    matched-filter analysis. Template start times are specified by the
+    templates object as shown in the example, and template data are loaded
+    from the miniseed files stored in files in the template_files list.
+    station_dict contains the network and channel code for each station (
+    information needed by EQcorrscan),
 
     Example:
         # create HYPODD format file with template events to import them into EQcorrscan
