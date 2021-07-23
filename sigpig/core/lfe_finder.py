@@ -236,7 +236,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=11.0, daylong=True,
+    party = tribe.detect(stream=st, threshold=9.0, daylong=True,
                          threshold_type="MAD", trig_int=12.0, plot=True,
                          return_stream=False, parallel_process=True)
 
@@ -272,11 +272,7 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
     load_stream_list=True.
 
     Example:
-        # define template length and prepick length (both in seconds)
-        template_length = 25.0
-        template_prepick = 0.5
-
-        # get detections
+        # get detections (see example for detect_LFEs) 
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
                             detection_files_path, doi)
