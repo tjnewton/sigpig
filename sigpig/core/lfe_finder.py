@@ -36,7 +36,8 @@ def time_Shift(trace, time_offset):
     return trace
 
 # function to build template for matched-filter
-def make_Templates(templates, template_files, station_dict):
+def make_Templates(templates, template_files, station_dict, template_length,
+                   template_prepick):
     """
     Generates an EQcorrscan Tribe object which stores templates for
     matched-filter analysis. Template start times are specified by the
@@ -63,7 +64,13 @@ def make_Templates(templates, template_files, station_dict):
                     "MCR3": {"network": "YG", "channel": "BHZ"},
                     "N25K": {"network": "TA", "channel": "BHZ"}}
 
-        tribe = make_Templates(templates, files, station_dict)
+        # make templates 14 seconds with a prepick of 0.5s, so 14.5 seconds
+        # total
+        template_length = 14
+        template_prepick = 0.5
+
+        tribe = make_Templates(templates, files, station_dict,
+                               template_length, template_prepick)
     """
 
     # now write to file
@@ -102,20 +109,20 @@ def make_Templates(templates, template_files, station_dict):
     for file in template_files:
         st += read(file)
 
-    tribe = Tribe().construct(
-        method="from_meta_file", meta_file=catalog, st=st, lowcut=1.0,
-        highcut=15.0,
-        samp_rate=40.0, length=14.0, filt_order=4, prepick=0.5, swin='all',
-        process_len=86400, parallel=True)  # min_snr=5.0,
-    # 46 detections for x2-8 Hz
+    tribe = Tribe().construct(method="from_meta_file", meta_file=catalog,
+                              st=st, lowcut=1.0, highcut=15.0, samp_rate=40.0,
+                              length=template_length, filt_order=4,
+                              prepick=template_prepick, swin='all',
+                              process_len=86400, parallel=True)  # min_snr=5.0,
+    # 46 detections for 2-8 Hz
     # 56 detections for 1-15 Hz
 
     # print(tribe)
     return tribe
 
 # function to drive LFE detection with EQcorrscan
-def detect_LFEs(templates, template_files, station_dict,
-                detection_files_path, doi):
+def detect_LFEs(templates, template_files, station_dict, template_length,
+                template_prepick, detection_files_path, doi):
     """
     Driver function to detect LFEs in time series via matched-filtering with a
     specified template, stacking of LFEs found from that template,
@@ -138,6 +145,10 @@ def detect_LFEs(templates, template_files, station_dict,
                      "MCR3    3.500  1       P\n",
                      "KLU    21.000  1       P\n",
                      "MCR2    1.500  1       P\n"]
+
+        # define template length and prepick length (both in seconds)
+        template_length = 14.0
+        template_prepick = 0.5
 
         # build stream of all station files for templates
         files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
@@ -170,7 +181,8 @@ def detect_LFEs(templates, template_files, station_dict,
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
-                                detection_files_path, doi)
+                            template_length, template_prepick,
+                            detection_files_path, doi)
 
         # # to inspect the catalog
         # catalog = party.get_catalog()
@@ -207,7 +219,8 @@ def detect_LFEs(templates, template_files, station_dict,
         level=logging.ERROR,
         format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
 
-    tribe = make_Templates(templates, template_files, station_dict)
+    tribe = make_Templates(templates, template_files, station_dict,
+                           template_length, template_prepick)
 
     # FIXME: detect on multiple days
 
@@ -222,9 +235,8 @@ def detect_LFEs(templates, template_files, station_dict,
 
     # detect
     party = tribe.detect(stream=st, threshold=11.0, daylong=True,
-                             threshold_type="MAD", trig_int=12.0,
-                             plot=True, return_stream=False,
-                             parallel_process=True)
+                         threshold_type="MAD", trig_int=12.0, plot=True,
+                         return_stream=False, parallel_process=True)
 
     # 17 detections: "MAD" @ 11.0  <---
     # 35 detections: "MAD" @ 9.0
@@ -241,7 +253,8 @@ def detect_LFEs(templates, template_files, station_dict,
     return party
 
 # function to generate phase-weighted waveform stack
-def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
+def stack_Waveforms(party, pick_offset, streams_path,
+                    template_length, template_prepick, load_stream_list=False):
     """
     Generates stacks of waveforms from families specified within a Party
     object (as returned by detect_LFEs), using the miniseed files present in
@@ -250,9 +263,14 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
     load_stream_list=True.
 
     Example:
+        # define template length and prepick length (both in seconds)
+        template_length = 14.0
+        template_prepick = 0.5
+
         # get detections
         party = detect_LFEs(templates, template_files, station_dict,
-                                detection_files_path, doi)
+                            template_length, template_prepick,
+                            detection_files_path, doi)
 
         # create pick offset dict for pick offset from master trace
         pick_offset = {"GLB": 4.0, "PTPK": 19.0, "WASW": 0.0, "MCR4": 7.0,
@@ -267,6 +285,7 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
         load_stream_list = False
         # get the stacks
         stack_list = stack_Waveforms(party, pick_offset, streams_path,
+                                     template_length, template_prepick,
                                      load_stream_list=load_stream_list)
 
         # loop over stack list and print the phase weighted stack and linear
@@ -287,7 +306,6 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
             if pick.waveform_id.station_code == "WASW" and \
                     pick.waveform_id.network_code == "AV" and \
                     pick.waveform_id.channel_code == "SHZ":
-                # 14.5 s template because of specified prepick in make_Templates
                 pick_times.append(pick.time)
 
     if not load_stream_list:
@@ -319,7 +337,8 @@ def stack_Waveforms(party, pick_offset, streams_path, load_stream_list=False):
                 station_pick_time = pick_time + pick_offset[file_station]
 
                 # trim trace before adding to stream from pick_offset spec
-                day_tr.trim(station_pick_time, station_pick_time + 14.5)
+                day_tr.trim(station_pick_time, station_pick_time +
+                            template_length + template_prepick)
 
                 st += day_tr
 
