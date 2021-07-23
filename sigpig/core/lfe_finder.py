@@ -150,7 +150,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
                      "MCR2    1.500  1       P\n"]
 
         # define template length and prepick length (both in seconds)
-        template_length = 25.0
+        template_length = 10.0
         template_prepick = 0.5
 
         # build stream of all station files for templates
@@ -236,7 +236,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=9.0, daylong=True,
+    party = tribe.detect(stream=st, threshold=8.0, daylong=True,
                          threshold_type="MAD", trig_int=12.0, plot=True,
                          return_stream=False, parallel_process=True)
 
@@ -254,9 +254,14 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     # 11 detections: "av_chan_corr" @ 0.12
 
     # # # 25 second template w/ 0.5 prepick # # #
-    # 15 detections: "MAD" @ 11.0  <---
+    # 15 detections: "MAD" @ 11.0
     # 36 detections: "MAD" @ 9.0
-    #  detections: "MAD" @ 8.0
+    # 65 detections: "MAD" @ 8.0
+
+    # # # 10 second template w/ 0.5 prepick # # #
+    # 13 detections: "MAD" @ 11.0  <---
+    # 31 detections: "MAD" @ 9.0
+    # 52 detections: "MAD" @ 8.0
 
     return party
 
@@ -293,7 +298,7 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
                                      template_length, template_prepick,
                                      load_stream_list=load_stream_list)
 
-        # loop over stack list and print the phase weighted stack and linear
+        # loop over stack list and show the phase weighted stack and linear
         # stack for each group
         for group in stack_list:
             # get the stack

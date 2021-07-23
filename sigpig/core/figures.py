@@ -106,7 +106,6 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 											   filter=filter,
 											   bandpass=bandpass,
 											   time_markers=time_markers)
-
 	"""
 
 	# find all files for specified day
@@ -215,7 +214,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 	frequency_plot.set_xticks([])
 	# fig.tight_layout()
 	fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
-				f"{doi.minute:02}.pdf", dpi=200)
+				f"{doi.minute:02}.png", dpi=100)
 
 	plt.show()
 
@@ -230,8 +229,8 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 		# define dates of interest
 		# doi = UTCDateTime("2016-09-26T09:25:30.0Z") # period start
 		# doi_end = UTCDateTime("2016-09-26T09:26:30.0Z") # period end
-		doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:27:30.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:30:30.0Z") # period end
 
 		# doi = UTCDateTime("2016-09-26T09:08:00.0Z") # period start
 		# doi_end = UTCDateTime("2016-09-26T09:15:00.0Z") # period end
@@ -282,7 +281,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 							 		UTCDateTime("2016-09-26T09:29:00.5Z")],
 						"YG.NEB2": [UTCDateTime("2016-09-26T09:28:46.5Z"),
 							 		UTCDateTime("2016-09-26T09:29:00.5Z")],
-						"YG.NEB1": [UTCDateTime("2016-09-26T09:28:46.5Z"),
+						"YG.NEB1": [UTCDateTime("2016-09-26T09:28:47.5Z"),
 							 		UTCDateTime("2016-09-26T09:29:00.5Z")],
 						"AK.GLB": [UTCDateTime("2016-09-26T09:28:40.0Z"),
 							 		UTCDateTime("2016-09-26T09:28:54.0Z")],
@@ -364,8 +363,8 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 		amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
 
 		# plot time markers for this trace if they exist
-		# print(f"{trace.stats.network}.{trace.stats.station}")
 		network_station = f"{trace.stats.network}.{trace.stats.station}"
+		print(f"{network_station} in station dict:{network_station in time_markers}")
 		if network_station in time_markers:
 			time_marker = time_markers[network_station]
 			# plot time_marker box
@@ -399,6 +398,6 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 	amplitude_plot.set_ylim((0, len(st)+0.5))
 	# fig.tight_layout()
 	fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
-				f"{doi.minute:02}.pdf", dpi=100)
+				f"{doi.minute:02}.png", dpi=100)
 
 	plt.show()
