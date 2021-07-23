@@ -44,16 +44,15 @@ filter = True
 bandpass = [1, 15]
 
 # plot time markers on specified stations
-time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:28:40.0Z"),
-							UTCDateTime("2016-09-26T09:28:54.0Z")],
-				"AK.PTPK": [UTCDateTime("2016-09-26T09:28:55.0Z"),
-							UTCDateTime("2016-09-26T09:29:09.0Z")],
-				"AV.WASW": [UTCDateTime("2016-09-26T09:28:36.0Z"),
-							UTCDateTime("2016-09-26T09:28:50.0Z")]}
+time_markers = {"AK.GLB":  [UTCDateTime("2016-09-26T09:28:40.0Z"),
+			    UTCDateTime("2016-09-26T09:28:54.0Z")],
+		"AK.PTPK": [UTCDateTime("2016-09-26T09:28:55.0Z"),
+			    UTCDateTime("2016-09-26T09:29:09.0Z")],
+		"AV.WASW": [UTCDateTime("2016-09-26T09:28:36.0Z"),
+			    UTCDateTime("2016-09-26T09:28:50.0Z")]}
 
 fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
-									   filter=filter,
-									   bandpass=bandpass,
-									   time_markers=time_markers)
+				       filter=filter, bandpass=bandpass,
+				       time_markers=time_markers)
 ```
 ![](doc/images/ts-spect.png?raw=true)
