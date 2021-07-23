@@ -66,7 +66,7 @@ fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 ![](doc/images/ts.png?raw=true)
 
 ### sigpig.core.lidar processes lidar data:  
-Point cloud plotting  
+3D point cloud plotting  
 ```
 filename = "/Users/human/Dropbox/Programs/lidar/RR_2019_10cm_NAD83_UTMz10.laz"
 v = visualize_Point_Cloud(filename)
