@@ -9,8 +9,7 @@ from obspy.clients.fdsn import Client
 import calendar
 
 # downloads time series data from IRIS DMC
-def get_Waveforms(network, stations, location, channels, start_Time,
-                  end_Time, make_Directory=False):
+def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
     """Downloads waveform data using Obspy to access the IRIS DMC
     Find stations via https://ds.iris.edu/gmap/
 
