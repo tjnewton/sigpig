@@ -60,6 +60,6 @@ fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
 Time series only plotting  
 ```
 fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
-		       bandpass=bandpass)
+		       bandpass=bandpass, time_markers=time_markers)
 ```
 ![](doc/images/ts.png?raw=true)
