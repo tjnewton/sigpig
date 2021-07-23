@@ -10,7 +10,7 @@ from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
 import glob
 import pickle
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 # helper function to shift trace times
 def time_Shift(trace, time_offset):
@@ -150,7 +150,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
                      "MCR2    1.500  1       P\n"]
 
         # define template length and prepick length (both in seconds)
-        template_length = 14.0
+        template_length = 25.0
         template_prepick = 0.5
 
         # build stream of all station files for templates
@@ -240,6 +240,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
                          threshold_type="MAD", trig_int=12.0, plot=True,
                          return_stream=False, parallel_process=True)
 
+    # # # 14 second template w/ 0.5 prepick # # #
     # 17 detections: "MAD" @ 11.0  <---
     # 35 detections: "MAD" @ 9.0
     # 56 detections: "MAD" @ 8.0
@@ -252,13 +253,18 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     # 24 detections: "av_chan_corr" @ 0.1
     # 11 detections: "av_chan_corr" @ 0.12
 
+    # # # 25 second template w/ 0.5 prepick # # #
+    # 15 detections: "MAD" @ 11.0  <---
+    #  detections: "MAD" @ 9.0
+    #  detections: "MAD" @ 8.0
+
     return party
 
 
 # function to generate phase-weighted waveform stack
 def stack_Waveforms(party, pick_offset, streams_path, template_length,
                     template_prepick, load_stream_list=False):
-    """
+    f"""
     Generates stacks of waveforms from families specified within a Party
     object (as returned by detect_LFEs), using the miniseed files present in
     the specified path (streams_path). Building streams for party families
@@ -267,7 +273,7 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
 
     Example:
         # define template length and prepick length (both in seconds)
-        template_length = 14.0
+        template_length = 25.0
         template_prepick = 0.5
 
         # get detections
@@ -294,10 +300,16 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
         # loop over stack list and print the phase weighted stack and linear
         # stack for each group
         for group in stack_list:
+            # get the stack
             stack_pw = group[0]
-            stack_pw.plot()
+            # get the plot handle for the stack, add a title, show figure
+            pw_fig = stack_pw.plot(handle=True)
+            pw_fig.suptitle(f"Phase weighted stack: Template={template_length}, Prepick={template_prepick}")
+
             stack_lin = group[1]
-            stack_lin.plot()
+            lin_fig = stack_lin.plot(handle=True)
+            lin_fig.suptitle(f"Linear stack: Template={template_length}, Prepick={template_prepick}")
+            plt.show()
     """
     # extract pick times for each event from party object
     # pick_times is a list of the pick times for the master trace (with
