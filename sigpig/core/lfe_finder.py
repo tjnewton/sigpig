@@ -11,6 +11,7 @@ import glob
 import pickle
 import numpy as np
 
+
 # helper function to shift trace times
 def time_Shift(trace, time_offset):
     """
@@ -27,13 +28,14 @@ def time_Shift(trace, time_offset):
     # Shift
     for index, freq in enumerate(frequencies):
         fourier_transform[index] = fourier_transform[index] * np.exp(2.0
-                                             * np.pi * 1j * freq * time_offset)
+                                                                     * np.pi * 1j * freq * time_offset)
 
     # back fourier transform
     trace.data = np.real(np.fft.ifft(fourier_transform))
     trace.stats.starttime += time_offset
 
     return trace
+
 
 # function to build template for matched-filter
 def make_Templates(templates, template_files, station_dict, template_length,
@@ -86,9 +88,9 @@ def make_Templates(templates, template_files, station_dict, template_length,
         for index, pick in enumerate(event.picks):
             if pick.waveform_id.station_code in station_dict:
                 picks[index].waveform_id.network_code = \
-                station_dict[pick.waveform_id.station_code]["network"]
+                    station_dict[pick.waveform_id.station_code]["network"]
                 picks[index].waveform_id.channel_code = \
-                station_dict[pick.waveform_id.station_code]["channel"]
+                    station_dict[pick.waveform_id.station_code]["channel"]
                 # copy Z entry
                 pick_copy1 = picks[index].copy()
                 pick_copy2 = picks[index].copy()
@@ -119,6 +121,7 @@ def make_Templates(templates, template_files, station_dict, template_length,
 
     # print(tribe)
     return tribe
+
 
 # function to drive LFE detection with EQcorrscan
 def detect_LFEs(templates, template_files, station_dict, template_length,
@@ -212,7 +215,6 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 		bandpass = [1, 15]
 		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 							   bandpass=bandpass)
-
     """
     # set up logging
     logging.basicConfig(
@@ -252,9 +254,10 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
     return party
 
+
 # function to generate phase-weighted waveform stack
-def stack_Waveforms(party, pick_offset, streams_path,
-                    template_length, template_prepick, load_stream_list=False):
+def stack_Waveforms(party, pick_offset, streams_path, template_length,
+                    template_prepick, load_stream_list=False):
     """
     Generates stacks of waveforms from families specified within a Party
     object (as returned by detect_LFEs), using the miniseed files present in
