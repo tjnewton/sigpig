@@ -393,3 +393,13 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
         stack_list.append([stack_pw, stack_lin])
 
     return stack_list
+
+# function for matched-filtering of stacked templates through time series
+def match_Stack():
+    """
+    
+    Returns:
+
+    """
+
+    pass
