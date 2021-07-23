@@ -1,5 +1,6 @@
 # sigpig
 ## Seismology and Signal Processing Toolkit 
+built on top of [matplotlib](https://github.com/matplotlib/matplotlib), [ObsPy](https://github.com/obspy/obspy), [GDAL](https://github.com/OSGeo/gdal), [Laspy](https://github.com/laspy/laspy), [NumPy](https://github.com/numpy/numpy), [pptk](https://github.com/heremaps/pptk), and [EQcorrscan](https://github.com/eqcorrscan/EQcorrscan). 
 
 ### To get started:
 Clone this repo in your preferred directory:  
@@ -63,3 +64,12 @@ fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 		       bandpass=bandpass, time_markers=time_markers)
 ```
 ![](doc/images/ts.png?raw=true)
+
+### sigpig.core.lidar processes lidar data:  
+Point cloud plotting  
+```
+filename = "/Users/human/Dropbox/Programs/lidar/RR_2019_10cm_NAD83_UTMz10.laz"
+v = visualize_Point_Cloud(filename)
+```
+![](doc/images/point_cloud.png?raw=true)
+
