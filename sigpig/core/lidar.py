@@ -33,12 +33,15 @@ def visualize_Point_Cloud(filename):
 
     return v
 
-def ingest_DEM(adm_filename):
+def ingest_DEM(raster_file, output_file):
     """
+    Reads an .adf raster file
+
+    Example:
+        raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+        output_file = 'classified.tiff'
 
     """
-    raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
-    output_file = 'classified.tiff'
 
     classification_values = [0, 500, 1000, 1500, 2000, 2500, 3000, 3500,
                              4000]  # The interval values to classify
@@ -67,14 +70,8 @@ def ingest_DEM(adm_filename):
     # Now that the raster is into an array, let's classify it
     out_str = ''
     for value in values:
-        index = 0
-        for cl_value in classification_values:
-            if value <= cl_value:
-                out_str = out_str + struct.pack('B',
-                                                classification_output_values[
-                                                    index])
-                break
-            index = index + 1
+        value = round(value, 8)
+        out_str = out_str + str(struct.pack('d', value))
     # Once classified, write the output raster
     # In the example, it's not possible to use the same output format than the input file, because GDAL is not able to write this file format. Geotiff will be used instead
     gtiff = gdal.GetDriverByName('GTiff')
