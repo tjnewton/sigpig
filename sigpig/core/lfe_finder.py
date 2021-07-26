@@ -22,6 +22,7 @@ def markers_To_Template():
 
     return
 
+
 # helper function to shift trace times
 def time_Shift(trace, time_offset):
     """
@@ -277,7 +278,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
 
 # function to generate phase-weighted waveform stack
-def stack_Waveforms(party, pick_offset, streams_path, template_length,
+def stack_waveforms(party, pick_offset, streams_path, template_length,
                     template_prepick, load_stream_list=False):
     """
     Generates stacks of waveforms from families specified within a Party
@@ -309,7 +310,7 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
         # load previous stream list?
         load_stream_list = False
         # get the stacks
-        stack_list = stack_Waveforms(party, pick_offset, streams_path,
+        stack_list = stack_waveforms(party, pick_offset, streams_path,
                                      template_length, template_prepick,
                                      load_stream_list=load_stream_list)
 
@@ -422,8 +423,9 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
 
     return stack_list
 
+
 # function for matched-filtering of stacked templates through time series
-def matched_Filter_Stack():
+def matched_filter_stack():
     """
 
     Example:
@@ -432,3 +434,4 @@ def matched_Filter_Stack():
     """
 
     pass
+

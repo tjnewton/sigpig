@@ -12,6 +12,62 @@ import glob
 import numpy as np
 import scipy.signal as spsig
 
+#FIXME ::: Add elevation functions from Desktop/autopicker/preprocessing/station_locations.py
+# above requires configuring environment with rasterio and dependencies
+
+def nearest(items: np.ndarray, pivot):
+    return min(items, key=lambda x: abs(x - pivot))
+
+def nearest_ind(items: np.ndarray, pivot):
+    time_diff = np.abs([date - pivot for date in items])
+    return time_diff.argmin(0)
+
+def plot_stalta(obspy_Trace: obspy.core.trace.Trace, cft: np.ndarray,
+                start_Time: UTCDateTime, end_Time: UTCDateTime) -> None:
+    """
+    Plots a timeseries from an Obspy trace and the corresponding STA/LTA for the specified time period.
+
+    Parameters
+    ----------
+    obspy_Trace: Obspy trace object
+    cft: np.ndarray of characteristic function returned by obspy.signal.trigger.classic_sta_lta
+    start_Time: UTCDateTime object
+    end_Time: UTCDateTime object
+
+    Example
+    -------
+    start_Time = UTCDateTime("2018-03-13T01:32:13.5Z")
+    end_Time = UTCDateTime("2018-03-13T01:32:15.5Z")
+    plot_stalta(trace, cft, start_Time, end_Time)
+
+    """
+    # set the figure size
+    figureWidth = 19
+    figureHeight = 5
+
+    # find start and end index for subset within the time bounds of the trace
+    subset_start_idx = nearest_ind(np.array(trace.times(type="utcdatetime")),
+                                   start_Time)
+    subset_end_idx = nearest_ind(np.array(trace.times(type="utcdatetime")),
+                                 end_Time)
+    subset_times = np.array(trace.times(type="matplotlib"))[
+                   subset_start_idx:subset_end_idx + 1]
+    subset_data = trace.data[subset_start_idx:subset_end_idx + 1]
+
+    # plot STA/LTA over time & compare with time series
+    maxTraceValue = max_Amplitude(subset_data)
+    fig, ax = plt.subplots(nrows=2, sharex=True,
+                           figsize=(figureWidth, figureHeight))
+    ax[0].plot_date(subset_times, subset_data, fmt="k-", linewidth=0.4)
+    ax[0].set_ylabel("Amplitude")
+    ax[1].plot_date(subset_times, cft[subset_start_idx:subset_end_idx + 1],
+                    fmt="k-", linewidth=0.4)
+    ax[1].set_ylabel(f"STA:{sta} / LTA:{lta}")
+    plt.xlabel("Time")
+    plt.show()
+
+    return None
+
 # helper function to find max amplitude of a time series for plotting
 def max_Amplitude(timeSeries):
 	'''
