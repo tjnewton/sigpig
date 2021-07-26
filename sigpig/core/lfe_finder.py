@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 # helper function to convert snuffler marker file to event template
 def markers_To_Template():
     """
+    Loads snuffler marker file and generates template objects required for
+    signal detection via matched-filter analysis with EQcorrscan.
 
     """
 
@@ -283,6 +285,11 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
     the specified path (streams_path). Building streams for party families
     is slow, so previously generated stream lists can be used by specifying
     load_stream_list=True.
+
+    Limitations:
+        - lowest sampling rate is currently statically defined
+        - limited to single day
+        - filter is statically defined
 
     Example:
         # get detections (see example for detect_LFEs) 
