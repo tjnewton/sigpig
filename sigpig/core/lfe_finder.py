@@ -12,6 +12,14 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
+# helper function to convert snuffler marker file to event template
+def markers_To_Template():
+    """
+
+    """
+
+    return
+
 # helper function to shift trace times
 def time_Shift(trace, time_offset):
     """
@@ -411,7 +419,8 @@ def stack_Waveforms(party, pick_offset, streams_path, template_length,
 def matched_Filter_Stack():
     """
 
-    Returns:
+    Example:
+
 
     """
 
