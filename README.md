@@ -73,3 +73,11 @@ v = visualize_Point_Cloud(filename)
 ```
 ![](doc/images/point_cloud.png?raw=true)
 
+### sigpig.core.lfe_finder uses matched-filtering for LFE detection:  
+xyz  
+
+### sigpig.core.autopicker detects and associates signals in time series:  
+xyz  
+
+### sigpig.core.stress inverts slip vectors for principal stress orientation:  
+xyz  
