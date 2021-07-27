@@ -12,13 +12,46 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-# helper function to convert snuffler marker file to event template
-def markers_To_Template():
+
+# function to convert snuffler marker file to event template
+def markers_to_template(marker_file_path, prepick_offset, postpick_offset):
     """
     Loads snuffler marker file and generates template objects required for
     signal detection via matched-filter analysis with EQcorrscan.
 
+    Example:
+        # define the path to the snuffler marker file
+        marker_file_path = "lfe_template.mrkr"
+
+        # define the offset from the S wave pick to start of template
+        prepick_offset = 11 # in seconds
+        # define the offset from the S wave pick to the end of template
+        postpick_offset = 5 # in seconds
+
     """
+
+    # build list of picks and dates from the marker file
+    pick_List = []  # build a list of tuples of (pick_Station, pick_Time, pick_Index)
+    date_List = []  # keep track of dates
+    # read the marker file line by line
+    with open(marker_File_Path, 'r') as file:
+        for line_Contents in file:
+            if len(line_Contents) > 52:  # avoid irrelevant short lines
+                if (line_Contents[0:5] == 'phase') and (line_Contents[
+                                                        -20:-19] == 'P'):  # if the line is a P wave pick
+                    if len(line_Contents[36:52].split('.')) > 1:  # avoids
+                        # error from "None" contents
+                        # print(line_Contents)
+                        pick_Station = line_Contents[36:52].split('.')[1]
+                        pick_Channel = line_Contents[36:52].split('.')[3]
+                        pick_Channel = pick_Channel.split(' ')[0]
+                        pick_Time = UTCDateTime(line_Contents[7:32])
+                        pick_List.append((pick_Station, pick_Time,
+                                          pick_Channel))
+
+                        # add date to list if it isn't already there
+                        if (line_Contents[7:17] not in date_List):
+                            date_List.append(line_Contents[7:17])
 
     return
 

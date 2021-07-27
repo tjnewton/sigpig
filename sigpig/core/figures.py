@@ -243,8 +243,8 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		# doi_end = UTCDateTime("2016-09-26T09:27:00.0Z") # period end
 		# doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
 		# doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
-		doi = UTCDateTime("2016-09-26T08:22:00.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T10:28:00.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:23:00.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:33:00.0Z") # period end
 
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
