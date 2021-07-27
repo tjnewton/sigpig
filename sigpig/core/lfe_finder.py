@@ -14,10 +14,13 @@ import matplotlib.pyplot as plt
 
 
 # function to convert snuffler marker file to event template
-def markers_to_template(marker_file_path, prepick_offset, postpick_offset):
+def markers_to_template(marker_file_path, prepick_offset):
     """
-    Loads snuffler marker file and generates template objects required for
-    signal detection via matched-filter analysis with EQcorrscan.
+    Loads snuffler marker file (for a single event) and generates template
+    objects required for signal detection via matched-filter analysis with
+    EQcorrscan.
+
+    Limitations: built to work with a single event.
 
     Example:
         # define the path to the snuffler marker file
@@ -25,35 +28,83 @@ def markers_to_template(marker_file_path, prepick_offset, postpick_offset):
 
         # define the offset from the S wave pick to start of template
         prepick_offset = 11 # in seconds
-        # define the offset from the S wave pick to the end of template
-        postpick_offset = 5 # in seconds
+
+        templates, station_dict = markers_to_template(marker_file_path, prepick_offset)
+
+        # print each line in templates without newline character
+        for line in templates:
+            print(line[:-1])
+
+        # print contents of station dict
+        for station in station_dict.keys():
+            print(f"{station} {station_dict[station]}")
 
     """
 
-    # build list of picks and dates from the marker file
-    pick_List = []  # build a list of tuples of (pick_Station, pick_Time, pick_Index)
-    date_List = []  # keep track of dates
+    # build dict of picks from the marker file
+    pick_dict = {}
+    station_dict = {}
+    # keep track of earliest pick time
+    earliest_pick_time = []
+
     # read the marker file line by line
-    with open(marker_File_Path, 'r') as file:
+    with open(marker_file_path, 'r') as file:
         for line_Contents in file:
             if len(line_Contents) > 52:  # avoid irrelevant short lines
                 if (line_Contents[0:5] == 'phase') and (line_Contents[
-                                                        -20:-19] == 'P'):  # if the line is a P wave pick
-                    if len(line_Contents[36:52].split('.')) > 1:  # avoids
-                        # error from "None" contents
-                        # print(line_Contents)
-                        pick_Station = line_Contents[36:52].split('.')[1]
-                        pick_Channel = line_Contents[36:52].split('.')[3]
-                        pick_Channel = pick_Channel.split(' ')[0]
-                        pick_Time = UTCDateTime(line_Contents[7:32])
-                        pick_List.append((pick_Station, pick_Time,
-                                          pick_Channel))
+                                                        -20:-19] == 'S'):
+                    # avoids error from "None" contents
+                    if len(line_Contents[35:51].split('.')) > 1:
+                        # print(line_Contents[7:31])
+                        pick_station = line_Contents[35:51].split('.')[1]
+                        pick_channel = line_Contents[35:51].split('.')[3]
+                        pick_channel = pick_channel.split(' ')[0]
+                        pick_channel = pick_channel[:-1] + "Z"
+                        pick_network = line_Contents[35:51].split('.')[0]
+                        pick_time = UTCDateTime(line_Contents[7:31])
+                        pick_dict[pick_station] = pick_time
 
-                        # add date to list if it isn't already there
-                        if (line_Contents[7:17] not in date_List):
-                            date_List.append(line_Contents[7:17])
+                        print(f"{pick_network} {pick_station} "
+                              f"{pick_channel} {pick_time}")
 
-    return
+                    # build station_dict
+                    station_dict[pick_station] = {"network": pick_network,
+                                                  "channel": pick_channel}
+
+                    # check if this is the earliest pick time
+                    if len(earliest_pick_time) == 0:
+                        earliest_pick_time.append(pick_time)
+                        earliest_pick_station = pick_station
+                    else:
+                        # redefine earliest if necessary
+                        if pick_time < earliest_pick_time[0]:
+                            earliest_pick_time[0] = pick_time
+                            earliest_pick_station = pick_station
+
+    # account for prepick offset in earliest pick
+    earliest_pick_time = earliest_pick_time[0] - prepick_offset
+
+    # build templates object header (location is made up)
+    templates = [f"# {earliest_pick_time.year} {earliest_pick_time.month:02} "
+                 f"{earliest_pick_time.day:02} {earliest_pick_time.hour:02} "
+                 f"{earliest_pick_time.minute:02} "
+                 f"{earliest_pick_time.second:02}."
+                 f"{earliest_pick_time.microsecond:02}  61.8000 "
+                 f"-144.0000  30.00  1.00  0.0  0.0  0.00  1\n"]
+
+    # append earliest station to templates list
+    templates.append(f"{earliest_pick_station}    0.000  1       P\n")
+
+    # append all other stations to templates list
+    for station in pick_dict.keys():
+        if station != earliest_pick_station:
+            time_diff = pick_dict[station] - (earliest_pick_time + prepick_offset)
+            microseconds = int((time_diff - int(time_diff)) * 1000)
+            print(f"time_diff: {int(time_diff)} microseconds:{microseconds}")
+            templates.append(f"{station:4}   {int(time_diff):2}."
+                             f"{microseconds:03}  1       P\n")
+
+    return templates, station_dict
 
 
 # helper function to shift trace times
@@ -176,25 +227,25 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     and template matching of the stacked waveform template.
 
     Example:
-        templates = ["# 2016  9 26  9 25 46.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "GLB     4.000  1       P\n",
-                     "PTPK   19.000  1       P\n",
-                     "WASW    0.000  1       P\n",
-                     "MCR4    7.000  1       P\n",
-                     "NEB3    8.500  1       P\n",
-                     "MCR1    8.500  1       P\n",
-                     "RH08   16.500  1       P\n",
-                     "RH10   15.500  1       P\n",
-                     "RH09   15.500  1       P\n",
-                     "WACK    3.500  1       P\n",
-                     "NEB1   10.500  1       P\n",
-                     "N25K    3.500  1       P\n",
-                     "MCR3    3.500  1       P\n",
-                     "KLU    21.000  1       P\n",
-                     "MCR2    1.500  1       P\n"]
+        # templates = ["# 2016  9 26  9 25 46.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "GLB     4.000  1       P\n",
+        #              "PTPK   19.000  1       P\n",
+        #              "WASW    0.000  1       P\n",
+        #              "MCR4    7.000  1       P\n",
+        #              "NEB3    8.500  1       P\n",
+        #              "MCR1    8.500  1       P\n",
+        #              "RH08   16.500  1       P\n",
+        #              "RH10   15.500  1       P\n",
+        #              "RH09   15.500  1       P\n",
+        #              "WACK    3.500  1       P\n",
+        #              "NEB1   10.500  1       P\n",
+        #              "N25K    3.500  1       P\n",
+        #              "MCR3    3.500  1       P\n",
+        #              "KLU    21.000  1       P\n",
+        #              "MCR2    1.500  1       P\n"]
 
         # define template length and prepick length (both in seconds)
-        template_length = 10.0
+        template_length = 16.0
         template_prepick = 0.5
 
         # build stream of all station files for templates
@@ -204,22 +255,25 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
                                       f"-{doi.day:02}.ms")
 
-        # station dict to add data needed by EQcorrscan
-        station_dict = {"GLB": {"network": "AK", "channel": "BHZ"},
-                        "PTPK": {"network": "AK", "channel": "BHZ"},
-                        "WASW": {"network": "AV", "channel": "SHZ"},
-                        "MCR4": {"network": "YG", "channel": "BHZ"},
-                        "NEB3": {"network": "YG", "channel": "BHZ"},
-                        "MCR1": {"network": "YG", "channel": "BHZ"},
-                        "RH08": {"network": "YG", "channel": "BHZ"},
-                        "RH10": {"network": "YG", "channel": "BHZ"},
-                        "RH09": {"network": "YG", "channel": "BHZ"},
-                        "WACK": {"network": "AV", "channel": "BHZ"},
-                        "NEB1": {"network": "YG", "channel": "BHZ"},
-                        "N25K": {"network": "TA", "channel": "BHZ"},
-                        "MCR3": {"network": "YG", "channel": "BHZ"},
-                        "KLU": {"network": "AK", "channel": "BHZ"},
-                        "MCR2": {"network": "YG", "channel": "BHZ"}}
+        # # station dict to add data needed by EQcorrscan
+        # station_dict = {"GLB": {"network": "AK", "channel": "BHZ"},
+        #                 "PTPK": {"network": "AK", "channel": "BHZ"},
+        #                 "WASW": {"network": "AV", "channel": "SHZ"},
+        #                 "MCR4": {"network": "YG", "channel": "BHZ"},
+        #                 "NEB3": {"network": "YG", "channel": "BHZ"},
+        #                 "MCR1": {"network": "YG", "channel": "BHZ"},
+        #                 "RH08": {"network": "YG", "channel": "BHZ"},
+        #                 "RH10": {"network": "YG", "channel": "BHZ"},
+        #                 "RH09": {"network": "YG", "channel": "BHZ"},
+        #                 "WACK": {"network": "AV", "channel": "BHZ"},
+        #                 "NEB1": {"network": "YG", "channel": "BHZ"},
+        #                 "N25K": {"network": "TA", "channel": "BHZ"},
+        #                 "MCR3": {"network": "YG", "channel": "BHZ"},
+        #                 "KLU": {"network": "AK", "channel": "BHZ"},
+        #                 "MCR2": {"network": "YG", "channel": "BHZ"}}
+
+        # get templates and station_dict objects from picks in marker file
+        templates, station_dict = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
