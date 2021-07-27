@@ -1,5 +1,5 @@
 """
-Functions to identify event onsets in time series.
+Functions to identify noise and event onsets in time series.
 """
 
 import obspy
@@ -7,6 +7,8 @@ from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.clients.fdsn import Client
 import calendar
+
+#FIXME: add content from Programs/unet
 
 def picks2array(project_Name: str, marker_File_Path: str, window_Size: int):
     """take in a snuffler marker file and returns a numpy array of window_Size
@@ -1100,4 +1102,7 @@ def analyze_Noise_Windows(noise_Windows: np.ndarray,
     # plt.show()
 
     return metric_Map
+
+
+
 
