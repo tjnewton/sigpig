@@ -241,8 +241,10 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		# doi_end = UTCDateTime("2016-09-26T08:55:00.0Z") # period end
 		# doi = UTCDateTime("2016-09-26T09:25:00.0Z") # period start
 		# doi_end = UTCDateTime("2016-09-26T09:27:00.0Z") # period end
-		doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
-		doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
+		# doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
+		doi = UTCDateTime("2016-09-26T08:22:00.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T10:28:00.0Z") # period end
 
 		# define time series files path
 		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
@@ -327,6 +329,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
 		# define data to work with
 		time = trace.times("matplotlib")
+		trace_start = trace.stats.starttime
 		norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
 						  np.min(trace.data)) * 1.25 + index
 		# add trace to waveform plot
@@ -370,6 +373,21 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		# dB = 20*log() convention
 		spec.pcolormesh(tSTFT, fSTFT, 20 * np.log10(np.absolute(STFT)),
 						cmap='magma')
+
+		# plot time markers for this trace if they exist
+		if network_station in time_markers:
+			# plot time_marker box, transform x_vals to s for spectrogram
+			x_vals = [time_marker[0] - trace_start,
+					  time_marker[0] - trace_start,
+					  time_marker[1] - trace_start,
+					  time_marker[1] - trace_start,
+					  time_marker[0] - trace_start]
+			# transform y values for spectrogram
+			y_vals = [fSTFT.min(), fSTFT.max(),
+					  fSTFT.max(), fSTFT.min(),
+					  fSTFT.min()]
+			spec.plot(x_vals, y_vals, "r-", linewidth=2.0)
+
 		spec.set_xlim([30, duration - 30])
 		spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
 						f"{trace.stats.channel}",
@@ -399,6 +417,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 				f"{doi.minute:02}.png", dpi=100)
 
 	plt.show()
+
 
 def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 					 time_markers={}):
