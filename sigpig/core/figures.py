@@ -253,7 +253,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 		filter = True
 		bandpass = [1, 15]
 
-		# plot time markers on specified stations
+		# plot with time markers on specified stations
 		time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:25:50.0Z"),
 							 		UTCDateTime("2016-09-26T09:26:05.0Z")],
 						"AK.PTPK": [UTCDateTime("2016-09-26T09:26:05.0Z"),
@@ -290,6 +290,32 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 											   filter=filter,
 											   bandpass=bandpass,
 											   time_markers=time_markers)
+
+	Another example:
+		# define time period
+		doi = UTCDateTime("2016-09-26T09:23:00.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:33:00.0Z") # period end
+
+		# define time series files path
+		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+
+		# bandpass filter from 2-8 Hz
+		filter = True
+		bandpass = [1, 15]
+
+		# build time markers from snuffler marker file
+        marker_file_path = "lfe_template.mrkr"
+        prepick_offset = 11 # in seconds
+        templates, station_dict, time_markers = markers_to_template(
+        													  marker_file_path,
+        													  prepick_offset,
+        												     time_markers=True)
+
+		fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
+											   filter=filter,
+											   bandpass=bandpass,
+											   time_markers=time_markers)
+
 	"""
 
 	# find all files for specified day

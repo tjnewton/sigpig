@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 # function to convert snuffler marker file to event template
-def markers_to_template(marker_file_path, prepick_offset):
+def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
     """
     Loads snuffler marker file (for a single event) and generates template
     objects required for signal detection via matched-filter analysis with
@@ -44,6 +44,7 @@ def markers_to_template(marker_file_path, prepick_offset):
     # build dict of picks from the marker file
     pick_dict = {}
     station_dict = {}
+    template_windows = {}
     # keep track of earliest pick time
     earliest_pick_time = []
 
@@ -64,22 +65,27 @@ def markers_to_template(marker_file_path, prepick_offset):
                         pick_time = UTCDateTime(line_Contents[7:31])
                         pick_dict[pick_station] = pick_time
 
-                        print(f"{pick_network} {pick_station} "
-                              f"{pick_channel} {pick_time}")
+                        # print(f"{pick_network} {pick_station} "
+                        #       f"{pick_channel} {pick_time}")
 
-                    # build station_dict
-                    station_dict[pick_station] = {"network": pick_network,
-                                                  "channel": pick_channel}
+                        # build station_dict
+                        station_dict[pick_station] = {"network": pick_network,
+                                                      "channel": pick_channel}
 
-                    # check if this is the earliest pick time
-                    if len(earliest_pick_time) == 0:
-                        earliest_pick_time.append(pick_time)
-                        earliest_pick_station = pick_station
-                    else:
-                        # redefine earliest if necessary
-                        if pick_time < earliest_pick_time[0]:
-                            earliest_pick_time[0] = pick_time
+                        # build template window object for plotting, 16 s templ
+                        template_windows[f"{pick_network}.{pick_station}"] =\
+                            [pick_time - prepick_offset, (pick_time -
+                                                          prepick_offset) + 16]
+
+                        # check if this is the earliest pick time
+                        if len(earliest_pick_time) == 0:
+                            earliest_pick_time.append(pick_time)
                             earliest_pick_station = pick_station
+                        else:
+                            # redefine earliest if necessary
+                            if pick_time < earliest_pick_time[0]:
+                                earliest_pick_time[0] = pick_time
+                                earliest_pick_station = pick_station
 
     # account for prepick offset in earliest pick
     earliest_pick_time = earliest_pick_time[0] - prepick_offset
@@ -100,11 +106,16 @@ def markers_to_template(marker_file_path, prepick_offset):
         if station != earliest_pick_station:
             time_diff = pick_dict[station] - (earliest_pick_time + prepick_offset)
             microseconds = int((time_diff - int(time_diff)) * 1000)
-            print(f"time_diff: {int(time_diff)} microseconds:{microseconds}")
+            # print(f"time_diff: {int(time_diff)} microseconds:{microseconds}")
             templates.append(f"{station:4}   {int(time_diff):2}."
                              f"{microseconds:03}  1       P\n")
 
-    return templates, station_dict
+    return_tuple = [templates, station_dict]
+
+    if time_markers:
+        return_tuple.append(template_windows)
+
+    return tuple(return_tuple)
 
 
 # helper function to shift trace times
