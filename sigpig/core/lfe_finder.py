@@ -29,7 +29,7 @@ def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
         # define the offset from the S wave pick to start of template
         prepick_offset = 11 # in seconds
 
-        templates, station_dict = markers_to_template(marker_file_path, prepick_offset)
+        templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # print each line in templates without newline character
         for line in templates:
@@ -39,12 +39,17 @@ def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
         for station in station_dict.keys():
             print(f"{station} {station_dict[station]}")
 
+        # print contents of pick offset dict
+        for station in pick_offset.keys():
+            print(f"{station} {pick_offset[station]}")
+
     """
 
     # build dict of picks from the marker file
     pick_dict = {}
     station_dict = {}
     template_windows = {}
+    pick_offset = {}
     # keep track of earliest pick time
     earliest_pick_time = []
 
@@ -101,6 +106,9 @@ def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
     # append earliest station to templates list
     templates.append(f"{earliest_pick_station}    0.000  1       P\n")
 
+    # create pick offset dict for pick offset from master trace
+    pick_offset[earliest_pick_station] = 0.0
+
     # append all other stations to templates list
     for station in pick_dict.keys():
         if station != earliest_pick_station:
@@ -109,8 +117,9 @@ def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
             # print(f"time_diff: {int(time_diff)} microseconds:{microseconds}")
             templates.append(f"{station:4}   {int(time_diff):2}."
                              f"{microseconds:03}  1       P\n")
+            pick_offset[station] = time_diff
 
-    return_tuple = [templates, station_dict]
+    return_tuple = [templates, station_dict, pick_offset]
 
     if time_markers:
         return_tuple.append(template_windows)
@@ -336,7 +345,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # get templates and station_dict objects from picks in marker file
         marker_file_path = "lfe_template.mrkr"
         prepick_offset = 11 # in seconds
-        templates, station_dict = markers_to_template(marker_file_path, prepick_offset)
+        templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
@@ -350,6 +359,27 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
         # inspect the party object
         fig = party.plot(plot_grouped=True)
+
+        # load previous stream list?
+        load_stream_list = False
+        # get the stacks
+        stack_list = stack_waveforms(party, pick_offset, files_path,
+                                     template_length, template_prepick,
+                                     load_stream_list=load_stream_list)
+
+        # loop over stack list and show the phase weighted stack and linear
+        # stack for each group
+        for group in stack_list:
+            # get the stack
+            stack_pw = group[0]
+            # get the plot handle for the stack, add a title, show figure
+            pw_fig = stack_pw.plot(handle=True)
+            pw_fig.suptitle(f"Phase weighted stack: Template={template_length}, Prepick={template_prepick}")
+
+            stack_lin = group[1]
+            lin_fig = stack_lin.plot(handle=True)
+            lin_fig.suptitle(f"Linear stack: Template={template_length}, Prepick={template_prepick}")
+            plt.show()
     """
     # set up logging
     logging.basicConfig(
