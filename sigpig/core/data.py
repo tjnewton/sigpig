@@ -7,7 +7,8 @@ from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.clients.fdsn import Client
 import calendar
-
+from datetime import datetime
+import glob
 
 # downloads time series data from IRIS DMC
 def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
@@ -371,10 +372,14 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     trim_Daily_Waveforms(project_Name, start_Time, end_Time, 
     channels, write_File=True)
 
+    start_Time = UTCDateTime("2016-09-26T09:26:00.0Z")
+    end_Time =   UTCDateTime("2016-09-26T09:31:00.0Z")
+    project_Name = "Alaska"
+    channels = []
+    trim_Daily_Waveforms(project_Name, start_Time, end_Time, channels, write_File=True)
 
     #FIXME currently limited to same-day queries, use if endtime-starttime > 1 day:
 
-    # FIXME needs to incorporate all channels
     '''
     project_Aliases = {"Rattlesnake Ridge": "RR"}
 
@@ -422,6 +427,17 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
                 filepath_idx].stats.station]
             obspyStream[filepath_idx].stats.network = f'{hack:02}'
 
+    elif project_Name == "Alaska":
+        # build stream of all station files for templates
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates" \
+                     "/2016-09-26"
+        filepaths = glob.glob(f"{files_path}/*.ms")
+
+        obspyStream = Stream()
+        for filepath_idx in range(len(filepaths)):
+            obspyStream += read(filepaths[filepath_idx]).merge(method=1,
+                                                               fill_value=0)
+
     # make sure all traces have the same sampling rate (and thus number of
     # samples and length) to avoid bugs in other programs, e.g. Snuffler
     # slows down with variable sampling rates
@@ -458,8 +474,8 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
             ":", ".")
         # writes to snuffler path
         obspyStream.write(f"/Users/human/Dropbox/Programs/snuffler"
-                          f"/snuffler_continuous/"
-                          f"{project_Aliases[project_Name]}_{start_Time_Stamp}_"
+                          f"/2016-09-26/"
+                          f"{start_Time_Stamp}_"
                           f"{end_Time_Stamp}.ms", format="MSEED")
 
     return obspyStream
