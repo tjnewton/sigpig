@@ -238,22 +238,23 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     and template matching of the stacked waveform template.
 
     Example:
-        # templates = ["# 2016  9 26  9 25 46.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-        #              "GLB     4.000  1       P\n",
-        #              "PTPK   19.000  1       P\n",
-        #              "WASW    0.000  1       P\n",
-        #              "MCR4    7.000  1       P\n",
-        #              "NEB3    8.500  1       P\n",
-        #              "MCR1    8.500  1       P\n",
-        #              "RH08   16.500  1       P\n",
-        #              "RH10   15.500  1       P\n",
-        #              "RH09   15.500  1       P\n",
-        #              "WACK    3.500  1       P\n",
-        #              "NEB1   10.500  1       P\n",
-        #              "N25K    3.500  1       P\n",
-        #              "MCR3    3.500  1       P\n",
-        #              "KLU    21.000  1       P\n",
-        #              "MCR2    1.500  1       P\n"]
+        # manually define templates
+        templates = ["# 2016  9 26  9 25 46.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "GLB     4.000  1       P\n",
+                     "PTPK   19.000  1       P\n",
+                     "WASW    0.000  1       P\n",
+                     "MCR4    7.000  1       P\n",
+                     "NEB3    8.500  1       P\n",
+                     "MCR1    8.500  1       P\n",
+                     "RH08   16.500  1       P\n",
+                     "RH10   15.500  1       P\n",
+                     "RH09   15.500  1       P\n",
+                     "WACK    3.500  1       P\n",
+                     "NEB1   10.500  1       P\n",
+                     "N25K    3.500  1       P\n",
+                     "MCR3    3.500  1       P\n",
+                     "KLU    21.000  1       P\n",
+                     "MCR2    1.500  1       P\n"]
 
         # define template length and prepick length (both in seconds)
         template_length = 16.0
@@ -261,33 +262,29 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
         # build stream of all station files for templates
         files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
         doi = UTCDateTime("2016-09-26T00:00:00.0Z")
         template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
                                       f"-{doi.day:02}.ms")
 
-        # # station dict to add data needed by EQcorrscan
-        # station_dict = {"GLB": {"network": "AK", "channel": "BHZ"},
-        #                 "PTPK": {"network": "AK", "channel": "BHZ"},
-        #                 "WASW": {"network": "AV", "channel": "SHZ"},
-        #                 "MCR4": {"network": "YG", "channel": "BHZ"},
-        #                 "NEB3": {"network": "YG", "channel": "BHZ"},
-        #                 "MCR1": {"network": "YG", "channel": "BHZ"},
-        #                 "RH08": {"network": "YG", "channel": "BHZ"},
-        #                 "RH10": {"network": "YG", "channel": "BHZ"},
-        #                 "RH09": {"network": "YG", "channel": "BHZ"},
-        #                 "WACK": {"network": "AV", "channel": "BHZ"},
-        #                 "NEB1": {"network": "YG", "channel": "BHZ"},
-        #                 "N25K": {"network": "TA", "channel": "BHZ"},
-        #                 "MCR3": {"network": "YG", "channel": "BHZ"},
-        #                 "KLU": {"network": "AK", "channel": "BHZ"},
-        #                 "MCR2": {"network": "YG", "channel": "BHZ"}}
-
-        # get templates and station_dict objects from picks in marker file
-        templates, station_dict = markers_to_template(marker_file_path, prepick_offset)
+        # station dict to add data needed by EQcorrscan
+        station_dict = {"GLB": {"network": "AK", "channel": "BHZ"},
+                        "PTPK": {"network": "AK", "channel": "BHZ"},
+                        "WASW": {"network": "AV", "channel": "SHZ"},
+                        "MCR4": {"network": "YG", "channel": "BHZ"},
+                        "NEB3": {"network": "YG", "channel": "BHZ"},
+                        "MCR1": {"network": "YG", "channel": "BHZ"},
+                        "RH08": {"network": "YG", "channel": "BHZ"},
+                        "RH10": {"network": "YG", "channel": "BHZ"},
+                        "RH09": {"network": "YG", "channel": "BHZ"},
+                        "WACK": {"network": "AV", "channel": "BHZ"},
+                        "NEB1": {"network": "YG", "channel": "BHZ"},
+                        "N25K": {"network": "TA", "channel": "BHZ"},
+                        "MCR3": {"network": "YG", "channel": "BHZ"},
+                        "KLU": {"network": "AK", "channel": "BHZ"},
+                        "MCR2": {"network": "YG", "channel": "BHZ"}}
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
         # define day of interest
         doi = UTCDateTime("2016-09-26T00:00:00.0Z")
 
@@ -324,6 +321,35 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 		bandpass = [1, 15]
 		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 							   bandpass=bandpass)
+
+	Another example:
+        # define template length and prepick length (both in seconds)
+        template_length = 16.0
+        template_prepick = 0.5
+
+        # build stream of all station files for templates
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
+        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+        template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
+                                      f"-{doi.day:02}.ms")
+
+        # get templates and station_dict objects from picks in marker file
+        marker_file_path = "lfe_template.mrkr"
+        prepick_offset = 11 # in seconds
+        templates, station_dict = markers_to_template(marker_file_path, prepick_offset)
+
+        # define path of files for detection
+        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
+        # define day of interest
+        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+
+        # run detection
+        party = detect_LFEs(templates, template_files, station_dict,
+                            template_length, template_prepick,
+                            detection_files_path, doi)
+
+        # inspect the party object
+        fig = party.plot(plot_grouped=True)
     """
     # set up logging
     logging.basicConfig(
@@ -345,7 +371,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         st += read(file)
 
     # detect
-    party = tribe.detect(stream=st, threshold=11.0, daylong=True,
+    party = tribe.detect(stream=st, threshold=8.0, daylong=True,
                          threshold_type="MAD", trig_int=12.0, plot=True,
                          return_stream=False, parallel_process=True)
 
