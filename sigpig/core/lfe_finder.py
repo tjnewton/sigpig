@@ -348,9 +348,10 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
-        # define day of interest
-        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
+        # define day of interest or get all files
+        # doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+        doi = False
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
@@ -389,12 +390,14 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     tribe = make_Templates(templates, template_files, station_dict,
                            template_length, template_prepick)
 
-    # FIXME: detect on multiple days
+    if doi != False:
+        # build stream of all stations for detection
+        day_file_list = glob.glob(f"{detection_files_path}/*.{doi.year}"
+                                  f"-{doi.month:02}"
+                                  f"-{doi.day:02}.ms")
+    else:
+        day_file_list = glob.glob(f"{detection_files_path}/*.ms")
 
-    # build stream of all stations for detection
-    day_file_list = glob.glob(f"{detection_files_path}/*.{doi.year}"
-                              f"-{doi.month:02}"
-                              f"-{doi.day:02}.ms")
     # load files into stream
     st = Stream()
     for file in day_file_list:
@@ -510,27 +513,28 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
                 # extract file info from file name
                 file_station = file[60:].split(".")[1]
 
-                # load day file into stream
-                day_tr = read(file)
+                if file_station in pick_offset.keys():
+                    # load day file into stream
+                    day_tr = read(file)
 
-                # bandpass filter
-                day_tr.filter('bandpass', freqmin=1, freqmax=15)
+                    # bandpass filter
+                    day_tr.filter('bandpass', freqmin=1, freqmax=15)
 
-                # interpolate to lowest sampling rate
-                day_tr.interpolate(sampling_rate=lowest_sr)
+                    # interpolate to lowest sampling rate
+                    day_tr.interpolate(sampling_rate=lowest_sr)
 
-                # match station with specified pick offset
-                station_pick_time = pick_time + pick_offset[file_station]
+                    # match station with specified pick offset
+                    station_pick_time = pick_time + pick_offset[file_station]
 
-                # trim trace before adding to stream from pick_offset spec
-                day_tr.trim(station_pick_time, station_pick_time +
-                            template_length + template_prepick)
+                    # trim trace before adding to stream from pick_offset spec
+                    day_tr.trim(station_pick_time, station_pick_time +
+                                template_length + template_prepick)
 
-                st += day_tr
+                    st += day_tr
 
-                # # check if lowest sampling rate
-                # if st[0].stats.sampling_rate < lowest_sr:
-                #     lowest_sr = st[0].stats.sampling_rate
+                    # # check if lowest sampling rate
+                    # if st[0].stats.sampling_rate < lowest_sr:
+                    #     lowest_sr = st[0].stats.sampling_rate
 
             stream_list.append((st, index))
             # st.plot()
