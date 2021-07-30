@@ -293,7 +293,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
                         "MCR2": {"network": "YG", "channel": "BHZ"}}
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
+        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         # define day of interest
         doi = UTCDateTime("2016-09-26T00:00:00.0Z")
 
@@ -350,8 +350,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
         # define day of interest or get all files
-        # doi = UTCDateTime("2016-09-26T00:00:00.0Z")
-        doi = False
+        # doi = False
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
@@ -364,7 +363,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # load previous stream list?
         load_stream_list = False
         # get the stacks
-        stack_list = stack_waveforms(party, pick_offset, files_path,
+        stack_list = stack_waveforms(party, pick_offset, detection_files_path,
                                      template_length, template_prepick,
                                      load_stream_list=load_stream_list)
 
