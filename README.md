@@ -80,4 +80,4 @@ xyz
 xyz  
 
 ### sigpig.core.stress inverts slip vectors for principal stress orientation:  
-xyz  
+xy
