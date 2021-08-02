@@ -230,7 +230,7 @@ def make_Templates(templates, template_files, station_dict, template_length,
                               st=st, lowcut=1.0, highcut=15.0, samp_rate=40.0,
                               length=template_length, filt_order=4,
                               prepick=template_prepick, swin='all',
-                              process_len=86400, parallel=True)  # min_snr=5.0,
+                              process_len=86400, parallel=False)  # min_snr=5.0,
     # 46 detections for 2-8 Hz
     # 56 detections for 1-15 Hz
 
@@ -332,6 +332,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 							   bandpass=bandpass)
 
 	Another example:
+
         # define template length and prepick length (both in seconds)
         template_length = 16.0
         template_prepick = 0.5
@@ -349,8 +350,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
-        # define day of interest or get all files
-        # doi = False
+        # define day of interest or get all files in directory if doi=False
+        doi = False
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
@@ -405,7 +406,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     # detect
     party = tribe.detect(stream=st, threshold=8.0, daylong=True,
                          threshold_type="MAD", trig_int=12.0, plot=True,
-                         return_stream=False, parallel_process=True)
+                         return_stream=False, parallel_process=False,
+                         ignore_bad_data=True)
 
     # # # 14 second template w/ 0.5 prepick # # #
     # 17 detections: "MAD" @ 11.0  <---
