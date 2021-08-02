@@ -94,6 +94,55 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
         start_Time = UTCDateTime("2017-08-12T00:00:00.0Z")
         end_Time =   UTCDateTime("2018-08-11T23:59:59.999999999999999Z")
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
+    # Another example: download data for a single time period
+
+        network = "AK"
+        stations = ["BAL", "BARN", "DHY", "DIV", "DOT", "GHO", "GLB", "K218",
+                    "KLU", "KNK", "MCAR", "MCK", "PAX", "PTPK", "RIDG", "RND",
+                    "SAW", "SCM", "VRDI", "WAT1", "WAT6", "WAT7"]
+        location = "**"
+        channels = ["BHZ", "BNZ", "HNZ", "BHN", "BNN", "HNN", "BHE", "BNE", "HNE"]
+        start_Time = UTCDateTime("2016-09-26T00:00:00.0Z")
+        end_Time =   UTCDateTime("2016-09-30T23:59:59.999999999999999Z")
+        get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
+        # and subsequent networks
+        network = "AT"
+        stations = ["MENT", "PMR"]
+        location = "**"
+        channels = ["BHZ", "BHN", "BHE"]
+        get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
+        network = "AV"
+        stations = ["WACK", "WASW", "WAZA"]
+        location = "**"
+        channels = ["BHZ", "SHZ", "BHN", "SHN", "BHE", "SHE"]
+        get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
+        network = "NP"
+        stations = ["2730", "2738", "2784", "8034", "AJKS", "AMJG"]
+        location = "**"
+        channels = ["HNZ", "HNN", "HNE"]
+        get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
+        network = "TA"
+        stations = ["HARP", "K24K", "L26K", "L27K", "M23K", "M24K", "M26K",
+                    "M27K", "N25K"]
+        location = "**"
+        channels = ["BHZ", "BHN", "BHE"]
+        get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
+        # WVLF experiment
+        network = "YG"
+        stations = ["DEN1", "DEN3", "DEN4", "DEN5", "GLN1", "GLN2", "GLN3", "GLN4",
+                    "LKLO", "MCR1", "MCR2", "MCR3", "MCR4", "NEB1", "NEB2", "NEB3",
+                    "RH01", "RH02", "RH03", "RH04", "RH05", "RH06", "RH07", "RH08",
+                    "RH09", "RH10", "RH11", "RH12", "RH13", "RH14", "RH15", "TOK1",
+                    "TOK2", "TOK3", "TOK4", "TOK5"]
+        location = "**"
+        channels = ["BHZ", "BHN", "BHE"]
+        get_Waveforms(network, stations, location, channels, start_Time, end_Time)
     """
 
     if isinstance(stations, list):
@@ -108,7 +157,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                         st[index].stats.sampling_rate = round(
                             trace.stats.sampling_rate)
 
-                    st = st.merge(method=1, fill_value=0)
+                    st = st.merge(method=1, fill_value=None)
                     # st.plot(type='dayplot', interval=60)
                     # print(f"len of st: {len(st)}")
                     print(st)
@@ -137,7 +186,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                                              f"{file_start.day:02}"
                                              f"T23:59:59.999999999Z")
                         file_st.trim(file_start, file_end,
-                                     nearest_sample=False, fill_value=0)
+                                     nearest_sample=False, fill_value=None)
 
                         file_st.write("/Users/human/Dropbox/Research/Alaska/build_templates/data/"+filename, format="MSEED")
 
@@ -178,7 +227,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                     st[index].stats.sampling_rate = round(
                         trace.stats.sampling_rate)
 
-                st = st.merge(method=1, fill_value=0)
+                st = st.merge(method=1, fill_value=None)
                 # st.plot(type='dayplot', interval=60)
 
                 stream_start = st[0].stats.starttime
@@ -204,7 +253,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                                            f"{file_start.day:02}"
                                            f"T23:59:59.999999999Z")
                     file_st.trim(file_start, file_end,
-                                 nearest_sample=False, fill_value=0)
+                                 nearest_sample=False, fill_value=None)
 
                     file_st.write("/Users/human/Dropbox/Research/Alaska/build_templates/data/" + filename, format="MSEED")
 
@@ -421,7 +470,7 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
         obspyStream = Stream()
         for filepath_idx in range(len(filepaths)):
             obspyStream += read(filepaths[filepath_idx]).merge(method=1,
-                                                               fill_value=0)
+                                                               fill_value=None)
             # station-distance hack for picking, assign number to network
             hack = station_distance_hack[obspyStream[
                 filepath_idx].stats.station]
@@ -436,7 +485,7 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
         obspyStream = Stream()
         for filepath_idx in range(len(filepaths)):
             obspyStream += read(filepaths[filepath_idx]).merge(method=1,
-                                                               fill_value=0)
+                                                               fill_value=None)
 
     # make sure all traces have the same sampling rate (and thus number of
     # samples and length) to avoid bugs in other programs, e.g. Snuffler
