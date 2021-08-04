@@ -351,7 +351,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
         # define day of interest or get all files in directory if doi=False
-        doi = False
+        doi = UTCDateTime("2016-09-28T00:00:00.0Z")
+        # doi = False
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
@@ -391,7 +392,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
                            template_length, template_prepick)
 
     if doi != False:
-        # build stream of all stations for detection
+        # build stream of all files on day of interest
         day_file_list = glob.glob(f"{detection_files_path}/*.{doi.year}"
                                   f"-{doi.month:02}"
                                   f"-{doi.day:02}.ms")
