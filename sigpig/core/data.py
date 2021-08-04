@@ -15,6 +15,24 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
     """Downloads waveform data using Obspy to access the IRIS DMC
     Find stations via https://ds.iris.edu/gmap/
 
+    Example: download UGAP3, UGAP5, UGAP6  :  EHN [old DP1], EHE, EHZ
+        network = "UW"
+        stations = ["UGAP3", "UGAP5", "UGAP6"]
+        location = "**"
+        channels = ["EHN", "EHE", "EHZ"]
+        start_Time = UTCDateTime("2018-03-14T00:00:00.0Z")
+        end_Time =   UTCDateTime("2018-03-14T23:59:59.999999999999999Z")
+        get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
+    Example: download UGAP3, UGAP5, UGAP6  :  EHN
+            network = "UW"
+            stations = ["UGAP3", "UGAP5", "UGAP6"]
+            location = "**"
+            channels = ["EHN"]
+            start_Time = UTCDateTime("2018-04-11T00:00:00.0Z")
+            end_Time =   UTCDateTime("2018-04-11T23:59:59.999999999999999Z")
+            get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
     Example: download stations near Wrangell Volcanic Field inside of box:
               North: 63.9498, East: -141.5259, South: 61.0264, West: -149.3515
 
@@ -143,6 +161,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
         location = "**"
         channels = ["BHZ", "BHN", "BHE"]
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+
     """
 
     if isinstance(stations, list):
@@ -255,7 +274,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                     file_st.trim(file_start, file_end,
                                  nearest_sample=False, fill_value=None)
 
-                    file_st.write("/Users/human/Dropbox/Research/Alaska/build_templates/data/" + filename, format="MSEED")
+                    file_st.write(filename, format="MSEED")
 
                     # update the next file start date
                     file_year = file_start.year
