@@ -207,7 +207,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                         file_st.trim(file_start, file_end,
                                      nearest_sample=False, fill_value=None)
 
-                        file_st.write("/Users/human/Dropbox/Research/Alaska/build_templates/data/"+filename, format="MSEED")
+                        file_st.write(filename, format="MSEED")
 
                         # update the next file start date
                         file_year = file_start.year
