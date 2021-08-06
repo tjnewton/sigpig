@@ -334,6 +334,9 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 							   bandpass=bandpass)
 
 	Another example spanning multiple days:
+        # time the run
+        from datetime import datetime
+        start = datetime.now()
 
         # define template length and prepick length (both in seconds)
         template_length = 16.0
@@ -351,15 +354,17 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
+        detection_files_path = "/Users/human/Desktop/data"
         # define period of interest for detection
-        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
-        end_date = UTCDateTime("2016-09-27T23:59:59.9999999999999Z")
+        start_date = UTCDateTime("2016-09-01T00:00:00.0Z")
+        end_date = UTCDateTime("2016-09-30T23:59:59.9999999999999Z")
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
                             detection_files_path, start_date, end_date)
+        end = datetime.now()
+        end - start
 
         # inspect the party object
         fig = party.plot(plot_grouped=True)
@@ -411,12 +416,13 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
         # detect
         party = tribe.detect(stream=st, threshold=8.0, daylong=True,
-                             threshold_type="MAD", trig_int=8.0, plot=True,
+                             threshold_type="MAD", trig_int=8.0, plot=False,
                              return_stream=False, parallel_process=False,
                              ignore_bad_data=True)
 
-        # append detections to party list
-        party_list.append(party)
+        # append detections to party list if there are detections
+        if len(party.families[0]) > 0:
+            party_list.append(party)
 
         # update the next file start date
         iteration_year = iteration_date.year
