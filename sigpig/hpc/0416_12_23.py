@@ -2264,14 +2264,6 @@ for clustering_Algo in clustering_Algos:
     #                 dpi=300)
     #     plt.show()
 
-# # plot event histogram
-# event_filename = "autopicked_events_03_13_2018.mrkr"
-# event_histogram(event_filename, save_fig=True)
-
-# plot station detection map
-# event_filename = "autopicked_events_copy.mrkr"
-# station_detection_map(event_filename)
-
 end = time.time()
 hours = int((end - start) / 60 / 60)
 minutes = int(((end - start) / 60) - (hours * 60))
