@@ -333,7 +333,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 							   bandpass=bandpass)
 
-	Another example:
+	Another example spanning multiple days:
 
         # define template length and prepick length (both in seconds)
         template_length = 16.0
