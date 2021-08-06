@@ -351,16 +351,18 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
         # define day of interest or get all files in directory if doi=False
-        doi = UTCDateTime("2016-09-28T00:00:00.0Z")
-        # doi = False
+        # doi = UTCDateTime("2016-09-28T00:00:00.0Z")
+        doi = False
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
                             detection_files_path, doi)
+        print("Finished detection.")
 
         # inspect the party object
         fig = party.plot(plot_grouped=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # load previous stream list?
         load_stream_list = False
@@ -383,7 +385,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
             lin_fig.suptitle(f"Linear stack: Template={template_length}, Prepick={template_prepick}")
             plt.show()
     """
-    # set up logging
+    # set up logging (levels: DEBUG, INFO, WARNING, ERROR, CRITICAL)
     logging.basicConfig(
         level=logging.ERROR,
         format="%(asctime)s\t%(name)s\t%(levelname)s\t%(message)s")
