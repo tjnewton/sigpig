@@ -37,22 +37,13 @@ import pickle
 import time
 import unet
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import matplotlib.cm as mplcm
-import matplotlib.colors as colors
 from matplotlib.dates import DateFormatter, AutoDateLocator, num2date
 from sklearn import decomposition
 from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from collections import defaultdict
-import random
 import base64
 import hashlib
-# import earthpy as et
-# import earthpy.spatial as es
-# import earthpy.plot as ep
-# import rasterio as rio
-# import laspy
-from scipy.interpolate import griddata
+
 # supress np error that is handled
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -64,30 +55,8 @@ load = False # load windows from a previous run?
 detection_Parameters = (120, 60) # window size and offset
 
 # identify time period(s) of interest
-# time_Period = (UTCDateTime("2018-03-13T01:33:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:33:30.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:33:30.0Z"),
-#                  UTCDateTime("2018-03-13T01:34:00.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:34:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:34:30.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:34:30.0Z"),
-#                  UTCDateTime("2018-03-13T01:35:00.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:35:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:36:00.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:36:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:37:00.0Z"))
-
-# # # # # # # # # MINING BATCHES # # # # # # # # # #
 time_Period = (UTCDateTime("2018-04-16T00:01:10.0Z"),
                UTCDateTime("2018-04-16T12:00:00.0Z")) # runtime: hm
-# time_Period = (UTCDateTime("2018-03-15T12:00:00.0Z"),
-#                UTCDateTime("2018-03-15T23:59:00.0Z")) # runtime: hm
-# time_Period = (UTCDateTime("2018-03-13T21:00:00.0Z"),
-#                UTCDateTime("2018-03-13T22:00:00.0Z")) # runtime: 8h35m
-# time_Period = (UTCDateTime("2018-03-13T22:00:00.01Z"),
-#                UTCDateTime("2018-03-13T23:00:00.0Z")) # runtime: 8h29m
-# time_Period = (UTCDateTime("2018-03-13T23:00:00.0Z"),
-#                UTCDateTime("2018-03-13T23:59:00.0Z")) # runtime: 8h49m
 
 # Parameters for unet detection
 threshold = 0.23 # was 0.40
@@ -1902,78 +1871,6 @@ def signal_histogram(event_filename, save_fig=False):
 
     return None
 
-# # plot station detection map
-# def station_detection_map(event_filename):
-#     """Ingests snuffler-style .mrkr file and generates a station detection
-#        map from its contents.
-#
-#        Example:
-#            event_filename = "autopicked_events_03-13T21-22_8h35m.mrkr"
-#            station_detection_map(event_filename)
-#     """
-#     # helper function to find distance between closest elements in array
-#     def min_dist(array):
-#         minimum_distance = []
-#         for index, entry in enumerate(array):
-#             print(index)
-#             temp_min = (np.abs(array - entry)).min()
-#             # if minimum distance is empty, store the value
-#             if len(minimum_distance) == 0:
-#                 minimum_distance.append(temp_min)
-#             # else check if value is smaller than stored minimum
-#             elif temp_min < minimum_distance[0]:
-#                 minimum_distance[0] = temp_min
-#
-#         return minimum_distance[0]
-#
-#     # get info from marker file
-#     pick_counts_dates, event_dates = process_picks(event_filename)
-#
-#     # open laz file
-#     laz = laspy.read("RR_2019_10cm_NAD83_UTMz10.laz")
-#     # extract x, y, z data
-#     x = np.array(laz.x)
-#     y = np.array(laz.y)
-#     z = np.array(laz.z)
-#
-#     # interpolate data to generate a DEM for hillshade
-#     x_min_dist = # calculated from min_dist(x), takes a long time
-#     x_dimension = (x.max() - x.min()) / x_min_dist
-#     linear_x = np.linspace(x.min(), x.max(), x_dimension)
-#     y_min_dist =  # calculated from min_dist(y), takes a long time
-#     y_dimension = (y.max() - y.min()) / y_min_dist
-#     linear_y = np.linspace(y.min(), y.max(), y_dimension)
-#     X, Y = np.meshgrid(linear_x, linear_y)
-#     # interpolate x, y, z over a normal grid X, Y
-#     Z = griddata((x, y), z, (X, Y), method='linear')
-#
-#     # save (X, Y, Z) to pickle file for future use
-#     XYZ = (X, Y, Z)
-#     outfile = open('XYZ.pkl', 'wb')
-#     pickle.dump(XYZ, outfile)
-#     outfile.close()
-#
-#     plt.pcolormesh(X, Y, Z)
-#     plt.show()
-#
-#     # generate hillshade map
-#     elevation = Z
-#
-#     # plot the data
-#     ep.plot_bands(elevation, cmap="gist_earth", title="DTM Without Hillshade",
-#                   figsize=(10, 6),)
-#     plt.show()
-#
-#     # Create and plot the hillshade with earthpy
-#     hillshade = es.hillshade(elevation)
-#
-#     ep.plot_bands(
-#         hillshade,
-#         cbar=False,
-#         title="Hillshade made from DTM",
-#         figsize=(10, 6),
-#     )
-#     plt.show()
 
 
 # # # #   B E G I N   P R O C E S S I N G   T I M E   W I N D O W S   # # # #
@@ -2299,7 +2196,7 @@ for clustering_Algo in clustering_Algos:
 # event_filename = "autopicked_events_03_13_2018.mrkr"
 # event_histogram(event_filename, save_fig=True)
 
-# plot station detection map
+# # plot station detection map
 # event_filename = "autopicked_events_copy.mrkr"
 # station_detection_map(event_filename)
 
