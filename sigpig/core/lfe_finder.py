@@ -11,6 +11,7 @@ import glob
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import calendar
 
 
 # function to convert snuffler marker file to event template
@@ -353,13 +354,12 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
         # define period of interest for detection
         start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
-        end_date = UTCDateTime("2016-09-28T23:59:59.9999999999999Z")
+        end_date = UTCDateTime("2016-09-27T23:59:59.9999999999999Z")
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
                             detection_files_path, start_date, end_date)
-        print("Finished detection.")
 
         # inspect the party object
         fig = party.plot(plot_grouped=True)
@@ -394,25 +394,69 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     tribe = make_Templates(templates, template_files, station_dict,
                            template_length, template_prepick)
 
-    # FIXME: implement start_date & end_date here
-    if doi != False:
+    # loop over days and get detections
+    iteration_date = start_date
+    party_list = []
+    while iteration_date < end_date:
         # build stream of all files on day of interest
-        day_file_list = glob.glob(f"{detection_files_path}/*.{doi.year}"
-                                  f"-{doi.month:02}"
-                                  f"-{doi.day:02}.ms")
+        day_file_list = glob.glob(f"{detection_files_path}/*."
+                                  f"{iteration_date.year}"
+                                  f"-{iteration_date.month:02}"
+                                  f"-{iteration_date.day:02}.ms")
+
+        # load files into stream
+        st = Stream()
+        for file in day_file_list:
+            st += read(file)
+
+        # detect
+        party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+                             threshold_type="MAD", trig_int=8.0, plot=True,
+                             return_stream=False, parallel_process=False,
+                             ignore_bad_data=True)
+
+        # append detections to party list
+        party_list.append(party)
+
+        # update the next file start date
+        iteration_year = iteration_date.year
+        iteration_month = iteration_date.month
+        iteration_day = iteration_date.day
+        # get number of days in current month
+        month_end_day = calendar.monthrange(iteration_year,
+                                            iteration_month)[1]
+        # check if year should increment
+        if iteration_month == 12 and iteration_day == month_end_day:
+            iteration_year += 1
+            iteration_month = 1
+            iteration_day = 1
+        # check if month should increment
+        elif iteration_day == month_end_day:
+            iteration_month += 1
+            iteration_day = 1
+        # else only increment day
+        else:
+            iteration_day += 1
+
+        iteration_date = UTCDateTime(f"{iteration_year}-"
+                                     f"{iteration_month:02}-"
+                                     f"{iteration_day:02}T00:00:00.0Z")
+
+    # add all detections to a single party
+    if len(party_list) > 1:
+        for index, iteration_party in enumerate(party_list):
+            # skip first party
+            if index > 0:
+                # add events of current party family to first party family
+                party_list[0].families[0] = party_list[0].families[0].append(
+                                                   iteration_party.families[0])
+
+    # extract and return the first party or None if no party object
+    if len(party_list) > 0:
+        party = party_list[0]
+        return party
     else:
-        day_file_list = glob.glob(f"{detection_files_path}/*.ms")
-
-    # load files into stream
-    st = Stream()
-    for file in day_file_list:
-        st += read(file)
-
-    # detect
-    party = tribe.detect(stream=st, threshold=8.0, daylong=True,
-                         threshold_type="MAD", trig_int=12.0, plot=True,
-                         return_stream=False, parallel_process=False,
-                         ignore_bad_data=True)
+        return None
 
     # # # 14 second template w/ 0.5 prepick # # #
     # 17 detections: "MAD" @ 11.0  <---
@@ -436,8 +480,6 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     # 13 detections: "MAD" @ 11.0  <---
     # 31 detections: "MAD" @ 9.0
     # 52 detections: "MAD" @ 8.0
-
-    return party
 
 
 # function to generate phase-weighted waveform stack
