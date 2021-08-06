@@ -37,22 +37,13 @@ import pickle
 import time
 import unet
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import matplotlib.cm as mplcm
-import matplotlib.colors as colors
 from matplotlib.dates import DateFormatter, AutoDateLocator, num2date
 from sklearn import decomposition
 from sklearn.cluster import DBSCAN, OPTICS, cluster_optics_dbscan
 from collections import defaultdict
-import random
 import base64
 import hashlib
-# import earthpy as et
-# import earthpy.spatial as es
-# import earthpy.plot as ep
-# import rasterio as rio
-# import laspy
-from scipy.interpolate import griddata
+
 # supress np error that is handled
 np.seterr(divide='ignore', invalid='ignore')
 
