@@ -55,30 +55,8 @@ load = False # load windows from a previous run?
 detection_Parameters = (120, 60) # window size and offset
 
 # identify time period(s) of interest
-# time_Period = (UTCDateTime("2018-03-13T01:33:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:33:30.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:33:30.0Z"),
-#                  UTCDateTime("2018-03-13T01:34:00.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:34:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:34:30.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:34:30.0Z"),
-#                  UTCDateTime("2018-03-13T01:35:00.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:35:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:36:00.0Z"))
-# time_Period = (UTCDateTime("2018-03-13T01:36:00.0Z"),
-#                  UTCDateTime("2018-03-13T01:37:00.0Z"))
-
-# # # # # # # # # MINING BATCHES # # # # # # # # # #
-# time_Period = (UTCDateTime("2018-03-15T00:01:10.0Z"),
-#                UTCDateTime("2018-03-15T12:00:00.0Z")) # runtime: hm
 time_Period = (UTCDateTime("2018-04-16T12:00:00.0Z"),
-               UTCDateTime("2018-04-16T23:59:00.0Z")) # runtime: hm
-# time_Period = (UTCDateTime("2018-03-13T21:00:00.0Z"),
-#                UTCDateTime("2018-03-13T22:00:00.0Z")) # runtime: 8h35m
-# time_Period = (UTCDateTime("2018-03-13T22:00:00.01Z"),
-#                UTCDateTime("2018-03-13T23:00:00.0Z")) # runtime: 8h29m
-# time_Period = (UTCDateTime("2018-03-13T23:00:00.0Z"),
-#                UTCDateTime("2018-03-13T23:59:00.0Z")) # runtime: 8h49m
+               UTCDateTime("2018-04-16T23:59:00.0Z"))
 
 # Parameters for unet detection
 threshold = 0.23 # was 0.40
