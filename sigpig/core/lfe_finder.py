@@ -240,7 +240,7 @@ def make_Templates(templates, template_files, station_dict, template_length,
 
 # function to drive LFE detection with EQcorrscan
 def detect_LFEs(templates, template_files, station_dict, template_length,
-                template_prepick, detection_files_path, doi):
+                template_prepick, detection_files_path, start_date, end_date):
     """
     Driver function to detect LFEs in time series via matched-filtering with a
     specified template, stacking of LFEs found from that template,
@@ -295,12 +295,13 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         # define day of interest
-        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
+        end_date = UTCDateTime("2016-09-26T23:59:59.999999999999Z")
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
-                            detection_files_path, doi)
+                            detection_files_path, start_date, end_date)
 
         # # to inspect the catalog
         # catalog = party.get_catalog()
@@ -350,14 +351,14 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/data"
-        # define day of interest or get all files in directory if doi=False
-        # doi = UTCDateTime("2016-09-28T00:00:00.0Z")
-        doi = False
+        # define period of interest for detection
+        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
+        end_date = UTCDateTime("2016-09-28T23:59:59.9999999999999Z")
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
-                            detection_files_path, doi)
+                            detection_files_path, start_date, end_date)
         print("Finished detection.")
 
         # inspect the party object
@@ -393,6 +394,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     tribe = make_Templates(templates, template_files, station_dict,
                            template_length, template_prepick)
 
+    # FIXME: implement start_date & end_date here
     if doi != False:
         # build stream of all files on day of interest
         day_file_list = glob.glob(f"{detection_files_path}/*.{doi.year}"
