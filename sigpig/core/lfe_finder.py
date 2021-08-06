@@ -335,8 +335,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
 	Another example spanning multiple days:
         # time the run
-        from datetime import datetime
-        start = datetime.now()
+        import time
+        start = time.time()
 
         # define template length and prepick length (both in seconds)
         template_length = 16.0
@@ -354,17 +354,20 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Desktop/data"
+        detection_files_path = "/Volumes/DISK/alaska/data"
         # define period of interest for detection
-        start_date = UTCDateTime("2016-09-01T00:00:00.0Z")
-        end_date = UTCDateTime("2016-09-30T23:59:59.9999999999999Z")
+        start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
         # run detection
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
                             detection_files_path, start_date, end_date)
-        end = datetime.now()
-        end - start
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # inspect the party object
         fig = party.plot(plot_grouped=True)
@@ -403,6 +406,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     iteration_date = start_date
     party_list = []
     while iteration_date < end_date:
+        print(iteration_date) # print date for long runs
         # build stream of all files on day of interest
         day_file_list = glob.glob(f"{detection_files_path}/*."
                                   f"{iteration_date.year}"
