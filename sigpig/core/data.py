@@ -12,7 +12,8 @@ import glob
 
 # downloads time series data from IRIS DMC
 def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
-    """Downloads waveform data using Obspy to access the IRIS DMC
+    """Downloads waveform data using Obspy to access the IRIS DMC and saves
+    data to daily miniseed files.
     Find stations via https://ds.iris.edu/gmap/
 
     Example: download UGAP3, UGAP5, UGAP6  :  EHN [old DP1], EHE, EHZ
@@ -29,8 +30,8 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
             stations = ["UGAP3", "UGAP5", "UGAP6"]
             location = "**"
             channels = ["EHN"]
-            start_Time = UTCDateTime("2018-04-11T00:00:00.0Z")
-            end_Time =   UTCDateTime("2018-04-11T23:59:59.999999999999999Z")
+            start_Time = UTCDateTime("2018-04-12T00:00:00.0Z")
+            end_Time =   UTCDateTime("2018-04-16T23:59:59.999999999999999Z")
             get_Waveforms(network, stations, location, channels, start_Time, end_Time)
 
     Example: download stations near Wrangell Volcanic Field inside of box:
@@ -176,7 +177,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                         st[index].stats.sampling_rate = round(
                             trace.stats.sampling_rate)
 
-                    st = st.merge(method=1, fill_value=None)
+                    st = st.merge(method=1, fill_value=0) # None
                     # st.plot(type='dayplot', interval=60)
                     # print(f"len of st: {len(st)}")
                     print(st)
@@ -208,6 +209,7 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
                                      nearest_sample=False, fill_value=None)
 
                         file_st.write(filename, format="MSEED")
+                        print(f"Writing {filename}")
 
                         # update the next file start date
                         file_year = file_start.year
