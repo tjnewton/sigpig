@@ -563,7 +563,7 @@ def rattlesnake_Ridge_Station_Locations():
             for station in station_locations.keys():
                 latitude = station_locations[station][0]
                 longitude = station_locations[station][1]
-                line = f"{station},{latitude},{longitude}"
+                line = f"{station},{latitude},{longitude}\n"
                 file.write(line)
 
     """
