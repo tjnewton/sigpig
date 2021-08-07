@@ -35,7 +35,7 @@ def visualize_Point_Cloud(filename):
 
 def ingest_DEM(raster_file, output_file):
     """
-    Reads an .adf raster file
+    Reads an .adf raster file and outputs a .tiff file.
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
