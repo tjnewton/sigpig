@@ -40,6 +40,7 @@ def ingest_DEM(raster_file, output_file):
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
         output_file = 'classified.tiff'
+        ingest_DEM(raster_file, output_file)
 
     """
 
