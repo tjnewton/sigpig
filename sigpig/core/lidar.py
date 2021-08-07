@@ -82,6 +82,6 @@ def ingest_DEM(raster_file, output_file):
     output_dataset.GetRasterBand(1).WriteRaster(0, 0, xsize, ysize, out_str)
     output_dataset = None
 
-    return
+    return output_dataset
 
 # TODO: add content from lidar/ortho_station_map here or to figures.py
