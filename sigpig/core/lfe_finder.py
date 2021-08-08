@@ -607,7 +607,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
                 if file_station in pick_offset.keys():
                     # load day file into stream
-                    day_tr = read(file)
+                    day_tr = Stream()
+                    day_tr += read(file)
 
                     # bandpass filter
                     day_tr.filter('bandpass', freqmin=1, freqmax=15)
