@@ -579,6 +579,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
             #         pick.waveform_id.network_code == "AV" and \
             #         pick.waveform_id.channel_code == "SHZ":
             #     pick_times.append(pick.time)
+            # FIXME: this should be dynamic, not hard coded
             if pick.waveform_id.station_code == "WAT7" and \
                     pick.waveform_id.network_code == "AK" and \
                     pick.waveform_id.channel_code == "BHE":
