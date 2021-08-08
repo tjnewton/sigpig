@@ -596,6 +596,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
                                       f"-{pick_time.day:02}.ms")
             # load files into stream
             st = Stream()
+            # FIXME: this should be detected, not hard coded
             lowest_sr = 40
             for file in day_file_list:
                 # extract file info from file name
