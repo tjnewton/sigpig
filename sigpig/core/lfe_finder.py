@@ -370,7 +370,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # load party object from file
-        infile = open('party_.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
 
