@@ -374,8 +374,9 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         party = pickle.load(infile)
         infile.close()
 
-        # inspect the party object
-        fig = party.plot(plot_grouped=True)
+        # inspect the party object detections
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # load previous stream list?
@@ -589,6 +590,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
         # build streams from party families
         stream_list = []
         for index, pick_time in enumerate(pick_times):
+            print(index)
 
             # build stream of all stations for detection
             day_file_list = glob.glob(f"{streams_path}/*.{pick_time.year}"
