@@ -640,6 +640,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
         stream_list = pickle.load(infile)
         infile.close()
 
+    print("finished making stream")
+
     # cluster via xcorr
     # groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
     # groups[0][0][0].plot()
@@ -648,7 +650,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
     groups = [stream_list]
 
     stack_list = []
-    # loop over each group of detections (from clustering)
+    # loop over each group of detections (from clustering or manual assignment)
     for group in groups:
         # get group streams to stack
         group_streams = [st_tuple[0] for st_tuple in group]
