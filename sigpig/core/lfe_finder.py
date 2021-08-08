@@ -369,6 +369,11 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
+        # load party object from file
+        infile = open('party_.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
+
         # inspect the party object
         fig = party.plot(plot_grouped=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
@@ -465,6 +470,15 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     if len(party_list) > 0:
         party = party_list[0]
         return party
+
+        # save party to pickle
+        filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
+                   f'{start_date.year}_to_{end_date.month:02}' \
+                   f'_{end_date.day:02}_{end_date.year}.pkl'
+        outfile = open(filename, 'wb')
+        pickle.dump(party, outfile)
+        outfile.close()
+
     else:
         return None
 
