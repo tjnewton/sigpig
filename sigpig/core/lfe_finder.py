@@ -482,6 +482,10 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     else:
         return None
 
+    # # # # .mrkr template # # # #
+    # detection over entire period
+    # 601 family detections: Runtime: 47 h 44 m 34 s
+
     # # # 14 second template w/ 0.5 prepick # # #
     # 17 detections: "MAD" @ 11.0  <---
     # 35 detections: "MAD" @ 9.0
