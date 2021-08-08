@@ -381,9 +381,15 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # load previous stream list?
         load_stream_list = False
         # get the stacks
+        start = time.time()
         stack_list = stack_waveforms(party, pick_offset, detection_files_path,
                                      template_length, template_prepick,
                                      load_stream_list=load_stream_list)
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # loop over stack list and show the phase weighted stack and linear
         # stack for each group
@@ -469,7 +475,6 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     # extract and return the first party or None if no party object
     if len(party_list) > 0:
         party = party_list[0]
-        return party
 
         # save party to pickle
         filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
@@ -478,6 +483,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
+
+        return party
 
     else:
         return None
@@ -568,9 +575,13 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
     for event in party.families[0].catalog.events:
         for pick in event.picks:
             # station with earliest pick defines "pick time"
-            if pick.waveform_id.station_code == "WASW" and \
-                    pick.waveform_id.network_code == "AV" and \
-                    pick.waveform_id.channel_code == "SHZ":
+            # if pick.waveform_id.station_code == "WASW" and \
+            #         pick.waveform_id.network_code == "AV" and \
+            #         pick.waveform_id.channel_code == "SHZ":
+            #     pick_times.append(pick.time)
+            if pick.waveform_id.station_code == "WAT7" and \
+                    pick.waveform_id.network_code == "AK" and \
+                    pick.waveform_id.channel_code == "BHE":
                 pick_times.append(pick.time)
 
     if not load_stream_list:
