@@ -599,6 +599,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
             lowest_sr = 40
             for file in day_file_list:
                 # extract file info from file name
+                # FIXME: this should be dynamic, not hard coded
                 file_station = file[26:].split(".")[1]
 
                 if file_station in pick_offset.keys():
