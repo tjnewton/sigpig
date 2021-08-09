@@ -707,7 +707,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
 # function to generate phase-weighted waveform stack station by station
 def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
-                    template_prepick, load_stream_list=False):
+                    template_prepick, station_dict):
     """
     Generates stacks of waveforms from families specified within a Party
     object (as returned by detect_LFEs), using the miniseed files present in
@@ -774,83 +774,81 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                 pick_times.append(pick.time)
 
     # loop over stations and generate a stack for each station:channel pair
-    for station in :
-        for channel in :
-            # build streams from party families
+    for station in station_dict.keys():
+        network = station_dict[station]["network"]
+        channels = []
+        channels.append(station_dict[station]["channel"]) # append Z component
+        channels.append(f"{channels[0][:-1]}N") # append N component
+        channels.append(f"{channels[0][:-1]}E")  # append E component
+
+        for channel in channels:
+
             stream_list = []
             for index, pick_time in enumerate(pick_times):
                 print(index)
 
-                # build stream of all stations for detection
-                day_file_list = glob.glob(f"{streams_path}/*..*{pick_time.year}"
+                # build stream of detection file
+                day_file_list = glob.glob(f"{streams_path}/{network}."
+                                          f"{station}."
+                                          f"{channel}.{pick_time.year}"
                                           f"-{pick_time.month:02}"
                                           f"-{pick_time.day:02}.ms")
-                # load files into stream
-                st = Stream()
+
                 # FIXME: this should be detected, not hard coded
                 lowest_sr = 40
-                for file in day_file_list:
-                    # extract file info from file name
-                    # FIXME: this should be dynamic, not hard coded
-                    file_station = file[26:].split(".")[1]
 
-                    if file_station in pick_offset.keys():
-                        # load day file into stream
-                        day_tr = Stream()
-                        day_tr += read(file)
+                # should only be one file, but safeguard against many
+                file = day_file_list[0]
 
-                        # bandpass filter
-                        day_tr.filter('bandpass', freqmin=1, freqmax=15)
+                # extract file info from file name
+                # FIXME: this should be dynamic, not hard coded
+                file_station = file[26:].split(".")[1]
 
-                        # interpolate to lowest sampling rate
-                        day_tr.interpolate(sampling_rate=lowest_sr)
+                # load day file into stream
+                day_st = Stream()
+                day_st += read(file)
 
-                        # match station with specified pick offset
-                        station_pick_time = pick_time + pick_offset[file_station]
+                # bandpass filter
+                day_st.filter('bandpass', freqmin=1, freqmax=15)
 
-                        # trim trace before adding to stream from pick_offset spec
-                        day_tr.trim(station_pick_time, station_pick_time +
-                                    template_length + template_prepick)
+                # interpolate to lowest sampling rate
+                day_st.interpolate(sampling_rate=lowest_sr)
 
-                        st += day_tr
+                # match station with specified pick offset
+                station_pick_time = pick_time + pick_offset[file_station]
 
-                        # # check if lowest sampling rate
-                        # if st[0].stats.sampling_rate < lowest_sr:
-                        #     lowest_sr = st[0].stats.sampling_rate
+                # trim trace before adding to stream from pick_offset spec
+                day_st.trim(station_pick_time, station_pick_time +
+                            template_length + template_prepick)
 
-                stream_list.append((st, index))
+                stream_list.append((day_st, index))
                 # st.plot()
 
-    print("finished making stream")
+            print("finished making stream")
 
-    # cluster via xcorr
-    # groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
-    # groups[0][0][0].plot()
-
-    # or build a single group manually
-    groups = [stream_list]
+            # build a single group manually
+            groups = [stream_list]
 
     stack_list = []
-    # loop over each group of detections (from clustering or manual assignment)
-    for group in groups:
-        # get group streams to stack
-        group_streams = [st_tuple[0] for st_tuple in group]
 
-        # loop over each detection in group
-        for group_idx, group_stream in enumerate(group_streams):
-            # align traces before stacking
-            for trace_idx, trace in enumerate(group_stream):
-                # align traces from pick offset dict
-                shift = -1 * pick_offset[trace.stats.station]
-                group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
+    # get group streams to stack
+    group_streams = [st_tuple[0] for st_tuple in group]
 
-        # generate phase-weighted stack
-        stack_pw = PWS_stack(streams=group_streams)
+    # loop over each detection in group
+    for group_idx, group_stream in enumerate(group_streams):
+        # align traces before stacking
+        for trace_idx, trace in enumerate(group_stream):
+            # align traces from pick offset dict
+            shift = -1 * pick_offset[trace.stats.station]
+            group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
 
-        # or generate linear stack
-        stack_lin = linstack(streams=group_streams)
+    # generate phase-weighted stack
+    stack_pw = PWS_stack(streams=group_streams)
 
-        stack_list.append([stack_pw, stack_lin])
+    # or generate linear stack
+    stack_lin = linstack(streams=group_streams)
+
+    stack_list.append([stack_pw, stack_lin])
 
     return stack_list
 
