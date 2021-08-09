@@ -190,6 +190,7 @@ def make_Templates(templates, template_files, station_dict, template_length,
         tribe = make_Templates(templates, files, station_dict,
                                template_length, template_prepick)
     """
+    # FIXME: make this more pythonic
 
     # now write to file
     with open("templates.pha", "w") as file:
