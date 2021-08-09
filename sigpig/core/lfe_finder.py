@@ -387,15 +387,15 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
-        # run detection
-        party = detect_LFEs(templates, template_files, station_dict,
-                            template_length, template_prepick,
-                            detection_files_path, start_date, end_date)
-        end = time.time()
-        hours = int((end - start) / 60 / 60)
-        minutes = int(((end - start) / 60) - (hours * 60))
-        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-        print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        # # run detection
+        # party = detect_LFEs(templates, template_files, station_dict,
+        #                     template_length, template_prepick,
+        #                     detection_files_path, start_date, end_date)
+        # end = time.time()
+        # hours = int((end - start) / 60 / 60)
+        # minutes = int(((end - start) / 60) - (hours * 60))
+        # seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        # print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # load party object from file
         infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
@@ -773,62 +773,53 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                     pick.waveform_id.channel_code == "BHE":
                 pick_times.append(pick.time)
 
-    if not load_stream_list:
-        # build streams from party families
-        stream_list = []
-        for index, pick_time in enumerate(pick_times):
-            print(index)
+    # loop over stations and generate a stack for each station:channel pair
+    for station in :
+        for channel in :
+            # build streams from party families
+            stream_list = []
+            for index, pick_time in enumerate(pick_times):
+                print(index)
 
-            # build stream of all stations for detection
-            day_file_list = glob.glob(f"{streams_path}/*.{pick_time.year}"
-                                      f"-{pick_time.month:02}"
-                                      f"-{pick_time.day:02}.ms")
-            # load files into stream
-            st = Stream()
-            # FIXME: this should be detected, not hard coded
-            lowest_sr = 40
-            for file in day_file_list:
-                # extract file info from file name
-                # FIXME: this should be dynamic, not hard coded
-                file_station = file[26:].split(".")[1]
+                # build stream of all stations for detection
+                day_file_list = glob.glob(f"{streams_path}/*..*{pick_time.year}"
+                                          f"-{pick_time.month:02}"
+                                          f"-{pick_time.day:02}.ms")
+                # load files into stream
+                st = Stream()
+                # FIXME: this should be detected, not hard coded
+                lowest_sr = 40
+                for file in day_file_list:
+                    # extract file info from file name
+                    # FIXME: this should be dynamic, not hard coded
+                    file_station = file[26:].split(".")[1]
 
-                if file_station in pick_offset.keys():
-                    # load day file into stream
-                    day_tr = Stream()
-                    day_tr += read(file)
+                    if file_station in pick_offset.keys():
+                        # load day file into stream
+                        day_tr = Stream()
+                        day_tr += read(file)
 
-                    # bandpass filter
-                    day_tr.filter('bandpass', freqmin=1, freqmax=15)
+                        # bandpass filter
+                        day_tr.filter('bandpass', freqmin=1, freqmax=15)
 
-                    # interpolate to lowest sampling rate
-                    day_tr.interpolate(sampling_rate=lowest_sr)
+                        # interpolate to lowest sampling rate
+                        day_tr.interpolate(sampling_rate=lowest_sr)
 
-                    # match station with specified pick offset
-                    station_pick_time = pick_time + pick_offset[file_station]
+                        # match station with specified pick offset
+                        station_pick_time = pick_time + pick_offset[file_station]
 
-                    # trim trace before adding to stream from pick_offset spec
-                    day_tr.trim(station_pick_time, station_pick_time +
-                                template_length + template_prepick)
+                        # trim trace before adding to stream from pick_offset spec
+                        day_tr.trim(station_pick_time, station_pick_time +
+                                    template_length + template_prepick)
 
-                    st += day_tr
+                        st += day_tr
 
-                    # # check if lowest sampling rate
-                    # if st[0].stats.sampling_rate < lowest_sr:
-                    #     lowest_sr = st[0].stats.sampling_rate
+                        # # check if lowest sampling rate
+                        # if st[0].stats.sampling_rate < lowest_sr:
+                        #     lowest_sr = st[0].stats.sampling_rate
 
-            stream_list.append((st, index))
-            # st.plot()
-
-        # save stream list as pickle file
-        outfile = open('stream_list.pkl', 'wb')
-        pickle.dump(stream_list, outfile)
-        outfile.close()
-
-    else:
-        # load stream list from file
-        infile = open('stream_list.pkl', 'rb')
-        stream_list = pickle.load(infile)
-        infile.close()
+                stream_list.append((st, index))
+                # st.plot()
 
     print("finished making stream")
 
