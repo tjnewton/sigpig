@@ -517,7 +517,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     # 31 detections: "MAD" @ 9.0
     # 52 detections: "MAD" @ 8.0
 
-
+# TODO: function currently stacks all at once, leading to a memory error.
+#  instead load all times for a single station and stack one at a time
 # function to generate phase-weighted waveform stack
 def stack_waveforms(party, pick_offset, streams_path, template_length,
                     template_prepick, load_stream_list=False):
