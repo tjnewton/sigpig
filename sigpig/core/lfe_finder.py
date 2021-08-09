@@ -190,7 +190,34 @@ def make_Templates(templates, template_files, station_dict, template_length,
         tribe = make_Templates(templates, files, station_dict,
                                template_length, template_prepick)
     """
-    # FIXME: make this more pythonic
+
+    # FIXME: make this more pythonic, e.g.
+
+    '''
+    # initialize an event to add to the Obspy catalog
+    event = Event(
+        # define the event origin location and time
+        origins=[Origin(
+            latitude=61.9833, longitude=-144.0437, depth=1700, 
+            time=UTCDateTime(2016, 9, 26, 8, 52, 40))],
+        # define the event magnitude
+        magnitudes=[Magnitude(mag=1.1)],
+        # define the arrival times of phases at different stations
+        picks=[
+            # three picks are defined here on the BHZ component of three stations in the YG network
+            Pick(time=UTCDateTime(2016, 9, 26, 8, 52, 45, 180000), phase_hint="P",
+                    waveform_id=WaveformStreamID(
+                        network_code="YG", station_code="RH08", channel_code="BHZ")),
+            Pick(time=UTCDateTime(2016, 9, 26, 8, 52, 45, 809000), phase_hint="P",
+                    waveform_id=WaveformStreamID(
+                        network_code="YG", station_code="NEB1", channel_code="BHZ")),
+            Pick(time=UTCDateTime(2016, 9, 26, 8, 52, 45, 661000), phase_hint="P",
+                    waveform_id=WaveformStreamID(
+                        network_code="YG", station_code="NEB3", channel_code="BHZ"))])
+    
+    # generate the catalog from a list of events (in this case 1 event comprised of 3 picks)
+    catalog = Catalog([event])  
+    '''
 
     # now write to file
     with open("templates.pha", "w") as file:
