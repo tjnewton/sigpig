@@ -872,6 +872,8 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                 # and generate linear stack
                 stack_lin += linstack(streams=group_streams)
 
+                return [stack_pw, stack_lin]
+
             except Exception:
                 pass
 
