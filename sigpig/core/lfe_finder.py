@@ -821,35 +821,37 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                                           f"-{pick_time.month:02}"
                                           f"-{pick_time.day:02}.ms")
 
-                # FIXME: this should be detected, not hard coded
-                lowest_sr = 40
+                # guard against missing expected files
+                if len(day_file_list) > 0:
+                    # FIXME: this should be detected, not hard coded
+                    lowest_sr = 40
 
-                # should only be one file, but safeguard against many
-                file = day_file_list[0]
+                    # should only be one file, but safeguard against many
+                    file = day_file_list[0]
 
-                # extract file info from file name
-                # FIXME: this should be dynamic, not hard coded
-                file_station = file[26:].split(".")[1]
+                    # extract file info from file name
+                    # FIXME: this should be dynamic, not hard coded
+                    file_station = file[26:].split(".")[1]
 
-                # load day file into stream
-                day_st = Stream()
-                day_st += read(file)
+                    # load day file into stream
+                    day_st = Stream()
+                    day_st += read(file)
 
-                # bandpass filter
-                day_st.filter('bandpass', freqmin=1, freqmax=15)
+                    # bandpass filter
+                    day_st.filter('bandpass', freqmin=1, freqmax=15)
 
-                # interpolate to lowest sampling rate
-                day_st.interpolate(sampling_rate=lowest_sr)
+                    # interpolate to lowest sampling rate
+                    day_st.interpolate(sampling_rate=lowest_sr)
 
-                # match station with specified pick offset
-                station_pick_time = pick_time + pick_offset[file_station]
+                    # match station with specified pick offset
+                    station_pick_time = pick_time + pick_offset[file_station]
 
-                # trim trace before adding to stream from pick_offset spec
-                day_st.trim(station_pick_time, station_pick_time +
-                            template_length + template_prepick)
+                    # trim trace before adding to stream from pick_offset spec
+                    day_st.trim(station_pick_time, station_pick_time +
+                                template_length + template_prepick)
 
-                stream_list.append((day_st, index))
-                # st.plot()
+                    stream_list.append((day_st, index))
+                    # st.plot()
 
             # get group streams to stack (only a single group here)
             group_streams = [st_tuple[0] for st_tuple in stream_list]
