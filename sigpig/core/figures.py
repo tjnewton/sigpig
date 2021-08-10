@@ -646,7 +646,21 @@ def plot_stack(stack, filter=False, bandpass=[]):
 		filter = False
 		bandpass = [1, 15]
 
-		fig = plot_Time_Series(stack, filter=filter, bandpass=bandpass)
+		# loop over stack list and show the phase weighted stack and linear
+        # stack for each group
+        for group in stack_list:
+            # get the stack
+            stack_pw = group[0]
+            # get the plot handle for the stack, add a title, show figure
+            pw_fig = plot_Time_Series(stack_pw, filter=filter,
+            						  bandpass=bandpass)
+            pw_fig.suptitle(f"Phase weighted stack")
+
+            stack_lin = group[1]
+            lin_fig = plot_Time_Series(stack_lin, filter=filter,
+            						  bandpass=bandpass)
+            lin_fig.suptitle(f"Linear stack")
+            plt.show()
 	"""
 
 	# find all files for specified day
