@@ -728,26 +728,43 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
         - filter is statically defined
 
     Example:
-        # get detections (see example for detect_LFEs)
-        party = detect_LFEs(templates, template_files, station_dict,
-                            template_length, template_prepick,
-                            detection_files_path, doi)
+        # time the run
+        import time
+        start = time.time()
 
-        # create pick offset dict for pick offset from master trace
-        pick_offset = {"GLB": 4.0, "PTPK": 19.0, "WASW": 0.0, "MCR4": 7.0,
-                       "NEB3": 8.5, "MCR1": 8.5, "RH08": 16.5, "RH10": 15.5,
-                       "RH09": 15.5, "WACK": 3.5, "NEB1": 10.5, "N25K": 3.5,
-                       "MCR3": 3.5, "KLU": 21.0, "MCR2": 1.5}
+        # define template length and prepick length (both in seconds)
+        template_length = 16.0
+        template_prepick = 0.5
 
-        # define path where miniseed files are stored
-        streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        # get templates and station_dict objects from picks in marker file
+        marker_file_path = "lfe_template.mrkr"
+        prepick_offset = 11 # in seconds
+        templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
+
+        # define path of files for detection
+        detection_files_path = "/Volumes/DISK/alaska/data"
+
+        # load party object from file
+        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
+
+        # inspect the party object detections
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # load previous stream list?
         load_stream_list = False
         # get the stacks
-        stack_list = stack_waveforms(party, pick_offset, streams_path,
-                                     template_length, template_prepick,
-                                     load_stream_list=load_stream_list)
+        stack_list = stack_waveforms_1x1(party, pick_offset,
+                                         detection_files_path, template_length,
+                                         template_prepick, station_dict)
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # loop over stack list and show the phase weighted stack and linear
         # stack for each group
