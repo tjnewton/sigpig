@@ -766,6 +766,11 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
+        # save stacks as pickle file
+        outfile = open('stack_list.pkl', 'wb')
+        pickle.dump(stack_list, outfile)
+        outfile.close()
+
         # loop over stack list and show the phase weighted stack and linear
         # stack for each group
         for group in stack_list:
