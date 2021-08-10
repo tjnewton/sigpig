@@ -824,33 +824,30 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                 stream_list.append((day_st, index))
                 # st.plot()
 
-            print("finished making stream")
+            print(f"finished making stream for {station}.{channel}")
 
-            # build a single group manually
-            groups = [stream_list]
+            stack_list = []
 
-    stack_list = []
+            # get group streams to stack (only a single group here)
+            group_streams = [st_tuple[0] for st_tuple in stream_list]
 
-    # get group streams to stack
-    group_streams = [st_tuple[0] for st_tuple in group]
+            # loop over each detection in group
+            for group_idx, group_stream in enumerate(group_streams):
+                # align traces before stacking
+                for trace_idx, trace in enumerate(group_stream):
+                    # align traces from pick offset dict
+                    shift = -1 * pick_offset[trace.stats.station]
+                    group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
 
-    # loop over each detection in group
-    for group_idx, group_stream in enumerate(group_streams):
-        # align traces before stacking
-        for trace_idx, trace in enumerate(group_stream):
-            # align traces from pick offset dict
-            shift = -1 * pick_offset[trace.stats.station]
-            group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
+            # generate phase-weighted stack
+            stack_pw = PWS_stack(streams=group_streams)
 
-    # generate phase-weighted stack
-    stack_pw = PWS_stack(streams=group_streams)
+            # or generate linear stack
+            stack_lin = linstack(streams=group_streams)
 
-    # or generate linear stack
-    stack_lin = linstack(streams=group_streams)
+            stack_list.append([stack_pw, stack_lin])
 
-    stack_list.append([stack_pw, stack_lin])
-
-    return stack_list
+            return stack_list
 
 
 # function for matched-filtering of stacked templates through time series
