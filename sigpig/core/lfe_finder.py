@@ -411,9 +411,15 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         load_stream_list = False
         # get the stacks
         start = time.time()
-        stack_list = stack_waveforms(party, pick_offset, detection_files_path,
-                                     template_length, template_prepick,
-                                     load_stream_list=load_stream_list)
+
+        # stack_list = stack_waveforms(party, pick_offset, detection_files_path,
+        #                              template_length, template_prepick,
+        #                              load_stream_list=load_stream_list)
+
+        stack_list = stack_waveforms_1x1(party, pick_offset,
+                                         detection_files_path, template_length,
+                                         template_prepick, station_dict)
+
         end = time.time()
         hours = int((end - start) / 60 / 60)
         minutes = int(((end - start) / 60) - (hours * 60))
@@ -847,7 +853,7 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
             # and generate linear stack
             stack_lin += linstack(streams=group_streams)
 
-    return stack_list
+    return [stack_pw, stack_lin]
 
 
 # function for matched-filtering of stacked templates through time series
