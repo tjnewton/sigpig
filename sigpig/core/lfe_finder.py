@@ -774,6 +774,8 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                 pick_times.append(pick.time)
 
     # loop over stations and generate a stack for each station:channel pair
+    stack_pw = Stream()
+    stack_lin = Stream()
     for station in station_dict.keys():
         network = station_dict[station]["network"]
         channels = []
@@ -840,14 +842,12 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                     group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
 
             # generate phase-weighted stack
-            stack_pw = PWS_stack(streams=group_streams)
+            stack_pw += PWS_stack(streams=group_streams)
 
-            # or generate linear stack
-            stack_lin = linstack(streams=group_streams)
+            # and generate linear stack
+            stack_lin += linstack(streams=group_streams)
 
-            stack_list.append([stack_pw, stack_lin])
-
-            return stack_list
+    return stack_list
 
 
 # function for matched-filtering of stacked templates through time series
