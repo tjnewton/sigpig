@@ -444,8 +444,194 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
 	plt.show()
 
-
+# plot time series for specified dates of interest from specified files
 def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
+					 time_markers={}):
+	"""
+	Plots time series for all files in the `files_path` for
+	the specified time period starting at `doi` and ending at `doi_end`. Data
+	are first bandpass filtered if `filter=True`.
+
+	Example:
+		# define dates of interest
+		# doi = UTCDateTime("2016-09-26T09:25:30.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:26:30.0Z") # period end
+		doi = UTCDateTime("2016-09-26T09:27:30.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:30:30.0Z") # period end
+
+		# doi = UTCDateTime("2016-09-26T09:08:00.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:15:00.0Z") # period end
+		# doi = UTCDateTime("2016-09-26T08:51:00.0Z") # period start
+		# doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
+
+		# define time series files path
+		# files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
+
+		# bandpass filter from 1-15 Hz
+		filter = True
+		bandpass = [1, 15]
+
+		# plot time markers on specified stations
+		# time_markers = {"AK.GLB": [UTCDateTime("2016-09-26T09:25:50.0Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:05.0Z")],
+		# 				"AK.PTPK": [UTCDateTime("2016-09-26T09:26:05.0Z"),
+		# 							UTCDateTime("2016-09-26T09:26:20.0Z")],
+		# 				"AV.WASW": [UTCDateTime("2016-09-26T09:25:46.0Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:01.0Z")],
+		# 				"YG.MCR4": [UTCDateTime("2016-09-26T09:25:53.0Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:08.0Z")],
+		# 				"YG.NEB3": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:09.5Z")],
+		# 				"YG.MCR1": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:09.5Z")],
+		# 				"YG.RH08": [UTCDateTime("2016-09-26T09:26:02.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:17.5Z")],
+		# 				"YG.RH10": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+		# 				"YG.RH09": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+		# 				"AV.WACK": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+		# 				"YG.NEB1": [UTCDateTime("2016-09-26T09:25:56.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:11.5Z")],
+		# 				"TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+		# 				"YG.MCR3": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+		# 				"AK.KLU": [UTCDateTime("2016-09-26T09:26:07.0Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:22.0Z")],
+		# 				"YG.MCR2": [UTCDateTime("2016-09-26T09:25:47.5Z"),
+		# 					 		UTCDateTime("2016-09-26T09:26:02.5Z")],
+		# 					 		}
+		time_markers = {"YG.NEB3": [UTCDateTime("2016-09-26T09:28:46.5Z"),
+							 		UTCDateTime("2016-09-26T09:29:00.5Z")],
+						"YG.NEB2": [UTCDateTime("2016-09-26T09:28:46.5Z"),
+							 		UTCDateTime("2016-09-26T09:29:00.5Z")],
+						"YG.NEB1": [UTCDateTime("2016-09-26T09:28:47.5Z"),
+							 		UTCDateTime("2016-09-26T09:29:00.5Z")],
+						"AK.GLB": [UTCDateTime("2016-09-26T09:28:40.0Z"),
+							 		UTCDateTime("2016-09-26T09:28:54.0Z")],
+						"AK.PTPK": [UTCDateTime("2016-09-26T09:28:55.0Z"),
+									UTCDateTime("2016-09-26T09:29:09.0Z")],
+						"AV.WASW": [UTCDateTime("2016-09-26T09:28:36.0Z"),
+							 		UTCDateTime("2016-09-26T09:28:50.0Z")],
+						"YG.MCR4": [UTCDateTime("2016-09-26T09:28:47.0Z"),
+							 		UTCDateTime("2016-09-26T09:29:01.0Z")],
+						"YG.MCR1": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:09.5Z")],
+						"YG.RH08": [UTCDateTime("2016-09-26T09:26:02.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:17.5Z")],
+						"YG.RH10": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+						"YG.RH09": [UTCDateTime("2016-09-26T09:26:01.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:16.5Z")],
+						"AV.WACK": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"YG.NEB1": [UTCDateTime("2016-09-26T09:25:56.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:11.5Z")],
+						"TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"YG.MCR3": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:04.5Z")],
+						"AK.KLU": [UTCDateTime("2016-09-26T09:26:07.0Z"),
+							 		UTCDateTime("2016-09-26T09:26:22.0Z")],
+						"YG.MCR2": [UTCDateTime("2016-09-26T09:25:47.5Z"),
+							 		UTCDateTime("2016-09-26T09:26:02.5Z")],
+							 		}
+
+		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
+							   bandpass=bandpass, time_markers=time_markers)
+
+		# plot different date range without time markers
+		doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
+		doi_end = UTCDateTime("2016-09-26T09:30:00.0Z") # period end
+
+		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
+							   bandpass=bandpass)
+
+	"""
+
+	# find all files for specified day
+	day_file_list = sorted(glob.glob(f"{files_path}/*.{doi.year}"
+									 f"-{doi.month:02}-{doi.day:02}.ms"))
+
+	# load files into stream
+	st = Stream()
+	for file in day_file_list:
+		st += read(file)
+
+		# filter before trimming to avoid edge effects
+		if filter:
+			# bandpass filter specified frequencies
+			st.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
+
+		st.trim(doi - 30, doi_end + 30)
+
+	# initialize figure and set the figure size
+	figureWidth = 50 # 80
+	figureHeight = 0.5 * len(st) # 0.6 for all stations # 3.5
+	fig = plt.figure(figsize=(figureWidth, figureHeight))
+	amplitude_plot = fig.add_subplot()
+	# make a subplot of subplots for spectrograms
+	# amplitude_plot = plt.subplot(2, 1, 1)
+
+	# loop through stream and generate plots
+	y_labels = []
+	for index, trace in enumerate(st):
+		# find max trace value for normalization
+		maxTraceValue = max_Amplitude(trace)
+
+		# define data to work with
+		time = trace.times("matplotlib")
+		norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
+						  np.min(trace.data)) * 1.25 + index
+		# add trace to waveform plot
+		amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
+
+		# plot time markers for this trace if they exist
+		network_station = f"{trace.stats.network}.{trace.stats.station}"
+		print(f"{network_station} in station dict:{network_station in time_markers}")
+		if network_station in time_markers:
+			time_marker = time_markers[network_station]
+			# plot time_marker box
+			x_vals = [time_marker[0].matplotlib_date,
+					  time_marker[0].matplotlib_date,
+					  time_marker[1].matplotlib_date,
+					  time_marker[1].matplotlib_date,
+					  time_marker[0].matplotlib_date]
+			y_vals = [min(norm_amplitude), max(norm_amplitude),
+					  max(norm_amplitude), min(norm_amplitude),
+					  min(norm_amplitude)]
+			amplitude_plot.plot_date(x_vals, y_vals,
+									 fmt="r-", linewidth=2.0)
+
+		# add station name to list of y labels
+		y_labels.append(f"{network_station}.{trace.stats.channel}")
+
+		# print(trace.stats.sampling_rate)
+
+	# set axes attributes
+	amplitude_plot.set_yticks(np.arange(0.5, len(st)+0.5))
+	amplitude_plot.set_yticklabels(y_labels)
+	amplitude_plot.set_ylabel('Station.Channel')
+	amplitude_plot.set_xlim([doi.matplotlib_date, doi_end.matplotlib_date])
+	amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {doi.month:02}-'
+							  f'{doi.day:02}-{doi.year}')
+	myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+	amplitude_plot.xaxis.set_major_formatter(myFmt)
+	locator_x = AutoDateLocator(minticks=10, maxticks=35)
+	amplitude_plot.xaxis.set_major_locator(locator_x)
+	amplitude_plot.set_ylim((0, len(st)+0.5))
+	# fig.tight_layout()
+	fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
+				f"{doi.minute:02}.png", dpi=100)
+
+	plt.show()
+
+
+# plot stack of waveforms on common time axis
+def plot_stack(doi, doi_end, files_path, filter=False, bandpass=[],
 					 time_markers={}):
 	"""
 	Plots time series for all files in the `files_path` for
