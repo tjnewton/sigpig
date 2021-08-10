@@ -864,11 +864,16 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                     shift = -1 * pick_offset[trace.stats.station]
                     group_streams[group_idx][trace_idx] = time_Shift(trace, shift)
 
-            # generate phase-weighted stack
-            stack_pw += PWS_stack(streams=group_streams)
+            # guard against stacking error:
+            try:
+                # generate phase-weighted stack
+                stack_pw += PWS_stack(streams=group_streams)
 
-            # and generate linear stack
-            stack_lin += linstack(streams=group_streams)
+                # and generate linear stack
+                stack_lin += linstack(streams=group_streams)
+
+            except Exception:
+                pass
 
     return [stack_pw, stack_lin]
 
