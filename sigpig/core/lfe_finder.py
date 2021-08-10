@@ -754,22 +754,27 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
         rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
-        # load previous stream list?
-        load_stream_list = False
-        # get the stacks station by station to avoid memory error
-        stack_list = stack_waveforms_1x1(party, pick_offset,
-                                         detection_files_path, template_length,
-                                         template_prepick, station_dict)
-        end = time.time()
-        hours = int((end - start) / 60 / 60)
-        minutes = int(((end - start) / 60) - (hours * 60))
-        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-        print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        # # load previous stream list?
+        # load_stream_list = False
+        # # get the stacks station by station to avoid memory error
+        # stack_list = stack_waveforms_1x1(party, pick_offset,
+        #                                  detection_files_path, template_length,
+        #                                  template_prepick, station_dict)
+        # end = time.time()
+        # hours = int((end - start) / 60 / 60)
+        # minutes = int(((end - start) / 60) - (hours * 60))
+        # seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        # print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        #
+        # # save stacks as pickle file
+        # outfile = open('stack_list.pkl', 'wb')
+        # pickle.dump(stack_list, outfile)
+        # outfile.close()
 
-        # save stacks as pickle file
-        outfile = open('stack_list.pkl', 'wb')
-        pickle.dump(stack_list, outfile)
-        outfile.close()
+        # load stream list from file
+        infile = open('stack_list.pkl', 'rb')
+        stack_list = pickle.load(infile)
+        infile.close()
 
         # loop over stack list and show the phase weighted stack and linear
         # stack for each group
