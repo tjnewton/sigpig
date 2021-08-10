@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import calendar
 from tqdm import tqdm
-
+from figures import plot_stack
 
 # function to convert snuffler marker file to event template
 def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
@@ -884,6 +884,13 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
 
             except Exception:
                 pass
+
+    # if the stacks exist, plot them
+    if len(stack_pw) > 0:
+        plot_stack(, title)
+
+    if len(stack_lin) > 0:
+        plot_stack(, title)
 
     return [stack_pw, stack_lin]
 
