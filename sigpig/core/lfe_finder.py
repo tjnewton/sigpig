@@ -12,6 +12,7 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import calendar
+from tqdm import tqdm
 
 
 # function to convert snuffler marker file to event template
@@ -790,10 +791,11 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
         channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
+            print(f"Assembling streams for {station}.{channel}")
 
             stream_list = []
-            for index, pick_time in enumerate(pick_times):
-                print(index)
+            for index in tqdm(range(len(pick_times))):
+                pick_time = pick_times[index]
 
                 # build stream of detection file
                 day_file_list = glob.glob(f"{streams_path}/{network}."
@@ -831,10 +833,6 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
 
                 stream_list.append((day_st, index))
                 # st.plot()
-
-            print(f"finished making stream for {station}.{channel}")
-
-            stack_list = []
 
             # get group streams to stack (only a single group here)
             group_streams = [st_tuple[0] for st_tuple in stream_list]
