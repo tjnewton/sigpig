@@ -756,7 +756,7 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
 
         # load previous stream list?
         load_stream_list = False
-        # get the stacks
+        # get the stacks station by station to avoid memory error
         stack_list = stack_waveforms_1x1(party, pick_offset,
                                          detection_files_path, template_length,
                                          template_prepick, station_dict)
