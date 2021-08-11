@@ -887,10 +887,12 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
 
     # if the stacks exist, plot them
     if len(stack_pw) > 0:
-        plot_stack(, title)
+        plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   title='Phase weighted stack')
 
     if len(stack_lin) > 0:
-        plot_stack(, title)
+        plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+                   title='Linear stack')
 
     return [stack_pw, stack_lin]
 
