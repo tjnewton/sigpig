@@ -106,6 +106,9 @@ party = detect_LFEs(templates, template_files, station_dict,
 detections_fig = party.plot(plot_grouped=True)
 rate_fig = party.plot(plot_grouped=True, rate=True)
 ```
+![](doc/images/lfe_detections.png?raw=true)
+
+![](doc/images/lfe_detection_rate.png?raw=true)
 
 ### sigpig.core.autopicker detects and associates signals in time series:  
 xyz  
