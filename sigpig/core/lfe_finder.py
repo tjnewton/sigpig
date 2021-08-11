@@ -782,12 +782,12 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
             # get the stack
             stack_pw = group[0]
             # get the plot handle for the stack, add a title, show figure
-            pw_fig = stack_pw.plot(handle=True)
-            pw_fig.suptitle(f"Phase weighted stack: Template={template_length}, Prepick={template_prepick}")
+            pw_fig = plot_stack(stack_pw, filter=filter, bandpass=bandpass)
+            pw_fig.suptitle(f"Phase weighted stack")
 
             stack_lin = group[1]
-            lin_fig = stack_lin.plot(handle=True)
-            lin_fig.suptitle(f"Linear stack: Template={template_length}, Prepick={template_prepick}")
+            lin_fig = plot_stack(stack_lin, filter=filter, bandpass=bandpass)
+            lin_fig.suptitle(f"Linear stack")
             plt.show()
     """
     # extract pick times for each event from party object
