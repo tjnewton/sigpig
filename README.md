@@ -73,8 +73,39 @@ v = visualize_Point_Cloud(filename)
 ```
 ![](doc/images/point_cloud.png?raw=true)
 
-### sigpig.core.lfe_finder uses matched-filtering for LFE detection:  
-xyz  
+### sigpig.core.lfe_finder detections LFEs using matched-filtering:  
+Process arrival time picks from a Snuffler marker file into detections.
+```
+# define template length and prepick length (both in seconds)
+template_length = 16.0
+template_prepick = 0.5
+
+# build stream of all station files for templates
+files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/2016-09-26"
+doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
+			      f"-{doi.day:02}.ms")
+
+# get templates and station_dict objects from picks in marker file
+marker_file_path = "lfe_template.mrkr"
+prepick_offset = 11 # in seconds
+templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
+
+# define path of files for detection
+detection_files_path = "/Volumes/DISK/alaska/data"
+# define period of interest for detection
+start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
+
+# run matched-filter detection
+party = detect_LFEs(templates, template_files, station_dict,
+                    template_length, template_prepick,
+                    detection_files_path, start_date, end_date)
+		    
+# inspect the party object detections
+detections_fig = party.plot(plot_grouped=True)
+rate_fig = party.plot(plot_grouped=True, rate=True)
+```
 
 ### sigpig.core.autopicker detects and associates signals in time series:  
 xyz  
