@@ -640,6 +640,7 @@ def plot_stack(stack, filter=False, bandpass=[]):
 
 	Example:
 		# load stream list from file
+		import pickle
         infile = open('stack_list.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
@@ -654,13 +655,11 @@ def plot_stack(stack, filter=False, bandpass=[]):
             # get the stack
             stack_pw = group[0]
             # get the plot handle for the stack, add a title, show figure
-            pw_fig = plot_Time_Series(stack_pw, filter=filter,
-            						  bandpass=bandpass)
+            pw_fig = plot_stack(stack_pw, filter=filter, bandpass=bandpass)
             pw_fig.suptitle(f"Phase weighted stack")
 
             stack_lin = group[1]
-            lin_fig = plot_Time_Series(stack_lin, filter=filter,
-            						  bandpass=bandpass)
+            lin_fig = plot_stack(stack_lin, filter=filter, bandpass=bandpass)
             lin_fig.suptitle(f"Linear stack")
             plt.show()
 	"""
@@ -675,7 +674,7 @@ def plot_stack(stack, filter=False, bandpass=[]):
 		stack.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
 
 	# initialize figure and set the figure size
-	figureWidth = 50 # 80
+	figureWidth = 20 # 80
 	figureHeight = 0.5 * len(stack) # 0.6 for all stations # 3.5
 	fig = plt.figure(figsize=(figureWidth, figureHeight))
 	amplitude_plot = fig.add_subplot()
@@ -701,7 +700,7 @@ def plot_stack(stack, filter=False, bandpass=[]):
 		y_labels.append(f"{network_station}.{trace.stats.channel}")
 
 	# set axes attributes
-	amplitude_plot.set_yticks(np.arange(0.5, len(st)+0.5))
+	amplitude_plot.set_yticks(np.arange(0.5, len(stack)+0.5))
 	amplitude_plot.set_yticklabels(y_labels)
 	amplitude_plot.set_ylabel('Station.Channel')
 	amplitude_plot.set_xlim([time[0], time[-1]])
@@ -712,7 +711,7 @@ def plot_stack(stack, filter=False, bandpass=[]):
 	amplitude_plot.xaxis.set_major_locator(locator_x)
 	amplitude_plot.set_ylim((0, len(stack)+0.5))
 	# fig.tight_layout()
-	# fig.savefig(f"x.png", dpi=100)
+	fig.savefig(f"stack.png", dpi=100)
 
 	plt.show()
 
