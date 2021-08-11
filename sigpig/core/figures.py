@@ -629,6 +629,8 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 
 	plt.show()
 
+	return fig
+
 
 # plot stack of waveforms on common time axis
 def plot_stack(stack, filter=False, bandpass=[]):
@@ -672,7 +674,6 @@ def plot_stack(stack, filter=False, bandpass=[]):
 		# bandpass filter specified frequencies
 		stack.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
 
-
 	# initialize figure and set the figure size
 	figureWidth = 50 # 80
 	figureHeight = 0.5 * len(stack) # 0.6 for all stations # 3.5
@@ -681,12 +682,13 @@ def plot_stack(stack, filter=False, bandpass=[]):
 
 	# loop through stream and generate plots
 	y_labels = []
+	# set common time axis
+	time = stack[0].times("matplotlib")
 	for index, trace in enumerate(stack):
 		# find max trace value for normalization
 		maxTraceValue = max_Amplitude(trace)
 
 		# define data to work with
-		time = trace.times("matplotlib")
 		norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
 						  np.min(trace.data)) * 1.25 + index
 		# add trace to waveform plot
@@ -694,40 +696,24 @@ def plot_stack(stack, filter=False, bandpass=[]):
 
 		# plot time markers for this trace if they exist
 		network_station = f"{trace.stats.network}.{trace.stats.station}"
-		print(f"{network_station} in station dict:{network_station in time_markers}")
-		if network_station in time_markers:
-			time_marker = time_markers[network_station]
-			# plot time_marker box
-			x_vals = [time_marker[0].matplotlib_date,
-					  time_marker[0].matplotlib_date,
-					  time_marker[1].matplotlib_date,
-					  time_marker[1].matplotlib_date,
-					  time_marker[0].matplotlib_date]
-			y_vals = [min(norm_amplitude), max(norm_amplitude),
-					  max(norm_amplitude), min(norm_amplitude),
-					  min(norm_amplitude)]
-			amplitude_plot.plot_date(x_vals, y_vals,
-									 fmt="r-", linewidth=2.0)
 
 		# add station name to list of y labels
 		y_labels.append(f"{network_station}.{trace.stats.channel}")
-
-		# print(trace.stats.sampling_rate)
 
 	# set axes attributes
 	amplitude_plot.set_yticks(np.arange(0.5, len(st)+0.5))
 	amplitude_plot.set_yticklabels(y_labels)
 	amplitude_plot.set_ylabel('Station.Channel')
-	amplitude_plot.set_xlim([doi.matplotlib_date, doi_end.matplotlib_date])
-	amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {doi.month:02}-'
-							  f'{doi.day:02}-{doi.year}')
+	amplitude_plot.set_xlim([time[0], time[-1]])
+	amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec')
 	myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
 	amplitude_plot.xaxis.set_major_formatter(myFmt)
 	locator_x = AutoDateLocator(minticks=10, maxticks=35)
 	amplitude_plot.xaxis.set_major_locator(locator_x)
-	amplitude_plot.set_ylim((0, len(st)+0.5))
+	amplitude_plot.set_ylim((0, len(stack)+0.5))
 	# fig.tight_layout()
-	fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
-				f"{doi.minute:02}.png", dpi=100)
+	# fig.savefig(f"x.png", dpi=100)
 
 	plt.show()
+
+	return fig
