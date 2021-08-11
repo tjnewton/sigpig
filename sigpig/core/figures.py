@@ -662,34 +662,26 @@ def plot_stack(stack, filter=False, bandpass=[]):
             lin_fig.suptitle(f"Linear stack")
             plt.show()
 	"""
+	# check for infinitys returned by EQcorrscan stack
+	for trace in stack:
+		if trace.data[0] == np.inf:
+			stack.remove(trace)
 
-	# find all files for specified day
-	day_file_list = sorted(glob.glob(f"{files_path}/*.{doi.year}"
-									 f"-{doi.month:02}-{doi.day:02}.ms"))
+	# filtering will have edge effects
+	if filter:
+		# bandpass filter specified frequencies
+		stack.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
 
-	# load files into stream
-	st = Stream()
-	for file in day_file_list:
-		st += read(file)
-
-		# filter before trimming to avoid edge effects
-		if filter:
-			# bandpass filter specified frequencies
-			st.filter('bandpass', freqmin=bandpass[0], freqmax=bandpass[1])
-
-		st.trim(doi - 30, doi_end + 30)
 
 	# initialize figure and set the figure size
 	figureWidth = 50 # 80
-	figureHeight = 0.5 * len(st) # 0.6 for all stations # 3.5
+	figureHeight = 0.5 * len(stack) # 0.6 for all stations # 3.5
 	fig = plt.figure(figsize=(figureWidth, figureHeight))
 	amplitude_plot = fig.add_subplot()
-	# make a subplot of subplots for spectrograms
-	# amplitude_plot = plt.subplot(2, 1, 1)
 
 	# loop through stream and generate plots
 	y_labels = []
-	for index, trace in enumerate(st):
+	for index, trace in enumerate(stack):
 		# find max trace value for normalization
 		maxTraceValue = max_Amplitude(trace)
 
