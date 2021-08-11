@@ -633,7 +633,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 
 
 # plot stack of waveforms on common time axis
-def plot_stack(stack, filter=False, bandpass=[]):
+def plot_stack(stack, filter=False, bandpass=[], title=False):
 	"""
 	Plots time series for all traces in a stack on a common time axis. Data
 	are first bandpass filtered if `filter=True`.
@@ -655,13 +655,12 @@ def plot_stack(stack, filter=False, bandpass=[]):
             # get the stack
             stack_pw = group[0]
             # get the plot handle for the stack, add a title, show figure
-            pw_fig = plot_stack(stack_pw, filter=filter, bandpass=bandpass)
-            pw_fig.suptitle(f"Phase weighted stack")
+            plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   	   title="Phase weighted stack")
 
             stack_lin = group[1]
-            lin_fig = plot_stack(stack_lin, filter=filter, bandpass=bandpass)
-            lin_fig.suptitle(f"Linear stack")
-            plt.show()
+            plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+            		   title="Linear stack")
 	"""
 	# check for infinitys returned by EQcorrscan stack
 	for trace in stack:
@@ -710,7 +709,10 @@ def plot_stack(stack, filter=False, bandpass=[]):
 	locator_x = AutoDateLocator(minticks=10, maxticks=35)
 	amplitude_plot.xaxis.set_major_locator(locator_x)
 	amplitude_plot.set_ylim((0, len(stack)+0.5))
-	# fig.tight_layout()
+	fig.tight_layout()
+	if title != False:
+		amplitude_plot.set_title(title)
+
 	fig.savefig(f"stack.png", dpi=100)
 
 	plt.show()
