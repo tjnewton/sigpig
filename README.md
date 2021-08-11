@@ -74,7 +74,7 @@ v = visualize_Point_Cloud(filename)
 ![](doc/images/point_cloud.png?raw=true)
 
 ### sigpig.core.lfe_finder detections LFEs using matched-filtering:  
-Process arrival time picks from a Snuffler marker file into detections.
+Process arrival time picks from a Snuffler marker file into detections
 ```
 # define template length and prepick length (both in seconds)
 template_length = 16.0
@@ -109,6 +109,16 @@ rate_fig = party.plot(plot_grouped=True, rate=True)
 ![](doc/images/lfe_detections.png?raw=true)
 
 ![](doc/images/lfe_detection_rate.png?raw=true)
+
+Stack template detections
+```
+# load previous stream list?
+load_stream_list = False
+# get the stacks
+stack_list = stack_waveforms(party, pick_offset,
+		       	     detection_files_path, template_length,
+			     template_prepick, station_dict)
+```
 
 ### sigpig.core.autopicker detects and associates signals in time series:  
 xyz  
