@@ -633,7 +633,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 
 
 # plot stack of waveforms on common time axis
-def plot_stack(stack, filter=False, bandpass=[], title=False):
+def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 	"""
 	Plots time series for all traces in a stack on a common time axis. Data
 	are first bandpass filtered if `filter=True`.
@@ -712,8 +712,8 @@ def plot_stack(stack, filter=False, bandpass=[], title=False):
 	fig.tight_layout()
 	if title != False:
 		amplitude_plot.set_title(title)
-
-	fig.savefig(f"stack.png", dpi=100)
+		if save:
+			fig.savefig(f"{title}.png", dpi=100)
 
 	plt.show()
 
