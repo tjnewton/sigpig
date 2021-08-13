@@ -1093,9 +1093,9 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             try:
                 # generate linear and phase-weighted stack
                 lin, pws = generate_stacks(group_stream)
+                # add phase-weighted stack to stream
                 stack_pw += pws
-
-                # and generate linear stack
+                # and add linear stack to stream
                 stack_lin += lin
 
             except Exception:
