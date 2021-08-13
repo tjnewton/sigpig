@@ -897,7 +897,7 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
     return [stack_pw, stack_lin]
 
 
-def stack_waveforms_alt():
+def stack_waveforms_alt(st, Normalize=True):
     """
     A different implementation of phase-weighted and linear stacking.
 
