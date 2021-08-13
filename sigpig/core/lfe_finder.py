@@ -434,13 +434,12 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
             # get the stack
             stack_pw = group[0]
             # get the plot handle for the stack, add a title, show figure
-            pw_fig = stack_pw.plot(handle=True)
-            pw_fig.suptitle(f"Phase weighted stack: Template={template_length}, Prepick={template_prepick}")
+            plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   	   title="Phase weighted stack")
 
             stack_lin = group[1]
-            lin_fig = stack_lin.plot(handle=True)
-            lin_fig.suptitle(f"Linear stack: Template={template_length}, Prepick={template_prepick}")
-            plt.show()
+            plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+            		   title="Linear stack")
     """
     # set up logging (levels: DEBUG, INFO, WARNING, ERROR, CRITICAL)
     logging.basicConfig(
@@ -598,13 +597,12 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
             # get the stack
             stack_pw = group[0]
             # get the plot handle for the stack, add a title, show figure
-            pw_fig = stack_pw.plot(handle=True)
-            pw_fig.suptitle(f"Phase weighted stack: Template={template_length}, Prepick={template_prepick}")
+            plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   	   title="Phase weighted stack")
 
             stack_lin = group[1]
-            lin_fig = stack_lin.plot(handle=True)
-            lin_fig.suptitle(f"Linear stack: Template={template_length}, Prepick={template_prepick}")
-            plt.show()
+            plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+            		   title="Linear stack")
     """
     # extract pick times for each event from party object
     # pick_times is a list of the pick times for the master trace (with
