@@ -904,7 +904,38 @@ def stack_waveforms_alt():
     Example:
 
     """
+    ST = Stream()
+    for tr in st:
+        if tr.data.max() > 0:
+            ST += tr
+    data = np.array([tr.data for tr in ST])
+    if data.size == 0:
+        lin = st[0].copy()
+        lin.data = np.zeros_like(lin.data)
+        pws = st[0].copy()
+        pws.data = np.zeros_like(lin.data)
+        return lin, pws
+    data = data[
+        ~np.any(np.isnan(data), axis=1)]  # remove any traces with NaN data
 
+    if Normalize:
+        maxs = np.max(np.abs(data), axis=1)
+        data = data / maxs[:, None]
+    Linstack = data.mean(axis=0)
+    phas = np.zeros_like(data)
+    for ii in range(np.shape(phas)[0]):
+        tmp = hilbert(data[ii, :])  # hilbert transform of each timeseries
+        phas[ii, :] = np.arctan2(np.imag(tmp), np.real(
+            tmp))  # instantaneous phase using the hilbert transform
+    sump = np.abs(np.sum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
+           np.shape(phas)[0]
+    Phasestack = sump * Linstack  # traditional stack*phase stack
+
+    lin = st[0].copy()
+    lin.data = Linstack
+    pws = st[0].copy()
+    pws.data = Phasestack
+    return lin, pws
 
     return [stack_pw, stack_lin]
 
