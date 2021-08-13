@@ -927,8 +927,6 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
-        # load previous stream list?
-        load_stream_list = False
         # get the stacks station by station to avoid memory error
         stack_list = stack_waveforms_alt(party, pick_offset,
                                          detection_files_path, template_length,
@@ -964,7 +962,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
     """
 
-    def pw_stack(st, Normalize=True):
+    def generate_stacks(st, Normalize=True):
         """
         # TODO
         """
@@ -1077,7 +1075,6 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             # get group streams to stack (only a single group here)
             group_streams = [st_tuple[0] for st_tuple in stream_list]
 
-            # FIXME: how to timeshift?
             # loop over each detection in group and time shift
             for group_idx, group_stream in enumerate(group_streams):
                 # align traces before stacking
@@ -1095,7 +1092,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             # guard against stacking error:
             try:
                 # generate linear and phase-weighted stack
-                lin, pws = pw_stack(group_stream)
+                lin, pws = generate_stacks(group_stream)
                 stack_pw += pws
 
                 # and generate linear stack
@@ -1106,12 +1103,11 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
     # if the stacks exist, plot them
     if len(stack_pw) > 0:
-        plot_stack(stack_pw, filter=filter, bandpass=bandpass,
-                   title='Phase weighted stack')
+        plot_stack(stack_pw, filter=False, title='Phase weighted stack',
+                   save=True)
 
     if len(stack_lin) > 0:
-        plot_stack(stack_lin, filter=filter, bandpass=bandpass,
-                   title='Linear stack')
+        plot_stack(stack_lin, filter=False, title='Linear stack', save=True)
 
     return [stack_pw, stack_lin]
 
