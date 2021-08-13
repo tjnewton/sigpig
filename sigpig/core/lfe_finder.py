@@ -1065,17 +1065,6 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     ------------------------------------------
     ST = Stream()
     for tr in st:
