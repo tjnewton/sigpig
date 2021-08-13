@@ -961,7 +961,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             		   title="Linear stack")
 
     """
-
+    # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(st, Normalize=True):
         """
         # TODO
@@ -999,7 +999,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         pws.data = Phasestack
         return lin, pws
 
-    # extract pick times for each event from party object
+    # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the master trace (with
     # earliest pick time)
     pick_times = []
