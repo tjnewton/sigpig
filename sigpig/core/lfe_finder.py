@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import calendar
 from tqdm import tqdm
 from figures import plot_stack
+from scipy.signal import hilbert
 
 # function to convert snuffler marker file to event template
 def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
