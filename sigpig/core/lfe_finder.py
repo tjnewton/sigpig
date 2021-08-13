@@ -897,6 +897,18 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
     return [stack_pw, stack_lin]
 
 
+def stack_waveforms_alt():
+    """
+    A different implementation of phase-weighted and linear stacking.
+
+    Example:
+
+    """
+
+
+    return [stack_pw, stack_lin]
+
+
 # function for matched-filtering of stacked templates through time series
 def matched_filter_stack():
     """
