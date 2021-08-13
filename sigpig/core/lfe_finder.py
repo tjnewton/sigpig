@@ -955,13 +955,12 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             # get the stack
             stack_pw = group[0]
             # get the plot handle for the stack, add a title, show figure
-            pw_fig = plot_stack(stack_pw, filter=filter, bandpass=bandpass)
-            pw_fig.suptitle(f"Phase weighted stack")
+            plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   	   title="Phase weighted stack")
 
             stack_lin = group[1]
-            lin_fig = plot_stack(stack_lin, filter=filter, bandpass=bandpass)
-            lin_fig.suptitle(f"Linear stack")
-            plt.show()
+            plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+            		   title="Linear stack")
 
     """
 
