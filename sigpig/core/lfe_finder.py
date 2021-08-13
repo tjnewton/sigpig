@@ -771,7 +771,7 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
         # pickle.dump(stack_list, outfile)
         # outfile.close()
 
-        # load stream list from file
+        # load stack list from file
         infile = open('stack_list.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
@@ -902,6 +902,67 @@ def stack_waveforms_alt(st, Normalize=True):
     A different implementation of phase-weighted and linear stacking.
 
     Example:
+        # time the run
+        import time
+        start = time.time()
+
+        # define template length and prepick length (both in seconds)
+        template_length = 16.0
+        template_prepick = 0.5
+
+        # get templates and station_dict objects from picks in marker file
+        marker_file_path = "lfe_template.mrkr"
+        prepick_offset = 11 # in seconds
+        templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
+
+        # define path of files for detection
+        detection_files_path = "/Volumes/DISK/alaska/data"
+
+        # load party object from file
+        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
+
+        # inspect the party object detections
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
+
+        # # load previous stream list?
+        # load_stream_list = False
+        # # get the stacks station by station to avoid memory error
+        # stack_list = stack_waveforms_1x1(party, pick_offset,
+        #                                  detection_files_path, template_length,
+        #                                  template_prepick, station_dict)
+        # end = time.time()
+        # hours = int((end - start) / 60 / 60)
+        # minutes = int(((end - start) / 60) - (hours * 60))
+        # seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        # print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        #
+        # # save stacks as pickle file
+        # outfile = open('stack_list.pkl', 'wb')
+        # pickle.dump(stack_list, outfile)
+        # outfile.close()
+
+        # load stack list from file
+        infile = open('stack_list.pkl', 'rb')
+        stack_list = pickle.load(infile)
+        infile.close()
+
+        # loop over stack list and show the phase weighted stack and linear
+        # stack for each group
+        for group in stack_list:
+            # get the stack
+            stack_pw = group[0]
+            # get the plot handle for the stack, add a title, show figure
+            pw_fig = plot_stack(stack_pw, filter=filter, bandpass=bandpass)
+            pw_fig.suptitle(f"Phase weighted stack")
+
+            stack_lin = group[1]
+            lin_fig = plot_stack(stack_lin, filter=filter, bandpass=bandpass)
+            lin_fig.suptitle(f"Linear stack")
+            plt.show()
 
     """
     ST = Stream()
