@@ -1077,6 +1077,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             # get group streams to stack (only a single group here)
             group_streams = [st_tuple[0] for st_tuple in stream_list]
 
+            # FIXME: how to timeshift?
             # loop over each detection in group and time shift
             for group_idx, group_stream in enumerate(group_streams):
                 # align traces before stacking
@@ -1086,10 +1087,15 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
                     group_streams[group_idx][trace_idx] = time_Shift(trace,
                                                                      shift)
 
+            # build a single stream from all group streams
+            group_stream = Stream()
+            for stream in group_streams:
+                group_stream += stream
+
             # guard against stacking error:
             try:
-                # generate phase-weighted stack
-                lin, pws = pw_stack(group_streams)
+                # generate linear and phase-weighted stack
+                lin, pws = pw_stack(group_stream)
                 stack_pw += pws
 
                 # and generate linear stack
