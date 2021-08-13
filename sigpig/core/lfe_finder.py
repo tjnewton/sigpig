@@ -783,13 +783,12 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
             # get the stack
             stack_pw = group[0]
             # get the plot handle for the stack, add a title, show figure
-            pw_fig = plot_stack(stack_pw, filter=filter, bandpass=bandpass)
-            pw_fig.suptitle(f"Phase weighted stack")
+            plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   	   title="Phase weighted stack")
 
             stack_lin = group[1]
-            lin_fig = plot_stack(stack_lin, filter=filter, bandpass=bandpass)
-            lin_fig.suptitle(f"Linear stack")
-            plt.show()
+            plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+            		   title="Linear stack")
     """
     # extract pick times for each event from party object
     # pick_times is a list of the pick times for the master trace (with
@@ -943,12 +942,12 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # save stacks as pickle file
-        outfile = open('stack_list.pkl', 'wb')
+        outfile = open('alt_stack_list.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
         # # load stack list from file
-        # infile = open('stack_list.pkl', 'rb')
+        # infile = open('alt_stack_list.pkl', 'rb')
         # stack_list = pickle.load(infile)
         # infile.close()
 
