@@ -1102,7 +1102,6 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             except Exception:
                 pass
 
-
     # if the stacks exist, plot them
     if len(stack_pw) > 0:
         plot_stack(stack_pw, filter=filter, bandpass=bandpass,
