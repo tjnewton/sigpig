@@ -1075,7 +1075,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             # get group streams to stack (only a single group here)
             group_streams = [st_tuple[0] for st_tuple in stream_list]
 
-            # FIXME: add xcorr time shift like Aaron's code? 
+            # FIXME: add xcorr time shift like Aaron's code?
 
             # loop over each detection in group and time shift by fixed offset
             for group_idx, group_stream in enumerate(group_streams):
