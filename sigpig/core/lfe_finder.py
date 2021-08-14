@@ -1067,7 +1067,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
                     stream_list.append((day_st, index))
                     # st.plot()
 
-            # FIXME: deal with groups and try xcorr
+            # FIXME: deal with groups and try xcorr for time shifts
             # get group streams to stack (only a single group here)
             group_streams = [st_tuple[0] for st_tuple in stream_list]
 
