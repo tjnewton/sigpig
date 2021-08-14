@@ -947,18 +947,13 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         # stack_list = pickle.load(infile)
         # infile.close()
 
-        # loop over stack list and show the phase weighted stack and linear
-        # stack for each group
-        for group in stack_list:
-            # get the stack
-            stack_pw = group[0]
-            # get the plot handle for the stack, add a title, show figure
-            plot_stack(stack_pw, filter=filter, bandpass=bandpass,
-                   	   title="Phase weighted stack")
-
-            stack_lin = group[1]
-            plot_stack(stack_lin, filter=filter, bandpass=bandpass,
-            		   title="Linear stack")
+        # show the phase weighted stack and linear stack
+        stack_pw = stack_list[0]
+        plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   title="Phase weighted stack")
+        stack_lin = stack_list[1]
+        plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+            	   title="Linear stack")
 
     """
     # function to generate linear and phase-weighted stacks from a stream
