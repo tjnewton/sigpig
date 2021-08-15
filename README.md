@@ -73,7 +73,7 @@ v = visualize_Point_Cloud(filename)
 ```
 ![](doc/images/point_cloud.png?raw=true)
 
-### sigpig.core.lfe_finder detections LFEs using matched-filtering:  
+### sigpig.core.lfe_finder detects LFEs using matched-filtering:  
 Process arrival time picks from a Snuffler marker file into detections
 ```
 # define template length and prepick length (both in seconds)
