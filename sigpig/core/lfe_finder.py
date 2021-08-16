@@ -1103,13 +1103,16 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             except Exception:
                 pass
 
-    # if the stacks exist, plot them
+    # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
+    filter = False
+    bandpass = [1, 15]
     if len(stack_pw) > 0:
-        plot_stack(stack_pw, filter=False, title='Phase weighted stack',
-                   save=True)
+        plot_stack(stack_pw, filter=False, bandpass=bandpass,
+                   title='Phase weighted stack', save=True)
 
     if len(stack_lin) > 0:
-        plot_stack(stack_lin, filter=False, title='Linear stack', save=True)
+        plot_stack(stack_lin, filter=False, bandpass=bandpass,
+                   title='Linear stack', save=True)
 
     return [stack_pw, stack_lin]
 
