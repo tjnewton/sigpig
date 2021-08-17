@@ -1117,6 +1117,228 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
     return [stack_pw, stack_lin]
 
 
+def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
+                        template_prepick, station_dict, Normalize=True):
+    """
+    A different implementation of phase-weighted and linear stacking.
+
+    Example:
+        # time the run
+        import time
+        start = time.time()
+
+        # define template length and prepick length (both in seconds)
+        template_length = 16.0
+        template_prepick = 0.5
+
+        # get templates and station_dict objects from picks in marker file
+        marker_file_path = "lfe_template.mrkr"
+        prepick_offset = 11 # in seconds
+        templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
+
+        # define path of files for detection
+        detection_files_path = "/Volumes/DISK/alaska/data"
+
+        # load party object from file
+        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
+
+        # inspect the party object detections
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
+
+        # get the stacks station by station to avoid memory error
+        stack_list = stack_waveforms_alt(party, pick_offset,
+                                         detection_files_path, template_length,
+                                         template_prepick, station_dict)
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
+
+        # save stacks as pickle file
+        outfile = open('alt_stack_list.pkl', 'wb')
+        pickle.dump(stack_list, outfile)
+        outfile.close()
+
+        # # load stack list from file
+        # infile = open('alt_stack_list.pkl', 'rb')
+        # stack_list = pickle.load(infile)
+        # infile.close()
+
+        # show the phase weighted stack and linear stack
+        stack_pw = stack_list[0]
+        plot_stack(stack_pw, filter=filter, bandpass=bandpass,
+                   title="Phase weighted stack")
+        stack_lin = stack_list[1]
+        plot_stack(stack_lin, filter=filter, bandpass=bandpass,
+            	   title="Linear stack")
+
+    """
+    # function to generate linear and phase-weighted stacks from a stream
+    def generate_stacks(st, Normalize=True):
+        """
+        # TODO
+        """
+        ST = Stream()
+        for tr in st:
+            if tr.data.max() > 0:
+                ST += tr
+        data = np.array([tr.data for tr in ST])
+        if data.size == 0:
+            lin = st[0].copy()
+            lin.data = np.zeros_like(lin.data)
+            pws = st[0].copy()
+            pws.data = np.zeros_like(lin.data)
+            return lin, pws
+        data = data[
+            ~np.any(np.isnan(data), axis=1)]  # remove any traces with NaN data
+
+        if Normalize:
+            maxs = np.max(np.abs(data), axis=1)
+            data = data / maxs[:, None]
+        Linstack = data.mean(axis=0)
+        phas = np.zeros_like(data)
+        for ii in range(np.shape(phas)[0]):
+            tmp = hilbert(data[ii, :])  # hilbert transform of each timeseries
+            phas[ii, :] = np.arctan2(np.imag(tmp), np.real(
+                tmp))  # instantaneous phase using the hilbert transform
+        sump = np.abs(np.sum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
+               np.shape(phas)[0]
+        Phasestack = sump * Linstack  # traditional stack*phase stack
+
+        lin = st[0].copy()
+        lin.data = Linstack
+        pws = st[0].copy()
+        pws.data = Phasestack
+        return lin, pws
+
+    # first extract pick times for each event from party object
+    # pick_times is a list of the pick times for the master trace (with
+    # earliest pick time)
+    pick_times = []
+    for event in party.families[0].catalog.events:
+        for pick in event.picks:
+            # station with earliest pick defines "pick time"
+            # if pick.waveform_id.station_code == "WASW" and \
+            #         pick.waveform_id.network_code == "AV" and \
+            #         pick.waveform_id.channel_code == "SHZ":
+            #     pick_times.append(pick.time)
+            # FIXME: this should be dynamic, not hard coded
+            if pick.waveform_id.station_code == "WAT7" and \
+                    pick.waveform_id.network_code == "AK" and \
+                    pick.waveform_id.channel_code == "BHE":
+                pick_times.append(pick.time)
+
+    # loop over stations and generate a stack for each station:channel pair
+    stack_pw = Stream()
+    stack_lin = Stream()
+    for station in station_dict.keys():
+        network = station_dict[station]["network"]
+        channels = []
+        channels.append(station_dict[station]["channel"])  # append Z component
+        channels.append(f"{channels[0][:-1]}N")  # append N component
+        channels.append(f"{channels[0][:-1]}E")  # append E component
+
+        for channel in channels:
+            print(f"Assembling streams for {station}.{channel}")
+
+            stream_list = []
+            for index in tqdm(range(len(pick_times))):
+                pick_time = pick_times[index]
+
+                # build stream of detection file
+                day_file_list = glob.glob(f"{streams_path}/{network}."
+                                          f"{station}."
+                                          f"{channel}.{pick_time.year}"
+                                          f"-{pick_time.month:02}"
+                                          f"-{pick_time.day:02}.ms")
+
+                # guard against missing expected files
+                if len(day_file_list) > 0:
+                    # FIXME: this should be detected, not hard coded
+                    lowest_sr = 40
+
+                    # should only be one file, but safeguard against many
+                    file = day_file_list[0]
+
+                    # extract file info from file name
+                    # FIXME: this should be dynamic, not hard coded
+                    file_station = file[26:].split(".")[1]
+
+                    # load day file into stream
+                    day_st = Stream()
+                    day_st += read(file)
+
+                    # bandpass filter
+                    day_st.filter('bandpass', freqmin=1, freqmax=15)
+
+                    # interpolate to lowest sampling rate
+                    day_st.interpolate(sampling_rate=lowest_sr)
+
+                    # match station with specified pick offset
+                    station_pick_time = pick_time + pick_offset[file_station]
+
+                    # trim trace before adding to stream from pick_offset spec
+                    day_st.trim(station_pick_time, station_pick_time +
+                                template_length + template_prepick)
+
+                    stream_list.append((day_st, index))
+                    # st.plot()
+
+            # # cluster via xcorr
+            # groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
+            # groups[0][0][0].plot()
+            # stream_list = groups[0]
+
+            # get group streams to stack (only a single group here)
+            group_streams = [st_tuple[0] for st_tuple in stream_list]
+
+            # FIXME: add xcorr time shift like Aaron's code?
+
+            # loop over each detection in group and time shift by fixed offset
+            for group_idx, group_stream in enumerate(group_streams):
+                # align traces before stacking
+                for trace_idx, trace in enumerate(group_stream):
+                    # align traces from pick offset dict
+                    shift = -1 * pick_offset[trace.stats.station]
+                    group_streams[group_idx][trace_idx] = time_Shift(trace,
+                                                                     shift)
+
+            # build a single stream from all group streams
+            group_stream = Stream()
+            for stream in group_streams:
+                group_stream += stream
+
+            # guard against stacking error:
+            try:
+                # generate linear and phase-weighted stack
+                lin, pws = generate_stacks(group_stream)
+                # add phase-weighted stack to stream
+                stack_pw += pws
+                # and add linear stack to stream
+                stack_lin += lin
+
+            except Exception:
+                pass
+
+    # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
+    filter = False
+    bandpass = [1, 15]
+    if len(stack_pw) > 0:
+        plot_stack(stack_pw, filter=False, bandpass=bandpass,
+                   title='Phase weighted stack', save=True)
+
+    if len(stack_lin) > 0:
+        plot_stack(stack_lin, filter=False, bandpass=bandpass,
+                   title='Linear stack', save=True)
+
+    return [stack_pw, stack_lin]
+
+
 # function for matched-filtering of stacked templates through time series
 def matched_filter_stack():
     """
