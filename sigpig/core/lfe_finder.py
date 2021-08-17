@@ -1120,7 +1120,8 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                         template_prepick, station_dict, Normalize=True):
     """
-    A different implementation of phase-weighted and linear stacking.
+    A different implementation of phase-weighted and linear stacking that is
+    independent of EQcorrscan routines.
 
     Example:
         # time the run
