@@ -109,7 +109,7 @@ def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
     # append earliest station to templates list
     templates.append(f"{earliest_pick_station}    0.000  1       P\n")
 
-    # create pick offset dict for pick offset from master trace
+    # create pick offset dict for pick offset from main trace
     pick_offset[earliest_pick_station] = 0.0
 
     # append all other stations to templates list
@@ -575,7 +575,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
                             template_length, template_prepick,
                             detection_files_path, doi)
 
-        # create pick offset dict for pick offset from master trace
+        # create pick offset dict for pick offset from main trace
         pick_offset = {"GLB": 4.0, "PTPK": 19.0, "WASW": 0.0, "MCR4": 7.0,
                        "NEB3": 8.5, "MCR1": 8.5, "RH08": 16.5, "RH10": 15.5,
                        "RH09": 15.5, "WACK": 3.5, "NEB1": 10.5, "N25K": 3.5,
@@ -605,7 +605,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
             		   title="Linear stack")
     """
     # extract pick times for each event from party object
-    # pick_times is a list of the pick times for the master trace (with
+    # pick_times is a list of the pick times for the main trace (with
     # earliest pick time)
     pick_times = []
     for event in party.families[0].catalog.events:
@@ -789,7 +789,7 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
             		   title="Linear stack")
     """
     # extract pick times for each event from party object
-    # pick_times is a list of the pick times for the master trace (with
+    # pick_times is a list of the pick times for the main trace (with
     # earliest pick time)
     pick_times = []
     for event in party.families[0].catalog.events:
@@ -995,7 +995,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         return lin, pws
 
     # first extract pick times for each event from party object
-    # pick_times is a list of the pick times for the master trace (with
+    # pick_times is a list of the pick times for the main trace (with
     # earliest pick time)
     pick_times = []
     for event in party.families[0].catalog.events:
@@ -1151,7 +1151,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # get the stacks station by station to avoid memory error
-        stack_list = stack_waveforms_alt(party, pick_offset,
+        stack_list = stack_waveforms_alt2(party, pick_offset,
                                          detection_files_path, template_length,
                                          template_prepick, station_dict)
         end = time.time()
@@ -1218,7 +1218,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         return lin, pws
 
     # first extract pick times for each event from party object
-    # pick_times is a list of the pick times for the master trace (with
+    # pick_times is a list of the pick times for the main trace (with
     # earliest pick time)
     pick_times = []
     for event in party.families[0].catalog.events:
