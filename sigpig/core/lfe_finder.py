@@ -1120,7 +1120,8 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
     return [stack_pw, stack_lin]
 
-
+# FIXME: - - - - - - - working here - - - - - - - -
+#        - on stacking independent of EQcorrscan -
 def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                         template_prepick, station_dict, Normalize=True):
     """
@@ -1208,9 +1209,10 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         Linstack = data.mean(axis=0)
         phas = np.zeros_like(data)
         for ii in range(np.shape(phas)[0]):
-            tmp = hilbert(data[ii, :])  # hilbert transform of each timeseries
-            phas[ii, :] = np.arctan2(np.imag(tmp), np.real(
-                tmp))  # instantaneous phase using the hilbert transform
+            # hilbert transform of each timeseries
+            tmp = hilbert(data[ii, :])
+            # get instantaneous phase using the hilbert transform
+            phas[ii, :] = np.arctan2(np.imag(tmp), np.real(tmp))
         sump = np.abs(np.sum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
                np.shape(phas)[0]
         Phasestack = sump * Linstack  # traditional stack*phase stack
@@ -1361,6 +1363,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
 
 
 # function for matched-filtering of stacked templates through time series
+# autocorrelation
 def matched_filter_stack():
     """
 
