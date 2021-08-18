@@ -1228,12 +1228,13 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
             #         pick.waveform_id.network_code == "AV" and \
             #         pick.waveform_id.channel_code == "SHZ":
             #     pick_times.append(pick.time)
-            # FIXME: main trace should be dynamic (earlies), not hard coded
+            # FIXME: main trace should be dynamic (earliest), not hard coded
             if pick.waveform_id.station_code == "WAT7" and \
                     pick.waveform_id.network_code == "AK" and \
                     pick.waveform_id.channel_code == "BHE":
                 pick_times.append(pick.time)
 
+    # TODO: change this struct to accom alt wech stacking routine
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
