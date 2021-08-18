@@ -4,6 +4,7 @@ Functions to find low-frequency earthquakes in seismic time series data.
 
 import logging
 from obspy import UTCDateTime, Stream, Trace, read, read_events
+from obspy.signal.cross_correlation import xcorr
 from eqcorrscan import Tribe
 from eqcorrscan.utils.clustering import cluster
 from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
@@ -1221,11 +1222,11 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
     def get_xcorr_shifts(st, shift_len=50):
         shifts = []
         inds = []
-        for i, tr in enumerate(st):
+        for index, tr in enumerate(st):
             a, b, c = xcorr(st[0], tr, shift_len, full_xcorr=True)
             if b < 0:
                 a = c.argmax() - shift_len
-                inds.append(i)
+                inds.append(index)
             shifts.append(a / tr.stats.sampling_rate)
         return shifts, inds
 
