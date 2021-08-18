@@ -9,6 +9,7 @@ from obspy.clients.fdsn import Client
 import calendar
 from datetime import datetime
 import glob
+import numpy as np
 
 # downloads time series data from IRIS DMC
 def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
@@ -612,6 +613,7 @@ def rattlesnake_Ridge_Station_Locations(format):
     # convert to requested format (already in decimal degrees)
     if format == "UTM":
         # FIXME: add UTM meters conversion with automatic region recognition
+
     return location_dict
 
 def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
