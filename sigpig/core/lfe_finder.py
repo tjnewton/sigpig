@@ -898,7 +898,7 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
     return [stack_pw, stack_lin]
 
 # alternate stacking routine that doesn't use EQcorrscan stacking routine
-# FIXME: change function name
+# FIXME: change function name after refactoring from stack_waveforms_alt2
 def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
                         template_prepick, station_dict, Normalize=True):
     """
