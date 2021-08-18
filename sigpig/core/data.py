@@ -558,6 +558,9 @@ def rattlesnake_Ridge_Station_Locations():
     Example: write station locations to a file
         station_locations = rattlesnake_Ridge_Station_Locations()
 
+        # convert station locations to UTM meters
+        # TODO
+
         # now write to file
         with open("station.locs", "w") as file:
             for station in station_locations.keys():
