@@ -554,8 +554,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     # 52 detections: "MAD" @ 8.0
 
 
-# function to generate phase-weighted waveform stack all at once (memory
-# limited)
+# function to generate linear and phase-weighted waveform stack all at once
+# (memory is a bottleneck) via EQcorrscan stacking routines
 def stack_waveforms(party, pick_offset, streams_path, template_length,
                     template_prepick, load_stream_list=False):
     """
@@ -623,7 +623,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
                 pick_times.append(pick.time)
 
     if not load_stream_list:
-        # build streams from party families
+        # build streams from party families, stream_list is used by
+        # EQcorrscan functions
         stream_list = []
         for index, pick_time in enumerate(pick_times):
             print(index)
@@ -1219,16 +1220,18 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         return lin, pws
 
     # helper function to determine offset of each time series in a stream
-    def get_xcorr_shifts(st, shift_len=50):
+    def get_xcorr_shifts(stream, shift_len=50):
         shifts = []
         indices = []
-        for index, tr in enumerate(st):
-            a, b, c = xcorr(st[0], tr, shift_len, full_xcorr=True)
+        # loop through each trace and get cross-correlation time delay
+        for index, trace in enumerate(stream):
+            # FIXME: rename a,b,c to calls specified by obspy
+            a, b, c = xcorr(stream[0], trace, shift_len, full_xcorr=True)
             if b < 0:
                 a = c.argmax() - shift_len
                 indices.append(index)
-            shifts.append(a / tr.stats.sampling_rate)
-        return shifts, indicess
+            shifts.append(a / trace.stats.sampling_rate)
+        return shifts, indices
 
     # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the main trace (with
@@ -1324,6 +1327,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                                                                      shift)
 
             # build a single stream from all group streams
+            # FIXME: do this above in append call
             group_stream = Stream()
             for stream in group_streams:
                 group_stream += stream
