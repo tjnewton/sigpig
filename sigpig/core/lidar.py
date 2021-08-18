@@ -9,15 +9,6 @@ from osgeo.gdalconst import *
 import struct
 import pptk
 
-def decimal_degrees_to_utm():
-    """
-    # FIXME
-
-    Example:
-
-    """
-    pass
-
 def visualize_Point_Cloud(filename):
     """
     Visualizes a .laz pointcloud file using pptk viewer.
