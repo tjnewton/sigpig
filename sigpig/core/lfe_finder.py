@@ -713,7 +713,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
     return stack_list
 
-# function to generate phase-weighted waveform stack station by station
+# function to generate linear and phase-weighted waveform stacks station by
+# station (to avoid memory bottleneck) via EQcorrscan stacking routines
 def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
                     template_prepick, station_dict):
     """
