@@ -1217,6 +1217,18 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         pws.data = Phasestack
         return lin, pws
 
+    # helper function to determine offset of each time series in a stream
+    def get_xcorr_shifts(st, shift_len=50):
+        shifts = []
+        inds = []
+        for i, tr in enumerate(st):
+            a, b, c = xcorr(st[0], tr, shift_len, full_xcorr=True)
+            if b < 0:
+                a = c.argmax() - shift_len
+                inds.append(i)
+            shifts.append(a / tr.stats.sampling_rate)
+        return shifts, inds
+
     # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the main trace (with
     # earliest pick time)
@@ -1234,7 +1246,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                     pick.waveform_id.channel_code == "BHE":
                 pick_times.append(pick.time)
 
-    # TODO: change this struct to accom alt wech stacking routine
+    # TODO: change this struct to accom. alt wech stacking routine
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
