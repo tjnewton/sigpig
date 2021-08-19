@@ -1228,13 +1228,13 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         shifts = []
         indices = []
         # loop through each trace and get cross-correlation time delay
-        for index, trace in enumerate(stream):
-            # FIXME: rename a,b,c to calls specified by obspy
-            a, b, c = xcorr(stream[0], trace, shift_len, full_xcorr=True)
-            if b < 0:
-                a = c.argmax() - shift_len
-                indices.append(index)
-            shifts.append(a / trace.stats.sampling_rate)
+        for st_idx, trace in enumerate(stream):
+            max_idx, max_val, xcorr_func = xcorr(stream[0], trace, shift_len,
+                                                 full_xcorr=True)
+            if max_val < 0:
+                max_idx = xcorr_func.argmax() - shift_len
+                indices.append(st_idx)
+            shifts.append(max_idx / trace.stats.sampling_rate)
         return shifts, indices
 
     # first extract pick times for each event from party object
