@@ -1224,7 +1224,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         return lin, pws
 
     # helper function to determine offset of each time series in a stream
-    def get_xcorr_shifts(stream, shift_len=50):
+    def get_xcorr_shifts(stream, shift_len=10):
         shifts = []
         indices = []
         # loop through each trace and get cross-correlation time delay
@@ -1236,6 +1236,22 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                 indices.append(st_idx)
             shifts.append(max_idx / trace.stats.sampling_rate)
         return shifts, indices
+
+    # helper function to align all traces in a stream based on xcorr shifts
+    def align_stream(st, shifts):
+        group_streams = Stream()
+        maxshift = max(3 * abs(np.asarray(shifts)))
+        for i, tr in enumerate(st):
+            reftime = tr.stats.starttime
+            tr2 = tr.copy().trim(tr.stats.starttime - (maxshift + shifts[i]),
+                                 tr.stats.endtime + maxshift - shifts[i],
+                                 pad=True, fill_value=0)
+            tr2.stats.starttime = st[0].stats.starttime - maxshift
+            tr2.trim(tr2.stats.starttime + 1, tr2.stats.endtime - 1, pad=True,
+                     fill_value=0)
+            tr2.stats.starttime = reftime
+            group_streams += tr2
+        return group_streams
 
     # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the main trace (with
@@ -1254,7 +1270,6 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                     pick.waveform_id.channel_code == "BHE":
                 pick_times.append(pick.time)
 
-    # TODO: change this struct to accom. alt wech stacking routine
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
@@ -1309,27 +1324,16 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
 
                     sta_chan_stream += day_st
 
-            # FIXME: add xcorr time shift like Aaron's code?
+            # get xcorr time shift
+            shifts, indices = get_xcorr_shifts(sta_chan_stream)
 
-            # loop over each detection in group and time shift by fixed offset
-            for group_idx, group_stream in enumerate(group_streams):
-                # align traces before stacking
-                for trace_idx, trace in enumerate(group_stream):
-                    # align traces from pick offset dict
-                    shift = -1 * pick_offset[trace.stats.station]
-                    group_streams[group_idx][trace_idx] = time_Shift(trace,
-                                                                     shift)
-
-            # build a single stream from all group streams
-            # FIXME: do this above in append call
-            group_stream = Stream()
-            for stream in group_streams:
-                group_stream += stream
+            # align each trace in stream based on specified time shifts
+            aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
 
             # guard against stacking error:
             try:
                 # generate linear and phase-weighted stack
-                lin, pws = generate_stacks(group_stream)
+                lin, pws = generate_stacks(aligned_sta_chan_stream)
                 # add phase-weighted stack to stream
                 stack_pw += pws
                 # and add linear stack to stream
