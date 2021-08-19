@@ -1324,23 +1324,25 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
 
                     sta_chan_stream += day_st
 
-            # get xcorr time shift
-            shifts, indices = get_xcorr_shifts(sta_chan_stream)
+            # guard against empty stream
+            if len(sta_chan_stream) > 0:
+                # get xcorr time shift
+                shifts, indices = get_xcorr_shifts(sta_chan_stream)
 
-            # align each trace in stream based on specified time shifts
-            aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
+                # align each trace in stream based on specified time shifts
+                aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
 
-            # guard against stacking error:
-            try:
-                # generate linear and phase-weighted stack
-                lin, pws = generate_stacks(aligned_sta_chan_stream)
-                # add phase-weighted stack to stream
-                stack_pw += pws
-                # and add linear stack to stream
-                stack_lin += lin
+                # guard against stacking error:
+                try:
+                    # generate linear and phase-weighted stack
+                    lin, pws = generate_stacks(aligned_sta_chan_stream)
+                    # add phase-weighted stack to stream
+                    stack_pw += pws
+                    # and add linear stack to stream
+                    stack_lin += lin
 
-            except Exception:
-                pass
+                except Exception:
+                    pass
 
     # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
     filter = False
