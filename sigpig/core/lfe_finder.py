@@ -1268,21 +1268,21 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         for channel in channels:
             print(f"Assembling streams for {station}.{channel}")
 
-            stream_list = []
+            sta_chan_stream = Stream()
             for index in tqdm(range(len(pick_times))):
                 pick_time = pick_times[index]
 
-                # build stream of detection file
+                # build stream of detection file from local file
                 day_file_list = glob.glob(f"{streams_path}/{network}."
                                           f"{station}."
                                           f"{channel}.{pick_time.year}"
                                           f"-{pick_time.month:02}"
                                           f"-{pick_time.day:02}.ms")
 
-                # guard against missing expected files
+                # guard against missing files
                 if len(day_file_list) > 0:
                     # FIXME: this should be detected, not hard coded
-                    lowest_sr = 40
+                    lowest_sr = 40 # lowest sampling rate
 
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
@@ -1292,8 +1292,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                     file_station = file[26:].split(".")[1]
 
                     # load day file into stream
-                    day_st = Stream()
-                    day_st += read(file)
+                    day_st = read(file)
 
                     # bandpass filter
                     day_st.filter('bandpass', freqmin=1, freqmax=15)
@@ -1308,16 +1307,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                     day_st.trim(station_pick_time, station_pick_time +
                                 template_length + template_prepick)
 
-                    stream_list.append((day_st, index))
-                    # st.plot()
-
-            # # cluster via xcorr
-            # groups = cluster(template_list=stream_list, show=True, corr_thresh=0.1, cores=2)
-            # groups[0][0][0].plot()
-            # stream_list = groups[0]
-
-            # get group streams to stack (only a single group here)
-            group_streams = [st_tuple[0] for st_tuple in stream_list]
+                    sta_chan_stream += day_st
 
             # FIXME: add xcorr time shift like Aaron's code?
 
