@@ -1372,5 +1372,7 @@ def matched_filter_stack():
 
     """
 
+    # some basic check for false detections? (constant slope line in cumulative)
+
     pass
 
