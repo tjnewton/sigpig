@@ -75,6 +75,7 @@ v = visualize_Point_Cloud(filename)
 
 ### sigpig.core.lfe_finder detects LFEs using matched-filtering:  
 Process arrival time picks from a Snuffler marker file into detections
+#FIXME: add single call function for detection
 ```
 # define template length and prepick length (both in seconds)
 template_length = 16.0
