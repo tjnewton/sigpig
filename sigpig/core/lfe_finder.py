@@ -1243,12 +1243,12 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         # define a maximum time shift (3x the largest xcorr shift)
         max_shift = max(3 * abs(np.asarray(shifts)))
         # shift each trace and append to new Stream
-        for i, tr in enumerate(stream):
+        for tr_idx, tr in enumerate(stream):
             ref_time = tr.stats.starttime
             # TODO: trace what is going on below with time shifts
             tr_copy = tr.copy().trim(tr.stats.starttime - (max_shift +
-                                     shifts[i]), tr.stats.endtime +
-                                     max_shift - shifts[i], pad=True,
+                                     shifts[tr_idx]), tr.stats.endtime +
+                                     max_shift - shifts[tr_idx], pad=True,
                                      fill_value=0)
             tr_copy.stats.starttime = stream[0].stats.starttime - max_shift
             tr_copy.trim(tr_copy.stats.starttime + 1, tr_copy.stats.endtime -
