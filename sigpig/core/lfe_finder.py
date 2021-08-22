@@ -1238,19 +1238,20 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         return shifts, indices
 
     # helper function to align all traces in a stream based on xcorr shifts
-    def align_stream(st, shifts):
+    def align_stream(stream, shifts):
         group_streams = Stream()
-        maxshift = max(3 * abs(np.asarray(shifts)))
-        for i, tr in enumerate(st):
-            reftime = tr.stats.starttime
-            tr2 = tr.copy().trim(tr.stats.starttime - (maxshift + shifts[i]),
-                                 tr.stats.endtime + maxshift - shifts[i],
-                                 pad=True, fill_value=0)
-            tr2.stats.starttime = st[0].stats.starttime - maxshift
-            tr2.trim(tr2.stats.starttime + 1, tr2.stats.endtime - 1, pad=True,
-                     fill_value=0)
-            tr2.stats.starttime = reftime
-            group_streams += tr2
+        max_shift = max(3 * abs(np.asarray(shifts)))
+        for i, tr in enumerate(stream):
+            ref_time = tr.stats.starttime
+            tr_copy = tr.copy().trim(tr.stats.starttime - (max_shift +
+                                     shifts[i]), tr.stats.endtime +
+                                     max_shift - shifts[i], pad=True,
+                                     fill_value=0)
+            tr_copy.stats.starttime = stream[0].stats.starttime - max_shift
+            tr_copy.trim(tr_copy.stats.starttime + 1, tr_copy.stats.endtime -
+                         1, pad=True, fill_value=0)
+            tr_copy.stats.starttime = ref_time
+            group_streams += tr_copy
         return group_streams
 
     # first extract pick times for each event from party object
