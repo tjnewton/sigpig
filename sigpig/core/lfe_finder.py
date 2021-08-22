@@ -1185,25 +1185,25 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
 
     """
     # function to generate linear and phase-weighted stacks from a stream
-    def generate_stacks(st, Normalize=True):
+    def generate_stacks(stream, normalize=True):
         """
         # TODO
         """
         ST = Stream()
-        for tr in st:
+        for tr in stream:
             if tr.data.max() > 0:
                 ST += tr
         data = np.array([tr.data for tr in ST])
         if data.size == 0:
-            lin = st[0].copy()
+            lin = stream[0].copy()
             lin.data = np.zeros_like(lin.data)
-            pws = st[0].copy()
+            pws = stream[0].copy()
             pws.data = np.zeros_like(lin.data)
             return lin, pws
         data = data[
             ~np.any(np.isnan(data), axis=1)]  # remove any traces with NaN data
 
-        if Normalize:
+        if normalize:
             maxs = np.max(np.abs(data), axis=1)
             data = data / maxs[:, None]
         Linstack = data.mean(axis=0)
@@ -1217,9 +1217,9 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                np.shape(phas)[0]
         Phasestack = sump * Linstack  # traditional stack*phase stack
 
-        lin = st[0].copy()
+        lin = stream[0].copy()
         lin.data = Linstack
-        pws = st[0].copy()
+        pws = stream[0].copy()
         pws.data = Phasestack
         return lin, pws
 
