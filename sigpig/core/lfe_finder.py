@@ -1240,9 +1240,12 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
     # helper function to align all traces in a stream based on xcorr shifts
     def align_stream(stream, shifts):
         group_streams = Stream()
+        # define a maximum time shift (3x the largest xcorr shift)
         max_shift = max(3 * abs(np.asarray(shifts)))
+        # shift each trace and append to new Stream
         for i, tr in enumerate(stream):
             ref_time = tr.stats.starttime
+            # TODO: trace what is going on below with time shifts
             tr_copy = tr.copy().trim(tr.stats.starttime - (max_shift +
                                      shifts[i]), tr.stats.endtime +
                                      max_shift - shifts[i], pad=True,
