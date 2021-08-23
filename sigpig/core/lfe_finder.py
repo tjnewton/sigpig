@@ -1143,7 +1143,8 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
-        detection_files_path = "/Volumes/DISK/alaska/data"
+        # detection_files_path = "/Volumes/DISK/alaska/data"
+        detection_files_path = "/Users/human/Desktop/alaska/data"
 
         # load party object from file
         infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
@@ -1186,9 +1187,6 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
     """
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(stream, normalize=True):
-        """
-        # TODO
-        """
         ST = Stream()
         for tr in stream:
             if tr.data.max() > 0:
@@ -1307,8 +1305,7 @@ def stack_waveforms_alt2(party, pick_offset, streams_path, template_length,
                     file = day_file_list[0]
 
                     # extract file info from file name
-                    # FIXME: this should be dynamic, not hard coded
-                    file_station = file[26:].split(".")[1]
+                    file_station = file.split(".")[1]
 
                     # load day file into stream
                     day_st = read(file)
