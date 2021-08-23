@@ -919,8 +919,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
-        # detection_files_path = "/Volumes/DISK/alaska/data"
-        detection_files_path = "/Users/human/Desktop/alaska/data"
+        streams_path = "/Users/human/Desktop/alaska/data"
 
         # load party object from file
         infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
@@ -933,9 +932,9 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # get the stacks station by station to avoid memory error
-        stack_list = stack_waveforms_alt(party, pick_offset,
-                                         detection_files_path, template_length,
-                                         template_prepick, station_dict)
+        stack_list = stack_waveforms_alt(party, pick_offset, streams_path,
+                                         template_length, template_prepick,
+                                         station_dict)
         end = time.time()
         hours = int((end - start) / 60 / 60)
         minutes = int(((end - start) / 60) - (hours * 60))
@@ -1051,7 +1050,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             for index in tqdm(range(len(pick_times))):
                 pick_time = pick_times[index]
 
-                # build stream of detection file from local file
+                # find the local file corresponding to the station:channel pair
                 day_file_list = glob.glob(f"{streams_path}/{network}."
                                           f"{station}."
                                           f"{channel}.{pick_time.year}"
