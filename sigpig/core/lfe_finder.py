@@ -993,6 +993,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             if max_val < 0:
                 max_idx = xcorr_func.argmax() - shift_len
                 indices.append(st_idx)
+
             shifts.append(max_idx / trace.stats.sampling_rate)
         return shifts, indices
 
@@ -1059,7 +1060,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
                 # guard against missing files
                 if len(day_file_list) > 0:
-                    # FIXME: this should be detected, not hard coded
+                    # FIXME: lowest sr should be detected, not hard coded
                     lowest_sr = 40 # lowest sampling rate
 
                     # should only be one file, but safeguard against many
@@ -1132,6 +1133,8 @@ def template_match_stack():
         infile.close()
 
     """
+    # shift_len?
+    # should template be filtered already? deal with this for detect
 
     # some basic check for false detections? (constant slope line in cumulative)
 
