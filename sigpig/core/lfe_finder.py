@@ -4,7 +4,7 @@ Functions to find low-frequency earthquakes in seismic time series data.
 
 import logging
 from obspy import UTCDateTime, Stream, Trace, read, read_events
-from obspy.signal.cross_correlation import xcorr
+from obspy.signal.cross_correlation import xcorr, correlate_template
 from eqcorrscan import Tribe
 from eqcorrscan.utils.clustering import cluster
 from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
@@ -988,8 +988,15 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         indices = []
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
+            # FIXME: returned time shift depends on shift_len
             max_idx, max_val, xcorr_func = xcorr(stream[0], trace, shift_len,
                                                  full_xcorr=True)
+            # FIXME: why does this return only one value?
+            cc = correlate_template(stream[0], trace, mode='valid',
+                                    normalize='full', demean=True,
+                                    method='auto')
+            max_idx = np.argmax(cc)
+
             if max_val < 0:
                 max_idx = xcorr_func.argmax() - shift_len
                 indices.append(st_idx)
