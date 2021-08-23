@@ -946,12 +946,6 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         outfile = open('alt_stack_list.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
-
-        # # load stack list from file
-        # infile = open('alt_stack_list.pkl', 'rb')
-        # stack_list = pickle.load(infile)
-        # infile.close()
-
     """
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(stream, normalize=True):
@@ -1129,11 +1123,14 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
 # function for matched-filtering of stacked templates through time series
 # autocorrelation
-def matched_filter_stack():
+def template_match_stack():
     """
 
     Example:
-
+        # load stack list from file
+        infile = open('alt_stack_list.pkl', 'rb')
+        stack_list = pickle.load(infile)
+        infile.close()
 
     """
 
