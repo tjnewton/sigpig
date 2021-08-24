@@ -991,7 +991,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
         # TODO: change main trace to largest amplitude
 
-        # TODO: only correlate subset of trace (9-12s)
+        # TODO: only correlate subset of trace (9-12s) for stacking
 
         # TODO: refine stations for templates to close stations
 
