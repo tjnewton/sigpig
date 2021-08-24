@@ -986,12 +986,20 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
     def get_xcorr_shifts(stream, shift_len=10):
         shifts = []
         indices = []
+
+        # TODO: use single best station first
+        # TODO: change main trace to largest amplitude
+        # TODO: only correlate subset of trace (9-12s)
+        # TODO: refine stations for templates to close stations
+        # relative plot func
+
+
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
             # FIXME: returned time shift depends on shift_len
             max_idx, max_val, xcorr_func = xcorr(stream[0], trace, shift_len,
                                                  full_xcorr=True)
-            # FIXME: why does this return only one value?
+            # FIXME: why does this return only one value if len(st[0]) == len(tr)?
             cc = correlate_template(stream[0], trace, mode='valid',
                                     normalize='full', demean=True,
                                     method='auto')
@@ -1040,6 +1048,8 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
                     pick.waveform_id.network_code == "AK" and \
                     pick.waveform_id.channel_code == "BHE":
                 pick_times.append(pick.time)
+
+            # FIXME: TA.N25K master
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
