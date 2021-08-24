@@ -1002,6 +1002,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
             # FIXME: returned time shift depends on shift_len
             max_idx, max_val, xcorr_func = xcorr(stream[0], trace, shift_len,
                                                  full_xcorr=True)
+
             # FIXME: why does this return only one value if len(st[0]) == len(tr)?
             cc = correlate_template(stream[0], trace, mode='valid',
                                     normalize='full', demean=True,
