@@ -995,7 +995,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
 
         # TODO: refine stations for templates to close stations
 
-        # relative plot func
+        # TODO: function to plot all traces from a stream in relative time
 
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
