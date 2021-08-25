@@ -8,6 +8,9 @@ from osgeo import gdal
 from osgeo.gdalconst import *
 import struct
 import pptk
+import rasterio
+from affine import Affine
+from pyproj import Proj, transform
 
 def visualize_Point_Cloud(filename):
     """
@@ -36,6 +39,8 @@ def visualize_Point_Cloud(filename):
 def ingest_DEM(raster_file, output_file):
     """
     Reads an .adf raster file and outputs a .tiff file.
+
+    # FIXME: this function is broken
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
@@ -84,5 +89,45 @@ def ingest_DEM(raster_file, output_file):
     output_dataset = None
 
     return output_dataset
+
+def elevations_from_raster(raster_file):
+    """
+
+    Args:
+        raster_file: string defining path to raster file
+
+    Returns:
+        None
+
+    Example:
+        raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+        _ = elevations_from_raster(raster_file)
+
+    """
+
+    raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+
+    # read raster file
+    with rasterio.open(raster_file) as r:
+        T0 = r.transform  # upper-left pixel corner affine transform
+        p1 = Proj(r.crs)
+        A = r.read()  # pixel values
+
+    # All rows and columns
+    cols, rows = np.meshgrid(np.arange(A.shape[2]), np.arange(A.shape[1]))
+
+    # Get affine transform for pixel centres
+    T1 = T0 * Affine.translation(0.5, 0.5)
+    # Function to convert pixel row/column index (from 0) to easting/northing at centre
+    rc2en = lambda r, c: (c, r) * T1
+
+    # All eastings and northings (there is probably a faster way to do this)
+    eastings, northings = np.vectorize(rc2en, otypes=[float, float])(rows, cols)
+
+    # Project all longitudes, latitudes
+    p2 = Proj(proj='latlong',datum='WGS84')
+    longs, lats = transform(p1, p2, eastings, northings)
+
+    return None
 
 # TODO: add content from lidar/ortho_station_map here or to figures.py
