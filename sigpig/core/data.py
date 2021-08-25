@@ -553,7 +553,7 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     return obspyStream
 
 
-def rattlesnake_Ridge_Station_Locations(format):
+def rattlesnake_Ridge_Station_Locations(format=None):
     """ Returns a dict of station locations, used by EQTransformer
     downloader.stationListFromMseed to create a station_list.json file
 
