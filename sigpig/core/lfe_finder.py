@@ -279,8 +279,8 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
     and template matching of the stacked waveform template.
 
     Example:
-        # manually define templates from TA.N25K
-        templates = ["# 2016  9 26  9 25 46.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        # manually define templates from station TA.N25K (location is made up)
+        templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "N25K    0.000  1       P\n"]
 
         # and define a station dict to add data needed by EQcorrscan
