@@ -108,7 +108,7 @@ def elevations_from_raster(raster_file):
     # read raster from file
     with rasterio.open(raster_file) as r:
         T0 = r.transform  # upper-left pixel corner affine transform
-        p1 = Proj(r.crs)
+        raster_crs = Proj(r.crs)
         A = r.read()  # pixel values
 
     # All rows and columns
@@ -119,12 +119,12 @@ def elevations_from_raster(raster_file):
     # Function to convert pixel row/column index (from 0) to easting/northing at centre
     rc2en = lambda r, c: (c, r) * T1
 
-    # All eastings and northings (there is probably a faster way to do this)
+    # get eastings and northings (there is probably a faster way to do this)
     eastings, northings = np.vectorize(rc2en, otypes=[float, float])(rows, cols)
 
-    # Project all longitudes, latitudes
-    p2 = Proj(proj='latlong',datum='WGS84')
-    longs, lats = transform(p1, p2, eastings, northings)
+    # get longitudes and latitudes from eastings and northings
+    lat_lon_crs = Proj(proj='latlong',datum='WGS84')
+    longs, lats = transform(raster_crs, lat_lon_crs, eastings, northings)
 
     return None
 
