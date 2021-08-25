@@ -16,6 +16,7 @@ import calendar
 from tqdm import tqdm
 from figures import plot_stack
 from scipy.signal import hilbert
+import time
 
 # function to convert snuffler marker file to event template
 def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
@@ -297,21 +298,27 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # define path of files for detection
         detection_files_path = "/Users/human/Desktop/alaska/data"
         # define dates of interest
-        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
-        end_date = UTCDateTime("2016-09-26T23:59:59.999999999999Z")
+        start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
-        # run detection
+        # run detection and time it
+        start = time.time()
         party = detect_LFEs(templates, template_files, station_dict,
                             template_length, template_prepick,
                             detection_files_path, start_date, end_date)
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
-        # # to inspect the catalog
-        # catalog = party.get_catalog()
+        # get the catalog
+        catalog = party.get_catalog()
 
-        # inspect the party object
+        # inspect the party growth over time
         fig = party.plot(plot_grouped=True)
 
-        # peek at most productive family
+        # get the most productive family
         family = sorted(party.families, key=lambda f: len(f))[-1]
         print(family)
 
@@ -327,7 +334,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 		doi = detection_time - 10
 		doi_end = doi + 30
 		# define time series files path
-		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+		files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
 		# bandpass filter from 1-15 Hz
 		filter = True
 		bandpass = [1, 15]
