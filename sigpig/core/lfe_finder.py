@@ -311,6 +311,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         minutes = int(((end - start) / 60) - (hours * 60))
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        # this takes       for 1 template of N25K over 2016-2018 time period
 
         # get the catalog
         catalog = party.get_catalog()
@@ -340,6 +341,10 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 		bandpass = [1, 15]
 		fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 							   bandpass=bandpass)
+
+		# TODO: plot all stations around detection times
+
+		# TODO: stacking utilizing a small template for xcorr timeshift
 
 	Another example spanning multiple days:
         # time the run
