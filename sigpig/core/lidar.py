@@ -192,8 +192,6 @@ def elevations_from_raster(raster_file, utm_coordinates):
                 elevation = elevations[index]
                 line = f"{station},{latitude},{longitude},{elevation}\n"
                 file.write(line)
-
-
     """
     # a place to store elevations
     elevations = []
