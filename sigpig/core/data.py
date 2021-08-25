@@ -609,7 +609,7 @@ def rattlesnake_Ridge_Station_Locations(format):
     location_dict = {}
 
     # convert to requested format (already in decimal degrees)
-    if format == "UTM":
+    if format == "UTM" or format == "utm":
         for index, station in enumerate(stations):
             utm_conversion = utm.from_latlon(latitudes[index], longitudes[
                                                                         index])
