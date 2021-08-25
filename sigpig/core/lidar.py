@@ -90,6 +90,61 @@ def ingest_DEM(raster_file, output_file):
 
     return output_dataset
 
+
+def arrays_from_raster(raster_file):
+    """
+    Reads a raster file and returns numpy ndarrays containing elevations (
+    meters), UTM easting and northing in NAD83 UTM zone 10N (meters),
+    and longitudes and latitudes.
+
+    Args:
+        raster_file: string defining path to raster file
+
+    Returns:
+        elevations: np.ndarray of elevations in meters
+        eastings: np.ndarray of eastings in UTM meters
+        northings: np.ndarray of northings in UTM meters
+        longitudes: np.ndarray of longitudes in WGS84
+        latitudes: np.ndarray of longitudes in WGS84
+
+    Example:
+        raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+        elevations, eastings, northings, longitudes, latitudes = arrays_from_raster(raster_file)
+    """
+
+    # read raster from file
+    with rasterio.open(raster_file) as r:
+        # get upper-left pixel corner affine transform
+        upper_left_pixel_transform = r.transform
+        raster_crs = Proj(r.crs)
+        elevations = r.read()  # pixel values
+
+    # get rows and columns
+    cols, rows = np.meshgrid(np.arange(elevations.shape[2]), np.arange(
+                             elevations.shape[1]))
+
+    # get affine transform for pixel centres
+    pixel_center_transform = upper_left_pixel_transform * Affine.translation(
+                                                                      0.5, 0.5)
+    # convert pixel row and col index to easting and northing at pixel center
+    row_col_to_easting_northing = lambda row, col: (col, row) * \
+                                                         pixel_center_transform
+
+    # get eastings and northings
+    eastings, northings = np.vectorize(row_col_to_easting_northing, otypes=[
+                                       float, float])(rows, cols)
+
+    # get longitudes and latitudes from eastings and northings
+    lat_lon_crs = Proj(proj='latlong',datum='WGS84')
+    longitudes, latitudes = transform(raster_crs, lat_lon_crs, eastings,
+                                      northings)
+
+    # for consistent array sizes
+    elevations = elevations[0]
+
+    return elevations, eastings, northings, longitudes, latitudes
+
+
 def elevations_from_raster(raster_file):
     """
 
