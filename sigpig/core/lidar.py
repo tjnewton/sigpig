@@ -105,9 +105,7 @@ def elevations_from_raster(raster_file):
 
     """
 
-    raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
-
-    # read raster file
+    # read raster from file
     with rasterio.open(raster_file) as r:
         T0 = r.transform  # upper-left pixel corner affine transform
         p1 = Proj(r.crs)
