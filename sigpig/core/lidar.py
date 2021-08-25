@@ -11,6 +11,7 @@ import pptk
 import rasterio
 from affine import Affine
 from pyproj import Proj, transform
+from data import rattlesnake_Ridge_Station_Locations
 
 def visualize_Point_Cloud(filename):
     """
@@ -147,6 +148,9 @@ def arrays_from_raster(raster_file):
 
 def elevations_from_raster(raster_file, utm_coordinates):
     """
+    Reads the specified raster file and queries it at the specified
+    coordinates. The raster values at the queried points are returned in a
+    list.
 
     Args:
         raster_file: string defining path to raster file
@@ -156,10 +160,29 @@ def elevations_from_raster(raster_file, utm_coordinates):
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+
         # get station coordinates in utm reference frame
-        utm_coordinates =
+        utm_station_dict = rattlesnake_Ridge_Station_Locations("utm")
+        # transform station dict into list of tuples of x,y coordinates
+        utm_coordinates = []
+        old_elevations = []
+        for key in utm_station_dict.keys():
+            # extract easting and northing
+            easting, northing, old_elevation = utm_station_dict[key]
+            utm_coordinates.append((easting, northing))
+            old_elevations.append(old_elevation)
+
         # query raster at specified coordinates
         elevations = elevations_from_raster(raster_file, utm_coordinates)
+
+        # calculate difference between old elevations and new elevations
+        differences = np.asarray(elevations) - np.asarray(old_elevations)
+        # find anomalous values and ignore them
+        bad_value_indices = np.where(abs(differences) > 1000)
+        if len(bad_value_indices) > 0:
+            for index in bad_value_indices[0]:
+                elevations[index] = old_elevations[index]
+
 
     """
     # a place to store elevations
@@ -169,8 +192,8 @@ def elevations_from_raster(raster_file, utm_coordinates):
     with rasterio.open(raster_file) as r:
 
         # get elevation at each coordinate
-        for elevation in r.sample([(x, y)]):
-            elevations.append(elevation)
+        for elevation in r.sample(utm_coordinates):
+            elevations.append(elevation[0])
 
     return elevations
 
