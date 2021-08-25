@@ -12,6 +12,7 @@ import rasterio
 from affine import Affine
 from pyproj import Proj, transform
 from data import rattlesnake_Ridge_Station_Locations
+import matplotlib.pyplot as plt
 
 def visualize_Point_Cloud(filename):
     """
@@ -183,8 +184,11 @@ def elevations_from_raster(raster_file, utm_coordinates):
             for index in bad_value_indices[0]:
                 elevations[index] = old_elevations[index]
 
-        # write WGS84 station locations and elevations to file
+        # write WGS84 station locations and elevations to file and plot
         station_locations = rattlesnake_Ridge_Station_Locations()
+        stations = []
+        ticks = []
+        fig = plt.figure()
         with open("dem_station_elevations.csv", "w") as file:
             for index, station in enumerate(station_locations.keys()):
                 latitude = station_locations[station][0]
@@ -192,6 +196,13 @@ def elevations_from_raster(raster_file, utm_coordinates):
                 elevation = elevations[index]
                 line = f"{station},{latitude},{longitude},{elevation}\n"
                 file.write(line)
+                if index not in bad_value_indices[0]:
+                    plt.scatter(index, differences[index], 'r')
+                    stations.append(station)
+                    ticks.append(index)
+        plt.xticks(ticks, stations)
+        plt.show()
+
     """
     # a place to store elevations
     elevations = []
