@@ -145,7 +145,7 @@ def arrays_from_raster(raster_file):
     return elevations, eastings, northings, longitudes, latitudes
 
 
-def elevations_from_raster(raster_file):
+def elevations_from_raster(raster_file, utm_coordinates):
     """
 
     Args:
@@ -156,35 +156,22 @@ def elevations_from_raster(raster_file):
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
-        _ = elevations_from_raster(raster_file)
+        # get station coordinates in utm reference frame
+        utm_coordinates =
+        # query raster at specified coordinates
+        elevations = elevations_from_raster(raster_file, utm_coordinates)
 
     """
+    # a place to store elevations
+    elevations = []
 
     # read raster from file
     with rasterio.open(raster_file) as r:
-        # get upper-left pixel corner affine transform
-        upper_left_pixel_transform = r.transform
-        raster_crs = Proj(r.crs)
-        A = r.read()  # pixel values
 
-    # get rows and columns
-    cols, rows = np.meshgrid(np.arange(A.shape[2]), np.arange(A.shape[1]))
+        # get elevation at each coordinate
+        for elevation in r.sample([(x, y)]):
+            elevations.append(elevation)
 
-    # get affine transform for pixel centres
-    pixel_center_transform = upper_left_pixel_transform * Affine.translation(
-                                                                      0.5, 0.5)
-    # convert pixel row and col index to easting and northing at pixel center
-    row_col_to_easting_northing = lambda row, col: (col, row) * \
-                                                         pixel_center_transform
-
-    # get eastings and northings
-    eastings, northings = np.vectorize(row_col_to_easting_northing, otypes=[
-                                       float, float])(rows, cols)
-
-    # get longitudes and latitudes from eastings and northings
-    lat_lon_crs = Proj(proj='latlong',datum='WGS84')
-    longs, lats = transform(raster_crs, lat_lon_crs, eastings, northings)
-
-    return None
+    return elevations
 
 # TODO: add content from lidar/ortho_station_map here or to figures.py
