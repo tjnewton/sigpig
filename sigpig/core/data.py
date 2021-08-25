@@ -10,6 +10,7 @@ import calendar
 from datetime import datetime
 import glob
 import numpy as np
+import utm
 
 # downloads time series data from IRIS DMC
 def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
@@ -557,7 +558,7 @@ def rattlesnake_Ridge_Station_Locations(format):
     downloader.stationListFromMseed to create a station_list.json file
 
     Example: write station locations to a file
-        # get station locations coordinates in UTM meters
+        # get station locations coordinates in UTM meters easting and northing
         format = "UTM"
         station_locations = rattlesnake_Ridge_Station_Locations("UTM")
 
@@ -606,13 +607,23 @@ def rattlesnake_Ridge_Station_Locations(format):
                   407.8851035175373,412.7486362327675,404.519552729108,
                   397.5652740413809,465.2,435.4,435.4)
     location_dict = {}
-    for index, station in enumerate(stations):
-        location_dict[str(station)] = [latitudes[index], longitudes[index],
-                                       elevations[index]]
 
     # convert to requested format (already in decimal degrees)
     if format == "UTM":
-        # FIXME: add UTM meters conversion with automatic region recognition
+        for index, station in enumerate(stations):
+            utm_conversion = utm.from_latlon(latitudes[index], longitudes[
+                                                                        index])
+            easting = utm_conversion[0]
+            northing = utm_conversion[1]
+            location_dict[str(station)] = [easting, northing, elevations[
+                                                                        index]]
+
+    # else return latitude/longitude
+    else:
+        for index, station in enumerate(stations):
+            location_dict[str(station)] = [latitudes[index], longitudes[index],
+                                           elevations[index]]
+
 
     return location_dict
 
