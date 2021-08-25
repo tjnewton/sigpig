@@ -297,17 +297,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
                      "KLU    21.000  1       P\n",
                      "MCR2    1.500  1       P\n"]
 
-        # define template length and prepick length (both in seconds)
-        template_length = 16.0
-        template_prepick = 0.5
-
-        # build stream of all station files for templates
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
-        template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
-                                      f"-{doi.day:02}.ms")
-
-        # station dict to add data needed by EQcorrscan
+        # and define a station dict to add data needed by EQcorrscan
         station_dict = {"GLB": {"network": "AK", "channel": "BHZ"},
                         "PTPK": {"network": "AK", "channel": "BHZ"},
                         "WASW": {"network": "AV", "channel": "SHZ"},
@@ -324,9 +314,19 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
                         "KLU": {"network": "AK", "channel": "BHZ"},
                         "MCR2": {"network": "YG", "channel": "BHZ"}}
 
+        # define template length and prepick length (both in seconds)
+        template_length = 16.0
+        template_prepick = 0.5
+
+        # build stream of all station files for templates
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
+        template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
+                                      f"-{doi.day:02}.ms")
+
         # define path of files for detection
         detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-        # define day of interest
+        # define dates of interest
         start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
         end_date = UTCDateTime("2016-09-26T23:59:59.999999999999Z")
 
