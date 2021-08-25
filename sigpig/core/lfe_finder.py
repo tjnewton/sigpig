@@ -415,13 +415,9 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         # get the stacks
         start = time.time()
 
-        # stack_list = stack_waveforms(party, pick_offset, detection_files_path,
-        #                              template_length, template_prepick,
-        #                              load_stream_list=load_stream_list)
-
-        stack_list = stack_waveforms_1x1(party, pick_offset,
-                                         detection_files_path, template_length,
-                                         template_prepick, station_dict)
+        stack_list = stack_waveforms(party, pick_offset, detection_files_path,
+                                     template_length, template_prepick,
+                                     load_stream_list=load_stream_list)
 
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -556,7 +552,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
 # function to generate linear and phase-weighted waveform stacks station by
 # station (to avoid memory bottleneck) via EQcorrscan stacking routines
-def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
+def stack_waveforms(party, pick_offset, streams_path, template_length,
                     template_prepick, station_dict):
     """
     Generates stacks of waveforms from families specified within a Party
@@ -600,9 +596,9 @@ def stack_waveforms_1x1(party, pick_offset, streams_path, template_length,
         # # load previous stream list?
         # load_stream_list = False
         # # get the stacks station by station to avoid memory error
-        # stack_list = stack_waveforms_1x1(party, pick_offset,
-        #                                  detection_files_path, template_length,
-        #                                  template_prepick, station_dict)
+        # stack_list = stack_waveforms(party, pick_offset,
+        #                              detection_files_path, template_length,
+        #                              template_prepick, station_dict)
         # end = time.time()
         # hours = int((end - start) / 60 / 60)
         # minutes = int(((end - start) / 60) - (hours * 60))
