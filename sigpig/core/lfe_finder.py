@@ -291,13 +291,11 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         template_prepick = 0.5
 
         # build stream of all station files for templates
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-        doi = UTCDateTime("2016-09-26T00:00:00.0Z")
-        template_files = glob.glob(f"{files_path}/*.{doi.year}-{doi.month:02}"
-                                      f"-{doi.day:02}.ms")
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        detection_files_path = "/Users/human/Desktop/alaska/data"
         # define dates of interest
         start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
         end_date = UTCDateTime("2016-09-26T23:59:59.999999999999Z")
