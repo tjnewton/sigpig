@@ -107,19 +107,21 @@ def elevations_from_raster(raster_file):
 
     # read raster from file
     with rasterio.open(raster_file) as r:
-        T0 = r.transform  # upper-left pixel corner affine transform
+        # get upper-left pixel corner affine transform
+        upper_left_pixel_transform = r.transform
         raster_crs = Proj(r.crs)
         A = r.read()  # pixel values
 
-    # All rows and columns
+    # get rows and columns
     cols, rows = np.meshgrid(np.arange(A.shape[2]), np.arange(A.shape[1]))
 
-    # Get affine transform for pixel centres
-    T1 = T0 * Affine.translation(0.5, 0.5)
+    # get affine transform for pixel centres
+    pixel_center_transform = upper_left_pixel_transform * Affine.translation(
+                                                                      0.5, 0.5)
     # Function to convert pixel row/column index (from 0) to easting/northing at centre
-    rc2en = lambda r, c: (c, r) * T1
+    rc2en = lambda r, c: (c, r) * pixel_center_transform
 
-    # get eastings and northings (there is probably a faster way to do this)
+    # get eastings and northings
     eastings, northings = np.vectorize(rc2en, otypes=[float, float])(rows, cols)
 
     # get longitudes and latitudes from eastings and northings
