@@ -183,6 +183,16 @@ def elevations_from_raster(raster_file, utm_coordinates):
             for index in bad_value_indices[0]:
                 elevations[index] = old_elevations[index]
 
+        # write WGS84 station locations and elevations to file
+        station_locations = rattlesnake_Ridge_Station_Locations()
+        with open("dem_station_elevations.csv", "w") as file:
+            for index, station in enumerate(station_locations.keys()):
+                latitude = station_locations[station][0]
+                longitude = station_locations[station][1]
+                elevation = elevations[index]
+                line = f"{station},{latitude},{longitude},{elevation}\n"
+                file.write(line)
+
 
     """
     # a place to store elevations
