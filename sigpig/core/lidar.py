@@ -13,6 +13,7 @@ from affine import Affine
 from pyproj import Proj, transform
 from data import rattlesnake_Ridge_Station_Locations
 import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
 
 def visualize_Point_Cloud(filename):
     """
@@ -188,7 +189,7 @@ def elevations_from_raster(raster_file, utm_coordinates):
         station_locations = rattlesnake_Ridge_Station_Locations()
         stations = []
         ticks = []
-        fig = plt.figure()
+        fig, ax = plt.subplots(figsize=(12, 7))
         with open("dem_station_elevations.csv", "w") as file:
             for index, station in enumerate(station_locations.keys()):
                 latitude = station_locations[station][0]
@@ -197,10 +198,18 @@ def elevations_from_raster(raster_file, utm_coordinates):
                 line = f"{station},{latitude},{longitude},{elevation}\n"
                 file.write(line)
                 if index not in bad_value_indices[0]:
-                    plt.scatter(index, differences[index], 'r')
-                    stations.append(station)
-                    ticks.append(index)
-        plt.xticks(ticks, stations)
+                    plt.scatter(index, differences[index], c='k')
+                else:
+                    plt.scatter(index, 0, c='r')
+                stations.append(station)
+                ticks.append(index)
+        plt.xticks(ticks, stations, rotation=90)
+        # get y ticks at interval of 1
+        loc = plticker.MultipleLocator(base=1.0)
+        ax.yaxis.set_major_locator(loc)
+        plt.grid(True, which='both')
+        plt.title('Differenced station elevations (meters)')
+        plt.ylabel('Elevation difference (m)')
         plt.show()
 
     """
