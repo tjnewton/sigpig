@@ -544,9 +544,9 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
                     template_prepick, station_dict):
     """
     Generates stacks of waveforms from families specified within a Party
-    object (as returned by detect_LFEs), using the miniseed files present in
-    the specified path (streams_path). Building streams for party families
-    is slow, so previously generated stream lists can be used by specifying
+    object, using the miniseed files present in the specified path
+    (streams_path). Building streams for party families is slow,
+    so previously generated stream lists can be used by specifying
     load_stream_list=True.
 
     Limitations:
@@ -564,8 +564,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
         template_prepick = 0.5
 
         # get templates and station_dict objects from picks in marker file
-        marker_file_path = "lfe_template.mrkr"
-        prepick_offset = 11 # in seconds
+        marker_file_path = "lfe_templates_3.mrkr"
+        prepick_offset = 0 # in seconds (was 11 for templates_2, 0 for templates_3)
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
