@@ -297,7 +297,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Desktop/alaska/data"
+        detection_files_path = "/Users/human/Desktop/alaska/inner"
         # define dates of interest
         start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
@@ -312,7 +312,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
         minutes = int(((end - start) / 60) - (hours * 60))
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
-        # this takes       for 1 template of N25K over 2016-2018 time period
+        # this takes       for 1 template of N25K across inner stations
+        # over the 2016-2018 time period
         # got stuck on 2017-12-08 last time
 
         # get the catalog
@@ -744,7 +745,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
-        streams_path = "/Users/human/Desktop/alaska/data"
+        streams_path = "/Users/human/Desktop/alaska/inner"
 
         # load party object from file
         infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
