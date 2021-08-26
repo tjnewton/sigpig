@@ -365,8 +365,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
                                       f"-{doi.day:02}.ms")
 
         # get templates and station_dict objects from picks in marker file
-        marker_file_path = "lfe_template.mrkr"
-        prepick_offset = 11 # in seconds
+        marker_file_path = "lfe_templates_2.mrkr"
+        prepick_offset = 11 # in seconds (was 11 for templates_2, 0 for templates_3)
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
@@ -727,8 +727,9 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
                         template_prepick, station_dict, Normalize=True):
     """
-    A different implementation of phase-weighted and linear stacking that is
-    independent of EQcorrscan routines.
+    An implementation of phase-weighted and linear stacking that is
+    independent of EQcorrscan routines, allowing more customization of the
+    workflow.
 
     Example:
         # time the run
@@ -740,15 +741,15 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         template_prepick = 0.5
 
         # get templates and station_dict objects from picks in marker file
-        marker_file_path = "lfe_template.mrkr"
-        prepick_offset = 11 # in seconds
+        marker_file_path = "lfe_templates_3.mrkr"
+        prepick_offset = 0 # in seconds (was 11 for templates_2, 0 for templates_3)
         templates, station_dict, pick_offset = markers_to_template(marker_file_path, prepick_offset)
 
         # define path of files for detection
         streams_path = "/Users/human/Desktop/alaska/inner"
 
         # load party object from file
-        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_inner.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
 
