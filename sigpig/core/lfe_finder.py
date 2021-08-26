@@ -723,9 +723,11 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
     return [stack_pw, stack_lin]
 
-# alternate stacking routine that doesn't use EQcorrscan stacking routine
-def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
-                        template_prepick, station_dict, Normalize=True):
+# stacking routine to generate stacks from template detections (doesn't use
+# EQcorrscan stacking routine)
+def stack_template_detections(party, pick_offset, streams_path,
+                              template_length, template_prepick, station_dict,
+                              main_trace, Normalize=True):
     """
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
@@ -739,6 +741,9 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         # define template length and prepick length (both in seconds)
         template_length = 16.0
         template_prepick = 0.5
+
+        # define the main trace to use for detections (best amplitude station)
+        main_trace = ("TA", "N25K", "BHN")
 
         # get templates and station_dict objects from picks in marker file
         marker_file_path = "lfe_templates_3.mrkr"
@@ -759,9 +764,10 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # get the stacks station by station to avoid memory error
-        stack_list = stack_waveforms_alt(party, pick_offset, streams_path,
-                                         template_length, template_prepick,
-                                         station_dict)
+        stack_list = stack_template_detections(party, pick_offset,
+                                               streams_path, template_length,
+                                               template_prepick, station_dict,
+                                               main_trace)
         end = time.time()
         hours = int((end - start) / 60 / 60)
         minutes = int(((end - start) / 60) - (hours * 60))
@@ -769,7 +775,7 @@ def stack_waveforms_alt(party, pick_offset, streams_path, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # save stacks as pickle file
-        outfile = open('alt_stack_list.pkl', 'wb')
+        outfile = open('inner_stack_list.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
     """
