@@ -820,8 +820,6 @@ def stack_template_detections(party, pick_offset, streams_path,
         shifts = []
         indices = []
 
-        # TODO: change main trace to largest amplitude
-
         # TODO: only correlate subset of trace (9-12s) for stacking
 
         # TODO: function to plot all traces from a stream in relative time
@@ -866,23 +864,16 @@ def stack_template_detections(party, pick_offset, streams_path,
         return group_streams
 
     # first extract pick times for each event from party object
-    # pick_times is a list of the pick times for the main trace (with
-    # earliest pick time)
+    # pick_times is a list of the pick times for the main trace
     pick_times = []
+    pick_network, pick_station, pick_channel = main_trace
     for event in party.families[0].catalog.events:
         for pick in event.picks:
-            # station with earliest pick defines "pick time"
-            # if pick.waveform_id.station_code == "WASW" and \
-            #         pick.waveform_id.network_code == "AV" and \
-            #         pick.waveform_id.channel_code == "SHZ":
-            #     pick_times.append(pick.time)
-            # FIXME: main trace should be dynamic (earliest), not hard coded
-            if pick.waveform_id.station_code == "WAT7" and \
-                    pick.waveform_id.network_code == "AK" and \
-                    pick.waveform_id.channel_code == "BHE":
+            # trace with highest amplitude signal
+            if pick.waveform_id.station_code == pick_station and \
+                    pick.waveform_id.network_code == pick_network and \
+                    pick.waveform_id.channel_code == pick_channel:
                 pick_times.append(pick.time)
-
-            # FIXME: TA.N25K master
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
