@@ -271,13 +271,14 @@ def make_Templates(templates, template_files, station_dict, template_length,
     return tribe
 
 
-# function to drive LFE detection with EQcorrscan
-def detect_LFEs(templates, template_files, station_dict, template_length,
+# function to drive signal detection with the help of EQcorrscan
+def detect_signals(templates, template_files, station_dict, template_length,
                 template_prepick, detection_files_path, start_date, end_date):
     """
-    Driver function to detect LFEs in time series via matched-filtering with a
-    specified template, stacking of LFEs found from that template,
-    and template matching of the stacked waveform template.
+    Driver function to detect signals (LFEs in this case) in time series via
+    matched-filtering with specified template(s), then stacking of signals
+    found from that template, and finally template matching of the stacked
+    waveform template.
 
     Example:
         # manually define templates from station TA.N25K (location is made up)
@@ -303,9 +304,9 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
 
         # run detection and time it
         start = time.time()
-        party = detect_LFEs(templates, template_files, station_dict,
-                            template_length, template_prepick,
-                            detection_files_path, start_date, end_date)
+        party = detect_signals(templates, template_files, station_dict,
+                               template_length, template_prepick,
+                               detection_files_path, start_date, end_date)
         end = time.time()
         hours = int((end - start) / 60 / 60)
         minutes = int(((end - start) / 60) - (hours * 60))
@@ -374,9 +375,9 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
         # # run detection
-        # party = detect_LFEs(templates, template_files, station_dict,
-        #                     template_length, template_prepick,
-        #                     detection_files_path, start_date, end_date)
+        # party = detect_signals(templates, template_files, station_dict,
+        #                        template_length, template_prepick,
+        #                        detection_files_path, start_date, end_date)
         # end = time.time()
         # hours = int((end - start) / 60 / 60)
         # minutes = int(((end - start) / 60) - (hours * 60))
