@@ -816,9 +816,11 @@ def stack_template_detections(party, pick_offset, streams_path,
         return lin, pws
 
     # helper function to determine offset of each time series in a stream
-    def get_xcorr_shifts(stream, shift_len=10):
+    def xcorr_time_shifts(stream, main_trace, shift_len=10):
         shifts = []
         indices = []
+
+        # get main_trace
 
         # TODO: only correlate subset of trace (9-12s) for stacking
 
@@ -931,7 +933,7 @@ def stack_template_detections(party, pick_offset, streams_path,
             # guard against empty stream
             if len(sta_chan_stream) > 0:
                 # get xcorr time shift
-                shifts, indices = get_xcorr_shifts(sta_chan_stream)
+                shifts, indices = xcorr_time_shifts(sta_chan_stream, main_trace)
 
                 # align each trace in stream based on specified time shifts
                 aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
