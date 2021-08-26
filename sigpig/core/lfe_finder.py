@@ -780,6 +780,41 @@ def stack_template_detections(party, pick_offset, streams_path,
         pickle.dump(stack_list, outfile)
         outfile.close()
     """
+    # helper function to get signal to noise ratio of time series
+    def snr(obspyObject: Stream or Trace) -> float:
+        '''
+        (obspyObject) -> float
+
+        Returns the signal to noise ratios of each trace of a specified obspy
+        stream object, or the specified obspy trace object. Signal-to-noise ratio
+        defined as the ratio of the maximum amplitude in the timeseries to the rms
+        amplitude in the entire timeseries.
+        '''
+        trace_rms = {}
+        trace_maxAmplitude = {}
+
+        # for Stream objects
+        if isinstance(obspyObject, obspy.core.stream.Stream):
+            for trace in obspyObject:
+                rms = np.sqrt(np.mean(trace.data ** 2))
+                maxAmplitude = abs(trace.max())
+                trace_rms.update({trace.id: rms})
+                trace_maxAmplitude.update({trace.id: maxAmplitude})
+
+            snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
+                    trace_rms]
+
+        # for Trace objects
+        elif isinstance(obspyObject, obspy.core.trace.Trace):
+            rms = np.sqrt(np.mean(obspyObject.data ** 2))
+            maxAmplitude = abs(obspyObject.max())
+            trace_rms.update({obspyObject.id: rms})
+            trace_maxAmplitude.update({obspyObject.id: maxAmplitude})
+            snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
+                    trace_rms]
+
+        return snrs
+
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(stream, normalize=True):
         ST = Stream()
@@ -824,6 +859,12 @@ def stack_template_detections(party, pick_offset, streams_path,
         # TODO: only correlate subset of trace (9-12s) for stacking
 
         # TODO: function to plot all traces from a stream in relative time
+
+        # find reference index with a strong signal
+        for index, trace in enumerate(stream):
+            if snr(trace) > 10:
+                reference_idx = index
+                break
 
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
@@ -904,6 +945,7 @@ def stack_template_detections(party, pick_offset, streams_path,
                 if len(day_file_list) > 0:
                     # FIXME: lowest sr should be detected, not hard coded
                     lowest_sr = 40 # lowest sampling rate
+                    # TODO: try upsampling to 100 Hz
 
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
@@ -920,12 +962,8 @@ def stack_template_detections(party, pick_offset, streams_path,
                     # interpolate to lowest sampling rate
                     day_st.interpolate(sampling_rate=lowest_sr)
 
-                    # match station with specified pick offset
-                    station_pick_time = pick_time + pick_offset[file_station]
-
-                    # trim trace before adding to stream from pick_offset spec
-                    day_st.trim(station_pick_time, station_pick_time +
-                                template_length + template_prepick)
+                    # trim trace to + and - 40 seconds from pick time
+                    day_st.trim(pick_time - 20, pick_time + 50)
 
                     sta_chan_stream += day_st
 
