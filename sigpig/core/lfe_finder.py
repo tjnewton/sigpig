@@ -5,7 +5,7 @@ Functions to find low-frequency earthquakes in seismic time series data.
 import logging
 from obspy import UTCDateTime, Stream, Trace, read, read_events
 from obspy.signal.cross_correlation import xcorr, correlate_template
-from eqcorrscan import Tribe
+from eqcorrscan import Tribe, Party, Family, Template
 from eqcorrscan.utils.clustering import cluster
 from eqcorrscan.utils.stacking import PWS_stack, linstack, align_traces
 import glob
@@ -312,6 +312,7 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
         # this takes       for 1 template of N25K over 2016-2018 time period
+        # got stuck on 2017-12-08 last time
 
         # get the catalog
         catalog = party.get_catalog()
@@ -444,11 +445,15 @@ def detect_LFEs(templates, template_files, station_dict, template_length,
         for file in day_file_list:
             st += read(file)
 
-        # detect
-        party = tribe.detect(stream=st, threshold=8.0, daylong=True,
-                             threshold_type="MAD", trig_int=8.0, plot=False,
-                             return_stream=False, parallel_process=False,
-                             ignore_bad_data=True)
+        try:
+            # detect
+            party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+                                 threshold_type="MAD", trig_int=8.0, plot=False,
+                                 return_stream=False, parallel_process=False,
+                                 ignore_bad_data=True)
+        except Exception:
+            party = Party(families=[Family(template=Template())])
+            pass
 
         # append detections to party list if there are detections
         if len(party.families[0]) > 0:
