@@ -743,7 +743,6 @@ def stack_template_detections(party, streams_path,
 
     Example:
         # time the run
-        import time
         start = time.time()
 
         # define template length and prepick length (both in seconds)
@@ -752,9 +751,6 @@ def stack_template_detections(party, streams_path,
 
         # define the main trace to use for detections (best amplitude station)
         main_trace = ("TA", "N25K", "BHN")
-
-        # define a station dict and prepick offset
-        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
 
         # define path of files for detection
         streams_path = "/Users/human/Desktop/alaska/inner"
@@ -770,7 +766,7 @@ def stack_template_detections(party, streams_path,
         rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
-        # get the stacks station by station to avoid memory error
+        # get the stacks
         stack_list = stack_template_detections(party, pick_offset,
                                                streams_path, template_length,
                                                template_prepick, station_dict,
@@ -890,7 +886,8 @@ def stack_template_detections(party, streams_path,
         pws.data = Phasestack
         return lin, pws
 
-    # helper function to determine offset of each time series in a stream
+    # helper function to determine time offset of each time series in a
+    # stream with respect to a main trace via cross correlation
     def xcorr_time_shifts(stream, shift_len=10):
         shifts = []
         indices = []
@@ -1007,7 +1004,7 @@ def stack_template_detections(party, streams_path,
     # get time shifts associated with detections on main trace
     # TODO: WORKING HERE
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
-    # then xcorr shifts here
+    shifts, _ = xcorr_time_shifts(main_stream)
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
