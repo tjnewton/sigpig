@@ -864,11 +864,17 @@ def stack_template_detections(party, streams_path,
             if snr(trace)[0] > 7:
                 reference_idx = index
                 # get the time associated with the maximum amplitude signal
-                max_amplitude_time = max_amplitude(trace)
-                # trim the reference trace to + and - 1.5 seconds
+                max_amplitude_value = max_amplitude(trace)
+                max_amplitude_index = np.where(trace.data ==
+                                              max_amplitude_value)[0][0]
+                max_amplitude_offset = max_amplitude_index / \
+                                       trace.stats.sampling_rate
+                # trim the reference trace to + and - 2.0 seconds
                 # surrounding max amplitude signal
-                reference_trace = trace.trim(trace.stats.starttime,
-                                             trace.stats.endtime).copy()
+                reference_start_time = trace.stats.starttime + \
+                                 max_amplitude_offset - 1.5
+                reference_trace = trace.copy().trim(reference_start_time,
+                                                    reference_start_time + 3)
                 break
 
         # build a nice stream of strong detections
@@ -898,15 +904,18 @@ def stack_template_detections(party, streams_path,
 
 
                 # FIXME: why does this return only one value if len(st[0]) == len(tr)?
-                cc = correlate_template(stream[reference_idx], trace, mode='valid',
-                                        normalize='full', demean=True,
+                cc = correlate_template(trace, reference_trace, mode='valid',
+                                        normalize='naive', demean=True,
                                         method='auto')
-                max_idx = np.argmax(cc)
+                max_idx = np.argmax(cc) + (len(reference_trace) / 2)
 
-                if max_val < 0:
-                    max_idx = xcorr_func.argmax() - shift_len
-                    indices.append(st_idx)
+                # if max_val < 0:
+                #     max_idx = xcorr_func.argmax() - shift_len
+                #     indices.append(st_idx)
 
+                # TODO: this is not the correct shift,
+                #  use reference_start_time,
+                # or do it with samples?
                 shifts.append(max_idx / trace.stats.sampling_rate)
             else:
                 shifts.append(0)
