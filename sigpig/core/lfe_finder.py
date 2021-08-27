@@ -15,9 +15,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import calendar
 from tqdm import tqdm
-from figures import plot_stack, plot_stream
+from figures import plot_stack
 from scipy.signal import hilbert
 import time
+from data import max_amplitude
 
 # function to convert snuffler marker file to event template
 def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
@@ -858,10 +859,16 @@ def stack_template_detections(party, streams_path,
 
         # TODO: only correlate subset of trace (9-12s) for stacking
 
-        # find reference index with a strong signal
+        # find reference index with a strong signal, this serves as a template
         for index, trace in enumerate(stream):
             if snr(trace)[0] > 7:
                 reference_idx = index
+                # get the time associated with the maximum amplitude signal
+                max_amplitude_time = max_amplitude(trace)
+                # trim the reference trace to + and - 1.5 seconds
+                # surrounding max amplitude signal
+                reference_trace = trace.trim(trace.stats.starttime,
+                                             trace.stats.endtime).copy()
                 break
 
         # build a nice stream of strong detections
@@ -880,24 +887,30 @@ def stack_template_detections(party, streams_path,
         # a += stream[44]
         # plot_stack(a)
 
-
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
-            # FIXME: returned time shift depends on shift_len
-            max_idx, max_val, xcorr_func = xcorr(stream[0], trace, shift_len,
-                                                 full_xcorr=True)
+            if st_idx != reference_idx:
+                # # FIXME: returned time shift depends on shift_len
+                # max_idx, max_val, xcorr_func = xcorr(stream[reference_idx], trace,
+                #                                      shift_len, full_xcorr=True)
 
-            # FIXME: why does this return only one value if len(st[0]) == len(tr)?
-            cc = correlate_template(stream[0], trace, mode='valid',
-                                    normalize='full', demean=True,
-                                    method='auto')
-            max_idx = np.argmax(cc)
+                # TODO: trim reference template? look at Aarons code for how
 
-            if max_val < 0:
-                max_idx = xcorr_func.argmax() - shift_len
-                indices.append(st_idx)
 
-            shifts.append(max_idx / trace.stats.sampling_rate)
+                # FIXME: why does this return only one value if len(st[0]) == len(tr)?
+                cc = correlate_template(stream[reference_idx], trace, mode='valid',
+                                        normalize='full', demean=True,
+                                        method='auto')
+                max_idx = np.argmax(cc)
+
+                if max_val < 0:
+                    max_idx = xcorr_func.argmax() - shift_len
+                    indices.append(st_idx)
+
+                shifts.append(max_idx / trace.stats.sampling_rate)
+            else:
+                shifts.append(0)
+
         return shifts, indices
 
     # helper function to align all traces in a stream based on xcorr shifts
