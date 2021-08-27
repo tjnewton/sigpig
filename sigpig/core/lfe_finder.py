@@ -3,6 +3,7 @@ Functions to find low-frequency earthquakes in seismic time series data.
 """
 
 import logging
+import obspy
 from obspy import UTCDateTime, Stream, Trace, read, read_events
 from obspy.signal.cross_correlation import xcorr, correlate_template
 from eqcorrscan import Tribe, Party, Family, Template
@@ -14,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import calendar
 from tqdm import tqdm
-from figures import plot_stack
+from figures import plot_stack, plot_stream
 from scipy.signal import hilbert
 import time
 
@@ -725,7 +726,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
-def stack_template_detections(party, pick_offset, streams_path,
+def stack_template_detections(party, streams_path,
                               template_length, template_prepick, station_dict,
                               main_trace, Normalize=True):
     """
@@ -747,7 +748,6 @@ def stack_template_detections(party, pick_offset, streams_path,
 
         # define a station dict and prepick offset
         station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
-        pick_offset = {"N25K": 0} # in seconds (was 11 for templates_2, 0 for templates_3)
 
         # define path of files for detection
         streams_path = "/Users/human/Desktop/alaska/inner"
@@ -862,9 +862,15 @@ def stack_template_detections(party, pick_offset, streams_path,
 
         # find reference index with a strong signal
         for index, trace in enumerate(stream):
-            if snr(trace) > 10:
+            if snr(trace)[0] > 7:
                 reference_idx = index
                 break
+
+        a = Stream()
+        a += stream[39]
+        a += stream[44]
+
+        plot_stream(a)
 
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
@@ -920,6 +926,7 @@ def stack_template_detections(party, pick_offset, streams_path,
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
+    # TODO: fix this loop. Doesn't need to be over station_dict!
     for station in station_dict.keys():
         network = station_dict[station]["network"]
         channels = []
