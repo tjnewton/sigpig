@@ -675,8 +675,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
                     file = day_file_list[0]
 
                     # extract file info from file name
-                    # FIXME: this should be dynamic, not hard coded
-                    file_station = file[26:].split(".")[1]
+                    file_station = file.split("/")[-1]
+                    file_station = file_station.split(".")[1]
 
                     # load day file into stream
                     day_st = Stream()
@@ -788,7 +788,7 @@ def stack_template_detections(party, streams_path,
     """
     # helper function to build a stream of detections from main_trace station
     def build_main_stream (main_trace):
-
+        # TODO
 
         return None
 
