@@ -858,19 +858,28 @@ def stack_template_detections(party, streams_path,
 
         # TODO: only correlate subset of trace (9-12s) for stacking
 
-        # TODO: function to plot all traces from a stream in relative time
-
         # find reference index with a strong signal
         for index, trace in enumerate(stream):
             if snr(trace)[0] > 7:
                 reference_idx = index
                 break
 
-        a = Stream()
-        a += stream[39]
-        a += stream[44]
+        # build a nice stream of strong detections
+        reference_idxs = []
+        test_st = Stream()
+        for index, trace in enumerate(stream):
+            if snr(trace)[0] > 7:
+                reference_idxs.append(index)
+                test_st += trace
+        plot_stack(test_st, title="test_st", save=True)
+        # TODO: check this plot to analyze stream time shift in main
+        #  function below
 
-        plot_stream(a)
+        # a = Stream()
+        # a += stream[39]
+        # a += stream[44]
+        # plot_stack(a)
+
 
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
