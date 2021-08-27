@@ -668,7 +668,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
                 # guard against missing expected files
                 if len(day_file_list) > 0:
-                    # FIXME: this should be detected, not hard coded
+                    # FIXME: lowest samp rate should be detected, not hard coded
                     lowest_sr = 40
 
                     # should only be one file, but safeguard against many
@@ -787,8 +787,35 @@ def stack_template_detections(party, streams_path,
         outfile.close()
     """
     # helper function to build a stream of detections from main_trace station
-    def build_main_stream (main_trace):
-        # TODO
+    def build_main_stream (main_trace, streams_path, pick_times):
+        main_stream = Stream()
+        # loop over pick times to assemble stream & show tqdm progress bar
+        for index in tqdm(range(len(pick_times))):
+            pick_time = pick_times[index]
+            # find the local file corresponding to the station:channel pair
+            file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
+                                      f"{main_trace[1]}."
+                                      f"{main_trace[2]}.{pick_time.year}"
+                                      f"-{pick_time.month:02}"
+                                      f"-{pick_time.day:02}.ms")
+
+            # guard against missing files
+            if len(file_list) > 0:
+                # FIXME: lowest sr should be detected, not hard coded
+                lowest_sr = 40  # lowest sampling rate
+                # TODO: try upsampling to 100 Hz
+                # should only be one file, but safeguard against many
+                file = file_list[0]
+                # load day file into stream
+                day_st = read(file)
+                # bandpass filter
+                day_st.filter('bandpass', freqmin=1, freqmax=15)
+                # interpolate to lowest sampling rate
+                day_st.interpolate(sampling_rate=lowest_sr)
+                # trim trace to + and - 40 seconds from pick time
+                day_st.trim(pick_time - 20, pick_time + 50)
+                # add trace to main_stream
+                main_stream += day_st
 
         return None
 
@@ -979,7 +1006,7 @@ def stack_template_detections(party, streams_path,
 
     # get time shifts associated with detections on main trace
     # TODO:
-    stream  = build_main_stream(main_trace)
+    stream  = build_main_stream(main_trace, streams_path, pick_times)
     then xcorr shifts here
 
     # loop over stations and generate a stack for each station:channel pair
@@ -1014,9 +1041,6 @@ def stack_template_detections(party, streams_path,
 
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
-
-                    # extract file info from file name
-                    file_station = file.split(".")[1]
 
                     # load day file into stream
                     day_st = read(file)
