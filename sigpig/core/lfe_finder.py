@@ -754,14 +754,13 @@ def stack_template_detections(party, streams_path,
         main_trace = ("TA", "N25K", "BHN")
 
         # define a station dict and prepick offset
-        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
 
         # define path of files for detection
         streams_path = "/Users/human/Desktop/alaska/inner"
 
         # load party object from file
-        # party_file = 'party_06_15_2016_to_08_12_2018_inner.pkl'
-        party_file = 'party_06_15_2016_to_08_12_2018_tem2.pkl'
+        party_file = 'party_06_15_2016_to_08_12_2018.pkl'
         infile = open(party_file, 'rb')
         party = pickle.load(infile)
         infile.close()
@@ -960,10 +959,24 @@ def stack_template_detections(party, streams_path,
                     pick.waveform_id.channel_code == pick_channel:
                 pick_times.append(pick.time)
 
+    # build dict of stations from contents of specified directory
+    file_list = glob.glob(f"{streams_path}/*.ms")
+    station_dict = {}
+    for file in file_list:
+        filename = file.split("/")[-1]
+        file_station = filename.split(".")[1]
+        if file_station not in station_dict:
+            file_network = filename.split(".")[0]
+            file_channel = filename.split(".")[2][:-1] + "Z" # force z component
+            station_dict[file_station] = {"network": file_network,
+                                          "channel": file_channel}
+
+    # get time shifts associated with detections on main trace
+    # TODO:
+
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    # TODO: fix this loop. Doesn't need to be over station_dict!
     for station in station_dict.keys():
         network = station_dict[station]["network"]
         channels = []
