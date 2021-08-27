@@ -304,25 +304,31 @@ def detect_signals(templates, template_files, station_dict, template_length,
         start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
-        # run detection and time it
-        start = time.time()
-        party = detect_signals(templates, template_files, station_dict,
-                               template_length, template_prepick,
-                               detection_files_path, start_date, end_date)
-        end = time.time()
-        hours = int((end - start) / 60 / 60)
-        minutes = int(((end - start) / 60) - (hours * 60))
-        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-        print(f"Runtime: {hours} h {minutes} m {seconds} s")
-        # this takes       for 1 template of N25K across inner stations
-        # over the 2016-2018 time period
-        # got stuck on 2017-12-08 last time
+        # # run detection and time it
+        # start = time.time()
+        # party = detect_signals(templates, template_files, station_dict,
+        #                        template_length, template_prepick,
+        #                        detection_files_path, start_date, end_date)
+        # end = time.time()
+        # hours = int((end - start) / 60 / 60)
+        # minutes = int(((end - start) / 60) - (hours * 60))
+        # seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        # print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        # # this takes 17h 14m for 1 template of N25K across inner stations
+        # # over the 2016-2018 time period
+
+        # load party object from file
+        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
 
         # get the catalog
         catalog = party.get_catalog()
 
         # inspect the party growth over time
-        fig = party.plot(plot_grouped=True)
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # get the most productive family
         family = sorted(party.families, key=lambda f: len(f))[-1]
