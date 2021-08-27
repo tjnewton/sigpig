@@ -786,6 +786,12 @@ def stack_template_detections(party, streams_path,
         pickle.dump(stack_list, outfile)
         outfile.close()
     """
+    # helper function to build a stream of detections from main_trace station
+    def build_main_stream (main_trace):
+
+
+        return None
+
     # helper function to get signal to noise ratio of time series
     def snr(obspyObject: Stream or Trace) -> float:
         '''
@@ -882,7 +888,7 @@ def stack_template_detections(party, streams_path,
                                                     reference_start_time + 3)
                 break
 
-        # build a nice stream of strong detections
+        # build a stream of strong detections
         reference_idxs = []
         test_st = Stream()
         for index, trace in enumerate(stream):
@@ -973,6 +979,8 @@ def stack_template_detections(party, streams_path,
 
     # get time shifts associated with detections on main trace
     # TODO:
+    stream  = build_main_stream(main_trace)
+    then xcorr shifts here
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
