@@ -11,6 +11,7 @@ from matplotlib.dates import DateFormatter, AutoDateLocator
 import glob
 import numpy as np
 import scipy.signal as spsig
+from data import max_amplitude
 
 #FIXME ::: Add elevation functions from Desktop/autopicker/preprocessing/station_locations.py
 # above requires configuring environment with rasterio and dependencies
@@ -58,7 +59,7 @@ def plot_stalta(obspy_Trace: obspy.core.trace.Trace, cft: np.ndarray,
     subset_data = trace.data[subset_start_idx:subset_end_idx + 1]
 
     # plot STA/LTA over time & compare with time series
-    maxTraceValue = max_Amplitude(subset_data)
+    maxTraceValue = max_amplitude(subset_data)
     fig, ax = plt.subplots(nrows=2, sharex=True,
                            figsize=(figureWidth, figureHeight))
     ax[0].plot_date(subset_times, subset_data, fmt="k-", linewidth=0.4)
@@ -70,38 +71,6 @@ def plot_stalta(obspy_Trace: obspy.core.trace.Trace, cft: np.ndarray,
     plt.show()
 
     return None
-
-# helper function to find max amplitude of a time series for plotting
-def max_Amplitude(timeSeries):
-	'''
-	(np.ndarray or obspy stream or trace object) -> (float)
-
-	Determines single max value that occurs in a numpy array or trace or in
-	all traces of a stream.
-	'''
-	# for Stream objects
-	if isinstance(timeSeries, obspy.core.stream.Stream):
-		# creates a list of the max value in each trace
-		traceMax = [np.max(np.abs(timeSeries[trace].data)) for trace in
-					range(len(timeSeries))]
-		# return max value among all traces
-		return np.max(traceMax)
-
-	# for Trace objects
-	elif isinstance(timeSeries, obspy.core.trace.Trace):
-		traceMax = np.max(np.abs(timeSeries.data))
-		# return max value
-		return traceMax
-
-	elif isinstance(timeSeries, np.ndarray):
-		# returns the max for each row, works with 1D and 2D np.ndarrays
-		if len(timeSeries.shape) == 1:  # 1D case
-			return np.abs(timeSeries).max()
-		elif len(timeSeries.shape) == 2:  # 2D case
-			return np.abs(timeSeries).max(1)
-		else:
-			print("You broke the max_Amplitude function with a np.ndarray "
-				  "that is not 1D or 2D ;(")
 
 def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 									 bandpass=[], time_markers={}):
@@ -228,7 +197,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 	y_labels = []
 	for index, trace in enumerate(st):
 		# find max trace value for normalization
-		maxTraceValue = max_Amplitude(trace)
+		maxTraceValue = max_amplitude(trace)
 
 		# define data to work with
 		time = trace.times("matplotlib")
@@ -457,7 +426,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 	y_labels = []
 	for index, trace in enumerate(st):
 		# find max trace value for normalization
-		maxTraceValue = max_Amplitude(trace)
+		maxTraceValue = max_amplitude(trace)
 
 		# define data to work with
 		time = trace.times("matplotlib")
@@ -561,7 +530,7 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 	time = stack[0].times("matplotlib")
 	for index, trace in enumerate(stack):
 		# find max trace value for normalization
-		maxTraceValue = max_Amplitude(trace)
+		maxTraceValue = max_amplitude(trace)
 
 		# define data to work with
 		norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
