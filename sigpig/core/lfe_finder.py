@@ -753,7 +753,7 @@ def stack_template_detections(party, streams_path,
         main_trace = ("TA", "N25K", "BHN")
 
         # define path of files for detection
-        streams_path = "/Users/human/Desktop/alaska/inner"
+        streams_path = "/Users/human/ak_data/inner"
 
         # load party object from file
         party_file = 'party_06_15_2016_to_08_12_2018.pkl'
@@ -809,7 +809,7 @@ def stack_template_detections(party, streams_path,
                 # interpolate to lowest sampling rate
                 day_st.interpolate(sampling_rate=lowest_sr)
                 # trim trace to + and - 40 seconds from pick time
-                day_st.trim(pick_time - 20, pick_time + 50)
+                day_st.trim(pick_time - 50, pick_time + 50)
                 # add trace to main_stream
                 main_stream += day_st
 
