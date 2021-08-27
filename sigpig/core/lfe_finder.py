@@ -817,7 +817,7 @@ def stack_template_detections(party, streams_path,
                 # add trace to main_stream
                 main_stream += day_st
 
-        return None
+        return main_stream
 
     # helper function to get signal to noise ratio of time series
     def snr(obspyObject: Stream or Trace) -> float:
@@ -1005,9 +1005,9 @@ def stack_template_detections(party, streams_path,
                                           "channel": file_channel}
 
     # get time shifts associated with detections on main trace
-    # TODO:
-    stream  = build_main_stream(main_trace, streams_path, pick_times)
-    then xcorr shifts here
+    # TODO: WORKING HERE
+    main_stream = build_main_stream(main_trace, streams_path, pick_times)
+    # then xcorr shifts here
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
