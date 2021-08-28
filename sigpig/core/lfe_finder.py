@@ -917,23 +917,7 @@ def stack_template_detections(party, streams_path,
         else:
             print(f"Max snr in main_trace template: {max_snr}")
 
-        # TODO: is this necessary now?
-        # build a stream of strong detections
-        reference_idxs = []
-        test_st = Stream()
-        for index, trace in enumerate(stream):
-            if snr(trace)[0] > 7:
-                reference_idxs.append(index)
-                test_st += trace
-        plot_stack(test_st, title="test_st", save=True)
-        # TODO: check this plot to analyze stream time shift in main
-        #  function below
-
-        # a = Stream()
-        # a += stream[39]
-        # a += stream[44]
-        # plot_stack(a)
-
+        # TODO: - - - WORKING HERE - - -
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
             if st_idx != reference_idx:
