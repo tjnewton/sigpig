@@ -809,7 +809,7 @@ def stack_template_detections(party, streams_path,
                 # interpolate to lowest sampling rate
                 day_st.interpolate(sampling_rate=lowest_sr)
                 # trim trace to + and - 40 seconds from pick time
-                day_st.trim(pick_time - 50, pick_time + 50)
+                day_st.trim(pick_time - 20, pick_time + 20)
                 # add trace to main_stream
                 main_stream += day_st
 
@@ -894,23 +894,27 @@ def stack_template_detections(party, streams_path,
 
         # TODO: only correlate subset of trace (9-12s) for stacking
 
-        # find reference index with a strong signal, this serves as a template
+        # find reference index with strongest signal, this serves as a template
+        max_snr = 0
         for index, trace in enumerate(stream):
-            if snr(trace)[0] > 7:
+            trace_snr = snr(trace)[0]
+            if trace_snr > max_snr:
                 reference_idx = index
                 # get the time associated with the maximum amplitude signal
-                max_amplitude_value = max_amplitude(trace)
-                max_amplitude_index = np.where(trace.data ==
-                                              max_amplitude_value)[0][0]
+                max_amplitude_value, max_amplitude_index = max_amplitude(trace)
                 max_amplitude_offset = max_amplitude_index / \
                                        trace.stats.sampling_rate
-                # trim the reference trace to + and - 2.0 seconds
+                # trim the reference trace to + and - 1.5 seconds
                 # surrounding max amplitude signal
                 reference_start_time = trace.stats.starttime + \
-                                 max_amplitude_offset - 1.5
+                                       max_amplitude_offset - 1.5
                 reference_trace = trace.copy().trim(reference_start_time,
                                                     reference_start_time + 3)
-                break
+
+        if max_snr == 0:
+            print("Error: max snr is 0")
+        else:
+            print(f"Max snr in main_trace template: {max_snr}")
 
         # build a stream of strong detections
         reference_idxs = []
@@ -1004,6 +1008,7 @@ def stack_template_detections(party, streams_path,
     # get time shifts associated with detections on main trace
     # TODO: WORKING HERE
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
+    plot_stack(main_stream)
     shifts, _ = xcorr_time_shifts(main_stream)
 
     # loop over stations and generate a stack for each station:channel pair
