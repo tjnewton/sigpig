@@ -38,6 +38,7 @@ def max_amplitude(timeSeries):
 
         return traceMax, max_index # return max value and index
 
+    # FIXMEL add max index to return for ndarray case
     elif isinstance(timeSeries, np.ndarray):
         # returns the max for each row, works with 1D and 2D np.ndarrays
         if len(timeSeries.shape) == 1:  # 1D case
@@ -45,7 +46,7 @@ def max_amplitude(timeSeries):
         elif len(timeSeries.shape) == 2:  # 2D case
             return np.abs(timeSeries).max(1)
         else:
-            print("You broke the max_Amplitude function with a np.ndarray "
+            print("You broke the max_amplitude function with a np.ndarray "
                   "that is not 1D or 2D ;(")
 
 # downloads time series data from IRIS DMC
