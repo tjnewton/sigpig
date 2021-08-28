@@ -1007,6 +1007,7 @@ def stack_template_detections(party, streams_path,
 
     # get time shifts associated with detections on main trace
     # TODO: WORKING HERE
+    pick_times = pick_times[:100]
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
     plot_stack(main_stream)
     shifts, _ = xcorr_time_shifts(main_stream)
