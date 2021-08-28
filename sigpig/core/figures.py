@@ -59,7 +59,7 @@ def plot_stalta(obspy_Trace: obspy.core.trace.Trace, cft: np.ndarray,
     subset_data = trace.data[subset_start_idx:subset_end_idx + 1]
 
     # plot STA/LTA over time & compare with time series
-    maxTraceValue = max_amplitude(subset_data)
+    maxTraceValue, _ = max_amplitude(subset_data)
     fig, ax = plt.subplots(nrows=2, sharex=True,
                            figsize=(figureWidth, figureHeight))
     ax[0].plot_date(subset_times, subset_data, fmt="k-", linewidth=0.4)
@@ -197,7 +197,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 	y_labels = []
 	for index, trace in enumerate(st):
 		# find max trace value for normalization
-		maxTraceValue = max_amplitude(trace)
+		maxTraceValue, _ = max_amplitude(trace)
 
 		# define data to work with
 		time = trace.times("matplotlib")
@@ -426,7 +426,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 	y_labels = []
 	for index, trace in enumerate(st):
 		# find max trace value for normalization
-		maxTraceValue = max_amplitude(trace)
+		maxTraceValue, _ = max_amplitude(trace)
 
 		# define data to work with
 		time = trace.times("matplotlib")
@@ -530,7 +530,7 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 	time = stack[0].times("matplotlib")
 	for index, trace in enumerate(stack):
 		# find max trace value for normalization
-		maxTraceValue = max_amplitude(trace)
+		maxTraceValue, _ = max_amplitude(trace)
 
 		# define data to work with
 		norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
