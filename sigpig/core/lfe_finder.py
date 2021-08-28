@@ -809,7 +809,7 @@ def stack_template_detections(party, streams_path,
                 # interpolate to lowest sampling rate
                 day_st.interpolate(sampling_rate=lowest_sr)
                 # trim trace to + and - 40 seconds from pick time
-                day_st.trim(pick_time - 20, pick_time + 20)
+                day_st.trim(pick_time - 10, pick_time + 20)
                 # add trace to main_stream
                 main_stream += day_st
 
@@ -899,6 +899,7 @@ def stack_template_detections(party, streams_path,
         for index, trace in enumerate(stream):
             trace_snr = snr(trace)[0]
             if trace_snr > max_snr:
+                max_snr = trace_snr
                 reference_idx = index
                 # get the time associated with the maximum amplitude signal
                 max_amplitude_value, max_amplitude_index = max_amplitude(trace)
@@ -916,6 +917,7 @@ def stack_template_detections(party, streams_path,
         else:
             print(f"Max snr in main_trace template: {max_snr}")
 
+        # TODO: is this necessary now?
         # build a stream of strong detections
         reference_idxs = []
         test_st = Stream()
