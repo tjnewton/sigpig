@@ -17,35 +17,36 @@ from obspy.core.utcdatetime import UTCDateTime
 
 # helper function to find max amplitude of a time series for plotting
 def max_amplitude(timeSeries):
-	'''
-	(np.ndarray or obspy stream or trace object) -> (float)
+    '''
+    (np.ndarray or obspy stream or trace object) -> (float)
 
-	Determines single max value that occurs in a numpy array or trace or in
-	all traces of a stream.
-	'''
-	# for Stream objects
-	if isinstance(timeSeries, obspy.core.stream.Stream):
-		# creates a list of the max value in each trace
-		traceMax = [np.max(np.abs(timeSeries[trace].data)) for trace in
-					range(len(timeSeries))]
-		# return max value among all traces
-		return np.max(traceMax)
+    Determines single max value that occurs in a numpy array or trace or in
+    all traces of a stream. Returns the max value and its index.
+    '''
+    # for Stream objects
+    if isinstance(timeSeries, obspy.core.stream.Stream):
+        # creates a list of the max value in each trace
+        traceMax = [np.max(np.abs(timeSeries[trace].data)) for trace in
+                    range(len(timeSeries))]
+        # return max value among all traces
+        return np.max(traceMax), np.argmax(traceMax)
 
-	# for Trace objects
-	elif isinstance(timeSeries, obspy.core.trace.Trace):
-		traceMax = np.max(np.abs(timeSeries.data))
-		# return max value
-		return traceMax
+    # for Trace objects
+    elif isinstance(timeSeries, obspy.core.trace.Trace):
+        traceMax = np.max(np.abs(timeSeries.data))
+        max_index = np.argmax(np.abs(timeSeries.data))
 
-	elif isinstance(timeSeries, np.ndarray):
-		# returns the max for each row, works with 1D and 2D np.ndarrays
-		if len(timeSeries.shape) == 1:  # 1D case
-			return np.abs(timeSeries).max()
-		elif len(timeSeries.shape) == 2:  # 2D case
-			return np.abs(timeSeries).max(1)
-		else:
-			print("You broke the max_Amplitude function with a np.ndarray "
-				  "that is not 1D or 2D ;(")
+        return traceMax, max_index # return max value and index
+
+    elif isinstance(timeSeries, np.ndarray):
+        # returns the max for each row, works with 1D and 2D np.ndarrays
+        if len(timeSeries.shape) == 1:  # 1D case
+            return np.abs(timeSeries).max()
+        elif len(timeSeries.shape) == 2:  # 2D case
+            return np.abs(timeSeries).max(1)
+        else:
+            print("You broke the max_Amplitude function with a np.ndarray "
+                  "that is not 1D or 2D ;(")
 
 # downloads time series data from IRIS DMC
 def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
