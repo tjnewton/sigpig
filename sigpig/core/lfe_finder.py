@@ -915,23 +915,36 @@ def stack_template_detections(party, streams_path,
         else:
             print(f"Max snr in main_trace template: {max_snr}")
 
-        # TODO: - - - WORKING HERE - - -
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
             # case: all traces that are not the template trace
             if st_idx != reference_idx:
-                # # FIXME: returned time shift depends on shift_len
-                # max_idx, max_val, xcorr_func = xcorr(stream[reference_idx], trace,
-                #                                      shift_len, full_xcorr=True)
-
-                # TODO: trim reference template? look at Aarons code for how
-
-
-                # FIXME: why does this return only one value if len(st[0]) == len(tr)?
+                # correlate the reference trace through the trace
                 cc = correlate_template(trace, reference_trace, mode='valid',
                                         normalize='naive', demean=True,
                                         method='auto')
-                max_idx = np.argmax(cc) # + (len(reference_trace) / 2)
+                # find the index with the max correlation coefficient
+                max_idx = np.argmax(cc)
+
+                # # to visualize a trace, the template, and the max correlation
+                # stt = Stream()
+                # stt += trace # the trace
+                # # the section of the trace where max correlation coef. starts
+                # stt += trace.copy().trim(trace.stats.starttime + (max_idx /
+                #                          trace.stats.sampling_rate),
+                #                          trace.stats.endtime)
+                # # the template aligned with the max correlation section
+                # stt += reference_trace.copy()
+                # stt[2].stats.starttime = stt[1].stats.starttime
+                # stt.plot()
+
+                # keep track of negative correlation coefficients
+                if cc.max() < 0:
+                    indices.append(st_idx)
+
+                # TODO: - - - WORKING HERE - - -
+                # append the cross correlation time shift for this trace
+                shifts.append(max_idx / trace.stats.sampling_rate)
 
                 # to visualize a trace, the template, and the max correlation
                 stt = Stream()
@@ -945,14 +958,7 @@ def stack_template_detections(party, streams_path,
                 stt[2].stats.starttime = stt[1].stats.starttime
                 stt.plot()
 
-                # if max_val < 0:
-                #     max_idx = xcorr_func.argmax() - shift_len
-                #     indices.append(st_idx)
 
-                # TODO: this is not the correct shift,
-                #  use reference_start_time,
-                # or do it with samples?
-                shifts.append(max_idx / trace.stats.sampling_rate)
             # case: zero time shift for the template trace
             else:
                 shifts.append(0)
