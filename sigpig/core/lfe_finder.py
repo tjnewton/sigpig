@@ -808,7 +808,7 @@ def stack_template_detections(party, streams_path,
                 day_st.filter('bandpass', freqmin=1, freqmax=15)
                 # interpolate to lowest sampling rate
                 day_st.interpolate(sampling_rate=lowest_sr)
-                # trim trace to + and - 40 seconds from pick time
+                # trim trace to 30 seconds surrounding pick time
                 day_st.trim(pick_time - 10, pick_time + 20)
                 # add trace to main_stream
                 main_stream += day_st
@@ -888,7 +888,7 @@ def stack_template_detections(party, streams_path,
 
     # helper function to determine time offset of each time series in a
     # stream with respect to a main trace via cross correlation
-    def xcorr_time_shifts(stream, shift_len=10):
+    def xcorr_time_shifts(stream):
         shifts = []
         indices = []
 
@@ -940,21 +940,9 @@ def stack_template_detections(party, streams_path,
             if cc.max() < 0:
                 indices.append(st_idx)
 
-            # TODO: - - - WORKING HERE - - -
             # append the cross correlation time shift for this trace
+            # referenced from trace.stats.starttime
             shifts.append(max_idx / trace.stats.sampling_rate)
-
-            # to visualize a trace, the template, and the max correlation
-            stt = Stream()
-            stt += trace # the trace
-            # the section of the trace where max correlation coef. starts
-            stt += trace.copy().trim(trace.stats.starttime + (max_idx /
-                                     trace.stats.sampling_rate),
-                                     trace.stats.endtime)
-            # the template aligned with the max correlation section
-            stt += reference_trace.copy()
-            stt[2].stats.starttime = stt[1].stats.starttime
-            stt.plot()
 
         return shifts, indices
 
@@ -1007,7 +995,7 @@ def stack_template_detections(party, streams_path,
     pick_times = pick_times[:100]
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
     plot_stack(main_stream)
-    shifts, _ = xcorr_time_shifts(main_stream)
+    shifts, indices = xcorr_time_shifts(main_stream)
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -1041,18 +1029,14 @@ def stack_template_detections(party, streams_path,
 
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
-
                     # load day file into stream
                     day_st = read(file)
-
                     # bandpass filter
                     day_st.filter('bandpass', freqmin=1, freqmax=15)
-
                     # interpolate to lowest sampling rate
                     day_st.interpolate(sampling_rate=lowest_sr)
-
-                    # trim trace to + and - 40 seconds from pick time
-                    day_st.trim(pick_time - 20, pick_time + 50)
+                    # trim trace to 30 seconds surrounding pick time
+                    day_st.trim(pick_time - 10, pick_time + 20)
 
                     sta_chan_stream += day_st
 
@@ -1063,6 +1047,9 @@ def stack_template_detections(party, streams_path,
 
                 # align each trace in stream based on specified time shifts
                 aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
+
+                # TODO: plot aligned stream
+                plot_stack(aligned_sta_chan_stream)
 
                 # guard against stacking error:
                 try:
