@@ -933,6 +933,17 @@ def stack_template_detections(party, streams_path,
                                         method='auto')
                 max_idx = np.argmax(cc) # + (len(reference_trace) / 2)
 
+                # to visualize a trace, the template, and the max correlation
+                stt = Stream()
+                stt += trace # the trace
+                # the section of the trace where max correlation coef. starts
+                stt += trace.copy().trim(trace.stats.starttime + (max_idx /
+                                         trace.stats.sampling_rate),
+                                         trace.stats.endtime)
+                # the template aligned with the max correlation section
+                stt += reference_trace.copy()
+                stt[2].stats.starttime = stt[1].stats.starttime
+                stt.plot()
 
                 # if max_val < 0:
                 #     max_idx = xcorr_func.argmax() - shift_len
