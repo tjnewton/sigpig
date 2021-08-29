@@ -892,8 +892,6 @@ def stack_template_detections(party, streams_path,
         shifts = []
         indices = []
 
-        # TODO: only correlate subset of trace (9-12s) for stacking
-
         # find reference index with strongest signal, this serves as a template
         max_snr = 0
         for index, trace in enumerate(stream):
@@ -920,6 +918,7 @@ def stack_template_detections(party, streams_path,
         # TODO: - - - WORKING HERE - - -
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
+            # case: all traces that are not the template trace
             if st_idx != reference_idx:
                 # # FIXME: returned time shift depends on shift_len
                 # max_idx, max_val, xcorr_func = xcorr(stream[reference_idx], trace,
@@ -932,7 +931,8 @@ def stack_template_detections(party, streams_path,
                 cc = correlate_template(trace, reference_trace, mode='valid',
                                         normalize='naive', demean=True,
                                         method='auto')
-                max_idx = np.argmax(cc) + (len(reference_trace) / 2)
+                max_idx = np.argmax(cc) # + (len(reference_trace) / 2)
+
 
                 # if max_val < 0:
                 #     max_idx = xcorr_func.argmax() - shift_len
@@ -942,6 +942,7 @@ def stack_template_detections(party, streams_path,
                 #  use reference_start_time,
                 # or do it with samples?
                 shifts.append(max_idx / trace.stats.sampling_rate)
+            # case: zero time shift for the template trace
             else:
                 shifts.append(0)
 
