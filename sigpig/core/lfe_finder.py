@@ -813,6 +813,11 @@ def stack_template_detections(party, streams_path,
                 # add trace to main_stream
                 main_stream += day_st
 
+            # otherwise append empty Trace to preserve equal length with
+            # pick_times
+            else:
+                main_stream += Trace()
+
         return main_stream
 
     # helper function to get signal to noise ratio of time series
@@ -991,7 +996,6 @@ def stack_template_detections(party, streams_path,
                                           "channel": file_channel}
 
     # get time shifts associated with detections on main trace
-    # TODO: WORKING HERE
     pick_times = pick_times[:100]
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
     plot_stack(main_stream)
@@ -1040,10 +1044,16 @@ def stack_template_detections(party, streams_path,
 
                     sta_chan_stream += day_st
 
+                # if no file, append blank trace to preseve stream length
+                # equality with pick_times
+                else():
+                    sta_chan_stream += Trace()
+
             # guard against empty stream
             if len(sta_chan_stream) > 0:
-                # get xcorr time shift
-                shifts, indices = xcorr_time_shifts(sta_chan_stream)
+                # # get xcorr time shift, currently using shift from main
+                # # trace for each pick time
+                # shifts, indices = xcorr_time_shifts(sta_chan_stream)
 
                 # align each trace in stream based on specified time shifts
                 aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
