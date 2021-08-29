@@ -1039,7 +1039,7 @@ def stack_template_detections(party, streams_path,
 
                 # if no file, append blank trace to preseve stream length
                 # equality with pick_times
-                else():
+                else:
                     sta_chan_stream += Trace()
 
             # guard against empty stream
