@@ -564,3 +564,9 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 	plt.show()
 
 	return fig
+
+def plot_stream_relative():
+
+	pass
+
+def plot_stream_absolute():
