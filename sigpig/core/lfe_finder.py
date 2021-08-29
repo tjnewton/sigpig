@@ -952,24 +952,17 @@ def stack_template_detections(party, streams_path,
         return shifts, indices
 
     # helper function to align all traces in a stream based on xcorr shifts
+    # from the main_trace for each pick time. Stream is altered in place.
     def align_stream(stream, shifts):
-        group_streams = Stream()
-        # define a maximum time shift (3x the largest xcorr shift)
-        max_shift = max(3 * abs(np.asarray(shifts)))
-        # shift each trace and append to new Stream
+        # shift each trace of stream in place to avoid memory issues
         for tr_idx, tr in enumerate(stream):
-            ref_time = tr.stats.starttime
-            # TODO: trace what is going on below with time shifts
-            tr_copy = tr.copy().trim(tr.stats.starttime - (max_shift +
-                                     shifts[tr_idx]), tr.stats.endtime +
-                                     max_shift - shifts[tr_idx], pad=True,
-                                     fill_value=0)
-            tr_copy.stats.starttime = stream[0].stats.starttime - max_shift
-            tr_copy.trim(tr_copy.stats.starttime + 1, tr_copy.stats.endtime -
-                         1, pad=True, fill_value=0)
-            tr_copy.stats.starttime = ref_time
-            group_streams += tr_copy
-        return group_streams
+            # create false starttime to shift around
+            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + \
+                                 shifts[tr_idx]
+
+            # TODO: does this work?
+
+        return None
 
     # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the main trace
