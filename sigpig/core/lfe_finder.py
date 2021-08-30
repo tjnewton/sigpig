@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import calendar
 from tqdm import tqdm
-from figures import plot_stack, plot_stream_absolute, plot_stream_relative
+from figures import plot_stack, plot_stream_absolute, plot_stream_relative, plot_party_detections
 from scipy.signal import hilbert
 import time
 from data import max_amplitude
@@ -305,7 +305,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
         # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
         # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
-        # MAD8: 195, MAD11: 11, abs.2: 425, abs.25: 45
+        # MAD8: 195, MAD10: , MAD11: 11, abs.2: 425, abs.25: 45, abs.23: 100
         start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
         end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
@@ -334,7 +334,9 @@ def detect_signals(templates, template_files, station_dict, template_length,
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # plot the party detections
-        plot_party_detections(party, detection_files_path)
+        title = "MAD_10_detections"
+        plot_party_detections(party, detection_files_path, title=title,
+                              save=True)
 
         # get the most productive family
         family = sorted(party.families, key=lambda f: len(f))[-1]
@@ -463,8 +465,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
-                                 threshold_type="abs", trig_int=8.0, plot=False,
+            party = tribe.detect(stream=st, threshold=10.0, daylong=True,
+                                 threshold_type="MAD", trig_int=8.0, plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
         except Exception:
