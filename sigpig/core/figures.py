@@ -508,10 +508,10 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
             plot_stack(stack_lin, filter=filter, bandpass=bandpass,
             		   title="Linear stack")
 	"""
-	# check for infinitys returned by EQcorrscan stack
-	for trace in stack:
-		if trace.data[0] == np.inf:
-			stack.remove(trace)
+	# # check for infinitys returned by EQcorrscan stack
+	# for trace in stack:
+	# 	if trace.data[0] == np.inf:
+	# 		stack.remove(trace)
 
 	# filtering will have edge effects
 	if filter:
@@ -572,7 +572,13 @@ def plot_stream_relative():
 def plot_stream_absolute(stream):
 	""" Plots all traces of a stream in absolute time. This function is
 	useful for visualizing shifted traces of varying length."""
+	# initialize figure and set the figure size
+	figureWidth = 20  # 80
+	figureHeight = 0.5 * len(stream)  # 0.6 for all stations # 3.5
+	fig = plt.figure(figsize=(figureWidth, figureHeight))
+	amplitude_plot = fig.add_subplot()
 
+	# get time period of data for plotting on common time axis
 	for tr_idx, trace in enumerate(stream):
 		# set some figure parameters to update from the first trace
 		if tr_idx == 0:
@@ -587,6 +593,29 @@ def plot_stream_absolute(stream):
 			if trace.stats.endtime < latest_time:
 				latest_time = trace.stats.endtime
 
+	# set common time axis from scanned data
+	timeTrace = Trace(starttime=starttime, endtime=endtime)
+	time = stream[0].times("matplotlib")
 
+	# loop through stream and generate plots
+	y_labels = []
+	for tr_idx, trace in enumerate(stream):
+		# find max trace value for normalization
+		maxTraceValue, _ = max_amplitude(trace)
+
+		# define data to work with
+		norm_amplitude = (trace.data - np.min(trace.data)) / (
+						 maxTraceValue - np.min(trace.data)) * 1.25 + tr_idx
+		# add trace to waveform plot
+		amplitude_plot.plot_date(time, norm_amplitude, fmt="k-",
+								 linewidth=0.7)
+
+		# plot time markers for this trace if they exist
+		network_station = f"{trace.stats.network}.{trace.stats.station}"
+
+		# add station name to list of y labels
+		y_labels.append(f"{network_station}.{trace.stats.channel}")
+
+	# set plot attributes
 
 	pass
