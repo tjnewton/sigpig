@@ -1,6 +1,7 @@
 # sigpig
 ## Seismology and Signal Processing Toolkit 
-built on top of [matplotlib](https://github.com/matplotlib/matplotlib), [ObsPy](https://github.com/obspy/obspy), [GDAL](https://github.com/OSGeo/gdal), [Laspy](https://github.com/laspy/laspy), [NumPy](https://github.com/numpy/numpy), [pptk](https://github.com/heremaps/pptk), and [EQcorrscan](https://github.com/eqcorrscan/EQcorrscan). 
+This repository contains pipelines developed for research. These pipelines generally start by ingesting data or models then analyzing them to infer some property of the system. The sigpig.figures module contains numerous functions to visualize and describe data, models, and analyses. 
+Sigpig is built on top of [matplotlib](https://github.com/matplotlib/matplotlib), [ObsPy](https://github.com/obspy/obspy), [GDAL](https://github.com/OSGeo/gdal), [Laspy](https://github.com/laspy/laspy), [NumPy](https://github.com/numpy/numpy), [pptk](https://github.com/heremaps/pptk), [EQcorrscan](https://github.com/eqcorrscan/EQcorrscan), and other libraries. 
 
 ### To get started:
 Clone this repo in your preferred directory:  
