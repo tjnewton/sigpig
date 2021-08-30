@@ -299,28 +299,31 @@ def detect_signals(templates, template_files, station_dict, template_length,
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection
-        detection_files_path = "/Users/human/Desktop/alaska/inner"
+        detection_files_path = "/Users/human/ak_data/inner"
         # define dates of interest
-        start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
-        end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
-
-        # # run detection and time it
-        # start = time.time()
-        # party = detect_signals(templates, template_files, station_dict,
-        #                        template_length, template_prepick,
-        #                        detection_files_path, start_date, end_date)
-        # end = time.time()
-        # hours = int((end - start) / 60 / 60)
-        # minutes = int(((end - start) / 60) - (hours * 60))
-        # seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-        # print(f"Runtime: {hours} h {minutes} m {seconds} s")
         # # this takes 17h 14m for 1 template of N25K across inner stations
-        # # over the 2016-2018 time period
+        # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
-        # load party object from file
-        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
-        party = pickle.load(infile)
-        infile.close()
+        # MAD8: 195, MAD11: 11, abs.2: 425, abs.25: 45
+        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
+        end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
+
+        # run detection and time it
+        start = time.time()
+        party = detect_signals(templates, template_files, station_dict,
+                               template_length, template_prepick,
+                               detection_files_path, start_date, end_date)
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
+
+        # # load party object from file
+        # infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        # party = pickle.load(infile)
+        # infile.close()
 
         # get the catalog
         catalog = party.get_catalog()
@@ -329,6 +332,9 @@ def detect_signals(templates, template_files, station_dict, template_length,
         detections_fig = party.plot(plot_grouped=True)
         rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
+
+        # plot the party detections
+        plot_party_detections(party, detection_files_path)
 
         # get the most productive family
         family = sorted(party.families, key=lambda f: len(f))[-1]
@@ -457,8 +463,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=8.0, daylong=True,
-                                 threshold_type="MAD", trig_int=8.0, plot=False,
+            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
+                                 threshold_type="abs", trig_int=8.0, plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
         except Exception:
