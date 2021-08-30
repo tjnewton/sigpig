@@ -3,7 +3,7 @@ Functions to generate various figures.
 """
 
 import obspy
-from obspy import read, Stream
+from obspy import read, Stream, Trace
 from obspy.core.utcdatetime import UTCDateTime
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
@@ -594,8 +594,11 @@ def plot_stream_absolute(stream):
 				latest_time = trace.stats.endtime
 
 	# set common time axis from scanned data
-	timeTrace = Trace(starttime=starttime, endtime=endtime)
-	time = stream[0].times("matplotlib")
+	timeTrace = Trace()
+	timeTrace.stats.sampling_rate = 40
+	timeTrace.stats.starttime = earliest_time
+	timeTrace.stats.endtime = latest_time
+	time = timeTrace.times("matplotlib")
 
 	# loop through stream and generate plots
 	y_labels = []
@@ -607,8 +610,8 @@ def plot_stream_absolute(stream):
 		norm_amplitude = (trace.data - np.min(trace.data)) / (
 						 maxTraceValue - np.min(trace.data)) * 1.25 + tr_idx
 		# add trace to waveform plot
-		amplitude_plot.plot_date(time, norm_amplitude, fmt="k-",
-								 linewidth=0.7)
+		amplitude_plot.plot_date(trace.times("matplotlib"), norm_amplitude,
+								 fmt="k-", linewidth=0.7)
 
 		# plot time markers for this trace if they exist
 		network_station = f"{trace.stats.network}.{trace.stats.station}"
