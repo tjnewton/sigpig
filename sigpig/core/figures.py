@@ -569,4 +569,24 @@ def plot_stream_relative():
 
 	pass
 
-def plot_stream_absolute():
+def plot_stream_absolute(stream):
+	""" Plots all traces of a stream in absolute time. This function is
+	useful for visualizing shifted traces of varying length."""
+
+	for tr_idx, trace in enumerate(stream):
+		# set some figure parameters to update from the first trace
+		if tr_idx == 0:
+			# initialize figure time period to update
+			earliest_time = trace.stats.starttime
+			latest_time = trace.stats.endtime
+
+		else:
+			# update figure time period
+			if trace.stats.starttime < earliest_time:
+				earliest_time = trace.stats.starttime
+			if trace.stats.endtime < latest_time:
+				latest_time = trace.stats.endtime
+
+
+
+	pass
