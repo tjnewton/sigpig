@@ -478,6 +478,13 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 	return fig
 
 
+# plot detections from matched-filter Party object detections and
+# corresponding data files
+def plot_party_detections(party, detection_files_path):
+
+	pass
+
+
 # plot stack of waveforms on common time axis
 def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 	"""
