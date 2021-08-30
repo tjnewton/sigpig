@@ -752,7 +752,7 @@ def stack_template_detections(party, streams_path,
         streams_path = "/Users/human/ak_data/inner"
 
         # load party object from file
-        party_file = 'party_06_15_2016_to_08_12_2018.pkl'
+        party_file = 'party_06_15_2016_to_08_12_2018_MAD8.pkl'
         infile = open(party_file, 'rb')
         party = pickle.load(infile)
         infile.close()
