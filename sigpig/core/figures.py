@@ -569,11 +569,14 @@ def plot_stream_relative():
 
 	pass
 
-def plot_stream_absolute(stream, title=False, save=False):
+def plot_stream_absolute(stream, title=False, save=False, figWidth=False):
 	""" Plots all traces of a stream in absolute time. This function is
 	useful for visualizing shifted traces of varying length."""
 	# initialize figure and set the figure size
-	figureWidth = 20  # 80
+	figureWidth = 10
+	if figWidth != False:
+		figureWidth = figureWidth * figWidth # figWidth is (0,1]
+
 	figureHeight = 0.5 * len(stream)  # 0.6 for all stations # 3.5
 	fig = plt.figure(figsize=(figureWidth, figureHeight))
 	amplitude_plot = fig.add_subplot()
