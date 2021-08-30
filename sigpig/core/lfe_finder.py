@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import calendar
 from tqdm import tqdm
-from figures import plot_stack
+from figures import plot_stack, plot_stream_absolute, plot_stream_relative
 from scipy.signal import hilbert
 import time
 from data import max_amplitude
@@ -1051,8 +1051,9 @@ def stack_template_detections(party, streams_path,
                 # align each trace in stream based on specified time shifts
                 aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
 
-                # TODO: plot aligned stream
-                plot_stack(aligned_sta_chan_stream)
+                # TODO: plot aligned stream to verify align function works
+                plot_stream_absolute(aligned_sta_chan_stream)
+                plot_stream_relative(aligned_sta_chan_stream)
 
                 # guard against stacking error:
                 try:
