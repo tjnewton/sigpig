@@ -987,6 +987,16 @@ def stack_template_detections(party, streams_path,
 
         return None
 
+    # align the start time of each trace in the stream to the same
+    # arbitrary time
+    def zero_shift_stream(stream):
+        # shift each trace of stream in place to avoid memory issues
+        for tr_idx, tr in enumerate(stream):
+            # create false starttime to shift around
+            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z")
+
+        return None
+
     # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the main trace
     pick_times = []
