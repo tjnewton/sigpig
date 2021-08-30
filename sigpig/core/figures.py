@@ -488,7 +488,8 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 
 # plot detections from matched-filter Party object detections and
 # corresponding data files
-def plot_party_detections(party, detection_files_path, filter=True):
+def plot_party_detections(party, detection_files_path, filter=True,
+                          title=False, save=False):
     """
         Plots time series for all detections in a Party object from files in
         the `detection_files_path` directory.
@@ -503,11 +504,13 @@ def plot_party_detections(party, detection_files_path, filter=True):
             detection_files_path = "/Users/human/ak_data/inner"
 
             # plot the party detections
-            plot_party_detections(party, detection_files_path)
+            title = "abs_0.25_detections"
+            plot_party_detections(party, detection_files_path, title=title,
+                                  save=True)
 
     """
     # initialize figure and set the figure size
-    figureWidth = 15
+    figureWidth = 12
     figureHeight = 0.5 * len(party.families[0].detections)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
@@ -571,9 +574,16 @@ def plot_party_detections(party, detection_files_path, filter=True):
     amplitude_plot.set_ylim((0, len(party.families[0].detections) + 0.5))
     # fig.tight_layout()
 
+    if title != False:
+        amplitude_plot.set_title(title)
+        if save:
+            fig.savefig(f"{title}.png", dpi=100)
+
     plt.show()
 
-    return fig
+    plt.show()
+
+    return amplitude_plot
 
 
 # plot stack of waveforms on common time axis
