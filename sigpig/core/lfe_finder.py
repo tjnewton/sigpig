@@ -995,8 +995,8 @@ def stack_template_detections(party, streams_path,
             # create false starttime to shift around
             tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z")
 
-        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
-        new_end_time = new_start_time + 16.5
+        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 10
+        new_end_time = new_start_time + 30
         stream.trim(new_start_time, new_end_time)
 
         return None
@@ -1049,7 +1049,7 @@ def stack_template_detections(party, streams_path,
     # check time shift from zero shift of detections
     zero_shift_stream(main_stream3)
     plot_stream_absolute(main_stream3, title='Zero shift', save=True,
-                         figWidth="0.5")
+                         figWidth=0.5)
     # FIXME: - - - - END OF TESTING BLOCK - - - -
 
     # loop over stations and generate a stack for each station:channel pair
