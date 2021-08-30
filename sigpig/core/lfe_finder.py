@@ -673,18 +673,14 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
-
                     # extract file info from file name
                     file_station = file.split("/")[-1]
                     file_station = file_station.split(".")[1]
-
                     # load day file into stream
                     day_st = Stream()
                     day_st += read(file)
-
                     # bandpass filter
                     day_st.filter('bandpass', freqmin=1, freqmax=15)
-
                     # interpolate to lowest sampling rate
                     day_st.interpolate(sampling_rate=lowest_sr)
 
@@ -857,38 +853,51 @@ def stack_template_detections(party, streams_path,
 
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(stream, normalize=True):
-        ST = Stream()
-        for tr in stream:
-            if tr.data.max() > 0:
-                ST += tr
-        data = np.array([tr.data for tr in ST])
+        # guard against stacking zeros and create data array
+        data = []
+        for trace in stream:
+            if trace.data.max() > 0:
+                data.append(trace.data)
+        # put the data into a numpy array
+        data = np.asarray(data)
+
+        # if there is no data, return zeros
         if data.size == 0:
             lin = stream[0].copy()
             lin.data = np.zeros_like(lin.data)
             pws = stream[0].copy()
             pws.data = np.zeros_like(lin.data)
             return lin, pws
-        data = data[
-            ~np.any(np.isnan(data), axis=1)]  # remove any traces with NaN data
 
+        # remove traces with NaN data
+        data = data[~np.any(np.isnan(data), axis=1)]
+
+        # normalize data or not
         if normalize:
             maxs = np.max(np.abs(data), axis=1)
             data = data / maxs[:, None]
-        Linstack = data.mean(axis=0)
+
+        # made structures for stacks
+        linear_stack = data.mean(axis=0)
         phas = np.zeros_like(data)
+
         for ii in range(np.shape(phas)[0]):
-            # hilbert transform of each timeseries
+            # hilbert transform of each time series
             tmp = hilbert(data[ii, :])
             # get instantaneous phase using the hilbert transform
             phas[ii, :] = np.arctan2(np.imag(tmp), np.real(tmp))
+
+        # sum of phases
         sump = np.abs(np.sum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
                np.shape(phas)[0]
-        Phasestack = sump * Linstack  # traditional stack*phase stack
+
+        # traditional stack * phase stack
+        phase_weighted_stack = sump * linear_stack
 
         lin = stream[0].copy()
-        lin.data = Linstack
+        lin.data = linear_stack
         pws = stream[0].copy()
-        pws.data = Phasestack
+        pws.data = phase_weighted_stack
         return lin, pws
 
     # helper function to determine time offset of each time series in a
@@ -949,18 +958,22 @@ def stack_template_detections(party, streams_path,
             # referenced from trace.stats.starttime
             shifts.append(max_idx / trace.stats.sampling_rate)
 
-        return shifts, indices
+        return shifts, indices, max_amplitude_offset
 
     # helper function to align all traces in a stream based on xcorr shifts
-    # from the main_trace for each pick time. Stream is altered in place.
-    def align_stream(stream, shifts):
+    # from the main_trace for each pick time. Stream is altered in place and
+    # each trace is trimmed to be ## seconds long.
+    def align_stream(stream, shifts, main_time):
         # shift each trace of stream in place to avoid memory issues
         for tr_idx, tr in enumerate(stream):
             # create false starttime to shift around
             tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + \
                                  shifts[tr_idx]
 
-            # TODO: does this work?
+        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 2 * \
+                         main_time - 5
+        new_end_time = new_start_time + 20
+        stream.trim(new_start_time, new_end_time)
 
         return None
 
@@ -992,7 +1005,7 @@ def stack_template_detections(party, streams_path,
     pick_times = pick_times[:100]
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
     plot_stack(main_stream)
-    shifts, indices = xcorr_time_shifts(main_stream)
+    shifts, indices, main_time = xcorr_time_shifts(main_stream)
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -1049,7 +1062,8 @@ def stack_template_detections(party, streams_path,
                 # shifts, indices = xcorr_time_shifts(sta_chan_stream)
 
                 # align each trace in stream based on specified time shifts
-                aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts)
+                aligned_sta_chan_stream = align_stream(sta_chan_stream,
+                                                       main_time)
 
                 # TODO: plot aligned stream to verify align function works
                 plot_stream_absolute(aligned_sta_chan_stream)
