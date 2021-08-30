@@ -995,6 +995,10 @@ def stack_template_detections(party, streams_path,
             # create false starttime to shift around
             tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z")
 
+        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
+        new_end_time = new_start_time + 16.5
+        stream.trim(new_start_time, new_end_time)
+
         return None
 
     # first extract pick times for each event from party object
@@ -1027,6 +1031,7 @@ def stack_template_detections(party, streams_path,
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
     plot_stack(main_stream)
     main_stream2 = main_stream.copy()
+    main_stream3 = main_stream.copy()
     reference_signal = "median"
     shifts, indices, main_time = xcorr_time_shifts(main_stream,
                                                    reference_signal)
@@ -1034,13 +1039,18 @@ def stack_template_detections(party, streams_path,
     align_stream(main_stream, shifts, main_time)
     plot_stream_absolute(main_stream, title='Median SNR template', save=True)
 
+    # check time shift from template with max snr
     reference_signal = "max"
     shifts, indices, main_time = xcorr_time_shifts(main_stream2,
                                                    reference_signal)
-    # FIXME:
     align_stream(main_stream2, shifts, main_time)
     plot_stream_absolute(main_stream2, title='Max SNR template', save=True)
 
+    # check time shift from zero shift of detections
+    zero_shift_stream(main_stream3)
+    plot_stream_absolute(main_stream3, title='Zero shift', save=True,
+                         figWidth="0.5")
+    # FIXME: - - - - END OF TESTING BLOCK - - - -
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
