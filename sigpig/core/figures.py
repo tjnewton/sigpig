@@ -569,7 +569,7 @@ def plot_stream_relative():
 
 	pass
 
-def plot_stream_absolute(stream):
+def plot_stream_absolute(stream, title=False, save=False):
 	""" Plots all traces of a stream in absolute time. This function is
 	useful for visualizing shifted traces of varying length."""
 	# initialize figure and set the figure size
@@ -590,14 +590,14 @@ def plot_stream_absolute(stream):
 			# update figure time period
 			if trace.stats.starttime < earliest_time:
 				earliest_time = trace.stats.starttime
-			if trace.stats.endtime < latest_time:
+			if trace.stats.endtime > latest_time:
 				latest_time = trace.stats.endtime
 
 	# set common time axis from scanned data
 	timeTrace = Trace()
 	timeTrace.stats.sampling_rate = 40
 	timeTrace.stats.starttime = earliest_time
-	timeTrace.stats.endtime = latest_time
+	timeTrace.stats.npts = (latest_time - earliest_time) * 40 # * sampling rate
 	time = timeTrace.times("matplotlib")
 
 	# loop through stream and generate plots
@@ -620,5 +620,22 @@ def plot_stream_absolute(stream):
 		y_labels.append(f"{network_station}.{trace.stats.channel}")
 
 	# set plot attributes
+	amplitude_plot.set_yticks(np.arange(0.5, len(stream)+0.5))
+	amplitude_plot.set_yticklabels(y_labels)
+	amplitude_plot.set_ylabel('Station.Channel')
+	amplitude_plot.set_xlim([time[0], time[-1]])
+	amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec')
+	myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+	amplitude_plot.xaxis.set_major_formatter(myFmt)
+	locator_x = AutoDateLocator(minticks=12, maxticks=30)
+	amplitude_plot.xaxis.set_major_locator(locator_x)
+	amplitude_plot.set_ylim((0, len(stream)+0.5))
+	fig.tight_layout()
+	if title != False:
+		amplitude_plot.set_title(title)
+		if save:
+			fig.savefig(f"{title}.png", dpi=100)
 
-	pass
+	plt.show()
+
+	return fig
