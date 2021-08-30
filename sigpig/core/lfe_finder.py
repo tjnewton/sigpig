@@ -902,32 +902,46 @@ def stack_template_detections(party, streams_path,
 
     # helper function to determine time offset of each time series in a
     # stream with respect to a main trace via cross correlation
-    def xcorr_time_shifts(stream):
+    def xcorr_time_shifts(stream, reference_signal):
         shifts = []
         indices = []
 
-        # find reference index with strongest signal, this serves as a template
-        max_snr = 0
-        for index, trace in enumerate(stream):
-            trace_snr = snr(trace)[0]
-            if trace_snr > max_snr:
-                max_snr = trace_snr
-                reference_idx = index
-                # get the time associated with the maximum amplitude signal
-                max_amplitude_value, max_amplitude_index = max_amplitude(trace)
-                max_amplitude_offset = max_amplitude_index / \
-                                       trace.stats.sampling_rate
-                # trim the reference trace to + and - 1.5 seconds
-                # surrounding max amplitude signal
-                reference_start_time = trace.stats.starttime + \
-                                       max_amplitude_offset - 1.5
-                reference_trace = trace.copy().trim(reference_start_time,
-                                                    reference_start_time + 3)
-
-        if max_snr == 0:
-            print("Error: max snr is 0")
+        # find reference index with strongest signal or median snr, this serves
+        # as a template
+        if reference_signal == "max":
+            MAX_FLAG = False
         else:
-            print(f"Max snr in main_trace template: {max_snr}")
+            MEDIAN_FLAG = True
+        # initialize max snr placeholder and list to store SNRs of each trace
+        max_snr = 0
+        snrs = []
+        for index, trace in enumerate(stream):
+            snrs.append(snr(trace)[0])
+
+        if MAX_FLAG:
+            reference_idx = np.argmax(snrs)
+        elif MEDIAN_FLAG:
+            median_snr = np.median(snrs)
+            # find index of SNR closest to median
+            reference_idx = np.argmin(np.abs(snrs - median_snr))
+
+        trace = stream[reference_idx]
+        ref_snr = snrs[reference_idx]
+        # get the time associated with the maximum amplitude signal
+        max_amplitude_value, max_amplitude_index = max_amplitude(trace)
+        max_amplitude_offset = max_amplitude_index / \
+                               trace.stats.sampling_rate
+        # trim the reference trace to + and - 1.5 seconds
+        # surrounding max amplitude signal
+        reference_start_time = trace.stats.starttime + \
+                               max_amplitude_offset - 1.5
+        reference_trace = trace.copy().trim(reference_start_time,
+                                            reference_start_time + 3)
+
+        if ref_snr == 0:
+            print("Error: reference SNR is 0")
+        else:
+            print(f"SNR in main_trace template: {ref_snr}")
 
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
@@ -971,7 +985,7 @@ def stack_template_detections(party, streams_path,
                                  shifts[tr_idx]
 
         new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 2 * \
-                         main_time - 5
+                         main_time - 10
         new_end_time = new_start_time + 20
         stream.trim(new_start_time, new_end_time)
 
@@ -1002,10 +1016,17 @@ def stack_template_detections(party, streams_path,
                                           "channel": file_channel}
 
     # get time shifts associated with detections on main trace
+    # FIXME:
     pick_times = pick_times[:100]
     main_stream = build_main_stream(main_trace, streams_path, pick_times)
     plot_stack(main_stream)
-    shifts, indices, main_time = xcorr_time_shifts(main_stream)
+    reference_signal = "median"
+    shifts, indices, main_time = xcorr_time_shifts(main_stream,
+                                                   reference_signal)
+    # FIXME:
+    align_stream(main_stream, shifts, main_time)
+    plot_stream_absolute(main_stream)
+
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -1062,7 +1083,7 @@ def stack_template_detections(party, streams_path,
                 # shifts, indices = xcorr_time_shifts(sta_chan_stream)
 
                 # align each trace in stream based on specified time shifts
-                aligned_sta_chan_stream = align_stream(sta_chan_stream,
+                aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts,
                                                        main_time)
 
                 # TODO: plot aligned stream to verify align function works
