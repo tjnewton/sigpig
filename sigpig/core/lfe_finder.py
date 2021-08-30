@@ -908,19 +908,14 @@ def stack_template_detections(party, streams_path,
 
         # find reference index with strongest signal or median snr, this serves
         # as a template
-        if reference_signal == "max":
-            MAX_FLAG = False
-        else:
-            MEDIAN_FLAG = True
-        # initialize max snr placeholder and list to store SNRs of each trace
         max_snr = 0
         snrs = []
         for index, trace in enumerate(stream):
             snrs.append(snr(trace)[0])
 
-        if MAX_FLAG:
+        if reference_signal == "max":
             reference_idx = np.argmax(snrs)
-        elif MEDIAN_FLAG:
+        else:
             median_snr = np.median(snrs)
             # find index of SNR closest to median
             reference_idx = np.argmin(np.abs(snrs - median_snr))
