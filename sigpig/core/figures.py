@@ -497,17 +497,18 @@ def plot_party_detections(party, detection_files_path, filter=True,
 
         Example:
             # load party object from file
-            infile = open('party_09_26_2016_to_10_02_2016_abs.25.pkl', 'rb')
+            # infile = open('party_09_26_2016_to_10_02_2016_abs.25.pkl', 'rb')
+            infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
             party = pickle.load(infile)
             infile.close()
 
             # define path of files from detection
             detection_files_path = "/Users/human/ak_data/inner"
 
-            # plot the party detections
+            # plot the party detections and a histogram of the SNRs
             title = "abs_0.25_detections"
-            plot_party_detections(party, detection_files_path, title=title,
-                                  save=False)
+            fig, hist = plot_party_detections(party, detection_files_path,
+                                              title=title, save=False)
 
     """
     # initialize figure and set the figure size
@@ -586,9 +587,10 @@ def plot_party_detections(party, detection_files_path, filter=True,
     plt.show()
 
     # plot the detections snr distribution
-    plot_distribution(snrs)
+    hist = plot_distribution(snrs, title="Detections SNR distribution",
+                             save=save)
 
-    return fig
+    return fig, hist
 
 
 # plot stack of waveforms on common time axis
@@ -760,7 +762,7 @@ def plot_stream_absolute(stream, title=False, save=False, figWidth=False):
     return fig
 
 
-def plot_distribution(data, save=False):
+def plot_distribution(data, bins=False, title=False, save=False):
     """ Generates a histogram from the specified data.
 
     Args:
@@ -768,26 +770,61 @@ def plot_distribution(data, save=False):
 
     Returns:
         None
+
+    Example:
+        plot_distribution(snrs, title="SNR distribution", save=True)
     """
     df = pd.Series(data)
-    plt.figure(figsize=(9, 5))
-    n, bins, patches = plt.hist(data, bins=100, facecolor="darkred", alpha=0.6)
+    fig = plt.figure(figsize=(9, 5))
+    if bins == False:
+        bins = 100
+    n, bins, patches = plt.hist(data, bins=bins, facecolor="darkred",
+                                alpha=0.6)
     ax = plt.axes()
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
     plt.xlabel(f'SNR (100 bins)')
     plt.ylabel("Counts per bin")
-    ax.set_title(f'SNR distribution', y=0.9999)
     # set plot limits
     # plt.ylim(0, 50)
     ax.set_xlim([bins[0], bins[-1]])
 
-    plt.tight_layout()
     plt.grid(True)
 
-    if save:
-        plt.savefig(f'data_histogram.pdf', dpi=600)
+    # plot kde and quantiles on a different y axis
+    ax2 = ax.twinx()
+    # plot kde
+    df.plot(kind="kde", ax=ax2)
+    # quantile lines
+    quant_5, quant_25, quant_50, quant_75, quant_95 = df.quantile(0.05), \
+                                                      df.quantile(0.25), \
+                                                      df.quantile(0.5), \
+                                                      df.quantile(0.75), \
+                                                      df.quantile(0.95)
+    quants = [[quant_5, 0.6, 0.16], [quant_25, 0.8, 0.26], [quant_50, 1, 0.36],
+              [quant_75, 0.8, 0.46], [quant_95, 0.6, 0.56]]
+    for i in quants:
+        ax2.axvline(i[0], alpha=i[1], ymax=i[2], linestyle=":", c="k")
+
+    # set ax2 y labels and ticks
+    ax2.set_ylim(0, 1)
+    ax2.set_yticklabels([])
+    ax2.set_ylabel("")
+
+    # quantilennotations
+    ax2.text(quant_5 - .1, 0.17, "5th", size=10, alpha=0.8)
+    ax2.text(quant_25 - .13, 0.27, "25th", size=11, alpha=0.85)
+    ax2.text(quant_50 - .13, 0.37, "50th", size=12, alpha=1)
+    ax2.text(quant_75 - .13, 0.47, "75th", size=11, alpha=0.85)
+    ax2.text(quant_95 - .25, 0.57, "95th Percentile", size=10, alpha=.8)
+
+    if title != False:
+        ax.set_title(title, y=0.9999)
+        if save:
+            fig.savefig(f"{title}.png", dpi=100)
+
+    plt.tight_layout()
     plt.show()
 
-    return None
+    return fig
