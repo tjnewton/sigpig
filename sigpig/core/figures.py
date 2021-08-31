@@ -753,3 +753,17 @@ def plot_stream_absolute(stream, title=False, save=False, figWidth=False):
     plt.show()
 
     return fig
+
+# function to generate a histogram from a distribution within a list
+def plot_distribution(data):
+    """
+
+
+    Args:
+        data:
+
+    Returns:
+
+    """
+
+    ...
