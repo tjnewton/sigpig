@@ -493,7 +493,8 @@ def plot_party_detections(party, detection_files_path, filter=True,
                           title=False, save=False):
     """
         Plots time series for all detections in a Party object from files in
-        the `detection_files_path` directory.
+        the `detection_files_path` directory. If there are more than 100
+        detections, only the first 150 detections are plotted.
 
         Example:
             # load party object from file
@@ -505,10 +506,16 @@ def plot_party_detections(party, detection_files_path, filter=True,
             # define path of files from detection
             detection_files_path = "/Users/human/ak_data/inner"
 
+            # set snr threshold and cull the party detections
+            from lfe_finder import cull_detections
+            snr_threshold = 3.5
+            culled_party = cull_detections(party, detection_files_path, snr_threshold)
+
             # plot the party detections and a histogram of the SNRs
-            title = "abs_0.25_detections"
-            fig, hist = plot_party_detections(party, detection_files_path,
-                                              title=title, save=False)
+            title = "snr3.5_abs_0.25_detections"
+            fig = plot_party_detections(culled_party,
+                                              detection_files_path,
+                                              title=title, save=True)
 
     """
     # initialize figure and set the figure size
@@ -516,6 +523,10 @@ def plot_party_detections(party, detection_files_path, filter=True,
     figureHeight = 0.5 * len(party.families[0].detections)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
+
+    # check number of detections and trim if necessary
+    if len(party.families[0].detections) > 60:
+        party.families[0].detections = party.families[0].detections[:60]
 
     y_labels = [] # keep track of y-axis labels (station and channel names)
     snrs = []
@@ -586,11 +597,11 @@ def plot_party_detections(party, detection_files_path, filter=True,
 
     plt.show()
 
-    # plot the detections snr distribution
-    hist = plot_distribution(snrs, title="Detections SNR distribution",
-                             save=save)
+    # # plot the detections snr distribution
+    # hist = plot_distribution(snrs, title="Detections SNR distribution",
+    #                          save=save)
 
-    return fig, hist
+    return fig #, hist
 
 
 # plot stack of waveforms on common time axis
