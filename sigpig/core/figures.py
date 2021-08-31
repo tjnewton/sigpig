@@ -496,7 +496,7 @@ def plot_party_detections(party, detection_files_path, filter=True,
 
         Example:
             # load party object from file
-            infile = open('party_09_26_2016_to_10_02_2016_abs.25.pkl', 'rb')
+            infile = open('party_09_26_2016_to_10_02_2016_MAD11.pkl', 'rb')
             party = pickle.load(infile)
             infile.close()
 
@@ -504,7 +504,7 @@ def plot_party_detections(party, detection_files_path, filter=True,
             detection_files_path = "/Users/human/ak_data/inner"
 
             # plot the party detections
-            title = "abs_0.25_detections"
+            title = "MAD_11_detections"
             plot_party_detections(party, detection_files_path, title=title,
                                   save=True)
 
