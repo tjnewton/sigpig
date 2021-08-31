@@ -559,6 +559,20 @@ def detect_signals(templates, template_files, station_dict, template_length,
     # 52 detections: "MAD" @ 8.0
 
 
+def cull_detections(snr):
+    """
+
+    Args:
+        snr:
+
+    Returns:
+
+    Example:
+
+    """
+
+    ...
+
 # function to generate linear and phase-weighted waveform stacks station by
 # station (to avoid memory bottleneck) via EQcorrscan stacking routines
 def stack_waveforms(party, pick_offset, streams_path, template_length,
