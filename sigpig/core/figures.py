@@ -11,7 +11,7 @@ from matplotlib.dates import DateFormatter, AutoDateLocator
 import glob
 import numpy as np
 import scipy.signal as spsig
-from data import max_amplitude
+from data import max_amplitude, snr
 import pickle
 import pandas as pd
 
