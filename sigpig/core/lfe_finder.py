@@ -19,7 +19,7 @@ from figures import plot_stack, plot_stream_absolute, plot_stream_relative, \
                     plot_party_detections, plot_distribution
 from scipy.signal import hilbert
 import time
-from data import max_amplitude
+from data import max_amplitude, snr
 
 # function to convert snuffler marker file to event template
 def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
@@ -302,7 +302,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
         # define path of files for detection
         detection_files_path = "/Users/human/ak_data/inner"
         # define dates of interest
-        # # this takes 17h 14m for 1 template of N25K across inner stations
+        # # this takes 18h 13m for 1 template of N25K across inner stations
         start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
         # # MAD8: 195, MAD9: 55, MAD10: 25, MAD11: 11, abs.2: 425, abs.25: 45,
@@ -829,41 +829,6 @@ def stack_template_detections(party, streams_path,
                 main_stream_snrs.apped(0)
 
         return main_stream, main_stream_snrs
-
-    # helper function to get signal to noise ratio of time series
-    def snr(obspyObject: Stream or Trace) -> float:
-        '''
-        (obspyObject) -> float
-
-        Returns the signal to noise ratios of each trace of a specified obspy
-        stream object, or the specified obspy trace object. Signal-to-noise ratio
-        defined as the ratio of the maximum amplitude in the timeseries to the rms
-        amplitude in the entire timeseries.
-        '''
-        trace_rms = {}
-        trace_maxAmplitude = {}
-
-        # for Stream objects
-        if isinstance(obspyObject, obspy.core.stream.Stream):
-            for trace in obspyObject:
-                rms = np.sqrt(np.mean(trace.data ** 2))
-                maxAmplitude = abs(trace.max())
-                trace_rms.update({trace.id: rms})
-                trace_maxAmplitude.update({trace.id: maxAmplitude})
-
-            snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
-                    trace_rms]
-
-        # for Trace objects
-        elif isinstance(obspyObject, obspy.core.trace.Trace):
-            rms = np.sqrt(np.mean(obspyObject.data ** 2))
-            maxAmplitude = abs(obspyObject.max())
-            trace_rms.update({obspyObject.id: rms})
-            trace_maxAmplitude.update({obspyObject.id: maxAmplitude})
-            snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
-                    trace_rms]
-
-        return snrs
 
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(stream, normalize=True):
