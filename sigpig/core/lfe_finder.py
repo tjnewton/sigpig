@@ -559,19 +559,86 @@ def detect_signals(templates, template_files, station_dict, template_length,
     # 52 detections: "MAD" @ 8.0
 
 
-def cull_detections(snr):
+def cull_detections(party, detection_files_path, snr_threshold):
     """
+    Removes detections in a party object that are below a specified signal
+    to noise ration (snr_threshold). Also generates a histogram of the new
+    and old SNR distributions.
 
     Args:
-        snr:
+        party: EQcorrscan Party object
+        detection_files_path: string containing path to waveforms
+        snr_threshold: float of signal to noise ration cut-off
 
     Returns:
+        new_party: EQcorrscan Party object containing only detections with
+                   SNR >= snr_threshold
 
     Example:
+        # load party object from file
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
+
+        # define path of files from detection
+        detection_files_path = "/Users/human/ak_data/inner"
+
+        # set snr threshold and cull the party detections
+        snr_threshold = 3.0
+        culled_party = cull_detections(party, detection_files_path, snr_threshold)
 
     """
+    deletion_indices = []
+    old_snrs = []
+    new_snrs = []
+    # loop over detections
+    for index, detection in enumerate(party.families[0].detections):
+        # define the date of interest to get appropriate files
+        doi = detection.detect_time
 
-    ...
+        # find all files for specified day
+        day_file_list = sorted(glob.glob(f"{detection_files_path}/TA.N25K.BHZ"
+                                         f".{doi.year}-{doi.month:02}"
+                                         f"-{doi.day:02}.ms"))
+
+        # should only be one file, guard against many
+        file = day_file_list[0]
+
+        # load file into stream
+        st = Stream()
+        st += read(file)
+
+        # filter before trimming to avoid edge effects
+        if filter:
+            # bandpass filter specified frequencies
+            st.filter('bandpass', freqmin=1, freqmax=15)
+
+        st.trim(doi - 0.5, doi + 16)
+        trace = st[0]  # get the trace
+
+        trace_snr = snr(trace)[0]
+        # check the snr
+        if trace_snr < snr_threshold:
+            deletion_indices.append(index)
+            old_snrs.append(trace_snr)
+        else:
+            new_snrs.append(trace_snr)
+            old_snrs.append(trace_snr)
+
+    new_party = party.copy()
+    # delete detections below threshold
+    deleted_detections = []
+    for index in sorted(deletion_indices, reverse=True):
+        deleted_detections.append(new_party.families[0].detections[
+                                      index].copy())
+        del new_party.families[0].detections[index]
+
+    plot_distribution(old_snrs, title="SNR distribution of all detections",
+                      save=False)
+    plot_distribution(new_snrs, title="SNR distribution of culled detections",
+                      save=False)
+
+    return new_party
 
 # function to generate linear and phase-weighted waveform stacks station by
 # station (to avoid memory bottleneck) via EQcorrscan stacking routines
