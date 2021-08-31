@@ -13,6 +13,7 @@ import numpy as np
 import scipy.signal as spsig
 from data import max_amplitude
 import pickle
+import pandas as pd
 
 # FIXME ::: Add elevation functions from Desktop/autopicker/preprocessing/station_locations.py
 # above requires configuring environment with rasterio and dependencies
@@ -496,7 +497,7 @@ def plot_party_detections(party, detection_files_path, filter=True,
 
         Example:
             # load party object from file
-            infile = open('party_09_26_2016_to_10_02_2016_MAD11.pkl', 'rb')
+            infile = open('party_09_26_2016_to_10_02_2016_abs.25.pkl', 'rb')
             party = pickle.load(infile)
             infile.close()
 
@@ -504,9 +505,9 @@ def plot_party_detections(party, detection_files_path, filter=True,
             detection_files_path = "/Users/human/ak_data/inner"
 
             # plot the party detections
-            title = "MAD_11_detections"
+            title = "abs_0.25_detections"
             plot_party_detections(party, detection_files_path, title=title,
-                                  save=True)
+                                  save=False)
 
     """
     # initialize figure and set the figure size
@@ -516,6 +517,7 @@ def plot_party_detections(party, detection_files_path, filter=True,
     amplitude_plot = fig.add_subplot()
 
     y_labels = [] # keep track of y-axis labels (station and channel names)
+    snrs = []
     # loop over detections
     for index, detection in enumerate(party.families[0].detections):
         # define the date of interest to get appropriate files
@@ -540,6 +542,8 @@ def plot_party_detections(party, detection_files_path, filter=True,
 
         st.trim(doi - 0.5, doi + 16)
         trace = st[0] # get the trace
+        snrs.append(snr(trace)[0])
+
         if index == 0:
             time = trace.times("matplotlib")
             plot_start = trace.stats.starttime
@@ -581,9 +585,10 @@ def plot_party_detections(party, detection_files_path, filter=True,
 
     plt.show()
 
-    plt.show()
+    # plot the detections snr distribution
+    plot_distribution(snrs)
 
-    return amplitude_plot
+    return fig
 
 
 # plot stack of waveforms on common time axis
@@ -763,19 +768,16 @@ def plot_distribution(data, save=False):
 
     Returns:
         None
-
-    Example:
-
-
     """
+    df = pd.Series(data)
     plt.figure(figsize=(9, 5))
     n, bins, patches = plt.hist(data, bins=100, facecolor="darkred", alpha=0.6)
     ax = plt.axes()
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'100 bins')
-    plt.ylabel("SNR")
+    plt.xlabel(f'SNR (100 bins)')
+    plt.ylabel("Counts per bin")
     ax.set_title(f'SNR distribution', y=0.9999)
     # set plot limits
     # plt.ylim(0, 50)
