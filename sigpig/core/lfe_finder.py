@@ -15,7 +15,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import calendar
 from tqdm import tqdm
-from figures import plot_stack, plot_stream_absolute, plot_stream_relative, plot_party_detections
+from figures import plot_stack, plot_stream_absolute, plot_stream_relative, \
+                    plot_party_detections, plot_distribution
 from scipy.signal import hilbert
 import time
 from data import max_amplitude
@@ -309,16 +310,16 @@ def detect_signals(templates, template_files, station_dict, template_length,
         # start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
         # end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
-        # run detection and time it
-        start = time.time()
-        party = detect_signals(templates, template_files, station_dict,
-                               template_length, template_prepick,
-                               detection_files_path, start_date, end_date)
-        end = time.time()
-        hours = int((end - start) / 60 / 60)
-        minutes = int(((end - start) / 60) - (hours * 60))
-        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-        print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        # # run detection and time it
+        # start = time.time()
+        # party = detect_signals(templates, template_files, station_dict,
+        #                        template_length, template_prepick,
+        #                        detection_files_path, start_date, end_date)
+        # end = time.time()
+        # hours = int((end - start) / 60 / 60)
+        # minutes = int(((end - start) / 60) - (hours * 60))
+        # seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        # print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # load party object from file
         infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
@@ -789,6 +790,7 @@ def stack_template_detections(party, streams_path,
     # helper function to build a stream of detections from main_trace station
     def build_main_stream (main_trace, streams_path, pick_times):
         main_stream = Stream()
+        main_stream_snrs = []
         # loop over pick times to assemble stream & show tqdm progress bar
         for index in tqdm(range(len(pick_times))):
             pick_time = pick_times[index]
@@ -814,6 +816,9 @@ def stack_template_detections(party, streams_path,
                 day_st.interpolate(sampling_rate=lowest_sr)
                 # trim trace to 30 seconds surrounding pick time
                 day_st.trim(pick_time - 10, pick_time + 20)
+                # append snr
+                main_stream_snrs.apped(snr(day_st))
+
                 # add trace to main_stream
                 main_stream += day_st
 
@@ -821,8 +826,9 @@ def stack_template_detections(party, streams_path,
             # pick_times
             else:
                 main_stream += Trace()
+                main_stream_snrs.apped(0)
 
-        return main_stream
+        return main_stream, main_stream_snrs
 
     # helper function to get signal to noise ratio of time series
     def snr(obspyObject: Stream or Trace) -> float:
@@ -1034,16 +1040,19 @@ def stack_template_detections(party, streams_path,
                                           "channel": file_channel}
 
     # get time shifts associated with detections on main trace
-    # FIXME:
+    # FIXME: take out testing info
     pick_times = pick_times[:100]
-    main_stream = build_main_stream(main_trace, streams_path, pick_times)
+    main_stream, main_stream_snrs = build_main_stream(main_trace, streams_path,
+                                                      pick_times)
     plot_stack(main_stream)
+    plot_distribution(main_stream_snrs)
+
+    # FIXME: delete later after testing
     main_stream2 = main_stream.copy()
     main_stream3 = main_stream.copy()
     reference_signal = "median"
     shifts, indices, main_time = xcorr_time_shifts(main_stream,
                                                    reference_signal)
-    # FIXME: delete later
     align_stream(main_stream, shifts, main_time)
     plot_stream_absolute(main_stream, title='Median SNR template', save=True)
 
