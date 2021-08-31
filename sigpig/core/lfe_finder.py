@@ -303,23 +303,26 @@ def detect_signals(templates, template_files, station_dict, template_length,
         detection_files_path = "/Users/human/ak_data/inner"
         # define dates of interest
         # # this takes 18h 13m for 1 template of N25K across inner stations
-        start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
-        end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
+        # #          abs.25: 1218
+        # # SNR > 3: abs.25:
+        # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
         # # MAD8: 195, MAD9: 55, MAD10: 25, MAD11: 11, abs.2: 425, abs.25: 45,
         # #       abs.23: 100
-        # start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
-        # end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
+        # # SNR > 3: abs.25:
+        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
+        end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
-        # # run detection and time it
-        # start = time.time()
-        # party = detect_signals(templates, template_files, station_dict,
-        #                        template_length, template_prepick,
-        #                        detection_files_path, start_date, end_date)
-        # end = time.time()
-        # hours = int((end - start) / 60 / 60)
-        # minutes = int(((end - start) / 60) - (hours * 60))
-        # seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-        # print(f"Runtime: {hours} h {minutes} m {seconds} s")
+        # run detection and time it
+        start = time.time()
+        party = detect_signals(templates, template_files, station_dict,
+                               template_length, template_prepick,
+                               detection_files_path, start_date, end_date)
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
         # load party object from file
         infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
