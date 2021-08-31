@@ -754,16 +754,38 @@ def plot_stream_absolute(stream, title=False, save=False, figWidth=False):
 
     return fig
 
-# function to generate a histogram from a distribution within a list
-def plot_distribution(data):
-    """
 
+def plot_distribution(data, save=False):
+    """ Generates a histogram from the specified data.
 
     Args:
-        data:
+        data: list of floats or ints
 
     Returns:
+        None
+
+    Example:
+
 
     """
+    plt.figure(figsize=(9, 5))
+    n, bins, patches = plt.hist(data, bins=100, facecolor="darkred", alpha=0.6)
+    ax = plt.axes()
+    # set background color
+    ax.set_facecolor("dimgrey")
+    # set plot labels
+    plt.xlabel(f'100 bins')
+    plt.ylabel("SNR")
+    ax.set_title(f'SNR distribution', y=0.9999)
+    # set plot limits
+    # plt.ylim(0, 50)
+    ax.set_xlim([bins[0], bins[-1]])
 
-    ...
+    plt.tight_layout()
+    plt.grid(True)
+
+    if save:
+        plt.savefig(f'data_histogram.pdf', dpi=600)
+    plt.show()
+
+    return None
