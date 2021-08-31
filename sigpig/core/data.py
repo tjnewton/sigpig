@@ -14,6 +14,41 @@ import utm
 from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
 
+# helper function to get signal to noise ratio of time series
+def snr(obspyObject: Stream or Trace) -> float:
+    '''
+    (obspyObject) -> float
+
+    Returns the signal to noise ratios of each trace of a specified obspy
+    stream object, or the specified obspy trace object. Signal-to-noise ratio
+    defined as the ratio of the maximum amplitude in the timeseries to the rms
+    amplitude in the entire timeseries.
+    '''
+    trace_rms = {}
+    trace_maxAmplitude = {}
+
+    # for Stream objects
+    if isinstance(obspyObject, obspy.core.stream.Stream):
+        for trace in obspyObject:
+            rms = np.sqrt(np.mean(trace.data ** 2))
+            maxAmplitude = abs(trace.max())
+            trace_rms.update({trace.id: rms})
+            trace_maxAmplitude.update({trace.id: maxAmplitude})
+
+        snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
+                trace_rms]
+
+    # for Trace objects
+    elif isinstance(obspyObject, obspy.core.trace.Trace):
+        rms = np.sqrt(np.mean(obspyObject.data ** 2))
+        maxAmplitude = abs(obspyObject.max())
+        trace_rms.update({obspyObject.id: rms})
+        trace_maxAmplitude.update({obspyObject.id: maxAmplitude})
+        snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
+                trace_rms]
+
+    return snrs
+
 
 # helper function to find max amplitude of a time series for plotting
 def max_amplitude(timeSeries):
