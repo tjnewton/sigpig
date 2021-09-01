@@ -1225,7 +1225,8 @@ def template_match_stack():
 
 
 def find_LFEs(templates, template_files, station_dict, template_length,
-              template_prepick, detection_files_path, start_date, end_date):
+              template_prepick, detection_files_path, start_date, end_date,
+              snr_threshold, load=False, plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
     matched-filtering with specified template(s), then stacking of signals
@@ -1233,9 +1234,68 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     waveform template.
 
     Example:
+        # manually define templates from station TA.N25K (location is made up)
+        templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "N25K    0.000  1       P\n"]
+
+        # and define a station dict to add data needed by EQcorrscan
+        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+
+        # define template length and prepick length (both in seconds)
+        template_length = 16.0
+        template_prepick = 0.5
+
+        # build stream of all station files for templates
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        template_files = glob.glob(f"{files_path}/*.ms")
+
+        # define path of files for detection
+        detection_files_path = "/Users/human/ak_data/inner"
+
+        # define dates of interest
+        # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
+        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
+        end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
+
+        # run detection and time it
+        start = time.time()
+
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
+
+        # set snr threshold to cull the party detections
+        snr_threshold = 3.5
 
 
     """
+    # get main station template detections
+    if load:
+        # load party object from file
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
+    else:
+        party = detect_signals(templates, template_files, station_dict,
+                               template_length, template_prepick,
+                               detection_files_path, start_date, end_date)
+    if plot:
+        # inspect the party growth over time
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
 
-    pass
+    # cull the party detections below the specified signal to noise ratio
+    culled_party = cull_detections(party, detection_files_path, snr_threshold)
+    if plot:
+        # inspect the culled party growth over time
+        detections_fig = culled_party.plot(plot_grouped=True)
+        rate_fig = culled_party.plot(plot_grouped=True, rate=True)
+        print(sorted(culled_party.families, key=lambda f: len(f))[-1])
+
+
+    return None
 
