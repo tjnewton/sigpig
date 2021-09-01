@@ -1302,10 +1302,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         rate_fig = culled_party.plot(plot_grouped=True, rate=True)
         print(sorted(culled_party.families, key=lambda f: len(f))[-1])
 
-    # FIXME: delete test variable declarations
+    # TODO: delete test variable declarations
     streams_path = detection_files_path
     party = culled_party
     # stack the culled party detections
+    # FIXME: stack only constains 18 traces. Should be ~30
     stack_list = stack_template_detections(culled_party, detection_files_path,
                                            main_trace)
     # save stacks as pickle file
