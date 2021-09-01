@@ -916,8 +916,9 @@ def stack_template_detections(party, streams_path, main_trace):
         # guard against stacking zeros and create data array
         data = []
         for trace in stream:
-            if trace.data.max() > 0:
-                data.append(trace.data)
+            if len(trace.data) > 0:
+                if trace.data.max() > 0:
+                    data.append(trace.data)
         # put the data into a numpy array
         data = np.asarray(data)
 
@@ -941,17 +942,18 @@ def stack_template_detections(party, streams_path, main_trace):
         linear_stack = data.mean(axis=0)
         phas = np.zeros_like(data)
 
-        for ii in range(np.shape(phas)[0]):
+        # loop over each trace and get instantaneous phase of each sample
+        for tr_idx in range(np.shape(phas)[0]):
             # hilbert transform of each time series
-            tmp = hilbert(data[ii, :])
+            tmp = hilbert(data[tr_idx, :])
             # get instantaneous phase using the hilbert transform
-            phas[ii, :] = np.arctan2(np.imag(tmp), np.real(tmp))
+            phas[tr_idx, :] = np.arctan2(np.imag(tmp), np.real(tmp))
 
-        # sum of phases
+        # sum of phases for each sample across traces
         sump = np.abs(np.sum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
                np.shape(phas)[0]
 
-        # traditional stack * phase stack
+        # pws = traditional stack * phase weighting stack
         phase_weighted_stack = sump * linear_stack
 
         lin = stream[0].copy()
@@ -1158,7 +1160,7 @@ def stack_template_detections(party, streams_path, main_trace):
 
                     sta_chan_stream += day_st
 
-                # if no file, append blank trace to preseve stream length
+                # if no file, append blank trace to preserve stream length
                 # equality with pick_times
                 else:
                     sta_chan_stream += Trace()
@@ -1172,7 +1174,7 @@ def stack_template_detections(party, streams_path, main_trace):
                 # align each trace in stream
                 zero_shift_stream(sta_chan_stream)
 
-                # TODO: plot aligned stream to verify align function works
+                # plot aligned stream to verify align function works
                 # plot_stream_absolute(sta_chan_stream)
                 # plot_stream_relative(aligned_sta_chan_stream)
 
@@ -1301,10 +1303,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         detections_fig = culled_party.plot(plot_grouped=True)
         rate_fig = culled_party.plot(plot_grouped=True, rate=True)
         print(sorted(culled_party.families, key=lambda f: len(f))[-1])
+    print(f"Culled detections comprise "
+          f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
+          f"detections.")
 
     # TODO: delete test variable declarations
-    streams_path = detection_files_path
-    party = culled_party
     # stack the culled party detections
     # FIXME: stack only constains 18 traces. Should be ~30
     stack_list = stack_template_detections(culled_party, detection_files_path,
