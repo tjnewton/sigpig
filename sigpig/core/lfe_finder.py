@@ -898,7 +898,7 @@ def stack_template_detections(party, streams_path, main_trace):
                 # trim trace to 30 seconds surrounding pick time
                 day_st.trim(pick_time - 10, pick_time + 20)
                 # append snr
-                main_stream_snrs.append(snr(day_st))
+                main_stream_snrs.append(snr(day_st)[0])
 
                 # add trace to main_stream
                 main_stream += day_st
