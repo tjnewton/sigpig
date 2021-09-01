@@ -820,9 +820,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
-def stack_template_detections(party, streams_path,
-                              template_length, template_prepick, station_dict,
-                              main_trace, Normalize=True):
+def stack_template_detections(party, streams_path, main_trace):
     """
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
@@ -1226,7 +1224,7 @@ def template_match_stack():
 
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              snr_threshold, load=False, plot=False):
+              snr_threshold, main_trace, load=False, plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
     matched-filtering with specified template(s), then stacking of signals
@@ -1261,12 +1259,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = 3.5
 
+        # define the main trace to use for detections (best amplitude station)
+        main_trace = ("TA", "N25K", "BHN")
+
         # run detection and time it
         start = time.time()
         # --------------------------------------------------------------------
         find_LFEs(templates, template_files, station_dict, template_length,
                   template_prepick, detection_files_path, start_date, end_date,
-                  snr_threshold, load=True, plot=True)
+                  snr_threshold, main_trace, load=True, plot=True)
         # --------------------------------------------------------------------
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -1298,6 +1299,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         rate_fig = culled_party.plot(plot_grouped=True, rate=True)
         print(sorted(culled_party.families, key=lambda f: len(f))[-1])
 
+    # stack the culled party detections
+    stack_list = stack_template_detections(party, detection_files_path,
+                                           main_trace)
+
+    # save stacks as pickle file
+    outfile = open('inner_stack_0.pkl', 'wb')
+    pickle.dump(stack_list, outfile)
+    outfile.close()
 
     return None
 
