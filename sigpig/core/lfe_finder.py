@@ -1055,9 +1055,9 @@ def stack_template_detections(party, streams_path, main_trace):
             # create false starttime to shift around
             tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z")
 
-        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 10
-        new_end_time = new_start_time + 30
-        stream.trim(new_start_time, new_end_time)
+        # new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 10
+        # new_end_time = new_start_time + 30
+        # stream.trim(new_start_time, new_end_time)
 
         return None
 
@@ -1085,35 +1085,35 @@ def stack_template_detections(party, streams_path, main_trace):
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
-    # get time shifts associated with detections on main trace
-    # FIXME: take out testing info
-    pick_times = pick_times[:100]
-    main_stream, main_stream_snrs = build_main_stream(main_trace, streams_path,
-                                                      pick_times)
-    plot_stack(main_stream)
-    plot_distribution(main_stream_snrs)
-
-    # FIXME: delete later after testing
-    main_stream2 = main_stream.copy()
-    main_stream3 = main_stream.copy()
-    reference_signal = "median"
-    shifts, indices, main_time = xcorr_time_shifts(main_stream,
-                                                   reference_signal)
-    align_stream(main_stream, shifts, main_time)
-    plot_stream_absolute(main_stream, title='Median SNR template', save=True)
-
-    # check time shift from template with max snr
-    reference_signal = "max"
-    shifts, indices, main_time = xcorr_time_shifts(main_stream2,
-                                                   reference_signal)
-    align_stream(main_stream2, shifts, main_time)
-    plot_stream_absolute(main_stream2, title='Max SNR template', save=True)
-
-    # check time shift from zero shift of detections
-    zero_shift_stream(main_stream3)
-    plot_stream_absolute(main_stream3, title='Zero shift', save=True,
-                         figWidth=0.5)
-    # FIXME: - - - - END OF TESTING BLOCK - - - -
+    # # get time shifts associated with detections on main trace
+    # # FIXME: take out testing info
+    # pick_times = pick_times[:100]
+    # main_stream, main_stream_snrs = build_main_stream(main_trace, streams_path,
+    #                                                   pick_times)
+    # plot_stack(main_stream)
+    # plot_distribution(main_stream_snrs)
+    #
+    # # FIXME: delete later after testing
+    # main_stream2 = main_stream.copy()
+    # main_stream3 = main_stream.copy()
+    # reference_signal = "median"
+    # shifts, indices, main_time = xcorr_time_shifts(main_stream,
+    #                                                reference_signal)
+    # align_stream(main_stream, shifts, main_time)
+    # plot_stream_absolute(main_stream, title='Median SNR template', save=True)
+    #
+    # # check time shift from template with max snr
+    # reference_signal = "max"
+    # shifts, indices, main_time = xcorr_time_shifts(main_stream2,
+    #                                                reference_signal)
+    # align_stream(main_stream2, shifts, main_time)
+    # plot_stream_absolute(main_stream2, title='Max SNR template', save=True)
+    #
+    # # check time shift from zero shift of detections
+    # zero_shift_stream(main_stream3)
+    # plot_stream_absolute(main_stream3, title='Zero shift', save=True,
+    #                      figWidth=0.5)
+    # # FIXME: - - - - END OF TESTING BLOCK - - - -
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -1169,18 +1169,17 @@ def stack_template_detections(party, streams_path, main_trace):
                 # # trace for each pick time
                 # shifts, indices = xcorr_time_shifts(sta_chan_stream)
 
-                # align each trace in stream based on specified time shifts
-                aligned_sta_chan_stream = align_stream(sta_chan_stream, shifts,
-                                                       main_time)
+                # align each trace in stream
+                zero_shift_stream(sta_chan_stream)
 
                 # TODO: plot aligned stream to verify align function works
-                plot_stream_absolute(aligned_sta_chan_stream)
-                plot_stream_relative(aligned_sta_chan_stream)
+                # plot_stream_absolute(sta_chan_stream)
+                # plot_stream_relative(aligned_sta_chan_stream)
 
                 # guard against stacking error:
                 try:
                     # generate linear and phase-weighted stack
-                    lin, pws = generate_stacks(aligned_sta_chan_stream)
+                    lin, pws = generate_stacks(sta_chan_stream)
                     # add phase-weighted stack to stream
                     stack_pw += pws
                     # and add linear stack to stream
@@ -1252,10 +1251,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         detection_files_path = "/Users/human/ak_data/inner"
 
         # define dates of interest
-        # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
-        # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
-        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
-        end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
+        start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
+        # start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
+        # end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
         # set snr threshold to cull the party detections
         snr_threshold = 3.5
