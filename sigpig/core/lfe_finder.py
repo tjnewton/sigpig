@@ -302,12 +302,11 @@ def detect_signals(templates, template_files, station_dict, template_length,
         # define dates of interest
         # # this takes 18h 13m for 1 template of N25K across inner stations
         # #          abs.25: 1218
-        # # SNR > 3: abs.25:
+        # # SNR > 3: abs.25: 445 (36.5%)
         # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
         # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
         # # MAD8: 195, MAD9: 55, MAD10: 25, MAD11: 11, abs.2: 425, abs.25: 45,
         # #       abs.23: 100
-        # # SNR > 3: abs.25:
         start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
         end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
@@ -846,6 +845,8 @@ def stack_template_detections(party, streams_path, main_trace):
         party = pickle.load(infile)
         infile.close()
 
+        party =
+
         # inspect the party object detections
         detections_fig = party.plot(plot_grouped=True)
         rate_fig = party.plot(plot_grouped=True, rate=True)
@@ -897,7 +898,7 @@ def stack_template_detections(party, streams_path, main_trace):
                 # trim trace to 30 seconds surrounding pick time
                 day_st.trim(pick_time - 10, pick_time + 20)
                 # append snr
-                main_stream_snrs.apped(snr(day_st))
+                main_stream_snrs.append(snr(day_st))
 
                 # add trace to main_stream
                 main_stream += day_st
@@ -906,7 +907,7 @@ def stack_template_detections(party, streams_path, main_trace):
             # pick_times
             else:
                 main_stream += Trace()
-                main_stream_snrs.apped(0)
+                main_stream_snrs.append(0)
 
         return main_stream, main_stream_snrs
 
@@ -1275,6 +1276,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
+    # FIXME: delete test variable declarations
+    load = True
+    plot = False
     # get main station template detections
     if load:
         # load party object from file
@@ -1299,14 +1303,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         rate_fig = culled_party.plot(plot_grouped=True, rate=True)
         print(sorted(culled_party.families, key=lambda f: len(f))[-1])
 
+    # FIXME: delete test variable declarations
+    streams_path = detection_files_path
+    party = culled_party
     # stack the culled party detections
-    stack_list = stack_template_detections(party, detection_files_path,
+    stack_list = stack_template_detections(culled_party, detection_files_path,
                                            main_trace)
-
     # save stacks as pickle file
     outfile = open('inner_stack_0.pkl', 'wb')
     pickle.dump(stack_list, outfile)
     outfile.close()
+
+    template_match_stack()
 
     return None
 
