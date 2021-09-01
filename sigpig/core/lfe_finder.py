@@ -1258,19 +1258,21 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
         end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
+        # set snr threshold to cull the party detections
+        snr_threshold = 3.5
+
         # run detection and time it
         start = time.time()
-
+        # --------------------------------------------------------------------
+        find_LFEs(templates, template_files, station_dict, template_length,
+                  template_prepick, detection_files_path, start_date, end_date,
+                  snr_threshold, load=True, plot=True)
+        # --------------------------------------------------------------------
         end = time.time()
         hours = int((end - start) / 60 / 60)
         minutes = int(((end - start) / 60) - (hours * 60))
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
-
-        # set snr threshold to cull the party detections
-        snr_threshold = 3.5
-
-
     """
     # get main station template detections
     if load:
