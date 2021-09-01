@@ -514,8 +514,8 @@ def plot_party_detections(party, detection_files_path, filter=True,
             # plot the party detections and a histogram of the SNRs
             title = "snr3.5_abs_0.25_detections"
             fig = plot_party_detections(culled_party,
-                                              detection_files_path,
-                                              title=title, save=True)
+                                        detection_files_path,
+                                        title=title, save=True)
 
     """
     # initialize figure and set the figure size
