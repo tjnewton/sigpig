@@ -278,10 +278,8 @@ def make_Templates(templates, template_files, station_dict, template_length,
 def detect_signals(templates, template_files, station_dict, template_length,
                 template_prepick, detection_files_path, start_date, end_date):
     """
-    Driver function to detect signals (LFEs in this case) in time series via
-    matched-filtering with specified template(s), then stacking of signals
-    found from that template, and finally template matching of the stacked
-    waveform template.
+    Detects signals (LFEs in this case) in time series via matched-filtering
+    with specified template(s).
 
     Example:
         # manually define templates from station TA.N25K (location is made up)
@@ -1222,6 +1220,22 @@ def template_match_stack():
     # should template be filtered already? deal with this for detect
 
     # some basic check for false detections? (constant slope line in cumulative)
+
+    pass
+
+
+def find_LFEs(templates, template_files, station_dict, template_length,
+              template_prepick, detection_files_path, start_date, end_date):
+    """
+    Driver function to detect signals (LFEs in this case) in time series via
+    matched-filtering with specified template(s), then stacking of signals
+    found from that template, and finally template matching of the stacked
+    waveform template.
+
+    Example:
+
+
+    """
 
     pass
 
