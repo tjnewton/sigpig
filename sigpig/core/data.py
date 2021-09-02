@@ -40,12 +40,15 @@ def snr(obspyObject: Stream or Trace) -> float:
 
     # for Trace objects
     elif isinstance(obspyObject, obspy.core.trace.Trace):
-        rms = np.sqrt(np.mean(obspyObject.data ** 2))
-        maxAmplitude = abs(obspyObject.max())
-        trace_rms.update({obspyObject.id: rms})
-        trace_maxAmplitude.update({obspyObject.id: maxAmplitude})
-        snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
-                trace_rms]
+        if len(obspyObject.data) > 0:
+            rms = np.sqrt(np.mean(obspyObject.data ** 2))
+            maxAmplitude = abs(obspyObject.max())
+            trace_rms.update({obspyObject.id: rms})
+            trace_maxAmplitude.update({obspyObject.id: maxAmplitude})
+            snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
+                    trace_rms]
+        else:
+            snrs = []
 
     return snrs
 
@@ -68,8 +71,12 @@ def max_amplitude(timeSeries):
 
     # for Trace objects
     elif isinstance(timeSeries, obspy.core.trace.Trace):
-        traceMax = np.max(np.abs(timeSeries.data))
-        max_index = np.argmax(np.abs(timeSeries.data))
+        if len(timeSeries.data) > 0:
+            traceMax = np.max(np.abs(timeSeries.data))
+            max_index = np.argmax(np.abs(timeSeries.data))
+        else:
+            traceMax = None
+            max_index = None
 
         return traceMax, max_index # return max value and index
 
