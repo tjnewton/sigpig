@@ -1156,7 +1156,7 @@ def stack_template_detections(party, streams_path, main_trace):
                     # interpolate to lowest sampling rate
                     day_st.interpolate(sampling_rate=lowest_sr)
                     # trim trace to 30 seconds surrounding pick time
-                    day_st.trim(pick_time - 10, pick_time + 20)
+                    day_st.trim(pick_time - 20, pick_time + 40)
 
                     sta_chan_stream += day_st
 
@@ -1308,11 +1308,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
           f"detections.")
 
     # stack the culled party detections
-    # FIXME: stack only constains 18 traces. Should be ~30
     stack_list = stack_template_detections(culled_party, detection_files_path,
                                            main_trace)
     # save stacks as pickle file
-    outfile = open('inner_stack_0.pkl', 'wb')
+    outfile = open('inner_stack_0_longer_medShift.pkl', 'wb')
     pickle.dump(stack_list, outfile)
     outfile.close()
 
