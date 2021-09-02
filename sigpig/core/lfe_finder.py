@@ -985,62 +985,71 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
-        # get the time associated with the target signal
-        max_amplitude_value, max_amplitude_index = max_amplitude(trace)
-        print(f"Finding xcorr time shifts for {stream[0].stats.station}."
-              f"{stream[0].stats.channel}")
-        # if max_amplitude_value
-        max_amplitude_offset = max_amplitude_index / \
-                               trace.stats.sampling_rate
-        # trim the reference trace to + and - 1.5 seconds
-        # surrounding max amplitude signal
-        reference_start_time = trace.stats.starttime + \
-                               max_amplitude_offset - 1.5
-        reference_trace = trace.copy().trim(reference_start_time,
-                                            reference_start_time + 3)
 
-        if ref_snr == 0:
-            print("Error: reference SNR is 0")
-        else:
-            print(f"SNR in reference trace: {ref_snr}")
+        # guard against empty trace
+        if len(trace) > 0:
+            # get the time associated with the target signal
+            max_amplitude_value, max_amplitude_index = max_amplitude(trace)
+            print(f"Finding xcorr time shifts for {stream[0].stats.station}."
+                  f"{stream[0].stats.channel}")
+            max_amplitude_offset = max_amplitude_index / \
+                                   trace.stats.sampling_rate
+            # trim the reference trace to + and - 1.5 seconds
+            # surrounding max amplitude signal
+            reference_start_time = trace.stats.starttime + \
+                                   max_amplitude_offset - 1.5
+            reference_trace = trace.copy().trim(reference_start_time,
+                                                reference_start_time + 3)
 
-        # loop through each trace and get cross-correlation time delay
-        for st_idx, trace in enumerate(stream):
-
-            # length of trace must be greater than template for xcorr
-            if len(trace.data) > len(reference_trace.data):
-                # correlate the reference trace through the trace
-                cc = correlate_template(trace, reference_trace, mode='valid',
-                                        normalize='naive', demean=True,
-                                        method='auto')
-                # find the index with the max correlation coefficient
-                max_idx = np.argmax(cc)
-
-                # # to visualize a trace, the template, and the max correlation
-                # stt = Stream()
-                # stt += trace # the trace
-                # # the section of the trace where max correlation coef. starts
-                # stt += trace.copy().trim(trace.stats.starttime + (max_idx /
-                #                          trace.stats.sampling_rate),
-                #                          trace.stats.endtime)
-                # # the template aligned with the max correlation section
-                # stt += reference_trace.copy()
-                # stt[2].stats.starttime = stt[1].stats.starttime
-                # stt.plot()
-
-                # keep track of negative correlation coefficients
-                if cc.max() < 0:
-                    indices.append(st_idx)
-
-                # append the cross correlation time shift for this trace
-                # referenced from trace.stats.starttime
-                shifts.append(max_idx / trace.stats.sampling_rate)
-
+            # print some info
+            if ref_snr == 0:
+                print("Error: reference SNR is 0")
             else:
-                # keep track of bad traces
-                indices.append(st_idx)
-                # append a zero shift
-                shifts.append(0)
+                print(f"SNR in reference trace: {ref_snr}")
+
+            # loop through each trace and get cross-correlation time delay
+            for st_idx, trace in enumerate(stream):
+
+                # length of trace must be greater than template for xcorr
+                if len(trace.data) > len(reference_trace.data):
+                    # correlate the reference trace through the trace
+                    cc = correlate_template(trace, reference_trace, mode='valid',
+                                            normalize='naive', demean=True,
+                                            method='auto')
+                    # find the index with the max correlation coefficient
+                    max_idx = np.argmax(cc)
+
+                    # # to visualize a trace, the template, and the max correlation
+                    # stt = Stream()
+                    # stt += trace # the trace
+                    # # the section of the trace where max correlation coef. starts
+                    # stt += trace.copy().trim(trace.stats.starttime + (max_idx /
+                    #                          trace.stats.sampling_rate),
+                    #                          trace.stats.endtime)
+                    # # the template aligned with the max correlation section
+                    # stt += reference_trace.copy()
+                    # stt[2].stats.starttime = stt[1].stats.starttime
+                    # stt.plot()
+
+                    # keep track of negative correlation coefficients
+                    if cc.max() < 0:
+                        indices.append(st_idx)
+
+                    # append the cross correlation time shift for this trace
+                    # referenced from trace.stats.starttime
+                    shifts.append(max_idx / trace.stats.sampling_rate)
+
+                else:
+                    # keep track of bad traces
+                    indices.append(st_idx)
+                    # append a zero shift
+                    shifts.append(0)
+
+        # case for bad data
+        else:
+            shifts = None
+            indices = None
+            max_amplitude_offset = None
 
         return shifts, indices, max_amplitude_offset
 
@@ -1048,17 +1057,23 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # from the main_trace for each pick time. Stream is altered in place and
     # each trace is trimmed to be ## seconds long.
     def align_stream(stream, shifts, main_time):
-        # shift each trace of stream in place to avoid memory issues
-        for tr_idx, tr in enumerate(stream):
-            # create false starttime to shift around
-            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + \
-                                 shifts[tr_idx]
+        # first check if data are bad, if so zero shift instead
+        if shifts == None:
+            zero_shift_stream(stream)
 
-        # FIXME: is this right?
-        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + (2 * \
-                         main_time) - 20
-        new_end_time = new_start_time + 40
-        stream.trim(new_start_time, new_end_time)
+        # data are good, so process them
+        else:
+            # shift each trace of stream in place to avoid memory issues
+            for tr_idx, tr in enumerate(stream):
+                # create false starttime to shift around
+                tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + \
+                                     shifts[tr_idx]
+
+            # FIXME: is this right?
+            new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + (2 * \
+                             main_time) - 20
+            new_end_time = new_start_time + 40
+            stream.trim(new_start_time, new_end_time)
 
         return None
 
@@ -1333,7 +1348,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
 
-    # FIXME: WAZA.BHZ breaks this
+    # FIXME: does WAZA.BHZ still break this?
     # stack the culled party detections
     stack_list = stack_template_detections(culled_party, detection_files_path,
                                            main_trace, align_type='med')
