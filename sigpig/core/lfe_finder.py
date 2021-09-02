@@ -819,7 +819,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
-def stack_template_detections(party, streams_path, main_trace):
+def stack_template_detections(party, streams_path, main_trace, align_type):
     """
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
@@ -845,18 +845,14 @@ def stack_template_detections(party, streams_path, main_trace):
         party = pickle.load(infile)
         infile.close()
 
-        party =
-
         # inspect the party object detections
         detections_fig = party.plot(plot_grouped=True)
         rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
         # get the stacks
-        stack_list = stack_template_detections(party, pick_offset,
-                                               streams_path, template_length,
-                                               template_prepick, station_dict,
-                                               main_trace)
+        stack_list = stack_template_detections(party, streams_path, main_trace,
+                                               align_type='zero')
         end = time.time()
         hours = int((end - start) / 60 / 60)
         minutes = int(((end - start) / 60) - (hours * 60))
@@ -965,6 +961,7 @@ def stack_template_detections(party, streams_path, main_trace):
     # helper function to determine time offset of each time series in a
     # stream with respect to a main trace via cross correlation
     def xcorr_time_shifts(stream, reference_signal):
+        # TODO: rename "maxs" to targets
         shifts = []
         indices = []
 
@@ -975,16 +972,17 @@ def stack_template_detections(party, streams_path, main_trace):
         for index, trace in enumerate(stream):
             snrs.append(snr(trace)[0])
 
+        # define target signal as max or median
         if reference_signal == "max":
             reference_idx = np.argmax(snrs)
-        else:
+        elif reference_signal == "med":
             median_snr = np.median(snrs)
             # find index of SNR closest to median
             reference_idx = np.argmin(np.abs(snrs - median_snr))
 
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
-        # get the time associated with the maximum amplitude signal
+        # get the time associated with the target signal
         max_amplitude_value, max_amplitude_index = max_amplitude(trace)
         max_amplitude_offset = max_amplitude_index / \
                                trace.stats.sampling_rate
@@ -998,7 +996,7 @@ def stack_template_detections(party, streams_path, main_trace):
         if ref_snr == 0:
             print("Error: reference SNR is 0")
         else:
-            print(f"SNR in main_trace template: {ref_snr}")
+            print(f"SNR in reference trace: {ref_snr}")
 
         # loop through each trace and get cross-correlation time delay
         for st_idx, trace in enumerate(stream):
@@ -1043,8 +1041,8 @@ def stack_template_detections(party, streams_path, main_trace):
 
         # FIXME: is this right?
         # new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + (2 * \
-        #                  main_time) - 10
-        # new_end_time = new_start_time + 20
+        #                  main_time) - 20
+        # new_end_time = new_start_time + 40
         # stream.trim(new_start_time, new_end_time)
 
         return None
@@ -1167,15 +1165,28 @@ def stack_template_detections(party, streams_path, main_trace):
 
             # guard against empty stream
             if len(sta_chan_stream) > 0:
-                # # get xcorr time shift, currently using shift from main
-                # # trace for each pick time
-                # shifts, indices = xcorr_time_shifts(sta_chan_stream)
 
-                # align each trace in stream
-                zero_shift_stream(sta_chan_stream)
+                # process according to specified alignment
+                if align_type == 'zero':
+                    # align the start time of each trace in stream
+                    zero_shift_stream(sta_chan_stream)
+                elif align_type == 'med':
+                    # get xcorr time shift from median reference signal
+                    shifts, indices, main_time = xcorr_time_shifts(
+                                                        sta_chan_stream,
+                                                        reference_signal="med")
+                    # align stream traces from xcorr shifts
+                    align_stream(sta_chan_stream, shifts, main_time)
+                elif align_type == 'max':
+                    # get xcorr time shift from max reference signal
+                    shifts, indices, main_time = xcorr_time_shifts(
+                                                        sta_chan_stream,
+                                                        reference_signal="max")
+                    # align stream traces from xcorr shifts
+                    align_stream(sta_chan_stream, shifts, main_time)
 
                 # plot aligned stream to verify align function works
-                # plot_stream_absolute(sta_chan_stream)
+                plot_stream_absolute(sta_chan_stream[:100])
                 # plot_stream_relative(aligned_sta_chan_stream)
 
                 # guard against stacking error:
@@ -1309,7 +1320,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # stack the culled party detections
     stack_list = stack_template_detections(culled_party, detection_files_path,
-                                           main_trace)
+                                           main_trace, align_type='zero')
     # save stacks as pickle file
     outfile = open('inner_stack_0_longer_medShift.pkl', 'wb')
     pickle.dump(stack_list, outfile)
