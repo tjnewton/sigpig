@@ -1201,7 +1201,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     align_stream(sta_chan_stream, shifts, main_time)
 
                 # plot aligned stream to verify align function works
-                plot_stream_absolute(sta_chan_stream[:100])
+                # plot_stream_absolute(sta_chan_stream[:100])
                 # plot_stream_relative(aligned_sta_chan_stream)
 
                 # guard against stacking error:
@@ -1333,6 +1333,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
 
+    # FIXME: WAZA.BHZ breaks this
     # stack the culled party detections
     stack_list = stack_template_detections(culled_party, detection_files_path,
                                            main_trace, align_type='med')
