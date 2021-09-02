@@ -1307,7 +1307,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
 
-    # TODO: delete test variable declarations
     # stack the culled party detections
     # FIXME: stack only constains 18 traces. Should be ~30
     stack_list = stack_template_detections(culled_party, detection_files_path,
