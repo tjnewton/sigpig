@@ -1070,11 +1070,13 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                 tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + \
                                      shifts[tr_idx]
 
-            # FIXME: is this right?
+            # consider 60 seconds total for stacks
             new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + (2 * \
                              main_time) - 20
             new_end_time = new_start_time + 40
-            stream.trim(new_start_time, new_end_time, fill_value=0)
+            # all traces need to be same length for further processings
+            stream.trim(new_start_time, new_end_time, pad=True, fill_value = 0,
+                        nearest_sample=False)
 
         return None
 
