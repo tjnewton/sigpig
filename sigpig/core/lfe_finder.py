@@ -914,7 +914,6 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         for trace in stream:
             if len(trace.data) > 0:
                 if trace.data.max() > 0:
-                    print(len(trace.data))
                     data.append(trace.data)
         # put the data into a numpy array
         data = np.asarray(data, dtype=object)
@@ -991,8 +990,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         if len(trace) > 0:
             # get the time associated with the target signal
             max_amplitude_value, max_amplitude_index = max_amplitude(trace)
-            print(f"Finding xcorr time shifts for {stream[0].stats.station}."
-                  f"{stream[0].stats.channel}")
+            # print(f"Finding xcorr time shifts for {stream[0].stats.station}."
+            #       f"{stream[0].stats.channel}")
             max_amplitude_offset = max_amplitude_index / \
                                    trace.stats.sampling_rate
             # trim the reference trace to + and - 1.5 seconds
@@ -1004,9 +1003,15 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
             # print some info
             if ref_snr == 0:
-                print("Error: reference SNR is 0")
-            else:
-                print(f"SNR in reference trace: {ref_snr}")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("ERROR: reference SNR is 0")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+            # else:
+            #     print(f"SNR in reference trace: {ref_snr}")
 
             # loop through each trace and get cross-correlation time delay
             for st_idx, trace in enumerate(stream):
