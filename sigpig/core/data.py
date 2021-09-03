@@ -92,7 +92,8 @@ def max_amplitude(timeSeries):
                   "that is not 1D or 2D ;(")
 
 # downloads time series data from IRIS DMC
-def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
+def get_Waveforms(network, stations, location, channels, start_Time,
+                  end_Time, format=None):
     """Downloads waveform data using Obspy to access the IRIS DMC and saves
     data to daily miniseed files.
     Find stations via https://ds.iris.edu/gmap/
@@ -102,8 +103,8 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
         stations = ["UGAP3", "UGAP5", "UGAP6"]
         location = "**"
         channels = ["EHN", "EHE", "EHZ"]
-        start_Time = UTCDateTime("2018-03-14T00:00:00.0Z")
-        end_Time =   UTCDateTime("2018-03-14T23:59:59.999999999999999Z")
+        start_Time = UTCDateTime("2018-05-08T00:00:00.0Z")
+        end_Time =   UTCDateTime("2018-05-08T23:59:59.999999999999999Z") # 6/4
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
 
     Example: download UGAP3, UGAP5, UGAP6  :  EHN
@@ -111,9 +112,10 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
             stations = ["UGAP3", "UGAP5", "UGAP6"]
             location = "**"
             channels = ["EHN"]
-            start_Time = UTCDateTime("2018-04-12T00:00:00.0Z")
-            end_Time =   UTCDateTime("2018-04-16T23:59:59.999999999999999Z")
-            get_Waveforms(network, stations, location, channels, start_Time, end_Time)
+            start_Time = UTCDateTime("2018-05-08T00:00:00.0Z")
+            end_Time =   UTCDateTime("2018-05-08T23:59:59.999999999999999Z") # 6/4
+            get_Waveforms(network, stations, location, channels, start_Time,
+                          end_Time, format="RR")
 
     Example: download stations near Wrangell Volcanic Field inside of box:
               North: 63.9498, East: -141.5259, South: 61.0264, West: -149.3515
@@ -275,11 +277,16 @@ def get_Waveforms(network, stations, location, channels, start_Time, end_Time):
 
                     # keep looping until last day is reached
                     while file_start < stream_end:
-
-                        filename = f"{network}.{station}.{channel}" \
-                                   f".{file_start.year}" \
-                                   f"-{file_start.month:02}-" \
-                                   f"{file_start.day:02}.ms"
+                        if format == "RR":
+                            filename = f"5A.{station}..{channel}" \
+                                       f".{file_start.year}" \
+                                       f"-{file_start.month:02}-" \
+                                       f"{file_start.day:02}T00.00.00.ms"
+                        else:
+                            filename = f"{network}.{station}.{channel}" \
+                                       f".{file_start.year}" \
+                                       f"-{file_start.month:02}-" \
+                                       f"{file_start.day:02}.ms"
 
                         file_st = st.copy()
                         file_end = UTCDateTime(f"{file_start.year}-"
