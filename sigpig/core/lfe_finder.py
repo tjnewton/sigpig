@@ -916,7 +916,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                 if trace.data.max() > 0:
                     data.append(trace.data)
         # put the data into a numpy array
-        data = np.asarray(data, dtype=object)
+        data = np.asarray(data, dtype='float64')
 
         # if there is no data, return zeros
         if data.size == 0:
