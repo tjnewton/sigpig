@@ -495,7 +495,7 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     start_Time and end_Time are UTCDateTime objects
 
     Example: for all stations in one stream with distance hack, for picking
-    start_Time = UTCDateTime("2018-03-13T00:08:00.0Z")
+    start_Time = UTCDateTime("2018-03-13T00:07:40.0Z")
     end_Time =   UTCDateTime("2018-03-13T00:10:00.0Z")
     project_Name = "Rattlesnake Ridge"
     channels = ['DP1', 'EHN']
@@ -619,15 +619,11 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     if write_File:
         # format filename and save Stream as miniseed file
         start_Time_Stamp = str(obspyStream[0].stats.starttime)[
-                           11:19].replace(":", ".")  # use
-        # [:19] for date and time
+                           11:19].replace(":", ".") # use [:19] for date and time
         end_Time_Stamp = str(obspyStream[0].stats.endtime)[11:19].replace(
-            ":", ".")
+                                                                      ":", ".")
         # writes to snuffler path
-        obspyStream.write(f"/Users/human/Dropbox/Programs/snuffler"
-                          f"/2016-09-26/"
-                          f"{start_Time_Stamp}_"
-                          f"{end_Time_Stamp}.ms", format="MSEED")
+        obspyStream.write(f"{start_Time_Stamp}_{end_Time_Stamp}.ms", format="MSEED")
 
     return obspyStream
 
