@@ -1240,15 +1240,15 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     pass
 
     # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
-    filter = False
-    bandpass = [1, 15]
-    if len(stack_pw) > 0:
-        plot_stack(stack_pw, filter=False, bandpass=bandpass,
-                   title='Phase weighted stack', save=True)
-
-    if len(stack_lin) > 0:
-        plot_stack(stack_lin, filter=False, bandpass=bandpass,
-                   title='Linear stack', save=True)
+    # filter = False
+    # bandpass = [1, 15]
+    # if len(stack_pw) > 0:
+    #     plot_stack(stack_pw, filter=False, bandpass=bandpass,
+    #                title='Phase weighted stack', save=True)
+    #
+    # if len(stack_lin) > 0:
+    #     plot_stack(stack_lin, filter=False, bandpass=bandpass,
+    #                title='Linear stack', save=True)
 
     return [stack_pw, stack_lin]
 
@@ -1364,6 +1364,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     outfile = open('inner_stack_0_longer_medShift.pkl', 'wb')
     pickle.dump(stack_list, outfile)
     outfile.close()
+
+    stack_pw, stack_lin = stack_list
+
+    # plot stacks
+    filter = False
+    bandpass = [1, 15]
+    if len(stack_pw) > 0:
+        plot_stack(stack_pw, filter=False, bandpass=bandpass,
+                   title='Phase weighted stack', save=True)
+
+    if len(stack_lin) > 0:
+        plot_stack(stack_lin, filter=False, bandpass=bandpass,
+                   title='Linear stack', save=True)
 
     # TODO: next try max stack
 
