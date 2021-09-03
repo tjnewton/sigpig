@@ -914,9 +914,10 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         for trace in stream:
             if len(trace.data) > 0:
                 if trace.data.max() > 0:
+                    print(len(trace.data))
                     data.append(trace.data)
         # put the data into a numpy array
-        data = np.asarray(data)
+        data = np.asarray(data, dtype=object)
 
         # if there is no data, return zeros
         if data.size == 0:
@@ -1073,7 +1074,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + (2 * \
                              main_time) - 20
             new_end_time = new_start_time + 40
-            stream.trim(new_start_time, new_end_time)
+            stream.trim(new_start_time, new_end_time, fill_value=0)
 
         return None
 
