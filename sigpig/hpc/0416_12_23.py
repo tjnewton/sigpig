@@ -114,19 +114,55 @@ def project_Filepaths(project_Name: str, start_Time: UTCDateTime, end_Time: UTCD
     """
     if project_Name == "Rattlesnake Ridge":
         # build filepath list based on dates
+        date = datetime(2018, start_Time.month, start_Time.day)
+        if date <= datetime(2018, 4, 8):
+            stas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 16, 17, 18, 20,
+                    21, 22, 23, 25, 26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37,
+                    38, 39, 40, 41, 42, 'UGAP3', 'UGAP5', 'UGAP6']
+        elif date <= datetime(2018, 5, 7):
+            stas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18,
+                    20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35,
+                    36, 37, 38, 39, 40, 41, 42, 'UGAP3', 'UGAP5', 'UGAP6']
+        elif date == datetime(2018, 5, 8):
+            stas = [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 20,
+                    21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36,
+                    37, 38, 39, 40, 41, 42, 'UGAP3', 'UGAP5', 'UGAP6']
+        elif date <= datetime(2018, 6, 6):
+            stas = [1, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17, 18, 20,
+                    21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+                    36, 37, 38, 39, 40, 41, 42, 'UGAP3', 'UGAP5', 'UGAP6']
+        elif date == datetime(2018, 6, 7):
+            stas = [1, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 18, 20, 21, 22,
+                    23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+                    38, 40, 41, 42, 'UGAP3', 'UGAP5', 'UGAP6']
+        else:
+            stas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 18, 20, 21,
+                    22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,
+                    37, 38, 40, 41, 42, 'UGAP3', 'UGAP5', 'UGAP6']
+
+        # build station:channel dict from list of stations
         node = ['DP1'] #, 'DP2', 'DPZ']  # nodal seismometer channels
         ugap = ['EHN'] #, 'EHE', 'EHZ']
-        stations_channels = {'1': node, '2': node, '3': node, '4': node,
-                             '5': node, '6': node, '7': node, '8': node,
-                             '9': node, '10': node, '12': node, '13': node,
-                             '15': node, '16': node, '17': node, '18': node,
-                             '20': node, '21': node, '22': node, '23': node,
-                             '25': node, '26': node, '27': node, '28': node,
-                             '30': node, '31': node, '32': node, '33': node,
-                             '34': node, '35': node, '36': node, '37': node,
-                             '38': node, '39': node, '40': node, '41': node,
-                             '42': node, 'UGAP3': ugap, 'UGAP5': ugap,
-                             'UGAP6': ugap}
+        stations_channels = {}
+        for station in stas:
+            if isinstance(station, int):
+                stations_channels[str(station)] = node
+            elif isinstance(station, str):
+                stations_channels[station] = ugap
+            else:
+                print("You did something weird in the station list.")
+
+        # stations_channels = {'1': node, '2': node, '3': node, '4': node,
+        #                      '5': node, '6': node, '7': node, '8': node,
+        #                      '9': node, '10': node, '12': node, '13': node,
+        #                      '15': node, '16': node, '17': node, '18': node,
+        #                      '20': node, '21': node, '22': node, '23': node,
+        #                      '25': node, '26': node, '27': node, '28': node,
+        #                      '30': node, '31': node, '32': node, '33': node,
+        #                      '34': node, '35': node, '36': node, '37': node,
+        #                      '38': node, '39': node, '40': node, '41': node,
+        #                      '42': node, 'UGAP3': ugap, 'UGAP5': ugap,
+        #                      'UGAP6': ugap}
 
         # assemble filepaths
         filepaths = []
