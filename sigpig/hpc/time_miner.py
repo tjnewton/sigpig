@@ -1029,7 +1029,8 @@ def build_Pick_Dict(pick_times, pick_station_order, reverse_station_distance,
     duplicates.
     """
     # make empty dict for picks
-    stas = project_stations("Rattlesnake Ridge", pick_times[0])
+    stas = project_stations("Rattlesnake Ridge", UTCDateTime(num2date(
+                            pick_times[0])))
     station_picks = {}
     for station in stas:
         station_picks[str(station)] = []
@@ -1488,8 +1489,11 @@ def associate_Picks(clustering_Algo, station_Picks, scale_Time, PCA,
     # get the station location dictionary
     location_Dict = rattlesnake_Ridge_Station_Locations()
 
-    # dict to convert station to station distance proxy. order matters.
-    stas = project_stations("Rattlesnake Ridge", station_Picks['1'][0])
+    # dict to convert station to station distance proxy. order matters
+    for station in station_Picks.keys():
+        if len(station_Picks[station]) > 0:
+            break
+    stas = project_stations("Rattlesnake Ridge", station_Picks[station][0])
     stations = {}
     for station in stas:
         stations[str(station)] = []
