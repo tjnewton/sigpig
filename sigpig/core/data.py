@@ -109,11 +109,11 @@ def get_Waveforms(network, stations, location, channels, start_Time,
 
     Example: download UGAP3, UGAP5, UGAP6  :  EHN, format for RR talapas runs
             network = "UW"
-            stations = ["UGAP3", "UGAP5", "UGAP6"]
+            stations = ["UGAP5"]# ["UGAP3", "UGAP5", "UGAP6"]
             location = "**"
             channels = ["EHN"]
-            start_Time = UTCDateTime("2018-05-15T00:00:00.0Z")
-            end_Time =   UTCDateTime("2018-06-15T23:59:59.999999999999999Z")
+            start_Time = UTCDateTime("2018-05-09T00:00:00.0Z")
+            end_Time =   UTCDateTime("2018-05-14T23:59:59.999999999999999Z")
             get_Waveforms(network, stations, location, channels, start_Time,
                           end_Time, format="RR")
 
