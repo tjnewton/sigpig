@@ -1356,21 +1356,21 @@ def find_LFEs(templates, template_files, station_dict, template_length,
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
 
-    # stack the culled party detections
-    stack_list = stack_template_detections(culled_party, detection_files_path,
-                                           main_trace, align_type='med')
-    # save stacks as pickle file
-    outfile = open('inner_stack_0_longer_medShift.pkl', 'wb')
-    pickle.dump(stack_list, outfile)
-    outfile.close()
-
-    # load stack list from file
-    infile = open('inner_stack_0_longer_medShift.pkl', 'rb')
-    stack_list = pickle.load(infile)
-    infile.close()
+    if load:
+        # load stack list from file
+        infile = open('inner_stack_0_longer_medShift.pkl', 'rb')
+        stack_list = pickle.load(infile)
+        infile.close()
+    else:
+        # stack the culled party detections
+        stack_list = stack_template_detections(culled_party, detection_files_path,
+                                               main_trace, align_type='med')
+        # save stacks as pickle file
+        outfile = open('inner_stack_0_longer_medShift.pkl', 'wb')
+        pickle.dump(stack_list, outfile)
+        outfile.close()
 
     # FIXME: what are the 1Hz traces in the stack? something is wrong.
-
     stack_pw, stack_lin = stack_list
 
     # plot stacks
