@@ -1371,6 +1371,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile.close()
 
     # FIXME: what are the 1Hz traces in the stack? something is wrong.
+    #        idx=24:26
     stack_pw, stack_lin = stack_list
 
     # plot stacks
