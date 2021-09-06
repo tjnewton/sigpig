@@ -1028,45 +1028,47 @@ def build_Pick_Dict(pick_times, pick_station_order, reverse_station_distance,
     Builds a dictionary containing times of picks on each station, excluding
     duplicates.
     """
-    # make empty dict for picks
-    stas = project_stations("Rattlesnake Ridge", UTCDateTime(num2date(
-                            pick_times[0])))
     station_picks = {}
-    for station in stas:
-        station_picks[str(station)] = []
-    # station_picks = {'1': [], '2': [], '3': [], '4': [], '5': [], '6': [],
-    #                  '7': [], '8': [], '9': [], '10': [], '12': [], '13': [],
-    #                  '15': [], '16': [], '17': [], '18': [], '20': [],
-    #                  '21': [], '22': [], '23': [], '25': [], '26': [],
-    #                  '27': [], '28': [], '30': [], '31': [], '32': [],
-    #                  '33': [], '34': [], '35': [], '36': [], '37': [],
-    #                  '38': [], '39': [], '40': [], '41': [], '42': [],
-    #                  'UGAP3': [], 'UGAP5': [], 'UGAP6': []}
+    if len(pick_times) > 0:
+        # make empty dict for picks
+        stas = project_stations("Rattlesnake Ridge", UTCDateTime(num2date(
+                                pick_times[0])))
 
-    #duplicate_list = []
+        for station in stas:
+            station_picks[str(station)] = []
+        # station_picks = {'1': [], '2': [], '3': [], '4': [], '5': [], '6': [],
+        #                  '7': [], '8': [], '9': [], '10': [], '12': [], '13': [],
+        #                  '15': [], '16': [], '17': [], '18': [], '20': [],
+        #                  '21': [], '22': [], '23': [], '25': [], '26': [],
+        #                  '27': [], '28': [], '30': [], '31': [], '32': [],
+        #                  '33': [], '34': [], '35': [], '36': [], '37': [],
+        #                  '38': [], '39': [], '40': [], '41': [], '42': [],
+        #                  'UGAP3': [], 'UGAP5': [], 'UGAP6': []}
 
-    # loop through all pick times
-    for pick_index, station in enumerate(pick_station_order):
-        # define station based on reverse_station_distance lookup dict
-        station = reverse_station_distance[station]
-        # if list is empty add pick
-        if len(station_picks[station]) == 0:
-            station_picks[station].append(UTCDateTime(num2date(pick_times[
-                                                                 pick_index])))
+        #duplicate_list = []
 
-        # else add pick to dict if one within duplicate_Threshold doesn't exist
-        else:
-            duplicate_flag = False
+        # loop through all pick times
+        for pick_index, station in enumerate(pick_station_order):
+            # define station based on reverse_station_distance lookup dict
+            station = reverse_station_distance[station]
+            # if list is empty add pick
+            if len(station_picks[station]) == 0:
+                station_picks[station].append(UTCDateTime(num2date(pick_times[
+                                                                     pick_index])))
 
-            for pick in station_picks[station]:
-                if abs(pick - UTCDateTime(num2date(pick_times[pick_index])))\
-                 <= (duplicate_threshold / sampling_rate):
-                    duplicate_flag = True
-                    #duplicate_list.append(pick_index)
+            # else add pick to dict if one within duplicate_Threshold doesn't exist
+            else:
+                duplicate_flag = False
 
-            if duplicate_flag is False:
-                station_picks[station].append(UTCDateTime(num2date(
-                                                      pick_times[pick_index])))
+                for pick in station_picks[station]:
+                    if abs(pick - UTCDateTime(num2date(pick_times[pick_index])))\
+                     <= (duplicate_threshold / sampling_rate):
+                        duplicate_flag = True
+                        #duplicate_list.append(pick_index)
+
+                if duplicate_flag is False:
+                    station_picks[station].append(UTCDateTime(num2date(
+                                                          pick_times[pick_index])))
 
     return station_picks
 
