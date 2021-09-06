@@ -1156,7 +1156,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
+    stations = list(station_dict.keys()) # FIXME: delete after testing
     for station in station_dict.keys():
+        station = stations[8] # FIXME: delete after testing
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"])  # append Z component
@@ -1164,6 +1166,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
+            channel = channels[0]
             print(f"Assembling streams for {station}.{channel}")
 
             sta_chan_stream = Stream()
@@ -1204,40 +1207,49 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             # guard against empty stream
             if len(sta_chan_stream) > 0:
 
-                # process according to specified alignment
-                if align_type == 'zero':
-                    # align the start time of each trace in stream
-                    zero_shift_stream(sta_chan_stream)
-                elif align_type == 'med':
-                    # get xcorr time shift from median reference signal
-                    shifts, indices, main_time = xcorr_time_shifts(
-                                                        sta_chan_stream,
-                                                        reference_signal="med")
-                    # align stream traces from xcorr shifts
-                    align_stream(sta_chan_stream, shifts, main_time)
-                elif align_type == 'max':
-                    # get xcorr time shift from max reference signal
-                    shifts, indices, main_time = xcorr_time_shifts(
-                                                        sta_chan_stream,
-                                                        reference_signal="max")
-                    # align stream traces from xcorr shifts
-                    align_stream(sta_chan_stream, shifts, main_time)
+                # guard against stream of empty traces
+                EMPTY_FLAG = True
+                for trace in sta_chan_stream:
+                    if len(trace) > 0:
+                        EMPTY_FLAG = False
 
-                # plot aligned stream to verify align function works
-                # plot_stream_absolute(sta_chan_stream[:100])
-                # plot_stream_relative(aligned_sta_chan_stream)
+                # dont consider empty traces (case of no data present)
+                if not EMPTY_FLAG:
 
-                # guard against stacking error:
-                try:
-                    # generate linear and phase-weighted stack
-                    lin, pws = generate_stacks(sta_chan_stream)
-                    # add phase-weighted stack to stream
-                    stack_pw += pws
-                    # and add linear stack to stream
-                    stack_lin += lin
+                    # process according to specified alignment
+                    if align_type == 'zero':
+                        # align the start time of each trace in stream
+                        zero_shift_stream(sta_chan_stream)
+                    elif align_type == 'med':
+                        # get xcorr time shift from median reference signal
+                        shifts, indices, main_time = xcorr_time_shifts(
+                                                            sta_chan_stream,
+                                                            reference_signal="med")
+                        # align stream traces from xcorr shifts
+                        align_stream(sta_chan_stream, shifts, main_time)
+                    elif align_type == 'max':
+                        # get xcorr time shift from max reference signal
+                        shifts, indices, main_time = xcorr_time_shifts(
+                                                            sta_chan_stream,
+                                                            reference_signal="max")
+                        # align stream traces from xcorr shifts
+                        align_stream(sta_chan_stream, shifts, main_time)
 
-                except Exception:
-                    pass
+                    # plot aligned stream to verify align function works
+                    # plot_stream_absolute(sta_chan_stream[:100])
+                    # plot_stream_relative(aligned_sta_chan_stream)
+
+                    # guard against stacking error:
+                    try:
+                        # generate linear and phase-weighted stack
+                        lin, pws = generate_stacks(sta_chan_stream)
+                        # add phase-weighted stack to stream
+                        stack_pw += pws
+                        # and add linear stack to stream
+                        stack_lin += lin
+
+                    except Exception:
+                        pass
 
     # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
     # filter = False
