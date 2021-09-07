@@ -1064,7 +1064,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # helper function to align all traces in a stream based on xcorr shifts
     # from the main_trace for each pick time. Stream is altered in place and
     # each trace is trimmed to be ## seconds long.
-    def align_stream(stream, shifts, main_time):
+    def align_stream(stream, shifts, indices, main_time):
         # first check if data are bad, if so zero shift instead
         if shifts == None:
             zero_shift_stream(stream)
@@ -1082,8 +1082,24 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                              main_time) - 20
             new_end_time = new_start_time + 40
             # all traces need to be same length for further processings
-            stream.trim(new_start_time, new_end_time, pad=True, fill_value = 0,
-                        nearest_sample=False)
+            stream.trim(new_start_time, new_end_time, pad=True, fill_value=0,
+                        nearest_sample=True)
+
+        # remove bad indices
+        if indices != None and len(indices) > 0:
+            removal_list = []
+            for tr_idx in indices:
+                removal_list.append(stream[tr_idx])
+            for trace in removal_list:
+                stream.remove(trace)
+
+        # remove traces with no data
+        removal_list = []
+        for trace in stream:
+            if trace.stats.npts == 0:
+                removal_list.append(trace)
+        for trace in removal_list:
+            stream.remove(trace)
 
         return None
 
@@ -1158,9 +1174,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    # stations = list(station_dict.keys()) # FIXME: delete after testing
+    stations = list(station_dict.keys()) # FIXME: delete after testing
     for station in station_dict.keys():
-        # station = stations[8] # FIXME: delete after testing
+        station = stations[8] # FIXME: delete after testing
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"])  # append Z component
@@ -1168,7 +1184,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
-            # channel = channels[0]
+            channel = channels[0]
             print(f"Assembling streams for {station}.{channel}")
 
             sta_chan_stream = Stream()
@@ -1228,14 +1244,16 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                                                             sta_chan_stream,
                                                             reference_signal="med")
                         # align stream traces from xcorr shifts
-                        align_stream(sta_chan_stream, shifts, main_time)
+                        align_stream(sta_chan_stream, shifts, indices,
+                                     main_time)
                     elif align_type == 'max':
                         # get xcorr time shift from max reference signal
                         shifts, indices, main_time = xcorr_time_shifts(
                                                             sta_chan_stream,
                                                             reference_signal="max")
                         # align stream traces from xcorr shifts
-                        align_stream(sta_chan_stream, shifts, main_time)
+                        align_stream(sta_chan_stream, shifts, indices,
+                                     main_time)
 
                     # plot aligned stream to verify align function works
                     # plot_stream_absolute(sta_chan_stream[:100])
@@ -1395,7 +1413,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         pickle.dump(stack_list, outfile)
         outfile.close()
 
-    # FIXME: does WAZA still break this?
+    # FIXME: WAZA still break this. Diff len traces starting at index 24
+    # see what happens after align_stream. Why are traces from  index 7 and 8
+    # different numbers of points but the same Hz?
     stack_pw, stack_lin = stack_list
 
     # plot stacks
