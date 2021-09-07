@@ -1174,9 +1174,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    stations = list(station_dict.keys()) # FIXME: delete after testing
+    # stations = list(station_dict.keys()) # FIXME: delete after testing
     for station in station_dict.keys():
-        station = stations[8] # FIXME: delete after testing
+        # station = stations[8] # FIXME: delete after testing
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"])  # append Z component
@@ -1184,7 +1184,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
-            channel = channels[0]
+            # channel = channels[0]
             print(f"Assembling streams for {station}.{channel}")
 
             sta_chan_stream = Stream()
@@ -1212,8 +1212,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     day_st.filter('bandpass', freqmin=1, freqmax=15)
                     # interpolate to lowest sampling rate
                     day_st.interpolate(sampling_rate=lowest_sr)
-                    # trim trace to 30 seconds surrounding pick time
-                    day_st.trim(pick_time - 20, pick_time + 40)
+                    # trim trace to 60 seconds surrounding pick time
+                    day_st.trim(pick_time - 20, pick_time + 40, pad=True,
+                                fill_value=0, nearest_sample=True)
 
                     sta_chan_stream += day_st
 
@@ -1222,9 +1223,10 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                 else:
                     sta_chan_stream += Trace()
 
+            # FIXME: sta_chan_stream contains different length traces. Why?
             # TODO: delete after testing
-            print(f"len(st[0]) = {len(sta_chan_stream[0])}")
-            print(f"duration = {sta_chan_stream[0].stats.endtime - sta_chan_stream[0].stats.starttime} s")
+            # print(f"len(st[0]) = {len(sta_chan_stream[-1])}")
+            # print(f"duration = {sta_chan_stream[-1].stats.endtime - sta_chan_stream[-1].stats.starttime} s")
             # guard against empty stream
             if len(sta_chan_stream) > 0:
 
