@@ -1289,13 +1289,18 @@ def template_match_stack():
 
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              snr_threshold, main_trace, load_party=False, load_stack=False,
-              plot=False):
+              snr_threshold, main_trace, shift_method='max', load_party=False,
+              load_stack=False, plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
     matched-filtering with specified template(s), then stacking of signals
     found from that template, and finally template matching of the stacked
     waveform template.
+
+    Inputs:
+
+        shift_method: string identifying the cross-correlation time shift
+                      method to use. 'zero', 'med', and 'max' are options.
 
     Example:
         # manually define templates from station TA.N25K (location is made up)
@@ -1333,7 +1338,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # --------------------------------------------------------------------
         find_LFEs(templates, template_files, station_dict, template_length,
                   template_prepick, detection_files_path, start_date, end_date,
-                  snr_threshold, main_trace, load=True, plot=True)
+                  snr_threshold, main_trace, shift_method='max',
+                  load_party=True, load_stack=True, plot=True)
         # --------------------------------------------------------------------
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -1345,6 +1351,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     load_stack = False
     plot = False
+    shift_method = 'med'
     # get main station template detections
     if load_party:
         # load party object from file
@@ -1381,26 +1388,23 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # stack the culled party detections
         stack_list = stack_template_detections(culled_party,
                                                detection_files_path,
-                                               main_trace, align_type='med')
+                                               main_trace,
+                                               align_type=shift_method)
         # save stacks as pickle file
-        outfile = open('inner_stack_0_longer_medShift.pkl', 'wb')
+        outfile = open(f'inner_stack_0_longer_{shift_method}Shift.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
-    # FIXME: what are the 1Hz traces in the stack? something is wrong.
-    #        idx=24:26
+    # FIXME: does WAZA still break this?
     stack_pw, stack_lin = stack_list
 
     # plot stacks
-    filter = False
-    bandpass = [1, 15]
-    if len(stack_pw) > 0:
-        plot_stack(stack_pw, filter=False, bandpass=bandpass,
-                   title='Phase weighted stack', save=True)
-
-    if len(stack_lin) > 0:
-        plot_stack(stack_lin, filter=False, bandpass=bandpass,
-                   title='Linear stack', save=True)
+    if plot:
+        if len(stack_pw) > 0:
+            plot_stack(stack_pw, filter=False, title='Phase weighted stack',
+                       save=True)
+        if len(stack_lin) > 0:
+            plot_stack(stack_lin, filter=False, title='Linear stack', save=True)
 
     # TODO: next try max stack
 
