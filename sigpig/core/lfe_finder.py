@@ -1291,7 +1291,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
 # function for matched-filtering of stacked templates through time series
 # autocorrelation
-def template_match_stack():
+def template_match_stack(stack, templates, template_files, station_dict,
+                         template_length, template_prepick,
+                         detection_files_path, start_date, end_date):
     """
 
     Example:
@@ -1301,12 +1303,15 @@ def template_match_stack():
         infile.close()
 
     """
-    # shift_len?
+    # process stacks to work as template with EQcorrscan
     # should template be filtered already? deal with this for detect
 
-    # some basic check for false detections? (constant slope line in cumulative)
+    # use stacks as templates and detect signals with matched-filter search
+    party = detect_signals(templates, template_files, station_dict,
+                           template_length, template_prepick,
+                           detection_files_path, start_date, end_date)
 
-    pass
+    return party
 
 
 def find_LFEs(templates, template_files, station_dict, template_length,
@@ -1432,7 +1437,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # TODO: next try max stack
 
-    template_match_stack()
+    # use stacks as templates in matched-filter search for more detections
+    party = template_match_stack(stack_lin, templates, template_files,
+                                 station_dict, template_length,
+                                 template_prepick, detection_files_path,
+                                 start_date, end_date)
 
     return None
 
