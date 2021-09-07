@@ -911,10 +911,12 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     def generate_stacks(stream, normalize=True):
         # guard against stacking zeros and create data array
         data = []
-        for trace in stream:
+        reference_idx = 0
+        for tr_idx ,trace in enumerate(stream):
             if len(trace.data) > 0:
                 if trace.data.max() > 0:
                     data.append(trace.data)
+                    reference_idx = tr_idx
         # put the data into a numpy array
         data = np.asarray(data, dtype='float64')
 
@@ -952,9 +954,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         # pws = traditional stack * phase weighting stack
         phase_weighted_stack = sump * linear_stack
 
-        lin = stream[0].copy()
+        lin = stream[reference_idx].copy()
         lin.data = linear_stack
-        pws = stream[0].copy()
+        pws = stream[reference_idx].copy()
         pws.data = phase_weighted_stack
         return lin, pws
 
@@ -1156,9 +1158,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    stations = list(station_dict.keys()) # FIXME: delete after testing
+    # stations = list(station_dict.keys()) # FIXME: delete after testing
     for station in station_dict.keys():
-        station = stations[8] # FIXME: delete after testing
+        # station = stations[8] # FIXME: delete after testing
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"])  # append Z component
@@ -1166,7 +1168,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
-            channel = channels[0]
+            # channel = channels[0]
             print(f"Assembling streams for {station}.{channel}")
 
             sta_chan_stream = Stream()
@@ -1287,7 +1289,8 @@ def template_match_stack():
 
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              snr_threshold, main_trace, load=False, plot=False):
+              snr_threshold, main_trace, load_party=False, load_stack=False,
+              plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
     matched-filtering with specified template(s), then stacking of signals
@@ -1339,10 +1342,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # FIXME: delete test variable declarations
-    load = True
+    load_party = True
+    load_stack = False
     plot = False
     # get main station template detections
-    if load:
+    if load_party:
         # load party object from file
         infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
         party = pickle.load(infile)
@@ -1368,14 +1372,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
 
-    if load:
+    if load_stack:
         # load stack list from file
         infile = open('inner_stack_0_longer_medShift.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
     else:
         # stack the culled party detections
-        stack_list = stack_template_detections(culled_party, detection_files_path,
+        stack_list = stack_template_detections(culled_party,
+                                               detection_files_path,
                                                main_trace, align_type='med')
         # save stacks as pickle file
         outfile = open('inner_stack_0_longer_medShift.pkl', 'wb')
