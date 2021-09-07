@@ -1174,8 +1174,10 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    # stations = list(station_dict.keys()) # FIXME: delete after testing
-    for station in station_dict.keys():
+    # iterate over list to use tqdm for progress bar
+    stations = list(station_dict.keys())
+    for station_idx in tqdm(range(len(station_dict.keys()))):
+        station = stations[station_idx]
         # station = stations[8] # FIXME: delete after testing
         network = station_dict[station]["network"]
         channels = []
@@ -1210,8 +1212,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     day_st = read(file)
                     # bandpass filter
                     day_st.filter('bandpass', freqmin=1, freqmax=15)
-                    # interpolate to lowest sampling rate
-                    day_st.interpolate(sampling_rate=lowest_sr)
+                    # interpolate to lowest sampling rate if necessary
+                    if day_st[0].stats.sampling_rate != lowest_sr:
+                        day_st.interpolate(sampling_rate=lowest_sr)
                     # trim trace to 60 seconds surrounding pick time
                     day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                                 fill_value=0, nearest_sample=True)
@@ -1277,15 +1280,11 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                         pass
 
     # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
-    # filter = False
-    # bandpass = [1, 15]
-    # if len(stack_pw) > 0:
-    #     plot_stack(stack_pw, filter=False, bandpass=bandpass,
-    #                title='Phase weighted stack', save=True)
-    #
-    # if len(stack_lin) > 0:
-    #     plot_stack(stack_lin, filter=False, bandpass=bandpass,
-    #                title='Linear stack', save=True)
+    if len(stack_pw) > 0:
+        plot_stack(stack_pw, title='phase_weighted_stack', save=True)
+
+    if len(stack_lin) > 0:
+        plot_stack(stack_lin, title='linear_stack', save=True)
 
     return [stack_pw, stack_lin]
 
