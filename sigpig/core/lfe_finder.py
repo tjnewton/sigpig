@@ -1173,10 +1173,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    # iterate over list to use tqdm for progress bar
-    stations = list(station_dict.keys())
-    for station_idx in tqdm(range(len(station_dict.keys()))):
-        station = stations[station_idx]
+    for station in station_dict.keys():
         # station = stations[8] # FIXME: delete after testing
         network = station_dict[station]["network"]
         channels = []
@@ -1227,8 +1224,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
             # FIXME: sta_chan_stream contains different length traces. Why?
             # TODO: delete after testing
-            print(f"len(st[0]) = {len(sta_chan_stream[0])}")
-            print(f"duration = {sta_chan_stream[0].stats.endtime - sta_chan_stream[0].stats.starttime} s")
+            # print(f"len(st[0]) = {len(sta_chan_stream[0])}")
+            # print(f"duration = {sta_chan_stream[0].stats.endtime - sta_chan_stream[0].stats.starttime} s")
             # guard against empty stream
             if len(sta_chan_stream) > 0:
 
