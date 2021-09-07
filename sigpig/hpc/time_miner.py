@@ -611,63 +611,67 @@ def remove_Duplicate_Picks(picked_Windows, picked_Windows_Times,
     and index_Of_Max_Prediction that occur within duplicate_Threshold
     samples of each other on the same station.
     """
-    # make empty dict for picks
-    stas = project_stations("Rattlesnake Ridge", picked_Windows_Times[0][0])
-    station_Picks = {}
-    for station in stas:
-        station_Picks[str(station)] = []
+    if len(picked_Windows_Times) > 0:
+        # make empty dict for picks
+        stas = project_stations("Rattlesnake Ridge", picked_Windows_Times[0][0])
+        station_Picks = {}
+        for station in stas:
+            station_Picks[str(station)] = []
 
-    # station_Picks = {'1': [], '2': [], '3': [], '4': [], '5': [],
-    #                  '6': [],
-    #                  '7': [], '8': [], '9': [], '10': [], '12': [],
-    #                  '13': [],
-    #                  '15': [], '16': [], '17': [], '18': [],
-    #                  '20': [], '21': [],
-    #                  '22': [], '23': [], '25': [], '26': [],
-    #                  '27': [], '28': [],
-    #                  '30': [], '31': [], '32': [], '33': [],
-    #                  '34': [], '35': [],
-    #                  '36': [], '37': [], '38': [], '39': [],
-    #                  '40': [], '41': [],
-    #                  '42': [], 'UGAP3': [], 'UGAP5': [],
-    #                  'UGAP6': []}
+        # station_Picks = {'1': [], '2': [], '3': [], '4': [], '5': [],
+        #                  '6': [],
+        #                  '7': [], '8': [], '9': [], '10': [], '12': [],
+        #                  '13': [],
+        #                  '15': [], '16': [], '17': [], '18': [],
+        #                  '20': [], '21': [],
+        #                  '22': [], '23': [], '25': [], '26': [],
+        #                  '27': [], '28': [],
+        #                  '30': [], '31': [], '32': [], '33': [],
+        #                  '34': [], '35': [],
+        #                  '36': [], '37': [], '38': [], '39': [],
+        #                  '40': [], '41': [],
+        #                  '42': [], 'UGAP3': [], 'UGAP5': [],
+        #                  'UGAP6': []}
 
-    duplicate_List = []
+        duplicate_List = []
 
-    # loop through all picked windows times
-    for index in range(0, len(picked_Windows_Times)):
-        window_Start, window_End, station, _ = \
-            picked_Windows_Times[index]
-        pick_Time = window_Start + (
-                index_Of_Max_Prediction[index] / sampling_Rate)
+        # loop through all picked windows times
+        for index in range(0, len(picked_Windows_Times)):
+            window_Start, window_End, station, _ = \
+                picked_Windows_Times[index]
+            pick_Time = window_Start + (
+                    index_Of_Max_Prediction[index] / sampling_Rate)
 
-        # if list is empty add pick
-        if len(station_Picks[station]) == 0:
-            station_Picks[station].append(pick_Time)
-
-        # else add pick to dict if one within duplicate_Threshold doesn't exist
-        else:
-            duplicate_Flag = False
-
-            for pick in station_Picks[station]:
-                if abs(pick - pick_Time) <= (
-                        duplicate_Threshold / sampling_Rate):
-                    duplicate_Flag = True
-                    duplicate_List.append(index)
-
-            if duplicate_Flag is False:
+            # if list is empty add pick
+            if len(station_Picks[station]) == 0:
                 station_Picks[station].append(pick_Time)
 
-    # remove duplicates from picks and metadata
-    unique_Picked_Windows = [item for index, item in enumerate(
-                             picked_Windows) if index not in duplicate_List]
-    unique_Picked_Windows_Times = [item for index, item in enumerate(
-                          picked_Windows_Times) if index not in duplicate_List]
-    unique_Index_Of_Max_Prediction = [item for index, item in enumerate(
-                       index_Of_Max_Prediction) if index not in duplicate_List]
+            # else add pick to dict if one within duplicate_Threshold doesn't exist
+            else:
+                duplicate_Flag = False
 
-    return (station_Picks, unique_Picked_Windows, unique_Picked_Windows_Times,
-            unique_Index_Of_Max_Prediction)
+                for pick in station_Picks[station]:
+                    if abs(pick - pick_Time) <= (
+                            duplicate_Threshold / sampling_Rate):
+                        duplicate_Flag = True
+                        duplicate_List.append(index)
+
+                if duplicate_Flag is False:
+                    station_Picks[station].append(pick_Time)
+
+        # remove duplicates from picks and metadata
+        unique_Picked_Windows = [item for index, item in enumerate(
+                                 picked_Windows) if index not in duplicate_List]
+        unique_Picked_Windows_Times = [item for index, item in enumerate(
+                              picked_Windows_Times) if index not in duplicate_List]
+        unique_Index_Of_Max_Prediction = [item for index, item in enumerate(
+                           index_Of_Max_Prediction) if index not in duplicate_List]
+
+        return (station_Picks, unique_Picked_Windows, unique_Picked_Windows_Times,
+                unique_Index_Of_Max_Prediction)
+
+    else:
+        return ({}, [], [], [])
 
 
 # loads waveforms into Obspy Stream object for plotting picks
