@@ -1173,7 +1173,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    for station in station_dict.keys():
+    stations = list(station_dict.keys())
+    for station_idx, station in enumerate(stations):
         # station = stations[8] # FIXME: delete after testing
         network = station_dict[station]["network"]
         channels = []
@@ -1183,7 +1184,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
         for channel in channels:
             # channel = channels[0]
-            print(f"Assembling streams for {station}.{channel}")
+            print(f"Assembling streams for {station}.{channel} ["
+                  f"{station_idx+1}/{len(stations)}]")
 
             sta_chan_stream = Stream()
             for index in tqdm(range(len(pick_times))):
@@ -1402,6 +1404,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
 
+    # generate stack and time it
+    start = time.time()
+
     if load_stack:
         # load stack list from file
         infile = open('inner_stack_0_longer_medShift.pkl', 'rb')
@@ -1417,6 +1422,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile = open(f'inner_stack_0_longer_{shift_method}Shift.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
+
+    end = time.time()
+    hours = int((end - start) / 60 / 60)
+    minutes = int(((end - start) / 60) - (hours * 60))
+    seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+    print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
     # FIXME: WAZA still break this. Diff len traces starting at index 24
     # see what happens after align_stream. Why are traces from  index 7 and 8
