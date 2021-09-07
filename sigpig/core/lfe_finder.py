@@ -1074,14 +1074,13 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             # shift each trace of stream in place to avoid memory issues
             for tr_idx, tr in enumerate(stream):
                 # create false starttime to shift around
-                tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + \
+                tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z") - \
                                      shifts[tr_idx]
 
             # consider 60 seconds total for stacks
-            new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + (2 * \
-                             main_time) - 20
+            new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 20
             new_end_time = new_start_time + 40
-            # all traces need to be same length for further processings
+            # all traces need to be same length for further processing
             stream.trim(new_start_time, new_end_time, pad=True, fill_value=0,
                         nearest_sample=True)
 
@@ -1228,8 +1227,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
             # FIXME: sta_chan_stream contains different length traces. Why?
             # TODO: delete after testing
-            # print(f"len(st[0]) = {len(sta_chan_stream[-1])}")
-            # print(f"duration = {sta_chan_stream[-1].stats.endtime - sta_chan_stream[-1].stats.starttime} s")
+            print(f"len(st[0]) = {len(sta_chan_stream[0])}")
+            print(f"duration = {sta_chan_stream[0].stats.endtime - sta_chan_stream[0].stats.starttime} s")
             # guard against empty stream
             if len(sta_chan_stream) > 0:
 
