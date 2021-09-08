@@ -682,12 +682,11 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
     locator_x = AutoDateLocator(minticks=10, maxticks=35)
     amplitude_plot.xaxis.set_major_locator(locator_x)
     amplitude_plot.set_ylim((0, len(stack) + 0.5))
-    fig.tight_layout()
     if title != False:
         amplitude_plot.set_title(title)
         if save:
             fig.savefig(f"{title}.png", dpi=100)
-
+    fig.tight_layout()
     plt.show()
 
     return fig
