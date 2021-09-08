@@ -1110,9 +1110,10 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             # create false starttime to shift around
             tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z")
 
-        # new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 10
-        # new_end_time = new_start_time + 30
-        # stream.trim(new_start_time, new_end_time)
+        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 10
+        new_end_time = new_start_time + 40
+        stream.trim(new_start_time, new_end_time, pad=True, fill_value=0,
+                    nearest_sample=True)
 
         return None
 
@@ -1140,42 +1141,13 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
-    # # get time shifts associated with detections on main trace
-    # # FIXME: take out testing info
-    # pick_times = pick_times[:100]
-    # main_stream, main_stream_snrs = build_main_stream(main_trace, streams_path,
-    #                                                   pick_times)
-    # plot_stack(main_stream)
-    # plot_distribution(main_stream_snrs)
-    #
-    # # FIXME: delete later after testing
-    # main_stream2 = main_stream.copy()
-    # main_stream3 = main_stream.copy()
-    # reference_signal = "median"
-    # shifts, indices, main_time = xcorr_time_shifts(main_stream,
-    #                                                reference_signal)
-    # align_stream(main_stream, shifts, main_time)
-    # plot_stream_absolute(main_stream, title='Median SNR template', save=True)
-    #
-    # # check time shift from template with max snr
-    # reference_signal = "max"
-    # shifts, indices, main_time = xcorr_time_shifts(main_stream2,
-    #                                                reference_signal)
-    # align_stream(main_stream2, shifts, main_time)
-    # plot_stream_absolute(main_stream2, title='Max SNR template', save=True)
-    #
-    # # check time shift from zero shift of detections
-    # zero_shift_stream(main_stream3)
-    # plot_stream_absolute(main_stream3, title='Zero shift', save=True,
-    #                      figWidth=0.5)
-    # # FIXME: - - - - END OF TESTING BLOCK - - - -
-
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
     stations = list(station_dict.keys())
     for station_idx, station in enumerate(stations):
         # station = stations[8] # FIXME: delete after testing
+        station = stations[station_idx]
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"])  # append Z component
