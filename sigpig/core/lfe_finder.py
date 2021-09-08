@@ -1285,7 +1285,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
         # set snr threshold to cull the party detections
-        snr_threshold = 3.5
+        snr_threshold = 1.0 # 3.5
 
         # define the main trace to use for detections (best amplitude station)
         main_trace = ("TA", "N25K", "BHN")
@@ -1308,7 +1308,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     load_stack = False
     plot = True
-    shift_method = 'max'
+    shift_method = 'zero'
     # get main station template detections
     if load_party:
         # load party object from file
@@ -1341,7 +1341,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if load_stack:
         # load stack list from file
-        infile = open('inner_stack_0_longer_maxShift.pkl', 'rb')
+        infile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
     else:
@@ -1351,7 +1351,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                main_trace,
                                                align_type=shift_method)
         # save stacks as pickle file
-        outfile = open(f'inner_stack_0_longer_{shift_method}Shift.pkl', 'wb')
+        outfile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -1373,8 +1373,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title='linear_stack', save=True)
 
-    # TODO: next try max stack
-    # TODO: next try zero stack
     # TODO: next try without SNR filter
 
     # use stacks as templates in matched-filter search for more detections
@@ -1385,3 +1383,4 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     return None
 
+# stacks are from filtered signals. do traces look different if filtered again?
