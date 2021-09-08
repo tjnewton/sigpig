@@ -930,17 +930,20 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         snrs = []
         for index, trace in enumerate(stream):
             if len(snr(trace)) > 0:
-                snrs.append(snr(trace)[0])
+                if snr(trace)[0] > 0:
+                    snrs.append(snr(trace)[0])
+                else:
+                    snrs.append(np.nan)
             else:
-                snrs.append(0)
+                snrs.append(np.nan)
 
         # define target signal as max or median
         if reference_signal == "max":
-            reference_idx = np.argmax(snrs)
+            reference_idx = np.nanargmax(snrs)
         elif reference_signal == "med":
-            median_snr = np.median(snrs)
+            median_snr = np.nanmedian(snrs)
             # find index of SNR closest to median
-            reference_idx = np.argmin(np.abs(snrs - median_snr))
+            reference_idx = np.nanargmin(np.abs(snrs - median_snr))
 
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
