@@ -1307,8 +1307,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # FIXME: delete test variable declarations
     load_party = True
     load_stack = False
-    plot = False
-    shift_method = 'med'
+    plot = True
+    shift_method = 'max'
     # get main station template detections
     if load_party:
         # load party object from file
@@ -1341,7 +1341,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if load_stack:
         # load stack list from file
-        infile = open('inner_stack_0_longer_medShift.pkl', 'rb')
+        infile = open('inner_stack_0_longer_maxShift.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
     else:
@@ -1374,6 +1374,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             plot_stack(stack_lin, title='linear_stack', save=True)
 
     # TODO: next try max stack
+    # TODO: next try zero stack
+    # TODO: next try without SNR filter
 
     # use stacks as templates in matched-filter search for more detections
     party = template_match_stack(stack_lin, templates, template_files,
