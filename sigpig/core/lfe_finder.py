@@ -1375,11 +1375,21 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # TODO: filtering before stacking kosher? check double filtering a stack
     #       trace
 
-    # use stacks as templates in matched-filter search for more detections
+    # generate a focal mechanism from phase weighted stacks
+    # TODO
+
+    # get locations from detection times and stacks
+    # TODO
+
+    # use stacks as templates in matched-filter search to build catalog of
+    # detections
+    # TODO
     party = template_match_stack(stack_lin, templates, template_files,
                                  station_dict, template_length,
                                  template_prepick, detection_files_path,
                                  start_date, end_date)
+
+
 
     return None
 
