@@ -466,7 +466,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
+            party = tribe.detect(stream=st, threshold=0.23, daylong=True,
                                  threshold_type="abs", trig_int=8.0, plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
@@ -1305,14 +1305,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # FIXME: delete test variable declarations
-    load_party = True
+    load_party = False
     load_stack = False
     plot = True
-    shift_method = 'zero'
+    shift_method = 'med'
     # get main station template detections
     if load_party:
         # load party object from file
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
     else:
@@ -1361,19 +1362,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
     print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
-    # FIXME: WAZA still break this. Diff len traces starting at index 24
-    # see what happens after align_stream. Why are traces from  index 7 and 8
-    # different numbers of points but the same Hz?
-    stack_pw, stack_lin = stack_list
-
     # plot stacks
+    stack_pw, stack_lin = stack_list
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title='phase_weighted_stack', save=True)
+            plot_stack(stack_pw, title=f'phase_weighted_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title='linear_stack', save=True)
+            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
 
-    # TODO: next try without SNR filter
+    # TODO: abs 0.25 vs abs 0.23
+    # TODO: add response correction to data? check data pipeline
+    # TODO: filtering before stacking kosher? check double filtering a stack
+    #       trace
 
     # use stacks as templates in matched-filter search for more detections
     party = template_match_stack(stack_lin, templates, template_files,
