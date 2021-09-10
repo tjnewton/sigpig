@@ -466,8 +466,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.23, daylong=True,
-                                 threshold_type="abs", trig_int=8.0, plot=False,
+            party = tribe.detect(stream=st, threshold=9.0, daylong=True,
+                                 threshold_type="MAD", trig_int=8.0, plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
         except Exception:
@@ -1312,8 +1312,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # get main station template detections
     if load_party:
         # load party object from file
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
-        infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
+
+        # abs 0.25 = 1218 detections, fits in MBP memory
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+
+        # MAD 9.0 = 1435 detections, fits in MBP memory
+        infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
+
+        # abs 0.23 = 4381 detections, require more memory than MBP has
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
+
         party = pickle.load(infile)
         infile.close()
     else:
@@ -1375,7 +1383,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # TODO: filtering before stacking kosher? check double filtering a stack
     #       trace
 
-    # generate a focal mechanism from phase weighted stacks
+    # generate focal mechanisms from phase weighted stacks
     # TODO
 
     # get locations from detection times and stacks
