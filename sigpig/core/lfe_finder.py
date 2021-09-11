@@ -1314,10 +1314,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # load party object from file
 
         # abs 0.25 = 1218 detections, fits in MBP memory
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
 
         # MAD 9.0 = 1435 detections, fits in MBP memory
         infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
+
+        # MAD 8.0 =  detections, ??~fits~??? in MBP memory??!?
+        # infile = open('party_06_15_2016_to_08_12_2018_MAD8.pkl', 'rb')
 
         # abs 0.23 = 4381 detections, require more memory than MBP has
         # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
@@ -1378,15 +1381,24 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
 
-    # TODO: abs 0.25 vs abs 0.23
+    # TODO: abs 0.25 vs MAD9 stack
     # TODO: add response correction to data? check data pipeline
     # TODO: filtering before stacking kosher? check double filtering a stack
     #       trace
-
-    # generate focal mechanisms from phase weighted stacks
-    # TODO
+    # TODO: MAD9 jump is on 2017-12-10. Look at data
+    detection_times = []
+    for detection in party.families[0].detections:
+        detection_times.append(detection.detect_time)
+    subset_times = []
+    for detection_time in detection_times:
+        if detection_time.year == 2017:
+            subset_times.append(detection_time)
+    print(len(subset_times))
 
     # get locations from detection times and stacks
+    # TODO
+
+    # generate focal mechanisms from phase weighted stacks and locations
     # TODO
 
     # use stacks as templates in matched-filter search to build catalog of
