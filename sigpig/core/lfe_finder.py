@@ -1384,16 +1384,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # TODO: abs 0.25 vs MAD9 stack
     # TODO: add response correction to data? check data pipeline
     # TODO: filtering before stacking kosher? check double filtering a stack
-    #       trace
-    # TODO: MAD9 jump is on 2017-12-10. Look at data
-    detection_times = []
-    for detection in party.families[0].detections:
-        detection_times.append(detection.detect_time)
-    subset_times = []
-    for detection_time in detection_times:
-        if detection_time.year == 2017:
-            subset_times.append(detection_time)
-    print(len(subset_times))
+    #       trace (in frequency space)
+
 
     # get locations from detection times and stacks
     # TODO
