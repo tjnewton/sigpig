@@ -1305,8 +1305,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # FIXME: delete test variable declarations
-    load_party = False
-    load_stack = False
+    load_party = True
+    load_stack = True
     plot = True
     shift_method = 'med'
     # get main station template detections
@@ -1314,10 +1314,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # load party object from file
 
         # abs 0.25 = 1218 detections, fits in MBP memory
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
 
         # MAD 9.0 = 1435 detections, fits in MBP memory
-        infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
 
         # MAD 8.0 =  detections, ??~fits~??? in MBP memory??!?
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8.pkl', 'rb')
@@ -1353,7 +1353,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if load_stack:
         # load stack list from file
-        infile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift.pkl', 'rb')
+        infile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift_abs.25.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
     else:
@@ -1381,11 +1381,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
 
-    # TODO: abs 0.25 vs MAD9 stack
     # TODO: add response correction to data? check data pipeline
     # TODO: filtering before stacking kosher? check double filtering a stack
     #       trace (in frequency space)
-
 
     # get locations from detection times and stacks
     # TODO
