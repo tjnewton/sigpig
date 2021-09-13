@@ -26,6 +26,534 @@ from scipy.signal import hilbert
 import time
 from data import max_amplitude, snr
 
+# class to enable detection via stacks within EQcorrscan
+class Stack(Tribe):
+    """
+    A class to use stacks as templates for matched-filtering.
+    """
+
+    def template_gen(self, method, lowcut, highcut, samp_rate, filt_order,
+                     length, prepick, swin="all", process_len=86400,
+                     all_horiz=False, delayed=True, plot=False, plotdir=None,
+                     return_event=False, min_snr=None, parallel=False,
+                     num_cores=False, save_progress=False,
+                     skip_short_chans=False,
+                     **kwargs):
+        """
+        Generate processed and cut waveforms for use as templates.
+
+        :type method: str
+        :param method:
+            Template generation method, must be one of ('from_client',
+            'from_seishub', 'from_sac', 'from_meta_file'). - Each method requires
+            associated arguments, see note below.
+        :type lowcut: float
+        :param lowcut: Low cut (Hz), if set to None will not apply a lowcut.
+        :type highcut: float
+        :param highcut: High cut (Hz), if set to None will not apply a highcut.
+        :type samp_rate: float
+        :param samp_rate: New sampling rate in Hz.
+        :type filt_order: int
+        :param filt_order: Filter level (number of corners).
+        :type length: float
+        :param length: Length of template waveform in seconds.
+        :type prepick: float
+        :param prepick: Pre-pick time in seconds
+        :type swin: str
+        :param swin:
+            P, S, P_all, S_all or all, defaults to all: see note in
+            :func:`eqcorrscan.core.template_gen.template_gen`
+        :type process_len: int
+        :param process_len: Length of data in seconds to download and process.
+        :type all_horiz: bool
+        :param all_horiz:
+            To use both horizontal channels even if there is only a pick on one of
+            them.  Defaults to False.
+        :type delayed: bool
+        :param delayed: If True, each channel will begin relative to it's own \
+            pick-time, if set to False, each channel will begin at the same time.
+        :type plot: bool
+        :param plot: Plot templates or not.
+        :type plotdir: str
+        :param plotdir:
+            The path to save plots to. If `plotdir=None` (default) then the figure
+            will be shown on screen.
+        :type return_event: bool
+        :param return_event: Whether to return the event and process length or not.
+        :type min_snr: float
+        :param min_snr:
+            Minimum signal-to-noise ratio for a channel to be included in the
+            template, where signal-to-noise ratio is calculated as the ratio of
+            the maximum amplitude in the template window to the rms amplitude in
+            the whole window given.
+        :type parallel: bool
+        :param parallel: Whether to process data in parallel or not.
+        :type num_cores: int
+        :param num_cores:
+            Number of cores to try and use, if False and parallel=True, will use
+            either all your cores, or as many traces as in the data (whichever is
+            smaller).
+        :type save_progress: bool
+        :param save_progress:
+            Whether to save the resulting templates at every data step or not.
+            Useful for long-running processes.
+        :type skip_short_chans: bool
+        :param skip_short_chans:
+            Whether to ignore channels that have insufficient length data or not.
+            Useful when the quality of data is not known, e.g. when downloading
+            old, possibly triggered data from a datacentre
+
+        :returns: List of :class:`obspy.core.stream.Stream` Templates
+        :rtype: list
+
+        .. note::
+            By convention templates are generated with P-phases on the
+            vertical channel and S-phases on the horizontal channels, normal
+            seismograph naming conventions are assumed, where Z denotes vertical
+            and N, E, R, T, 1 and 2 denote horizontal channels, either oriented
+            or not.  To this end we will **only** use Z channels if they have a
+            P-pick, and will use one or other horizontal channels **only** if
+            there is an S-pick on it.
+
+        .. warning::
+            If there is no phase_hint included in picks, and swin=all, all channels
+            with picks will be used.
+
+        .. note::
+            If swin=all, then all picks will be used, not just phase-picks (e.g. it
+            will use amplitude picks). If you do not want this then we suggest
+            that you remove any picks you do not want to use in your templates
+            before using the event.
+
+        .. note::
+            *Method specific arguments:*
+
+            - `from_client` requires:
+                :param str client_id:
+                    string passable by obspy to generate Client, or any object
+                    with a `get_waveforms` method, including a Client instance.
+                :param `obspy.core.event.Catalog` catalog:
+                    Catalog of events to generate template for
+                :param float data_pad: Pad length for data-downloads in seconds
+            - `from_seishub` requires:
+                :param str url: url to seishub database
+                :param `obspy.core.event.Catalog` catalog:
+                    Catalog of events to generate template for
+                :param float data_pad: Pad length for data-downloads in seconds
+            - `from_sac` requires:
+                :param list sac_files:
+                    osbpy.core.stream.Stream of sac waveforms, or list of paths to
+                    sac waveforms.
+                .. note::
+                    See `eqcorrscan.utils.sac_util.sactoevent` for details on
+                    how pick information is collected.
+            - `from_meta_file` requires:
+                :param str meta_file:
+                    Path to obspy-readable event file, or an obspy Catalog
+                :param `obspy.core.stream.Stream` st:
+                    Stream containing waveform data for template. Note that this
+                    should be the same length of stream as you will use for the
+                    continuous detection, e.g. if you detect in day-long files,
+                    give this a day-long file!
+                :param bool process:
+                    Whether to process the data or not, defaults to True.
+
+        .. note::
+            process_len should be set to the same length as used when computing
+            detections using match_filter.match_filter, e.g. if you read
+            in day-long data for match_filter, process_len should be 86400.
+
+            .. rubric:: Example
+
+        >>> from obspy.clients.fdsn import Client
+        >>> from eqcorrscan.core.template_gen import template_gen
+        >>> client = Client('NCEDC')
+        >>> catalog = client.get_events(eventid='72572665', includearrivals=True)
+        >>> # We are only taking two picks for this example to speed up the
+        >>> # example, note that you don't have to!
+        >>> catalog[0].picks = catalog[0].picks[0:2]
+        >>> templates = template_gen(
+        ...    method='from_client', catalog=catalog, client_id='NCEDC',
+        ...    lowcut=2.0, highcut=9.0, samp_rate=20.0, filt_order=4, length=3.0,
+        ...    prepick=0.15, swin='all', process_len=300, all_horiz=True)
+        >>> templates[0].plot(equal_scale=False, size=(800,600)) # doctest: +SKIP
+
+        .. figure:: ../../plots/template_gen.from_client.png
+
+        .. rubric:: Example
+
+        >>> from obspy import read
+        >>> from eqcorrscan.core.template_gen import template_gen
+        >>> # Get the path to the test data
+        >>> import eqcorrscan
+        >>> import os
+        >>> TEST_PATH = os.path.dirname(eqcorrscan.__file__) + '/tests/test_data'
+        >>> st = read(TEST_PATH + '/WAV/TEST_/' +
+        ...           '2013-09-01-0410-35.DFDPC_024_00')
+        >>> quakeml = TEST_PATH + '/20130901T041115.xml'
+        >>> templates = template_gen(
+        ...    method='from_meta_file', meta_file=quakeml, st=st, lowcut=2.0,
+        ...    highcut=9.0, samp_rate=20.0, filt_order=3, length=2, prepick=0.1,
+        ...    swin='S', all_horiz=True)
+        >>> print(len(templates[0]))
+        10
+        >>> templates = template_gen(
+        ...    method='from_meta_file', meta_file=quakeml, st=st, lowcut=2.0,
+        ...    highcut=9.0, samp_rate=20.0, filt_order=3, length=2, prepick=0.1,
+        ...    swin='S_all', all_horiz=True)
+        >>> print(len(templates[0]))
+        15
+
+        .. rubric:: Example
+
+        >>> from eqcorrscan.core.template_gen import template_gen
+        >>> import glob
+        >>> # Get all the SAC-files associated with one event.
+        >>> sac_files = glob.glob(TEST_PATH + '/SAC/2014p611252/*')
+        >>> templates = template_gen(
+        ...    method='from_sac', sac_files=sac_files, lowcut=2.0, highcut=10.0,
+        ...    samp_rate=25.0, filt_order=4, length=2.0, swin='all', prepick=0.1,
+        ...    all_horiz=True)
+        >>> print(templates[0][0].stats.sampling_rate)
+        25.0
+        >>> print(len(templates[0]))
+        15
+        """
+        client_map = {'from_client': 'fdsn', 'from_seishub': 'seishub'}
+        assert method in ('from_client', 'from_seishub', 'from_meta_file',
+                          'from_sac')
+        if not isinstance(swin, list):
+            swin = [swin]
+        process = True
+        if method in ['from_client', 'from_seishub']:
+            catalog = kwargs.get('catalog', Catalog())
+            data_pad = kwargs.get('data_pad', 90)
+            # Group catalog into days and only download the data once per day
+            sub_catalogs = _group_events(
+                catalog=catalog, process_len=process_len,
+                template_length=length,
+                data_pad=data_pad)
+            if method == 'from_client':
+                client_id = kwargs.get('client_id', None)
+                if hasattr(client_id, 'get_waveforms'):
+                    client = client_id
+                elif isinstance(client_id, str):
+                    client = FDSNClient(client_id)
+                else:
+                    raise NotImplementedError(
+                        "client_id must be an FDSN client string, or a Client "
+                        "with a get_waveforms method"
+                    )
+                available_stations = []
+            else:
+                client = SeisHubClient(kwargs.get('url', None), timeout=10)
+                available_stations = client.waveform.get_station_ids()
+        elif method == 'from_meta_file':
+            if isinstance(kwargs.get('meta_file'), Catalog):
+                catalog = kwargs.get('meta_file')
+            elif kwargs.get('meta_file'):
+                catalog = read_events(kwargs.get('meta_file'))
+            else:
+                catalog = kwargs.get('catalog')
+            sub_catalogs = [catalog]
+            st = kwargs.get('st', Stream())
+            process = kwargs.get('process', True)
+        elif method == 'from_sac':
+            sac_files = kwargs.get('sac_files')
+            if isinstance(sac_files, list):
+                if isinstance(sac_files[0], (Stream, Trace)):
+                    # This is a list of streams...
+                    st = Stream(sac_files[0])
+                    for sac_file in sac_files[1:]:
+                        st += sac_file
+                else:
+                    sac_files = [read(sac_file)[0] for sac_file in sac_files]
+                    st = Stream(sac_files)
+            else:
+                st = sac_files
+            # Make an event object...
+            catalog = Catalog([sactoevent(st)])
+            sub_catalogs = [catalog]
+
+        temp_list = []
+        process_lengths = []
+        catalog_out = Catalog()
+
+        if "P_all" in swin or "S_all" in swin or all_horiz:
+            all_channels = True
+        else:
+            all_channels = False
+        for sub_catalog in sub_catalogs:
+            if method in ['from_seishub', 'from_client']:
+                Logger.info("Downloading data")
+                st = _download_from_client(
+                    client=client, client_type=client_map[method],
+                    catalog=sub_catalog, data_pad=data_pad,
+                    process_len=process_len,
+                    available_stations=available_stations,
+                    all_channels=all_channels)
+            Logger.info('Pre-processing data')
+            st.merge()
+            if len(st) == 0:
+                Logger.info("No data")
+                continue
+            if process:
+                data_len = max([len(tr.data) / tr.stats.sampling_rate
+                                for tr in st])
+                if 80000 < data_len < 90000:
+                    daylong = True
+                    starttime = min([tr.stats.starttime for tr in st])
+                    min_delta = min([tr.stats.delta for tr in st])
+                    # Cope with the common starttime less than 1 sample before the
+                    #  start of day.
+                    if (starttime + min_delta).date > starttime.date:
+                        starttime = (starttime + min_delta)
+                    # Check if this is stupid:
+                    if abs(starttime - UTCDateTime(starttime.date)) > 600:
+                        daylong = False
+                    starttime = starttime.date
+                else:
+                    daylong = False
+                # Check if the required amount of data have been downloaded - skip
+                # channels if arg set.
+                for tr in st:
+                    if np.ma.is_masked(tr.data):
+                        _len = np.ma.count(tr.data) * tr.stats.delta
+                    else:
+                        _len = tr.stats.npts * tr.stats.delta
+                    # if _len < process_len * .8:
+                    #     Logger.info(
+                    #         "Data for {0} are too short, skipping".format(
+                    #             tr.id))
+                    #     if skip_short_chans:
+                    #         continue
+                    # Trim to enforce process-len
+                    tr.data = tr.data[
+                              0:int(process_len * tr.stats.sampling_rate)]
+                if len(st) == 0:
+                    Logger.info("No data")
+                    continue
+                if daylong:
+                    st = pre_processing.dayproc(
+                        st=st, lowcut=lowcut, highcut=highcut,
+                        filt_order=filt_order, samp_rate=samp_rate,
+                        parallel=parallel, starttime=UTCDateTime(starttime),
+                        num_cores=num_cores)
+                else:
+                    st = pre_processing.shortproc(
+                        st=st, lowcut=lowcut, highcut=highcut,
+                        filt_order=filt_order, parallel=parallel,
+                        samp_rate=samp_rate, num_cores=num_cores)
+
+            # FIXME: I changed this. TJN 9/13/2021
+            if len([tr.stats.starttime for tr in st]) > 0:
+                data_start = min([tr.stats.starttime for tr in st])
+                data_end = max([tr.stats.endtime for tr in st])
+            else:
+                continue
+
+            for event in sub_catalog:
+                stations, channels, st_stachans = ([], [], [])
+                if len(event.picks) == 0:
+                    Logger.warning(
+                        'No picks for event {0}'.format(event.resource_id))
+                    continue
+                use_event = True
+                # Check that the event is within the data
+                for pick in event.picks:
+                    if not data_start < pick.time < data_end:
+                        Logger.warning(
+                            "Pick outside of data span: Pick time {0} Start "
+                            "time {1} End time: {2}".format(
+                                str(pick.time), str(data_start),
+                                str(data_end)))
+                        use_event = False
+                if not use_event:
+                    Logger.error('Event is not within data time-span')
+                    continue
+                # Read in pick info
+                Logger.debug("I have found the following picks")
+                for pick in event.picks:
+                    if not pick.waveform_id:
+                        Logger.warning(
+                            'Pick not associated with waveforms, will not use:'
+                            ' {0}'.format(pick))
+                        continue
+                    Logger.debug(pick)
+                    stations.append(pick.waveform_id.station_code)
+                    channels.append(pick.waveform_id.channel_code)
+                # Check to see if all picks have a corresponding waveform
+                for tr in st:
+                    st_stachans.append('.'.join([tr.stats.station,
+                                                 tr.stats.channel]))
+                # Cut and extract the templates
+                template = _template_gen(
+                    event.picks, st, length, swin, prepick=prepick, plot=plot,
+                    all_horiz=all_horiz, delayed=delayed, min_snr=min_snr,
+                    plotdir=plotdir)
+                process_lengths.append(len(st[0].data) / samp_rate)
+                temp_list.append(template)
+                catalog_out += event
+            if save_progress:
+                if not os.path.isdir("eqcorrscan_temporary_templates"):
+                    os.makedirs("eqcorrscan_temporary_templates")
+                for template in temp_list:
+                    template.write(
+                        "eqcorrscan_temporary_templates{0}{1}.ms".format(
+                            os.path.sep, template[0].stats.starttime.strftime(
+                                "%Y-%m-%dT%H%M%S")),
+                        format="MSEED")
+            del st
+        if return_event:
+            return temp_list, catalog_out, process_lengths
+        return temp_list
+
+
+    def construct(self, method, lowcut, highcut, samp_rate, filt_order,
+                  length, prepick, swin="all", process_len=86400,
+                  all_horiz=False, delayed=True, plot=False, plotdir=None,
+                  min_snr=None, parallel=False, num_cores=False,
+                  skip_short_chans=False, save_progress=False, **kwargs):
+        """
+        Generate a Tribe of Templates.
+
+        :type method: str
+        :param method:
+            Method of Tribe generation. Possible options are: `from_client`,
+            `from_seishub`, `from_meta_file`.  See below on the additional
+            required arguments for each method.
+        :type lowcut: float
+        :param lowcut:
+            Low cut (Hz), if set to None will not apply a lowcut
+        :type highcut: float
+        :param highcut:
+            High cut (Hz), if set to None will not apply a highcut.
+        :type samp_rate: float
+        :param samp_rate:
+            New sampling rate in Hz.
+        :type filt_order: int
+        :param filt_order:
+            Filter level (number of corners).
+        :type length: float
+        :param length: Length of template waveform in seconds.
+        :type prepick: float
+        :param prepick: Pre-pick time in seconds
+        :type swin: str
+        :param swin:
+            P, S, P_all, S_all or all, defaults to all: see note in
+            :func:`eqcorrscan.core.template_gen.template_gen`
+        :type process_len: int
+        :param process_len: Length of data in seconds to download and process.
+        :type all_horiz: bool
+        :param all_horiz:
+            To use both horizontal channels even if there is only a pick on
+            one of them.  Defaults to False.
+        :type delayed: bool
+        :param delayed: If True, each channel will begin relative to it's own
+            pick-time, if set to False, each channel will begin at the same
+            time.
+        :type plot: bool
+        :param plot: Plot templates or not.
+        :type plotdir: str
+        :param plotdir:
+            The path to save plots to. If `plotdir=None` (default) then the
+            figure will be shown on screen.
+        :type min_snr: float
+        :param min_snr:
+            Minimum signal-to-noise ratio for a channel to be included in the
+            template, where signal-to-noise ratio is calculated as the ratio
+            of the maximum amplitude in the template window to the rms
+            amplitude in the whole window given.
+        :type parallel: bool
+        :param parallel: Whether to process data in parallel or not.
+        :type num_cores: int
+        :param num_cores:
+            Number of cores to try and use, if False and parallel=True,
+            will use either all your cores, or as many traces as in the data
+            (whichever is smaller).
+        :type save_progress: bool
+        :param save_progress:
+            Whether to save the resulting template set at every data step or
+            not. Useful for long-running processes.
+        :type skip_short_chans: bool
+        :param skip_short_chans:
+            Whether to ignore channels that have insufficient length data or
+            not. Useful when the quality of data is not known, e.g. when
+            downloading old, possibly triggered data from a datacentre
+        :type save_progress: bool
+        :param save_progress:
+            Whether to save the resulting party at every data step or not.
+            Useful for long-running processes.
+
+        .. note::
+            *Method specific arguments:*
+
+            - `from_client` requires:
+                :param str client_id:
+                    string passable by obspy to generate Client, or any object
+                    with a `get_waveforms` method, including a Client instance.
+                :param `obspy.core.event.Catalog` catalog:
+                    Catalog of events to generate template for
+                :param float data_pad: Pad length for data-downloads in seconds
+            - `from_seishub` requires:
+                :param str url: url to seishub database
+                :param `obspy.core.event.Catalog` catalog:
+                    Catalog of events to generate template for
+                :param float data_pad: Pad length for data-downloads in seconds
+            - `from_meta_file` requires:
+                :param str meta_file:
+                    Path to obspy-readable event file, or an obspy Catalog
+                :param `obspy.core.stream.Stream` st:
+                    Stream containing waveform data for template. Note that
+                    this should be the same length of stream as you will use
+                    for the continuous detection, e.g. if you detect in
+                    day-long files, give this a day-long file!
+                :param bool process:
+                    Whether to process the data or not, defaults to True.
+
+        .. Note::
+            Method: `from_sac` is not supported by Tribe.construct and must
+            use Template.construct.
+
+        .. Note:: Templates will be named according to their start-time.
+        """
+        templates, catalog, process_lengths = template_gen.template_gen(
+            method=method, lowcut=lowcut, highcut=highcut, length=length,
+            filt_order=filt_order, samp_rate=samp_rate, prepick=prepick,
+            return_event=True, save_progress=save_progress, swin=swin,
+            process_len=process_len, all_horiz=all_horiz, plotdir=plotdir,
+            delayed=delayed, plot=plot, min_snr=min_snr, parallel=parallel,
+            num_cores=num_cores, skip_short_chans=skip_short_chans,
+            **kwargs)
+        for template, event, process_len in zip(templates, catalog,
+                                                process_lengths):
+            t = Template()
+            for tr in template:
+                if not np.any(tr.data.astype(np.float16)):
+                    Logger.warning('Data are zero in float16, missing data,'
+                                   ' will not use: {0}'.format(tr.id))
+                    template.remove(tr)
+            if len(template) == 0:
+                Logger.error('Empty Template')
+                continue
+            t.st = template
+            t.name = template.sort(['starttime'])[0]. \
+                stats.starttime.strftime('%Y_%m_%dt%H_%M_%S')
+            t.lowcut = lowcut
+            t.highcut = highcut
+            t.filt_order = filt_order
+            t.samp_rate = samp_rate
+            t.process_length = process_len
+            t.prepick = prepick
+            event.comments.append(Comment(
+                text="eqcorrscan_template_" + t.name,
+                creation_info=CreationInfo(agency='eqcorrscan',
+                                           author=getpass.getuser())))
+            t.event = event
+            self.templates.append(t)
+        return self
+
+
 # function to convert snuffler marker file to event template
 def markers_to_template(marker_file_path, prepick_offset, time_markers=False):
     """
@@ -1250,6 +1778,380 @@ def template_match_stack(stack, templates, template_files, station_dict,
     return party
 
 
+# modification to eqcorrscan.core.template_gen to work with stacks
+# containing many zeros (stacks are extended to day-long records with zeros)
+def template_gen(method, lowcut, highcut, samp_rate, filt_order,
+                 length, prepick, swin="all", process_len=86400,
+                 all_horiz=False, delayed=True, plot=False, plotdir=None,
+                 return_event=False, min_snr=None, parallel=False,
+                 num_cores=False, save_progress=False, skip_short_chans=False,
+                 **kwargs):
+    """
+    Generate processed and cut waveforms for use as templates.
+
+    :type method: str
+    :param method:
+        Template generation method, must be one of ('from_client',
+        'from_seishub', 'from_sac', 'from_meta_file'). - Each method requires
+        associated arguments, see note below.
+    :type lowcut: float
+    :param lowcut: Low cut (Hz), if set to None will not apply a lowcut.
+    :type highcut: float
+    :param highcut: High cut (Hz), if set to None will not apply a highcut.
+    :type samp_rate: float
+    :param samp_rate: New sampling rate in Hz.
+    :type filt_order: int
+    :param filt_order: Filter level (number of corners).
+    :type length: float
+    :param length: Length of template waveform in seconds.
+    :type prepick: float
+    :param prepick: Pre-pick time in seconds
+    :type swin: str
+    :param swin:
+        P, S, P_all, S_all or all, defaults to all: see note in
+        :func:`eqcorrscan.core.template_gen.template_gen`
+    :type process_len: int
+    :param process_len: Length of data in seconds to download and process.
+    :type all_horiz: bool
+    :param all_horiz:
+        To use both horizontal channels even if there is only a pick on one of
+        them.  Defaults to False.
+    :type delayed: bool
+    :param delayed: If True, each channel will begin relative to it's own \
+        pick-time, if set to False, each channel will begin at the same time.
+    :type plot: bool
+    :param plot: Plot templates or not.
+    :type plotdir: str
+    :param plotdir:
+        The path to save plots to. If `plotdir=None` (default) then the figure
+        will be shown on screen.
+    :type return_event: bool
+    :param return_event: Whether to return the event and process length or not.
+    :type min_snr: float
+    :param min_snr:
+        Minimum signal-to-noise ratio for a channel to be included in the
+        template, where signal-to-noise ratio is calculated as the ratio of
+        the maximum amplitude in the template window to the rms amplitude in
+        the whole window given.
+    :type parallel: bool
+    :param parallel: Whether to process data in parallel or not.
+    :type num_cores: int
+    :param num_cores:
+        Number of cores to try and use, if False and parallel=True, will use
+        either all your cores, or as many traces as in the data (whichever is
+        smaller).
+    :type save_progress: bool
+    :param save_progress:
+        Whether to save the resulting templates at every data step or not.
+        Useful for long-running processes.
+    :type skip_short_chans: bool
+    :param skip_short_chans:
+        Whether to ignore channels that have insufficient length data or not.
+        Useful when the quality of data is not known, e.g. when downloading
+        old, possibly triggered data from a datacentre
+
+    :returns: List of :class:`obspy.core.stream.Stream` Templates
+    :rtype: list
+
+    .. note::
+        By convention templates are generated with P-phases on the
+        vertical channel and S-phases on the horizontal channels, normal
+        seismograph naming conventions are assumed, where Z denotes vertical
+        and N, E, R, T, 1 and 2 denote horizontal channels, either oriented
+        or not.  To this end we will **only** use Z channels if they have a
+        P-pick, and will use one or other horizontal channels **only** if
+        there is an S-pick on it.
+
+    .. warning::
+        If there is no phase_hint included in picks, and swin=all, all channels
+        with picks will be used.
+
+    .. note::
+        If swin=all, then all picks will be used, not just phase-picks (e.g. it
+        will use amplitude picks). If you do not want this then we suggest
+        that you remove any picks you do not want to use in your templates
+        before using the event.
+
+    .. note::
+        *Method specific arguments:*
+
+        - `from_client` requires:
+            :param str client_id:
+                string passable by obspy to generate Client, or any object
+                with a `get_waveforms` method, including a Client instance.
+            :param `obspy.core.event.Catalog` catalog:
+                Catalog of events to generate template for
+            :param float data_pad: Pad length for data-downloads in seconds
+        - `from_seishub` requires:
+            :param str url: url to seishub database
+            :param `obspy.core.event.Catalog` catalog:
+                Catalog of events to generate template for
+            :param float data_pad: Pad length for data-downloads in seconds
+        - `from_sac` requires:
+            :param list sac_files:
+                osbpy.core.stream.Stream of sac waveforms, or list of paths to
+                sac waveforms.
+            .. note::
+                See `eqcorrscan.utils.sac_util.sactoevent` for details on
+                how pick information is collected.
+        - `from_meta_file` requires:
+            :param str meta_file:
+                Path to obspy-readable event file, or an obspy Catalog
+            :param `obspy.core.stream.Stream` st:
+                Stream containing waveform data for template. Note that this
+                should be the same length of stream as you will use for the
+                continuous detection, e.g. if you detect in day-long files,
+                give this a day-long file!
+            :param bool process:
+                Whether to process the data or not, defaults to True.
+
+    .. note::
+        process_len should be set to the same length as used when computing
+        detections using match_filter.match_filter, e.g. if you read
+        in day-long data for match_filter, process_len should be 86400.
+
+        .. rubric:: Example
+
+    >>> from obspy.clients.fdsn import Client
+    >>> from eqcorrscan.core.template_gen import template_gen
+    >>> client = Client('NCEDC')
+    >>> catalog = client.get_events(eventid='72572665', includearrivals=True)
+    >>> # We are only taking two picks for this example to speed up the
+    >>> # example, note that you don't have to!
+    >>> catalog[0].picks = catalog[0].picks[0:2]
+    >>> templates = template_gen(
+    ...    method='from_client', catalog=catalog, client_id='NCEDC',
+    ...    lowcut=2.0, highcut=9.0, samp_rate=20.0, filt_order=4, length=3.0,
+    ...    prepick=0.15, swin='all', process_len=300, all_horiz=True)
+    >>> templates[0].plot(equal_scale=False, size=(800,600)) # doctest: +SKIP
+
+    .. figure:: ../../plots/template_gen.from_client.png
+
+    .. rubric:: Example
+
+    >>> from obspy import read
+    >>> from eqcorrscan.core.template_gen import template_gen
+    >>> # Get the path to the test data
+    >>> import eqcorrscan
+    >>> import os
+    >>> TEST_PATH = os.path.dirname(eqcorrscan.__file__) + '/tests/test_data'
+    >>> st = read(TEST_PATH + '/WAV/TEST_/' +
+    ...           '2013-09-01-0410-35.DFDPC_024_00')
+    >>> quakeml = TEST_PATH + '/20130901T041115.xml'
+    >>> templates = template_gen(
+    ...    method='from_meta_file', meta_file=quakeml, st=st, lowcut=2.0,
+    ...    highcut=9.0, samp_rate=20.0, filt_order=3, length=2, prepick=0.1,
+    ...    swin='S', all_horiz=True)
+    >>> print(len(templates[0]))
+    10
+    >>> templates = template_gen(
+    ...    method='from_meta_file', meta_file=quakeml, st=st, lowcut=2.0,
+    ...    highcut=9.0, samp_rate=20.0, filt_order=3, length=2, prepick=0.1,
+    ...    swin='S_all', all_horiz=True)
+    >>> print(len(templates[0]))
+    15
+
+    .. rubric:: Example
+
+    >>> from eqcorrscan.core.template_gen import template_gen
+    >>> import glob
+    >>> # Get all the SAC-files associated with one event.
+    >>> sac_files = glob.glob(TEST_PATH + '/SAC/2014p611252/*')
+    >>> templates = template_gen(
+    ...    method='from_sac', sac_files=sac_files, lowcut=2.0, highcut=10.0,
+    ...    samp_rate=25.0, filt_order=4, length=2.0, swin='all', prepick=0.1,
+    ...    all_horiz=True)
+    >>> print(templates[0][0].stats.sampling_rate)
+    25.0
+    >>> print(len(templates[0]))
+    15
+    """
+    client_map = {'from_client': 'fdsn', 'from_seishub': 'seishub'}
+    assert method in ('from_client', 'from_seishub', 'from_meta_file',
+                      'from_sac')
+    if not isinstance(swin, list):
+        swin = [swin]
+    process = True
+    if method in ['from_client', 'from_seishub']:
+        catalog = kwargs.get('catalog', Catalog())
+        data_pad = kwargs.get('data_pad', 90)
+        # Group catalog into days and only download the data once per day
+        sub_catalogs = _group_events(
+            catalog=catalog, process_len=process_len, template_length=length,
+            data_pad=data_pad)
+        if method == 'from_client':
+            client_id = kwargs.get('client_id', None)
+            if hasattr(client_id, 'get_waveforms'):
+                client = client_id
+            elif isinstance(client_id, str):
+                client = FDSNClient(client_id)
+            else:
+                raise NotImplementedError(
+                    "client_id must be an FDSN client string, or a Client "
+                    "with a get_waveforms method"
+                )
+            available_stations = []
+        else:
+            client = SeisHubClient(kwargs.get('url', None), timeout=10)
+            available_stations = client.waveform.get_station_ids()
+    elif method == 'from_meta_file':
+        if isinstance(kwargs.get('meta_file'), Catalog):
+            catalog = kwargs.get('meta_file')
+        elif kwargs.get('meta_file'):
+            catalog = read_events(kwargs.get('meta_file'))
+        else:
+            catalog = kwargs.get('catalog')
+        sub_catalogs = [catalog]
+        st = kwargs.get('st', Stream())
+        process = kwargs.get('process', True)
+    elif method == 'from_sac':
+        sac_files = kwargs.get('sac_files')
+        if isinstance(sac_files, list):
+            if isinstance(sac_files[0], (Stream, Trace)):
+                # This is a list of streams...
+                st = Stream(sac_files[0])
+                for sac_file in sac_files[1:]:
+                    st += sac_file
+            else:
+                sac_files = [read(sac_file)[0] for sac_file in sac_files]
+                st = Stream(sac_files)
+        else:
+            st = sac_files
+        # Make an event object...
+        catalog = Catalog([sactoevent(st)])
+        sub_catalogs = [catalog]
+
+    temp_list = []
+    process_lengths = []
+    catalog_out = Catalog()
+
+    if "P_all" in swin or "S_all" in swin or all_horiz:
+        all_channels = True
+    else:
+        all_channels = False
+    for sub_catalog in sub_catalogs:
+        if method in ['from_seishub', 'from_client']:
+            Logger.info("Downloading data")
+            st = _download_from_client(
+                client=client, client_type=client_map[method],
+                catalog=sub_catalog, data_pad=data_pad,
+                process_len=process_len, available_stations=available_stations,
+                all_channels=all_channels)
+        Logger.info('Pre-processing data')
+        st.merge()
+        if len(st) == 0:
+            Logger.info("No data")
+            continue
+        if process:
+            data_len = max([len(tr.data) / tr.stats.sampling_rate
+                            for tr in st])
+            if 80000 < data_len < 90000:
+                daylong = True
+                starttime = min([tr.stats.starttime for tr in st])
+                min_delta = min([tr.stats.delta for tr in st])
+                # Cope with the common starttime less than 1 sample before the
+                #  start of day.
+                if (starttime + min_delta).date > starttime.date:
+                    starttime = (starttime + min_delta)
+                # Check if this is stupid:
+                if abs(starttime - UTCDateTime(starttime.date)) > 600:
+                    daylong = False
+                starttime = starttime.date
+            else:
+                daylong = False
+            # Check if the required amount of data have been downloaded - skip
+            # channels if arg set.
+            for tr in st:
+                if np.ma.is_masked(tr.data):
+                    _len = np.ma.count(tr.data) * tr.stats.delta
+                else:
+                    _len = tr.stats.npts * tr.stats.delta
+                # if _len < process_len * .8:
+                #     Logger.info(
+                #         "Data for {0} are too short, skipping".format(
+                #             tr.id))
+                #     if skip_short_chans:
+                #         continue
+                # Trim to enforce process-len
+                tr.data = tr.data[0:int(process_len * tr.stats.sampling_rate)]
+            if len(st) == 0:
+                Logger.info("No data")
+                continue
+            if daylong:
+                st = pre_processing.dayproc(
+                    st=st, lowcut=lowcut, highcut=highcut,
+                    filt_order=filt_order, samp_rate=samp_rate,
+                    parallel=parallel, starttime=UTCDateTime(starttime),
+                    num_cores=num_cores)
+            else:
+                st = pre_processing.shortproc(
+                    st=st, lowcut=lowcut, highcut=highcut,
+                    filt_order=filt_order, parallel=parallel,
+                    samp_rate=samp_rate, num_cores=num_cores)
+
+        # FIXME: I changed this. TJN 9/13/2021
+        if len([tr.stats.starttime for tr in st]) > 0:
+            data_start = min([tr.stats.starttime for tr in st])
+            data_end = max([tr.stats.endtime for tr in st])
+        else:
+            continue
+
+        for event in sub_catalog:
+            stations, channels, st_stachans = ([], [], [])
+            if len(event.picks) == 0:
+                Logger.warning(
+                    'No picks for event {0}'.format(event.resource_id))
+                continue
+            use_event = True
+            # Check that the event is within the data
+            for pick in event.picks:
+                if not data_start < pick.time < data_end:
+                    Logger.warning(
+                        "Pick outside of data span: Pick time {0} Start "
+                        "time {1} End time: {2}".format(
+                            str(pick.time), str(data_start), str(data_end)))
+                    use_event = False
+            if not use_event:
+                Logger.error('Event is not within data time-span')
+                continue
+            # Read in pick info
+            Logger.debug("I have found the following picks")
+            for pick in event.picks:
+                if not pick.waveform_id:
+                    Logger.warning(
+                        'Pick not associated with waveforms, will not use:'
+                        ' {0}'.format(pick))
+                    continue
+                Logger.debug(pick)
+                stations.append(pick.waveform_id.station_code)
+                channels.append(pick.waveform_id.channel_code)
+            # Check to see if all picks have a corresponding waveform
+            for tr in st:
+                st_stachans.append('.'.join([tr.stats.station,
+                                             tr.stats.channel]))
+            # Cut and extract the templates
+            template = _template_gen(
+                event.picks, st, length, swin, prepick=prepick, plot=plot,
+                all_horiz=all_horiz, delayed=delayed, min_snr=min_snr,
+                plotdir=plotdir)
+            process_lengths.append(len(st[0].data) / samp_rate)
+            temp_list.append(template)
+            catalog_out += event
+        if save_progress:
+            if not os.path.isdir("eqcorrscan_temporary_templates"):
+                os.makedirs("eqcorrscan_temporary_templates")
+            for template in temp_list:
+                template.write(
+                    "eqcorrscan_temporary_templates{0}{1}.ms".format(
+                        os.path.sep, template[0].stats.starttime.strftime(
+                            "%Y-%m-%dT%H%M%S")),
+                    format="MSEED")
+        del st
+    if return_event:
+        return temp_list, catalog_out, process_lengths
+    return temp_list
+
+
 def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     """ Transform stacks so they can be used as templates for matched-filter
     analysis via EQcorrscan, then
@@ -1279,17 +2181,15 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
                   magnitudes=[Magnitude(mag=1.1)], picks=picks)
     catalog = Catalog([event])
 
-    # construct the EQcorrscan tribe object
-    tribe = Tribe().construct(method="from_meta_file", meta_file=catalog,
-                              st=st, lowcut=1.0, highcut=15.0, samp_rate=40.0,
-                              length=4.5, filt_order=4, prepick=0.5,
-                              swin='all', process_len=86400, parallel=False,
-                              skip_short_chans=True)
+    # construct the EQcorrscan tribe object using my construct_stack method
+    stack_template = Stack().construct(method="from_meta_file",
+                                       meta_file=catalog, st=st, lowcut=1.0,
+                                       highcut=15.0, samp_rate=40.0,
+                                       length=4.5, filt_order=4, prepick=0.5,
+                                       swin='all', process_len=86400,
+                                       parallel=False, skip_short_chans=False)
 
-    print(tribe)
-
-
-
+    print(stack_template)
 
     # loop over days and get detections
     iteration_date = start_date
@@ -1309,11 +2209,12 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
-                                 threshold_type="abs", trig_int=8.0,
-                                 plot=False,
-                                 return_stream=False, parallel_process=False,
-                                 ignore_bad_data=True)
+            party = stack_template.detect(stream=st, threshold=0.25,
+                                          daylong=True, threshold_type="abs",
+                                          trig_int=8.0, plot=False,
+                                          return_stream=False,
+                                          parallel_process=False,
+                                          ignore_bad_data=True)
         except Exception:
             party = Party(families=[Family(template=Template())])
             pass
