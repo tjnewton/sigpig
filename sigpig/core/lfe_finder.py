@@ -1250,7 +1250,7 @@ def template_match_stack(stack, templates, template_files, station_dict,
     return party
 
 
-def detections_from_stacks(stack):
+def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     """ Transform stacks so they can be used as templates for matched-filter
     analysis via EQcorrscan, then
 
@@ -1266,7 +1266,7 @@ def detections_from_stacks(stack):
     for trace in stack:
         st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
                          "2016-01-01T23:59:59.99999999999Z"), pad=True,
-                         fill_value=None, nearest_sample=True)
+                         fill_value=0, nearest_sample=True)
         picks.append(Pick(time=UTCDateTime(2016, 1, 1, 11, 59, 58, 500000),
                           phase_hint="P", waveform_id=WaveformStreamID(
                           network_code=trace.stats.network,
@@ -1283,12 +1283,94 @@ def detections_from_stacks(stack):
     tribe = Tribe().construct(method="from_meta_file", meta_file=catalog,
                               st=st, lowcut=1.0, highcut=15.0, samp_rate=40.0,
                               length=4.5, filt_order=4, prepick=0.5,
-                              swin='all', process_len=86400, parallel=False)
+                              swin='all', process_len=86400, parallel=False,
+                              skip_short_chans=True)
 
     print(tribe)
 
 
-    return None
+
+
+    # loop over days and get detections
+    iteration_date = start_date
+    party_list = []
+    while iteration_date < end_date:
+        print(iteration_date)  # print date for long runs
+        # build stream of all files on day of interest
+        day_file_list = glob.glob(f"{detection_files_path}/*."
+                                  f"{iteration_date.year}"
+                                  f"-{iteration_date.month:02}"
+                                  f"-{iteration_date.day:02}.ms")
+
+        # load files into stream
+        st = Stream()
+        for file in day_file_list:
+            st += read(file)
+
+        try:
+            # detect
+            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
+                                 threshold_type="abs", trig_int=8.0,
+                                 plot=False,
+                                 return_stream=False, parallel_process=False,
+                                 ignore_bad_data=True)
+        except Exception:
+            party = Party(families=[Family(template=Template())])
+            pass
+
+        # append detections to party list if there are detections
+        if len(party.families[0]) > 0:
+            party_list.append(party)
+
+        # update the next file start date
+        iteration_year = iteration_date.year
+        iteration_month = iteration_date.month
+        iteration_day = iteration_date.day
+        # get number of days in current month
+        month_end_day = calendar.monthrange(iteration_year,
+                                            iteration_month)[1]
+        # check if year should increment
+        if iteration_month == 12 and iteration_day == month_end_day:
+            iteration_year += 1
+            iteration_month = 1
+            iteration_day = 1
+        # check if month should increment
+        elif iteration_day == month_end_day:
+            iteration_month += 1
+            iteration_day = 1
+        # else only increment day
+        else:
+            iteration_day += 1
+
+        iteration_date = UTCDateTime(f"{iteration_year}-"
+                                     f"{iteration_month:02}-"
+                                     f"{iteration_day:02}T00:00:00.0Z")
+
+    # add all detections to a single party
+    if len(party_list) > 1:
+        for index, iteration_party in enumerate(party_list):
+            # skip first party
+            if index > 0:
+                # add events of current party family to first party family
+                party_list[0].families[0] = party_list[0].families[0].append(
+                    iteration_party.families[0])
+
+    # extract and return the first party or None if no party object
+    if len(party_list) > 0:
+        party = party_list[0]
+
+        # save party to pickle
+        filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
+                   f'{start_date.year}_to_{end_date.month:02}' \
+                   f'_{end_date.day:02}_{end_date.year}.pkl'
+        outfile = open(filename, 'wb')
+        pickle.dump(party, outfile)
+        outfile.close()
+
+        return party
+
+    else:
+        return None
 
 
 def find_LFEs(templates, template_files, station_dict, template_length,
@@ -1437,8 +1519,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # TODO: filtering before stacking kosher?
 
     # use stacks as templates in matched-filter search to build catalog of
-    # detections # TODO
-    party = detections_from_stacks(stack_lin)
+    # detections
+    party = detections_from_stacks(stack_lin, detection_files_path, start_date,
+                                   end_date)
 
     return None
 
