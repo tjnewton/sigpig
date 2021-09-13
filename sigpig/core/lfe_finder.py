@@ -1245,15 +1245,130 @@ def template_match_stack(stack, templates, template_files, station_dict,
     return party
 
 
-def transform_stacks():
+def detections_from_stacks(stack):
     """ Transform stacks so they can be used as templates for matched-filter
     analysis via EQcorrscan.
 
     Returns:
 
     """
+    make_Templates(templates, template_files, station_dict, template_length,
+                   template_prepick):
+    """
+    Generates an EQcorrscan Tribe object which stores templates for
+    matched-filter analysis. Template start times are specified by the
+    templates object as shown in the example, and template data are loaded
+    from the miniseed files stored in files in the template_files list.
+    station_dict contains the network and channel code for each station (
+    information needed by EQcorrscan),
 
-    ...
+    Example:
+        # create HYPODD format file with template events to import them into EQcorrscan
+        # entries are: #, YR, MO, DY, HR, MN, SC, LAT, LON, DEP, MAG, EH, EZ, RMS, ID
+        #              followed by lines of observations: STA, TT, WGHT, PHA
+        # as specified here: https://www.ldeo.columbia.edu/~felixw/papers/Waldhauser_OFR2001.pdf
+        templates = ["# 2016  9 26  9 25 49.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "WASW    0.000  1       P\n",
+                     "MCR3    3.000  1       P\n",
+                     "N25K    3.500  1       P\n"]
+        template_files = [
+        "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/AV.WASW.SHZ.2016-09-26.ms",
+        "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/YG.MCR3.BHZ.2016-09-26.ms",
+        "/Users/human/Dropbox/Research/Alaska/build_templates/subset_stations/TA.N25K.BHZ.2016-09-26.ms"]
+
+        station_dict = {"WASW": {"network": "AV", "channel": "SHZ"},
+                    "MCR3": {"network": "YG", "channel": "BHZ"},
+                    "N25K": {"network": "TA", "channel": "BHZ"}}
+
+        # make templates 14 seconds with a prepick of 0.5s, so 14.5 seconds
+        # total
+        template_length = 14
+        template_prepick = 0.5
+
+        tribe = make_Templates(templates, files, station_dict,
+                               template_length, template_prepick)
+    """
+
+    # FIXME: make this more pythonic, e.g.
+
+    '''
+    # initialize an event to add to the Obspy catalog
+    event = Event(
+        # define the event origin location and time
+        origins=[Origin(
+            latitude=61.9833, longitude=-144.0437, depth=1700,
+            time=UTCDateTime(2016, 9, 26, 8, 52, 40))],
+        # define the event magnitude
+        magnitudes=[Magnitude(mag=1.1)],
+        # define the arrival times of phases at different stations
+        picks=[
+            # three picks are defined here on the BHZ component of three stations in the YG network
+            Pick(time=UTCDateTime(2016, 9, 26, 8, 52, 45, 180000), phase_hint="P",
+                    waveform_id=WaveformStreamID(
+                        network_code="YG", station_code="RH08", channel_code="BHZ")),
+            Pick(time=UTCDateTime(2016, 9, 26, 8, 52, 45, 809000), phase_hint="P",
+                    waveform_id=WaveformStreamID(
+                        network_code="YG", station_code="NEB1", channel_code="BHZ")),
+            Pick(time=UTCDateTime(2016, 9, 26, 8, 52, 45, 661000), phase_hint="P",
+                    waveform_id=WaveformStreamID(
+                        network_code="YG", station_code="NEB3", channel_code="BHZ"))])
+
+    # generate the catalog from a list of events (in this case 1 event comprised of 3 picks)
+    catalog = Catalog([event])
+    '''
+
+    # now write to file
+    with open("templates.pha", "w") as file:
+        for line in templates:
+            file.write(line)
+
+    # read the file into an Obspy catalog
+    catalog = read_events("templates.pha", format="HYPODDPHA")
+    # complete missing catalog info (required by EQcorrscan)
+    for event in catalog.events:
+        picks = event.picks.copy()
+        for index, pick in enumerate(event.picks):
+            if pick.waveform_id.station_code in station_dict:
+                picks[index].waveform_id.network_code = \
+                    station_dict[pick.waveform_id.station_code]["network"]
+                picks[index].waveform_id.channel_code = \
+                    station_dict[pick.waveform_id.station_code]["channel"]
+                # copy Z entry
+                pick_copy1 = picks[index].copy()
+                pick_copy2 = picks[index].copy()
+                # make N and E entries
+                pick_copy1.waveform_id.channel_code = \
+                    pick_copy1.waveform_id.channel_code[:-1] + 'N'
+                picks.append(pick_copy1)
+                pick_copy2.waveform_id.channel_code = \
+                    pick_copy2.waveform_id.channel_code[:-1] + 'E'
+                picks.append(pick_copy2)
+
+        event.picks = picks
+
+    # fig = catalog.plot(projection="local", resolution="h")
+
+
+    # build catalog from stacks
+
+
+    # build stream of day-long data from stack
+    st = Stream()
+    for trace in stack:
+        st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
+                         "2016-01-01T23:59:59.99999999999Z"), pad=True,
+                         fill_value=None, nearest_sample=True)
+
+    # construct the EQcorrscan tribe object
+    tribe = Tribe().construct(method="from_meta_file", meta_file=catalog,
+                              st=st, lowcut=1.0, highcut=15.0, samp_rate=40.0,
+                              length=4.5, filt_order=4, prepick=0.5,
+                              swin='all', process_len=86400, parallel=False)
+
+    print(tribe)
+
+
+    return None
 
 
 def find_LFEs(templates, template_files, station_dict, template_length,
@@ -1365,7 +1480,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if load_stack:
         # load stack list from file
-        infile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift_abs.25.pkl', 'rb')
+        infile = open(f'inner_stack_0_snr{snr_threshold}_'
+                      f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
     else:
@@ -1401,17 +1517,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # TODO: filtering before stacking kosher?
 
     # use stacks as templates in matched-filter search to build catalog of
-    # detections
-    # TODO
-    # transform the stack so it can be used as a template
-    transformed_stack = transform_stacks(stack_lin)
-
-    party = template_match_stack(transformed_stack, templates, template_files,
-                                 station_dict, template_length,
-                                 template_prepick, detection_files_path,
-                                 start_date, end_date)
-
-
+    # detections # TODO
+    party = detections_from_stacks(stack_lin)
 
     return None
 
