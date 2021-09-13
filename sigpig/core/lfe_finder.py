@@ -466,8 +466,9 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=9.0, daylong=True,
-                                 threshold_type="MAD", trig_int=8.0, plot=False,
+            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
+                                 threshold_type="abs", trig_int=8.0,
+                                 plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
         except Exception:
@@ -1374,7 +1375,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                main_trace,
                                                align_type=shift_method)
         # save stacks as pickle file
-        outfile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift.pkl', 'wb')
+        outfile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift_abs.25_5s.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -1392,12 +1393,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
 
+    # [[[[ on lfe_finder ]]]]
+    # TODO: currently testing 5 second template. How do detections compare
+    #       to 16 s template?
+
     # TODO: add response correction to data? check data pipeline
-
-    # TODO: filtering before stacking kosher? check double filtering a stack
-    #       trace (in frequency space)
-
-
+    # TODO: filtering before stacking kosher?
 
     # use stacks as templates in matched-filter search to build catalog of
     # detections
@@ -1405,7 +1406,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # transform the stack so it can be used as a template
     transformed_stack = transform_stacks(stack_lin)
 
-    party = template_match_stack(stack_lin, templates, template_files,
+    party = template_match_stack(transformed_stack, templates, template_files,
                                  station_dict, template_length,
                                  template_prepick, detection_files_path,
                                  start_date, end_date)
