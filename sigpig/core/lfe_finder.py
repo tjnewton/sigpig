@@ -1244,6 +1244,17 @@ def template_match_stack(stack, templates, template_files, station_dict,
     return party
 
 
+def transform_stacks():
+    """ Transform stacks so they can be used as templates for matched-filter
+    analysis via EQcorrscan.
+
+    Returns:
+
+    """
+
+    ...
+
+
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
               snr_threshold, main_trace, shift_method='max', load_party=False,
@@ -1382,14 +1393,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
 
     # TODO: add response correction to data? check data pipeline
+
     # TODO: filtering before stacking kosher? check double filtering a stack
     #       trace (in frequency space)
 
-    # get locations from detection times and stacks
-    # TODO
 
-    # generate focal mechanisms from phase weighted stacks and locations
-    # TODO
 
     # use stacks as templates in matched-filter search to build catalog of
     # detections
@@ -1403,4 +1411,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     return None
 
-# stacks are from filtered signals. do traces look different if filtered again?
+
+# get locations from detection times and stacks
+# TODO
+
+# generate focal mechanisms from phase weighted stacks and locations
+# TODO
