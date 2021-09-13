@@ -1402,6 +1402,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # use stacks as templates in matched-filter search to build catalog of
     # detections
     # TODO
+    # transform the stack so it can be used as a template
+    transformed_stack = transform_stacks(stack_lin)
+
     party = template_match_stack(stack_lin, templates, template_files,
                                  station_dict, template_length,
                                  template_prepick, detection_files_path,
