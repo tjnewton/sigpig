@@ -423,7 +423,7 @@ def plot_Time_Series(doi, doi_end, files_path, filter=False, bandpass=[],
 
     # initialize figure and set the figure size
     figureWidth = 50  # 80
-    figureHeight = 0.5 * len(st)  # 0.6 for all stations # 3.5
+    figureHeight = 3.5 * len(st)  # 0.6 for all stations # 3.5
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
     # make a subplot of subplots for spectrograms
