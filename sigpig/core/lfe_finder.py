@@ -245,14 +245,18 @@ class Stack(Tribe):
                         st=st, lowcut=lowcut, highcut=highcut,
                         filt_order=filt_order, samp_rate=samp_rate,
                         parallel=parallel, starttime=UTCDateTime(starttime),
-                        num_cores=num_cores, ignore_bad_data=True)
+                        num_cores=num_cores, ignore_bad_data=True,
+                        ignore_length=True)
                 else:
                     st = pre_processing.shortproc(
                         st=st, lowcut=lowcut, highcut=highcut,
                         filt_order=filt_order, parallel=parallel,
                         samp_rate=samp_rate, num_cores=num_cores,
-                        ignore_bad_data=True)
+                        ignore_bad_data=True, ignore_length=True)
 
+            # if len(st) == 0:
+            #     Logger.info("No data")
+            #     continue
             # # FIXME: I changed this. TJN 9/13/2021
             # if len([tr.stats.starttime for tr in st]) > 0:
             data_start = min([tr.stats.starttime for tr in st])
