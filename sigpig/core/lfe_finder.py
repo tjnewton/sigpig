@@ -1939,7 +1939,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
 def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     """ Transform stacks so they can be used as templates for matched-filter
-    analysis via EQcorrscan, then
+    analysis via EQcorrscan, then finds detections corresponding to stacks.
 
     Returns:
 
@@ -1982,7 +1982,6 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
                   magnitudes=[Magnitude(mag=1.1)], picks=picks)
     catalog = Catalog([event])
 
-    # FIXME: this constructor is discarding the templates somewhere
     # construct the EQcorrscan tribe object using my construct_stack method
     stack_template = Tribe().construct(method="from_meta_file",
                                        meta_file=catalog, st=st, lowcut=1.0,
@@ -1990,8 +1989,6 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
                                        length=4.5, filt_order=4, prepick=0.5,
                                        swin='all', process_len=86400,
                                        parallel=False, skip_short_chans=False)
-
-    print(stack_template)
 
     # loop over days and get detections
     iteration_date = start_date
@@ -2065,7 +2062,8 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         # save party to pickle
         filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
-                   f'_{end_date.day:02}_{end_date.year}.pkl'
+                   f'_{end_date.day:02}_' \
+                   f'{end_date.year}_abs.25_16s_stackDetects.pkl'
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
@@ -2225,6 +2223,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # detections
     party = detections_from_stacks(stack_lin, detection_files_path, start_date,
                                    end_date)
+    # TODO: testing above call on [[[[ lfe_finder (1) ]]]]
 
     return None
 
