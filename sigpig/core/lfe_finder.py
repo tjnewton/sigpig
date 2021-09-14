@@ -258,11 +258,11 @@ class Stack(Tribe):
             #     Logger.info("No data")
             #     continue
             # # FIXME: I changed this. TJN 9/13/2021
-            # if len([tr.stats.starttime for tr in st]) > 0:
-            data_start = min([tr.stats.starttime for tr in st])
-            data_end = max([tr.stats.endtime for tr in st])
-            # else:
-            #     continue
+            if len([tr.stats.starttime for tr in st]) > 0:
+                data_start = min([tr.stats.starttime for tr in st])
+                data_end = max([tr.stats.endtime for tr in st])
+            else:
+                continue
 
             for event in sub_catalog:
                 stations, channels, st_stachans = ([], [], [])
@@ -1950,14 +1950,30 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     # build stream of day-long data from stack and compile picks list
     st = Stream()
     picks = []
-    for trace in stack:
+    for index, trace in enumerate(stack):
+        # take first 10 seconds of trace data as noise
+        tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
+        # generate a gaussian distribution and extract values from it to
+        # generate synthetic noise to fill day-long stream
+        tr_mean = tr_data.mean()
+        tr_stdev = tr_data.std()
+        # extend the stack to be a day long
         st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
                          "2016-01-01T23:59:59.99999999999Z"), pad=True,
                          fill_value=0, nearest_sample=True)
+
+        # fill the data before the stack
+        samples = int(43180 * trace.stats.sampling_rate)
+        tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+        st[index].data[:samples] = tr_data
+        # then fill the data after the stack
+        tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+        st[index].data[-1 * samples:] = tr_data
+
         picks.append(Pick(time=UTCDateTime(2016, 1, 1, 11, 59, 58, 500000),
                           phase_hint="P", waveform_id=WaveformStreamID(
                           network_code=trace.stats.network,
-                          station_code=trace.stats.channel,
+                          station_code=trace.stats.station,
                           channel_code=trace.stats.channel)))
 
     # build catalog object from picks list with made up origin and magnitude
@@ -1966,8 +1982,9 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
                   magnitudes=[Magnitude(mag=1.1)], picks=picks)
     catalog = Catalog([event])
 
+    # FIXME: this constructor is discarding the templates somewhere
     # construct the EQcorrscan tribe object using my construct_stack method
-    stack_template = Stack().construct(method="from_meta_file",
+    stack_template = Tribe().construct(method="from_meta_file",
                                        meta_file=catalog, st=st, lowcut=1.0,
                                        highcut=15.0, samp_rate=40.0,
                                        length=4.5, filt_order=4, prepick=0.5,
