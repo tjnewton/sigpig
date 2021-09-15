@@ -1831,7 +1831,6 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
-            # channel = channels[0]
             print(f"Assembling streams for {station}.{channel} ["
                   f"{station_idx+1}/{len(stations)}]")
 
@@ -1872,10 +1871,6 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                 else:
                     sta_chan_stream += Trace()
 
-            # FIXME: sta_chan_stream contains different length traces. Why?
-            # TODO: delete after testing
-            # print(f"len(st[0]) = {len(sta_chan_stream[0])}")
-            # print(f"duration = {sta_chan_stream[0].stats.endtime - sta_chan_stream[0].stats.starttime} s")
             # guard against empty stream
             if len(sta_chan_stream) > 0:
 
