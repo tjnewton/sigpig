@@ -1824,8 +1824,6 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     stack_lin = Stream()
     stations = list(station_dict.keys())
     for station_idx, station in enumerate(stations):
-        # station = stations[8] # FIXME: delete after testing
-        station = stations[station_idx]
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"])  # append Z component
