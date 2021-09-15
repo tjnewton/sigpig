@@ -1611,7 +1611,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             maxs = np.max(np.abs(data), axis=1)
             data = data / maxs[:, None]
 
-        # made structures for stacks
+        # make structures for stacks
         linear_stack = data.mean(axis=0)
         phas = np.zeros_like(data)
 
@@ -1887,19 +1887,11 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     if align_type == 'zero':
                         # align the start time of each trace in stream
                         zero_shift_stream(sta_chan_stream)
-                    elif align_type == 'med':
+                    elif align_type == 'med' or align_type == 'max':
                         # get xcorr time shift from median reference signal
                         shifts, indices, main_time = xcorr_time_shifts(
-                                                            sta_chan_stream,
-                                                            reference_signal="med")
-                        # align stream traces from xcorr shifts
-                        align_stream(sta_chan_stream, shifts, indices,
-                                     main_time)
-                    elif align_type == 'max':
-                        # get xcorr time shift from max reference signal
-                        shifts, indices, main_time = xcorr_time_shifts(
-                                                            sta_chan_stream,
-                                                            reference_signal="max")
+                                                   sta_chan_stream,
+                                                   reference_signal=align_type)
                         # align stream traces from xcorr shifts
                         align_stream(sta_chan_stream, shifts, indices,
                                      main_time)
