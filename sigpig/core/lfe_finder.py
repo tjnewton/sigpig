@@ -2144,7 +2144,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # load party object from file
 
         # abs 0.25 = 1218 detections, fits in MBP memory
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
         # MAD 9.0 = 1435 detections, fits in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
@@ -2223,7 +2223,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # detections
     party = detections_from_stacks(stack_lin, detection_files_path, start_date,
                                    end_date)
-    # TODO: testing above call on [[[[ lfe_finder (1) ]]]]
+    # TODO: testing above call on [[[[ lfe_finder (1) ]]]] party == None
 
     return None
 
