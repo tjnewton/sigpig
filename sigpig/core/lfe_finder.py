@@ -2090,7 +2090,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
         template_files = glob.glob(f"{files_path}/*.ms")
 
-        # define path of files for detection
+        # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09
         detection_files_path = "/Users/human/ak_data/inner"
 
         # define dates of interest
@@ -2191,18 +2191,37 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # plot stacks
     stack_pw, stack_lin = stack_list
+    stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+                         "2016-01-01T12:00:05.0Z"), pad=True,
+                         fill_value=0, nearest_sample=True)
+    stack_pw.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+        "2016-01-01T12:00:05.0Z"), pad=True,
+                   fill_value=0, nearest_sample=True)
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'phase_weighted_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
+            plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
+                       f'{snr_threshold}_{shift_method}Shift_abs.25_16s_zoom',
+                       save=True)
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_{shift_method}Shift', save=True)
+            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s_zoom', save=True)
+
+    # # TODO via Aaron : # #
+    # - use subset of 4 stations, one constant time shift over entire
+    #   network from N25K.
+    # - make simple visualization of stack as it is built with each component
+    # - does the stack look like the initial template? if not what is wrong?
+
+    # TODO: compare stack to detect template
 
     # [[[[ on lfe_finder ]]]]
     # TODO: currently testing 5 second template. How do detections compare
     #       to 16 s template?
 
+    # TODO: try larger stacks on talapas (MAD 8 w/ & w/o SNR filter)
+
     # TODO: add response correction to data? check data pipeline
-    # TODO: filtering before stacking kosher?
+    # TODO: is filtering before stacking ok? try without
 
     # use stacks as templates in matched-filter search to build catalog of
     # detections
