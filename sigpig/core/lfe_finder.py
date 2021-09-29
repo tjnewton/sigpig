@@ -1946,7 +1946,7 @@ def stack_template_detections(party, streams_path, main_trace,
                 # dont consider empty traces (case of no data present)
                 if not EMPTY_FLAG:
 
-                    # process according to specified alignment
+                    # process according to specified method and alignment
                     if align_type == 'zero':
                         # align the start time of each trace in stream
                         zero_shift_stream(sta_chan_stream)
