@@ -646,7 +646,7 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 
     # initialize figure and set the figure size
     figureWidth = 20  # 80
-    figureHeight = 0.5 * len(stack)  # 0.6 for all stations # 3.5
+    figureHeight = 2.5 * len(stack)  # 0.6 for all stations # 3.5
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
 
@@ -838,3 +838,9 @@ def plot_distribution(data, bins=False, title=False, save=False):
     plt.show()
 
     return fig
+
+
+def examine_stack():
+    "Animate building of stack"
+
+    ...
