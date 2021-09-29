@@ -2193,9 +2193,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # FIXME: delete test variable declarations
     load_party = True
-    load_stack = True
+    load_stack = False
     plot = True
-    shift_method = 'med'
+    shift_method = 'fixed'
     # get main station template detections
     if load_party:
         # load party object from file
@@ -2249,9 +2249,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = stack_template_detections(culled_party,
                                                detection_files_path,
                                                main_trace,
-                                               align_type=shift_method)
+                                               method='fixed_location')
         # save stacks as pickle file
-        outfile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift_abs.25_5s.pkl', 'wb')
+        outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
