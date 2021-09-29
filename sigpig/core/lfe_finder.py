@@ -1953,6 +1953,7 @@ def stack_template_detections(party, streams_path, main_trace,
                     elif align_type == 'med' or align_type == 'max':
                         # get time offsets for fixed location event
                         if method == "fixed_location":
+                            # time offsets were calculated before loop
                             continue
                         # otherwise get time offsets via cross correlation
                         else:
