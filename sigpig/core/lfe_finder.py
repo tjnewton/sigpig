@@ -1630,7 +1630,7 @@ def stack_template_detections(party, streams_path, main_trace,
             # pick_times
             else:
                 main_stream += Trace()
-                main_stream_snrs.append(0)
+                main_stream_snrs.append(np.nan)
 
         return main_stream, main_stream_snrs
 
@@ -1735,7 +1735,7 @@ def stack_template_detections(party, streams_path, main_trace,
             reference_trace = trace.copy().trim(reference_start_time,
                                                 reference_start_time + 3)
 
-            # print some info
+            # print a warning if SNR is bad
             if ref_snr == 0:
                 print("- ! - ! - ! - ! - ! - ! -")
                 print("- ! - ! - ! - ! - ! - ! -")
