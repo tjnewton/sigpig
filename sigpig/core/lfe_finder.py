@@ -1537,7 +1537,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
-def stack_template_detections(party, streams_path, main_trace, align_type):
+def stack_template_detections(party, streams_path, main_trace,
+                              align_type='med', method='fixed_location'):
     """
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
@@ -1582,6 +1583,54 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         pickle.dump(stack_list, outfile)
         outfile.close()
     """
+    # function to determine time shifts for fixed-location event
+    def fixed_loc_time_shifts(stream):
+        ...
+
+        return shifts, indices, main_time
+
+    def build_main_stream(main_trace, streams_path, pick_times):
+        main_stream = Stream()
+        main_stream_snrs = []
+        # loop over pick times to assemble stream & show tqdm progress bar
+        for index in tqdm(range(len(pick_times))):
+            pick_time = pick_times[index]
+            # find the local file corresponding to the station:channel pair
+            file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
+                                  f"{main_trace[1]}."
+                                  f"{main_trace[2]}.{pick_time.year}"
+                                  f"-{pick_time.month:02}"
+                                  f"-{pick_time.day:02}.ms")
+
+            # guard against missing files
+            if len(file_list) > 0:
+                # FIXME: lowest sr should be detected, not hard coded
+                lowest_sr = 40  # lowest sampling rate
+                # TODO: try upsampling to 100 Hz
+                # should only be one file, but safeguard against many
+                file = file_list[0]
+                # load day file into stream
+                day_st = read(file)
+                # bandpass filter
+                day_st.filter('bandpass', freqmin=1, freqmax=15)
+                # interpolate to lowest sampling rate
+                day_st.interpolate(sampling_rate=lowest_sr)
+                # trim trace to 30 seconds surrounding pick time
+                day_st.trim(pick_time - 10, pick_time + 20)
+                # append snr
+                main_stream_snrs.append(snr(day_st)[0])
+
+                # add trace to main_stream
+                main_stream += day_st
+
+            # otherwise append empty Trace to preserve equal length with
+            # pick_times
+            else:
+                main_stream += Trace()
+                main_stream_snrs.append(0)
+
+        return main_stream, main_stream_snrs
+
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(stream, normalize=True):
         # guard against stacking zeros and create data array
@@ -1662,6 +1711,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             median_snr = np.nanmedian(snrs)
             # find index of SNR closest to median
             reference_idx = np.nanargmin(np.abs(snrs - median_snr))
+        else:
+            reference_idx = reference_signal
 
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
@@ -1819,6 +1870,18 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
+    # FIXME: get main stream for shifts if necessary
+    if method == 'fixed_location':
+        # get the main trace detections in a stream
+        main_stream, main_stream_snrs = build_main_stream(main_trace,
+                                                          streams_path,
+                                                          pick_times)
+        # get the fixed location time shifts from the main trace
+        # TODO: does this time shift need to be onset - first onset?
+        # TODO: get correct reference signal index
+        shifts, indices, main_time = xcorr_time_shifts(main_stream,
+                                                       reference_signal=2)
+
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
@@ -1888,11 +1951,17 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                         # align the start time of each trace in stream
                         zero_shift_stream(sta_chan_stream)
                     elif align_type == 'med' or align_type == 'max':
-                        # get xcorr time shift from median reference signal
-                        shifts, indices, main_time = xcorr_time_shifts(
+                        # get time offsets for fixed location event
+                        if method == "fixed_location":
+                            continue
+                        # otherwise get time offsets via cross correlation
+                        else:
+                            # get xcorr time shift from median reference signal
+                            shifts, indices, main_time = xcorr_time_shifts(
                                                    sta_chan_stream,
                                                    reference_signal=align_type)
-                        # align stream traces from xcorr shifts
+
+                        # align stream traces from time shifts
                         align_stream(sta_chan_stream, shifts, indices,
                                      main_time)
 
@@ -2215,8 +2284,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # TODO: compare stack to detect template
 
     # [[[[ on lfe_finder ]]]]
-    # TODO: currently testing 5 second template. How do detections compare
-    #       to 16 s template?
+    # TODO: test 5 second template. How do detections compare to 16 s template?
 
     # TODO: try larger stacks on talapas (MAD 8 w/ & w/o SNR filter)
 
