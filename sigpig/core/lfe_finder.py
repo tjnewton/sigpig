@@ -1880,8 +1880,7 @@ def stack_template_detections(party, streams_path, main_trace,
                                                           streams_path,
                                                           pick_times)
         # get the fixed location time shifts from the main trace
-        # TODO: does this time shift need to be onset - first onset?
-        # TODO: reference signal index is hard coded to template event
+        # FIXME: reference signal index is hard coded to template event
         shifts, indices, main_time = xcorr_time_shifts(main_stream,
                                                        reference_signal=177)
 
