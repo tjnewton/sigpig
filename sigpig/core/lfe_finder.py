@@ -1993,7 +1993,8 @@ def stack_template_detections(party, streams_path, main_trace,
 
 def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     """ Transform stacks so they can be used as templates for matched-filter
-    analysis via EQcorrscan, then finds detections corresponding to stacks.
+    analysis via EQcorrscan, FIXME, then finds detections corresponding to
+    stacks.
 
     Returns:
 
