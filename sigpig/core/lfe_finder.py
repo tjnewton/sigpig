@@ -1873,7 +1873,6 @@ def stack_template_detections(party, streams_path, main_trace,
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
-    # FIXME: get main stream for shifts if necessary
     if method == 'fixed_location':
         # get the main trace detections in a stream
         main_stream, main_stream_snrs = build_main_stream(main_trace,
