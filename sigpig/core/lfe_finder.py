@@ -1607,16 +1607,19 @@ def stack_template_detections(party, streams_path, main_trace,
                 # FIXME: lowest sr should be detected, not hard coded
                 lowest_sr = 40  # lowest sampling rate
                 # TODO: try upsampling to 100 Hz
+
                 # should only be one file, but safeguard against many
                 file = file_list[0]
                 # load day file into stream
                 day_st = read(file)
                 # bandpass filter
                 day_st.filter('bandpass', freqmin=1, freqmax=15)
-                # interpolate to lowest sampling rate
-                day_st.interpolate(sampling_rate=lowest_sr)
-                # trim trace to 30 seconds surrounding pick time
-                day_st.trim(pick_time - 10, pick_time + 20)
+                # interpolate to lowest sampling rate if necessary
+                if day_st[0].stats.sampling_rate != lowest_sr:
+                    day_st.interpolate(sampling_rate=lowest_sr)
+                # trim trace to 60 seconds surrounding pick time
+                day_st.trim(pick_time - 20, pick_time + 40, pad=True,
+                            fill_value=0, nearest_sample=True)
                 # append snr
                 main_stream_snrs.append(snr(day_st)[0])
 
