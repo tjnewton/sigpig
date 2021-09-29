@@ -2220,6 +2220,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
+        # look at family template
+        family = sorted(party.families, key=lambda f: len(f))[-1]
+        fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+
     # cull the party detections below the specified signal to noise ratio
     culled_party = cull_detections(party, detection_files_path, snr_threshold)
     if plot:
