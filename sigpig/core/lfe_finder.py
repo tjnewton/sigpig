@@ -1537,8 +1537,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
-def stack_template_detections(party, streams_path, main_trace,
-                              align_type='med', method='fixed_location'):
+def stack_template_detections(party, streams_path, main_trace, align_type):
     """
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
@@ -1583,12 +1582,8 @@ def stack_template_detections(party, streams_path, main_trace,
         pickle.dump(stack_list, outfile)
         outfile.close()
     """
-    # function to determine time shifts for fixed-location event
-    def fixed_loc_time_shifts(stream):
-        ...
-
-        return shifts, indices, main_time
-
+    # function to build a stream from which to generate time shifts for
+    # a fixed-location event
     def build_main_stream(main_trace, streams_path, pick_times):
         main_stream = Stream()
         main_stream_snrs = []
@@ -1873,7 +1868,7 @@ def stack_template_detections(party, streams_path, main_trace,
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
-    if method == 'fixed_location':
+    if align_type == 'fixed':
         # get the main trace detections in a stream
         main_stream, main_stream_snrs = build_main_stream(main_trace,
                                                           streams_path,
@@ -1952,18 +1947,16 @@ def stack_template_detections(party, streams_path, main_trace,
                         # align the start time of each trace in stream
                         zero_shift_stream(sta_chan_stream)
                     elif align_type == 'med' or align_type == 'max':
-                        # get time offsets for fixed location event
-                        if method == "fixed_location":
-                            # time offsets were calculated before loop
-                            continue
-                        # otherwise get time offsets via cross correlation
-                        else:
-                            # get xcorr time shift from median reference signal
-                            shifts, indices, main_time = xcorr_time_shifts(
-                                                   sta_chan_stream,
-                                                   reference_signal=align_type)
+                        # get xcorr time shift from median reference signal
+                        shifts, indices, main_time = xcorr_time_shifts(
+                                               sta_chan_stream,
+                                               reference_signal=align_type)
 
                         # align stream traces from time shifts
+                        align_stream(sta_chan_stream, shifts, indices,
+                                     main_time)
+                    else:
+                        # align stream traces from fixed location time shifts
                         align_stream(sta_chan_stream, shifts, indices,
                                      main_time)
 
@@ -2144,7 +2137,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     Inputs:
 
         shift_method: string identifying the cross-correlation time shift
-                      method to use. 'zero', 'med', and 'max' are options.
+                      method to use. 'zero', 'med', 'max', and 'fixed' are
+                      options.
 
     Example:
         # manually define templates from station TA.N25K (location is made up)
@@ -2249,7 +2243,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = stack_template_detections(culled_party,
                                                detection_files_path,
                                                main_trace,
-                                               method='fixed_location')
+                                               align_type=shift_method)
         # save stacks as pickle file
         outfile = open(f'inner_stack_0_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
