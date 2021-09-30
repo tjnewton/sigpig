@@ -1766,6 +1766,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                                    max_amplitude_offset - 1.5
             reference_trace = trace.copy().trim(reference_start_time,
                                                 reference_start_time + 3)
+            # FIXME: note that the 3 second duration defined above is
+            #  and arbitrary choice that affects the results
 
             # print a warning if SNR is bad
             if ref_snr == 0:
@@ -2275,6 +2277,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     print(f"Culled detections comprise "
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
+
+    #TODO: cull detections based on cross-correlation clustering? I'm kinda
+    # already doing that with detection thresholding
 
     # generate stack and time it
     start = time.time()
