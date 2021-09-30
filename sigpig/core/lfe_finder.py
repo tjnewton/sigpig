@@ -2191,7 +2191,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     load_stack = False
     plot = True
-    shift_method = 'fixed'
+    shift_method = 'max'
     # get main station template detections
     if load_party:
         # load party object from file
@@ -2252,7 +2252,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method)
         # save stacks as pickle file
         outfile = open(f'inner_stack_0_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
+                       f'{shift_method}Shift_abs.25_16s_test.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -2273,11 +2273,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
-                       f'{snr_threshold}_{shift_method}Shift_abs.25_16s_zoom',
-                       save=True)
+                       f'{snr_threshold}_{shift_method}'
+                       f'Shift_abs.25_16s_zoom_test', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_zoom', save=True)
+                       f'{shift_method}Shift_abs.25_16s_zoom_test', save=True)
+        # now plot template the same way for comparison
+        # TODO
 
     # # TODO via Aaron : # #
     # - use subset of 4 stations, one constant time shift over entire
