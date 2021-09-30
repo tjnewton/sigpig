@@ -1630,24 +1630,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
         return main_stream, main_stream_snrs
 
-    # function to animate the generation of linear stacks
-    def animate_stacks(stream):
-
-        fig, axes = plt.subplots(2)
-        camera = Camera(fig)
-        t = np.linspace(0, 2 * np.pi, 128, endpoint=False)
-        for i in t:
-            axes[0].plot(t, np.sin(t + i), color='blue')
-            axes[1].plot(t, np.sin(t - i), color='blue')
-            camera.snap()
-
-        animation = camera.animate()
-        animation.save('celluloid_subplots.gif', writer='imagemagick')
-
-        return None
-
     # function to generate linear and phase-weighted stacks from a stream
-    def generate_stacks(stream, normalize=True):
+    def generate_stacks(stream, normalize=True, animate=False):
         # guard against stacking zeros and create data array
         data = []
         reference_idx = 0
@@ -1697,6 +1681,21 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         lin.data = linear_stack
         pws = stream[reference_idx].copy()
         pws.data = phase_weighted_stack
+
+        # generate an animation of the stack if specified
+        if animate:
+
+            fig, axes = plt.subplots(2)
+            camera = Camera(fig)
+            t = np.linspace(0, 2 * np.pi, 128, endpoint=False)
+            for i in t:
+                axes[0].plot(t, np.sin(t + i), color='blue')
+                axes[1].plot(t, np.sin(t - i), color='blue')
+                camera.snap()
+
+            animation = camera.animate()
+            animation.save('celluloid_subplots.gif', writer='imagemagick')
+
         return lin, pws
 
     # helper function to determine time offset of each time series in a
