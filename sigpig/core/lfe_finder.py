@@ -29,6 +29,7 @@ from scipy.signal import hilbert
 import time
 from data import max_amplitude, snr
 import os
+from celluloid import Camera
 
 Logger = logging.getLogger(__name__)
 
@@ -1628,6 +1629,22 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                 main_stream_snrs.append(np.nan)
 
         return main_stream, main_stream_snrs
+
+    # function to animate the generation of linear stacks
+    def animate_stacks(stream):
+
+        fig, axes = plt.subplots(2)
+        camera = Camera(fig)
+        t = np.linspace(0, 2 * np.pi, 128, endpoint=False)
+        for i in t:
+            axes[0].plot(t, np.sin(t + i), color='blue')
+            axes[1].plot(t, np.sin(t - i), color='blue')
+            camera.snap()
+
+        animation = camera.animate()
+        animation.save('celluloid_subplots.gif', writer='imagemagick')
+
+        return None
 
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(stream, normalize=True):
