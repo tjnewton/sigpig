@@ -30,6 +30,7 @@ import time
 from data import max_amplitude, snr
 import os
 from celluloid import Camera
+from math import ceil
 
 Logger = logging.getLogger(__name__)
 
@@ -1690,23 +1691,24 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
             data_len = len(data)
             trace_len = data.shape[1]
+            # get x values from trace shape and sampling rate
             x_vals = np.linspace(0, trace_len, trace_len, endpoint=False)
+            x_vals = x_vals / stream[0].stats.sampling_rate
 
             # get y limits before plotting
-            y_min = -1 if normalize else data.min()
-            y_max = 1 if normalize else data.max()
+            y_min = -1 if normalize else np.mean(data.min(axis=1))
+            y_max = 1 if normalize else np.mean(data.max(axis=1))
             for trace_idx, stack_trace in enumerate(data):
                 axes[0].plot(x_vals, stack_trace, color='blue')
                 axes[0].set_ylim(bottom=y_min, top=y_max)
-                axes[0].set_xlim(0, trace_len)
-                axes[0].set_title(f"Trace {trace_idx+1}")
-                axes[1].plot(x_vals, data[:trace_idx].mean(axis=0),
+                axes[0].set_xlim(0, ceil(x_vals.max()))
+                axes[1].plot(x_vals, data[:trace_idx+1].mean(axis=0),
                                      color='blue')
-                axes[1].text(1, y_max * 0.75, f"{trace_idx+1}/{data_len}")
-                axes[1].set_ylim(bottom=y_min, top=y_max)
-                axes[1].set_xlim(0, trace_len)
-                axes[1].set_title(f"Stack from traces 1 to {trace_idx + 1}")
-                axes[1].set_xlabel(f"Sample (at 250 Hz)")
+                axes[1].text(1, lin.data.max(), f"{trace_idx+1}/{data_len}")
+                axes[1].set_ylim(bottom=lin.data.min() * 1.25,
+                                 top=lin.data.max() * 1.25)
+                axes[1].set_xlim(0, ceil(x_vals.max()))
+                axes[1].set_xlabel(f"Time (seconds)")
                 camera.snap()
 
             animation = camera.animate()
@@ -2005,7 +2007,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     try:
                         # generate linear and phase-weighted stack
                         lin, pws = generate_stacks(sta_chan_stream,
-                                                   normalize=False,
+                                                   normalize=True,
                                                    animate=True)
                         # add phase-weighted stack to stream
                         stack_pw += pws
@@ -2035,6 +2037,8 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     Example:
 
     """
+
+    # FIXME: stack should be denormalized for this
 
     # build stream of day-long data from stack and compile picks list
     st = Stream()
