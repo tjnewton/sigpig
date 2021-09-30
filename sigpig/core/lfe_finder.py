@@ -1684,17 +1684,23 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
         # generate an animation of the stack if specified
         if animate:
-
+            # initialize figure and camera to show trace and stack animation
             fig, axes = plt.subplots(2)
             camera = Camera(fig)
-            t = np.linspace(0, 2 * np.pi, 128, endpoint=False)
-            for i in t:
-                axes[0].plot(t, np.sin(t + i), color='blue')
-                axes[1].plot(t, np.sin(t - i), color='blue')
+
+            trace_len = data.shape[1]
+            x_vals = np.linspace(0, trace_len, trace_len, endpoint=False)
+            for trace_idx, stack_trace in enumerate(data):
+                axes[0].plot(x_vals, stack_trace, color='blue')
+                axes[1].plot(x_vals, data[:trace_idx].mean(axis=0),
+                                     color='blue')
                 camera.snap()
 
             animation = camera.animate()
-            animation.save('celluloid_subplots.gif', writer='imagemagick')
+            animation.save(f'./stack_gifs/{stream[0].stats.network}'
+                           f'.{stream[0].stats.station}.'
+                           f'{stream[0].stats.channel}.gif',
+                           writer='imagemagick')
 
         return lin, pws
 
@@ -1985,7 +1991,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     # guard against stacking error:
                     try:
                         # generate linear and phase-weighted stack
-                        lin, pws = generate_stacks(sta_chan_stream)
+                        lin, pws = generate_stacks(sta_chan_stream,
+                                                   animate=True)
                         # add phase-weighted stack to stream
                         stack_pw += pws
                         # and add linear stack to stream
@@ -2207,7 +2214,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     load_stack = False
     plot = True
-    shift_method = 'max'
+    shift_method = 'med'
     # get main station template detections
     if load_party:
         # load party object from file
