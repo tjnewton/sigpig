@@ -1688,12 +1688,25 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             fig, axes = plt.subplots(2)
             camera = Camera(fig)
 
+            data_len = len(data)
             trace_len = data.shape[1]
             x_vals = np.linspace(0, trace_len, trace_len, endpoint=False)
+
+            # get y limits before plotting
+            y_min = -1 if normalize else data.min()
+            y_max = 1 if normalize else data.max()
             for trace_idx, stack_trace in enumerate(data):
                 axes[0].plot(x_vals, stack_trace, color='blue')
+                axes[0].set_ylim(bottom=y_min, top=y_max)
+                axes[0].set_xlim(0, trace_len)
+                axes[0].set_title(f"Trace {trace_idx+1}")
                 axes[1].plot(x_vals, data[:trace_idx].mean(axis=0),
                                      color='blue')
+                axes[1].text(1, y_max * 0.75, f"{trace_idx+1}/{data_len}")
+                axes[1].set_ylim(bottom=y_min, top=y_max)
+                axes[1].set_xlim(0, trace_len)
+                axes[1].set_title(f"Stack from traces 1 to {trace_idx + 1}")
+                axes[1].set_xlabel(f"Sample (at 250 Hz)")
                 camera.snap()
 
             animation = camera.animate()
@@ -1992,6 +2005,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     try:
                         # generate linear and phase-weighted stack
                         lin, pws = generate_stacks(sta_chan_stream,
+                                                   normalize=False,
                                                    animate=True)
                         # add phase-weighted stack to stream
                         stack_pw += pws
