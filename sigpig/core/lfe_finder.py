@@ -1721,7 +1721,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
     # helper function to determine time offset of each time series in a
     # stream with respect to a main trace via cross correlation
-    def xcorr_time_shifts(stream, reference_signal):
+    def xcorr_time_shifts(stream, reference_signal, ref_trace_length=16):
         # TODO: rename "maxs" to targets
         shifts = []
         indices = []
@@ -1763,11 +1763,12 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             # trim the reference trace to + and - 1.5 seconds
             # surrounding max amplitude signal
             reference_start_time = trace.stats.starttime + \
-                                   max_amplitude_offset - 1.5
+                                   max_amplitude_offset - (ref_trace_length/2)
             reference_trace = trace.copy().trim(reference_start_time,
-                                                reference_start_time + 3)
-            # FIXME: note that the 3 second duration defined above is
-            #  and arbitrary choice that affects the results
+                                                reference_start_time +
+                                                ref_trace_length)
+            # note that the reference trace duration defined above via trim is
+            #  an arbitrary design choice that affects the results
 
             # print a warning if SNR is bad
             if ref_snr == 0:
@@ -2010,7 +2011,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                         # generate linear and phase-weighted stack
                         lin, pws = generate_stacks(sta_chan_stream,
                                                    normalize=True,
-                                                   animate=True)
+                                                   animate=False)
                         # add phase-weighted stack to stream
                         stack_pw += pws
                         # and add linear stack to stream
@@ -2310,22 +2311,33 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # plot stacks
     stack_pw, stack_lin = stack_list
-    stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
-                         "2016-01-01T12:00:05.0Z"), pad=True,
-                         fill_value=0, nearest_sample=True)
-    stack_pw.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
-        "2016-01-01T12:00:05.0Z"), pad=True,
-                   fill_value=0, nearest_sample=True)
+
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_zoom_test', save=True)
+                       f'Shift_abs.25_16s_16sSnip', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_zoom_test', save=True)
+                       f'{shift_method}Shift_abs.25_16s_16sSnip', save=True)
         # now plot template the same way for comparison
         # TODO
+
+        # plot zoomed in
+        if len(stack_pw) > 0:
+            stack_pw.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+                "2016-01-01T12:00:05.0Z"), pad=True,
+                          fill_value=0, nearest_sample=True)
+            plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
+                       f'{snr_threshold}_{shift_method}'
+                       f'Shift_abs.25_16s_zoom_16sSnip', save=True)
+        if len(stack_lin) > 0:
+            stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+                "2016-01-01T12:00:05.0Z"), pad=True,
+                           fill_value=0, nearest_sample=True)
+            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s_zoom_16sSnip',
+                       save=True)
 
     # # TODO via Aaron : # #
     # - use subset of 4 stations, one constant time shift over entire
