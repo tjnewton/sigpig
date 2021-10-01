@@ -29,6 +29,8 @@ from scipy.signal import hilbert
 import time
 from data import max_amplitude, snr
 import os
+from celluloid import Camera
+from math import ceil
 
 Logger = logging.getLogger(__name__)
 
@@ -1537,8 +1539,7 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
-def stack_template_detections(party, streams_path, main_trace,
-                              align_type='med', method='fixed_location'):
+def stack_template_detections(party, streams_path, main_trace, align_type):
     """
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
@@ -1583,12 +1584,8 @@ def stack_template_detections(party, streams_path, main_trace,
         pickle.dump(stack_list, outfile)
         outfile.close()
     """
-    # function to determine time shifts for fixed-location event
-    def fixed_loc_time_shifts(stream):
-        ...
-
-        return shifts, indices, main_time
-
+    # function to build a stream from which to generate time shifts for
+    # a fixed-location event
     def build_main_stream(main_trace, streams_path, pick_times):
         main_stream = Stream()
         main_stream_snrs = []
@@ -1607,16 +1604,19 @@ def stack_template_detections(party, streams_path, main_trace,
                 # FIXME: lowest sr should be detected, not hard coded
                 lowest_sr = 40  # lowest sampling rate
                 # TODO: try upsampling to 100 Hz
+
                 # should only be one file, but safeguard against many
                 file = file_list[0]
                 # load day file into stream
                 day_st = read(file)
                 # bandpass filter
                 day_st.filter('bandpass', freqmin=1, freqmax=15)
-                # interpolate to lowest sampling rate
-                day_st.interpolate(sampling_rate=lowest_sr)
-                # trim trace to 30 seconds surrounding pick time
-                day_st.trim(pick_time - 10, pick_time + 20)
+                # interpolate to lowest sampling rate if necessary
+                if day_st[0].stats.sampling_rate != lowest_sr:
+                    day_st.interpolate(sampling_rate=lowest_sr)
+                # trim trace to 60 seconds surrounding pick time
+                day_st.trim(pick_time - 20, pick_time + 40, pad=True,
+                            fill_value=0, nearest_sample=True)
                 # append snr
                 main_stream_snrs.append(snr(day_st)[0])
 
@@ -1627,12 +1627,12 @@ def stack_template_detections(party, streams_path, main_trace,
             # pick_times
             else:
                 main_stream += Trace()
-                main_stream_snrs.append(0)
+                main_stream_snrs.append(np.nan)
 
         return main_stream, main_stream_snrs
 
     # function to generate linear and phase-weighted stacks from a stream
-    def generate_stacks(stream, normalize=True):
+    def generate_stacks(stream, normalize=True, animate=False):
         # guard against stacking zeros and create data array
         data = []
         reference_idx = 0
@@ -1682,11 +1682,46 @@ def stack_template_detections(party, streams_path, main_trace,
         lin.data = linear_stack
         pws = stream[reference_idx].copy()
         pws.data = phase_weighted_stack
+
+        # generate an animation of the stack if specified
+        if animate:
+            # initialize figure and camera to show trace and stack animation
+            fig, axes = plt.subplots(2)
+            camera = Camera(fig)
+
+            data_len = len(data)
+            trace_len = data.shape[1]
+            # get x values from trace shape and sampling rate
+            x_vals = np.linspace(0, trace_len, trace_len, endpoint=False)
+            x_vals = x_vals / stream[0].stats.sampling_rate
+
+            # get y limits before plotting
+            y_min = -1 if normalize else np.mean(data.min(axis=1))
+            y_max = 1 if normalize else np.mean(data.max(axis=1))
+            for trace_idx, stack_trace in enumerate(data):
+                axes[0].plot(x_vals, stack_trace, color='blue')
+                axes[0].set_ylim(bottom=y_min, top=y_max)
+                axes[0].set_xlim(0, ceil(x_vals.max()))
+                axes[1].plot(x_vals, data[:trace_idx+1].mean(axis=0),
+                                     color='blue')
+                axes[1].text(1, lin.data.max(), f"{trace_idx+1}/{data_len}")
+                axes[1].set_ylim(bottom=lin.data.min() * 1.25,
+                                 top=lin.data.max() * 1.25)
+                axes[1].set_xlim(0, ceil(x_vals.max()))
+                axes[1].set_xlabel(f"Time (seconds)")
+                camera.snap()
+
+            animation = camera.animate()
+            animation.save(f'./stack_gifs/{stream[0].stats.network}'
+                           f'.{stream[0].stats.station}.'
+                           f'{stream[0].stats.channel}.gif',
+                           writer='imagemagick')
+
         return lin, pws
 
     # helper function to determine time offset of each time series in a
     # stream with respect to a main trace via cross correlation
-    def xcorr_time_shifts(stream, reference_signal):
+    def xcorr_time_shifts(stream, reference_signal, ref_trace_length=16):
         # TODO: rename "maxs" to targets
         shifts = []
         indices = []
@@ -1728,11 +1763,14 @@ def stack_template_detections(party, streams_path, main_trace,
             # trim the reference trace to + and - 1.5 seconds
             # surrounding max amplitude signal
             reference_start_time = trace.stats.starttime + \
-                                   max_amplitude_offset - 1.5
+                                   max_amplitude_offset -(3*ref_trace_length/4)
             reference_trace = trace.copy().trim(reference_start_time,
-                                                reference_start_time + 3)
+                                                reference_start_time +
+                                                ref_trace_length)
+            # note that the reference trace duration defined above via trim is
+            #  an arbitrary design choice that affects the results
 
-            # print some info
+            # print a warning if SNR is bad
             if ref_snr == 0:
                 print("- ! - ! - ! - ! - ! - ! -")
                 print("- ! - ! - ! - ! - ! - ! -")
@@ -1870,17 +1908,17 @@ def stack_template_detections(party, streams_path, main_trace,
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
-    # FIXME: get main stream for shifts if necessary
-    if method == 'fixed_location':
+    if align_type == 'fixed':
         # get the main trace detections in a stream
+        print(f"Assembling main stream {pick_network}.{pick_station}"
+              f".{pick_channel}")
         main_stream, main_stream_snrs = build_main_stream(main_trace,
                                                           streams_path,
                                                           pick_times)
         # get the fixed location time shifts from the main trace
-        # TODO: does this time shift need to be onset - first onset?
-        # TODO: get correct reference signal index
+        # FIXME: reference signal index is hard coded to template event
         shifts, indices, main_time = xcorr_time_shifts(main_stream,
-                                                       reference_signal=2)
+                                                       reference_signal=177)
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -1946,22 +1984,21 @@ def stack_template_detections(party, streams_path, main_trace,
                 # dont consider empty traces (case of no data present)
                 if not EMPTY_FLAG:
 
-                    # process according to specified alignment
+                    # process according to specified method and alignment
                     if align_type == 'zero':
                         # align the start time of each trace in stream
                         zero_shift_stream(sta_chan_stream)
                     elif align_type == 'med' or align_type == 'max':
-                        # get time offsets for fixed location event
-                        if method == "fixed_location":
-                            continue
-                        # otherwise get time offsets via cross correlation
-                        else:
-                            # get xcorr time shift from median reference signal
-                            shifts, indices, main_time = xcorr_time_shifts(
-                                                   sta_chan_stream,
-                                                   reference_signal=align_type)
+                        # get xcorr time shift from median reference signal
+                        shifts, indices, main_time = xcorr_time_shifts(
+                                               sta_chan_stream,
+                                               reference_signal=align_type)
 
                         # align stream traces from time shifts
+                        align_stream(sta_chan_stream, shifts, indices,
+                                     main_time)
+                    else:
+                        # align stream traces from fixed location time shifts
                         align_stream(sta_chan_stream, shifts, indices,
                                      main_time)
 
@@ -1972,7 +2009,9 @@ def stack_template_detections(party, streams_path, main_trace,
                     # guard against stacking error:
                     try:
                         # generate linear and phase-weighted stack
-                        lin, pws = generate_stacks(sta_chan_stream)
+                        lin, pws = generate_stacks(sta_chan_stream,
+                                                   normalize=True,
+                                                   animate=False)
                         # add phase-weighted stack to stream
                         stack_pw += pws
                         # and add linear stack to stream
@@ -1993,13 +2032,16 @@ def stack_template_detections(party, streams_path, main_trace,
 
 def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     """ Transform stacks so they can be used as templates for matched-filter
-    analysis via EQcorrscan, then finds detections corresponding to stacks.
+    analysis via EQcorrscan, FIXME, then finds detections corresponding to
+    stacks.
 
     Returns:
 
     Example:
 
     """
+
+    # FIXME: stack should be denormalized for this
 
     # build stream of day-long data from stack and compile picks list
     st = Stream()
@@ -2141,7 +2183,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     Inputs:
 
         shift_method: string identifying the cross-correlation time shift
-                      method to use. 'zero', 'med', and 'max' are options.
+                      method to use. 'zero', 'med', 'max', and 'fixed' are
+                      options.
 
     Example:
         # manually define templates from station TA.N25K (location is made up)
@@ -2189,7 +2232,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # FIXME: delete test variable declarations
+<<<<<<< HEAD
+    load_party = True
+=======
     load_party = False
+>>>>>>> dcd1bd9a7f576dd439d2db093ba033585a7f26fc
     load_stack = False
     plot = True
     shift_method = 'med'
@@ -2221,6 +2268,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         rate_fig = party.plot(plot_grouped=True, rate=True)
         print(sorted(party.families, key=lambda f: len(f))[-1])
 
+        # look at family template
+        family = sorted(party.families, key=lambda f: len(f))[-1]
+        fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+
     # cull the party detections below the specified signal to noise ratio
     culled_party = cull_detections(party, detection_files_path, snr_threshold)
     if plot:
@@ -2231,6 +2282,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     print(f"Culled detections comprise "
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
+
+    #TODO: cull detections based on cross-correlation clustering? I'm kinda
+    # already doing that with detection thresholding
 
     # generate stack and time it
     start = time.time()
@@ -2248,7 +2302,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                main_trace,
                                                align_type=shift_method)
         # save stacks as pickle file
-        outfile = open(f'inner_stack_0_snr{snr_threshold}_{shift_method}Shift_abs.25_5s.pkl', 'wb')
+        outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s_test.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -2260,20 +2315,36 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # plot stacks
     stack_pw, stack_lin = stack_list
-    stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
-                         "2016-01-01T12:00:05.0Z"), pad=True,
-                         fill_value=0, nearest_sample=True)
-    stack_pw.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
-        "2016-01-01T12:00:05.0Z"), pad=True,
-                   fill_value=0, nearest_sample=True)
+
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
-                       f'{snr_threshold}_{shift_method}Shift_abs.25_16s_zoom',
-                       save=True)
+                       f'{snr_threshold}_{shift_method}'
+                       f'Shift_abs.25_16s_16sSnip_shifted', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_zoom', save=True)
+                       f'{shift_method}Shift_abs.25_16s_16sSnip_shifted',
+                       save=True)
+        # now plot template the same way for comparison
+        # TODO
+
+        # plot zoomed in
+        if len(stack_pw) > 0:
+            stack_pw.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+                "2016-01-01T12:00:05.0Z"), pad=True,
+                          fill_value=0, nearest_sample=True)
+            plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
+                       f'{snr_threshold}_{shift_method}'
+                       f'Shift_abs.25_16s_zoom_16sSnip_shifted', save=True)
+        if len(stack_lin) > 0:
+            stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+                "2016-01-01T12:00:05.0Z"), pad=True,
+                           fill_value=0, nearest_sample=True)
+            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s_zoom_16sSnip_shifted',
+                       save=True)
+
+            # TODO: next run 30 seconds and see how long signal is
 
     # # TODO via Aaron : # #
     # - use subset of 4 stations, one constant time shift over entire
