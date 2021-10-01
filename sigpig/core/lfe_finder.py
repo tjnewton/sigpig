@@ -1183,8 +1183,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
-                                 threshold_type="abs", trig_int=8.0,
+            party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+                                 threshold_type="MAD", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
@@ -2189,8 +2189,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # FIXME: delete test variable declarations
-    load_party = True
-    load_stack = True
+    load_party = False
+    load_stack = False
     plot = True
     shift_method = 'med'
     # get main station template detections
@@ -2203,7 +2203,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # MAD 9.0 = 1435 detections, fits in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
 
-        # MAD 8.0 =  detections, ??~fits~??? in MBP memory??!?
+        # MAD 8.0 = 3857 detections, ??~fits~??? in MBP memory??!?
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8.pkl', 'rb')
 
         # abs 0.23 = 4381 detections, require more memory than MBP has
