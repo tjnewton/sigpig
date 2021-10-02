@@ -2232,11 +2232,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # FIXME: delete test variable declarations
-<<<<<<< HEAD
     load_party = True
-=======
     load_party = False
->>>>>>> dcd1bd9a7f576dd439d2db093ba033585a7f26fc
     load_stack = False
     plot = True
     shift_method = 'med'
