@@ -2240,14 +2240,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if load_party:
         # load party object from file
 
-        # abs 0.25 = 1218 detections, fits in MBP memory
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
+        # abs 0.25 = 1218 detections, fits in MBP memory, first used
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
         # MAD 9.0 = 1435 detections, fits in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
 
         # MAD 8.0 = 3857 detections, ??~fits~??? in MBP memory??!?
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD8.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
 
         # abs 0.23 = 4381 detections, require more memory than MBP has
         # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
@@ -2278,6 +2278,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     print(f"Culled detections comprise "
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
           f"detections.")
+    # allow old party to get trash collected from memory
+    party = culled_party
 
     #TODO: cull detections based on cross-correlation clustering? I'm kinda
     # already doing that with detection thresholding
@@ -2293,13 +2295,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile.close()
     else:
         # stack the culled party detections
-        stack_list = stack_template_detections(culled_party,
-                                               detection_files_path,
+        stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace,
                                                align_type=shift_method)
         # save stacks as pickle file
+        # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+        #                f'{shift_method}Shift_abs.25_16s_30sSnip.pkl', 'wb')
         outfile = open(f'inner_stack_0_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_30sSnip.pkl', 'wb')
+                       f'{shift_method}Shift_MAD8_16s.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -2316,10 +2319,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_30sSnip', save=True)
+                       f'Shift_MAD8_16s', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_30sSnip',
+                       f'{shift_method}Shift_MAD8_16s',
                        save=True)
         # now plot template the same way for comparison
         # TODO
@@ -2331,13 +2334,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           fill_value=0, nearest_sample=True)
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_zoom_30sSnip', save=True)
+                       f'Shift_MAD8_16s_zoom', save=True)
         if len(stack_lin) > 0:
             stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
                 "2016-01-01T12:00:05.0Z"), pad=True,
                            fill_value=0, nearest_sample=True)
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_zoom_30sSnip',
+                       f'{shift_method}Shift_MAD8_16s_zoom',
                        save=True)
 
             # TODO: do 0's vs. NaN's change results?
