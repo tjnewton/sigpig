@@ -1616,7 +1616,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     day_st.interpolate(sampling_rate=lowest_sr)
                 # trim trace to 60 seconds surrounding pick time
                 day_st.trim(pick_time - 20, pick_time + 40, pad=True,
-                            fill_value=0, nearest_sample=True)
+                            fill_value=np.nan, nearest_sample=True)
                 # append snr
                 main_stream_snrs.append(snr(day_st)[0])
 
