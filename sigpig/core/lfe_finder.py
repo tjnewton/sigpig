@@ -1661,7 +1661,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             data = data / maxs[:, None]
 
         # make structures for stacks
-        linear_stack = data.mean(axis=0)
+        linear_stack = np.nanmean(data, axis=0)
         phas = np.zeros_like(data)
 
         # loop over each trace and get instantaneous phase of each sample
