@@ -1653,7 +1653,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             return lin, pws
 
         # remove traces with NaN data
-        data = data[~np.any(np.isnan(data), axis=1)]
+        # data = data[~np.any(np.isnan(data), axis=1)]
 
         # normalize data or not
         if normalize:
@@ -1763,7 +1763,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             # trim the reference trace to + and - 1.5 seconds
             # surrounding max amplitude signal
             reference_start_time = trace.stats.starttime + \
-                                   max_amplitude_offset -(3*ref_trace_length/4)
+                                   max_amplitude_offset -(3*ref_trace_length/5)
             reference_trace = trace.copy().trim(reference_start_time,
                                                 reference_start_time +
                                                 ref_trace_length)
@@ -2299,7 +2299,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method)
         # save stacks as pickle file
         outfile = open(f'inner_stack_0_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_test.pkl', 'wb')
+                       f'{shift_method}Shift_abs.25_16s_30sSnip.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -2316,10 +2316,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_16sSnip_shifted2', save=True)
+                       f'Shift_abs.25_16s_30sSnip', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_16sSnip_shifted2',
+                       f'{shift_method}Shift_abs.25_16s_30sSnip',
                        save=True)
         # now plot template the same way for comparison
         # TODO
@@ -2331,13 +2331,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           fill_value=0, nearest_sample=True)
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_zoom_16sSnip_shifted2', save=True)
+                       f'Shift_abs.25_16s_zoom_30sSnip', save=True)
         if len(stack_lin) > 0:
             stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
                 "2016-01-01T12:00:05.0Z"), pad=True,
                            fill_value=0, nearest_sample=True)
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_zoom_16sSnip_shifted2',
+                       f'{shift_method}Shift_abs.25_16s_zoom_30sSnip',
                        save=True)
 
             # TODO: do 0's vs. NaN's change results?
