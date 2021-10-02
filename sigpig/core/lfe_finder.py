@@ -1848,8 +1848,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 20
             new_end_time = new_start_time + 40
             # all traces need to be same length for further processing
-            stream.trim(new_start_time, new_end_time, pad=True, fill_value=0,
-                        nearest_sample=True)
+            stream.trim(new_start_time, new_end_time, pad=True,
+                        fill_value=np.nan, nearest_sample=True)
 
         # remove bad indices
         if indices != None and len(indices) > 0:
@@ -1963,7 +1963,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                         day_st.interpolate(sampling_rate=lowest_sr)
                     # trim trace to 60 seconds surrounding pick time
                     day_st.trim(pick_time - 20, pick_time + 40, pad=True,
-                                fill_value=0, nearest_sample=True)
+                                fill_value=np.nan, nearest_sample=True)
 
                     sta_chan_stream += day_st
 
@@ -2233,7 +2233,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # FIXME: delete test variable declarations
     load_party = True
-    load_party = False
     load_stack = False
     plot = True
     shift_method = 'med'
@@ -2317,10 +2316,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_16sSnip_shifted', save=True)
+                       f'Shift_abs.25_16s_16sSnip_shifted2', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_16sSnip_shifted',
+                       f'{shift_method}Shift_abs.25_16s_16sSnip_shifted2',
                        save=True)
         # now plot template the same way for comparison
         # TODO
@@ -2332,15 +2331,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           fill_value=0, nearest_sample=True)
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_zoom_16sSnip_shifted', save=True)
+                       f'Shift_abs.25_16s_zoom_16sSnip_shifted2', save=True)
         if len(stack_lin) > 0:
             stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
                 "2016-01-01T12:00:05.0Z"), pad=True,
                            fill_value=0, nearest_sample=True)
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_zoom_16sSnip_shifted',
+                       f'{shift_method}Shift_abs.25_16s_zoom_16sSnip_shifted2',
                        save=True)
 
+            # TODO: do 0's vs. NaN's change results?
             # TODO: next run 30 seconds and see how long signal is
 
     # # TODO via Aaron : # #
