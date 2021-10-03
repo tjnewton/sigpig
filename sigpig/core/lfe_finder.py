@@ -2246,7 +2246,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # MAD 9.0 = 1435 detections, fits in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
 
-        # MAD 8.0 = 3857 detections, ??~fits~??? in MBP memory??!?
+        # MAD 8.0 = 3857 detections, doesn't fit in MBP memory
         infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
 
         # abs 0.23 = 4381 detections, require more memory than MBP has
@@ -2277,7 +2277,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(sorted(culled_party.families, key=lambda f: len(f))[-1])
     print(f"Culled detections comprise "
           f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
-          f"detections.")
+          f"detections ({len(culled_party)}/{len(party)}).")
     # allow old party to get trash collected from memory
     party = culled_party
 
