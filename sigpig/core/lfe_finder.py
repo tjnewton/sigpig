@@ -2049,7 +2049,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     for index, trace in enumerate(stack):
         # take first 10 seconds of trace data as noise
         tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
-        # generate a gaussian distribution and extract values from it to
+        # generate a gaussian distribution and extract values from12 it to
         # generate synthetic noise to fill day-long stream
         tr_mean = tr_data.mean()
         tr_stdev = tr_data.std()
@@ -2065,6 +2065,15 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         # then fill the data after the stack
         tr_data = np.random.normal(tr_mean, tr_stdev, samples)
         st[index].data[-1 * samples:] = tr_data
+
+        # # for testing
+        # new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 5
+        # new_end_time = new_start_time + 6
+        # # all traces need to be same length for further processing
+        # st2 = st.copy()
+        # st2.trim(new_start_time, new_end_time, pad=True,
+        #             fill_value=np.nan, nearest_sample=True)
+        # st2.plot()
 
         picks.append(Pick(time=UTCDateTime(2016, 1, 1, 11, 59, 58, 500000),
                           phase_hint="P", waveform_id=WaveformStreamID(
@@ -2082,9 +2091,9 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     stack_template = Tribe().construct(method="from_meta_file",
                                        meta_file=catalog, st=st, lowcut=1.0,
                                        highcut=15.0, samp_rate=40.0,
-                                       length=4.5, filt_order=4, prepick=0.5,
+                                       length=16.0, filt_order=4, prepick=0.5,
                                        swin='all', process_len=86400,
-                                       parallel=False, skip_short_chans=False)
+                                       parallel=True, skip_short_chans=False)
 
     # loop over days and get detections
     iteration_date = start_date
@@ -2232,6 +2241,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
+    # # FIXME: delete after testing
+    # shift_method = 'med'
+    # load_party = True
+    # load_stack = True
+    # plot = True
     # get main station template detections
     if load_party:
         # load party object from file
@@ -2325,21 +2339,21 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # now plot template the same way for comparison
         # TODO
 
-        # plot zoomed in
-        if len(stack_pw) > 0:
-            stack_pw.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
-                "2016-01-01T12:00:05.0Z"), pad=True,
-                          fill_value=0, nearest_sample=True)
-            plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
-                       f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_zoom', save=False)
-        if len(stack_lin) > 0:
-            stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
-                "2016-01-01T12:00:05.0Z"), pad=True,
-                           fill_value=0, nearest_sample=True)
-            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s_zoom',
-                       save=False)
+        # # plot zoomed in
+        # if len(stack_pw) > 0:
+        #     stack_pw.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+        #         "2016-01-01T12:00:05.0Z"), pad=True,
+        #                   fill_value=0, nearest_sample=True)
+        #     plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
+        #                f'{snr_threshold}_{shift_method}'
+        #                f'Shift_abs.25_16s_zoom', save=False)
+        # if len(stack_lin) > 0:
+        #     stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
+        #         "2016-01-01T12:00:05.0Z"), pad=True,
+        #                    fill_value=0, nearest_sample=True)
+        #     plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
+        #                f'{shift_method}Shift_abs.25_16s_zoom',
+        #                save=False)
 
     # # TODO via Aaron : # #
     # - use subset of 4 stations, one constant time shift over entire
@@ -2359,6 +2373,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # use stacks as templates in matched-filter search to build catalog of
     # detections
+    # TODO: fix template length and run detect again
     party = detections_from_stacks(stack_lin, detection_files_path, start_date,
                                    end_date)
     if plot:
@@ -2370,7 +2385,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # look at family template
         family = sorted(party.families, key=lambda f: len(f))[-1]
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
-    # TODO: testing above call on [[[[ lfe_finder (1) ]]]] party == None
 
     return party
 
