@@ -2172,7 +2172,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
 
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              snr_threshold, main_trace, shift_method='max', load_party=False,
+              snr_threshold, main_trace, shift_method='med', load_party=False,
               load_stack=False, plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
@@ -2220,10 +2220,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # run detection and time it
         start = time.time()
         # --------------------------------------------------------------------
-        find_LFEs(templates, template_files, station_dict, template_length,
-                  template_prepick, detection_files_path, start_date, end_date,
-                  snr_threshold, main_trace, shift_method='med',
-                  load_party=True, load_stack=False, plot=True)
+        party = find_LFEs(templates, template_files, station_dict,
+                          template_length, template_prepick,
+                          detection_files_path, start_date, end_date,
+                          snr_threshold, main_trace, shift_method='med',
+                          load_party=True, load_stack=True, plot=True)
         # --------------------------------------------------------------------
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -2238,14 +2239,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # abs 0.25 = 1218 detections, fits in MBP memory, first used
         infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
+        # abs 0.23 = 4381 detections, require more memory than MBP has
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
+
         # MAD 9.0 = 1435 detections, fits in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
 
         # MAD 8.0 = 3857 detections, doesn't fit in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
-
-        # abs 0.23 = 4381 detections, require more memory than MBP has
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2316,11 +2317,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s', save=True)
+                       f'Shift_abs.25_16s', save=False)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s',
-                       save=True)
+                       save=False)
         # now plot template the same way for comparison
         # TODO
 
@@ -2331,17 +2332,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           fill_value=0, nearest_sample=True)
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s_zoom', save=True)
+                       f'Shift_abs.25_16s_zoom', save=False)
         if len(stack_lin) > 0:
             stack_lin.trim(UTCDateTime("2016-01-01T11:59:50.0Z"), UTCDateTime(
                 "2016-01-01T12:00:05.0Z"), pad=True,
                            fill_value=0, nearest_sample=True)
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s_zoom',
-                       save=True)
-
-            # TODO: do 0's vs. NaN's change results?
-            # TODO: next run 30 seconds and see how long signal is
+                       save=False)
 
     # # TODO via Aaron : # #
     # - use subset of 4 stations, one constant time shift over entire
@@ -2363,9 +2361,20 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # detections
     party = detections_from_stacks(stack_lin, detection_files_path, start_date,
                                    end_date)
+    if plot:
+        # inspect the party growth over time
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
+
+        # look at family template
+        family = sorted(party.families, key=lambda f: len(f))[-1]
+        fig = family.template.st.plot(equal_scale=False, size=(800, 600))
     # TODO: testing above call on [[[[ lfe_finder (1) ]]]] party == None
 
-    return None
+    return party
+
+# NEXT DO MAX & FIXED, ANIMATE IF BROKEN
 
 
 # get locations from detection times and stacks
