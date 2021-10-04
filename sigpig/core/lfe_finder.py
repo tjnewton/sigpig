@@ -1879,7 +1879,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
         new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 10
         new_end_time = new_start_time + 40
-        stream.trim(new_start_time, new_end_time, pad=True, fill_value=0,
+        stream.trim(new_start_time, new_end_time, pad=True, fill_value=np.nan,
                     nearest_sample=True)
 
         return None
@@ -2241,11 +2241,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
-    # # FIXME: delete after testing
-    # shift_method = 'med'
-    # load_party = True
-    # load_stack = True
-    # plot = True
+    # FIXME: delete after testing
+    shift_method = 'fixed'
+    load_party = True
+    load_stack = False
+    plot = True
+
     # get main station template detections
     if load_party:
         # load party object from file
@@ -2331,11 +2332,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s', save=False)
+                       f'Shift_abs.25_16s', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s',
-                       save=False)
+                       save=True)
         # now plot template the same way for comparison
         # TODO
 
