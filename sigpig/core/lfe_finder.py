@@ -2041,30 +2041,39 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
 
     """
 
-    # FIXME: stack should be denormalized for this
+    # FIXME: stack should be denormalized for this? check if EQcorrscan
+    #  normalizes before xcorr
 
     # build stream of day-long data from stack and compile picks list
     st = Stream()
     picks = []
+    add_noise = False
     for index, trace in enumerate(stack):
-        # take first 10 seconds of trace data as noise
-        tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
-        # generate a gaussian distribution and extract values from12 it to
-        # generate synthetic noise to fill day-long stream
-        tr_mean = tr_data.mean()
-        tr_stdev = tr_data.std()
-        # extend the stack to be a day long
-        st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
-                         "2016-01-01T23:59:59.99999999999Z"), pad=True,
-                         fill_value=0, nearest_sample=True)
+        if add_noise:
+            # take first 10 seconds of trace data as noise
+            tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
+            # generate a gaussian distribution and extract values from12 it to
+            # generate synthetic noise to fill day-long stream
+            tr_mean = tr_data.mean()
+            tr_stdev = tr_data.std()
+            # extend the stack to be a day long
+            st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
+                             "2016-01-01T23:59:59.99999999999Z"), pad=True,
+                             fill_value=0, nearest_sample=True)
 
-        # fill the data before the stack
-        samples = int(43180 * trace.stats.sampling_rate)
-        tr_data = np.random.normal(tr_mean, tr_stdev, samples)
-        st[index].data[:samples] = tr_data
-        # then fill the data after the stack
-        tr_data = np.random.normal(tr_mean, tr_stdev, samples)
-        st[index].data[-1 * samples:] = tr_data
+            # fill the data before the stack
+            samples = int(43180 * trace.stats.sampling_rate)
+            tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+            st[index].data[:samples] = tr_data
+            # then fill the data after the stack
+            tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+            st[index].data[-1 * samples:] = tr_data
+
+            # set process length for EQcorrscan
+            process_len = 86400
+        else:
+            st += trace
+            process_len = 40
 
         # # for testing
         # new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 5
@@ -2092,7 +2101,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
                                        meta_file=catalog, st=st, lowcut=1.0,
                                        highcut=15.0, samp_rate=40.0,
                                        length=16.0, filt_order=4, prepick=0.5,
-                                       swin='all', process_len=86400,
+                                       swin='all', process_len=process_len,
                                        parallel=True, skip_short_chans=False)
 
     # loop over days and get detections
@@ -2241,11 +2250,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
-    # FIXME: delete after testing
-    shift_method = 'fixed'
-    load_party = True
-    load_stack = False
-    plot = True
+    # # FIXME: delete after testing
+    # shift_method = 'fixed'
+    # load_party = True
+    # load_stack = False
+    # plot = True
 
     # get main station template detections
     if load_party:
@@ -2332,11 +2341,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s', save=True)
+                       f'Shift_abs.25_16s', save=False)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s',
-                       save=True)
+                       save=False)
         # now plot template the same way for comparison
         # TODO
 
