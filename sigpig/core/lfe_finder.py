@@ -2122,8 +2122,8 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
 
         try:
             # detect
-            party = stack_template.detect(stream=st, threshold=0.25,
-                                          daylong=True, threshold_type="abs",
+            party = stack_template.detect(stream=st, threshold=8.0,
+                                          daylong=True, threshold_type="MAD",
                                           trig_int=8.0, plot=False,
                                           return_stream=False,
                                           parallel_process=False,
@@ -2177,7 +2177,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
-                   f'{end_date.year}_abs.25_16s_stackDetects.pkl'
+                   f'{end_date.year}_MAD8_16s_stackDetects.pkl'
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
@@ -2253,9 +2253,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    # shift_method = 'fixed'
+    # shift_method = 'med'
     # load_party = True
-    # load_stack = False
+    # load_stack = True
     # plot = True
 
     # get main station template detections
@@ -2350,7 +2350,21 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        save=False)
 
             # now plot template with the linear stack for comparison
-
+            family = sorted(party.families, key=lambda f: len(f))[-1]
+            family_stream = family.template.st
+            template_stack = stack_lin.copy()
+            stack_len = stack_lin[0].stats.endtime - stack_lin[
+                                                             0].stats.starttime
+            stack_start = stack_lin[0].stats.starttime
+            for trace in family_stream:
+                new_trace = trace.copy()
+                new_trace.stats.starttime = stack_start + 20
+                new_trace.trim(stack_start, stack_start + stack_len,
+                               pad=True, fill_value=0, nearest_sample=True)
+                template_stack += new_trace
+            plot_stack(template_stack, title=f'linear_stack_and_template_snr'
+                       f'{snr_threshold}_{shift_method}Shift_abs.25_16s',
+                       save=False)
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
@@ -2390,14 +2404,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     party = detections_from_stacks(stack_lin, detection_files_path, start_date,
                                    end_date)
     if plot:
-        # inspect the party growth over time
-        detections_fig = party.plot(plot_grouped=True)
-        rate_fig = party.plot(plot_grouped=True, rate=True)
-        print(sorted(party.families, key=lambda f: len(f))[-1])
+        if party != None and len(party) > 0:
+            # inspect the party growth over time
+            detections_fig = party.plot(plot_grouped=True)
+            rate_fig = party.plot(plot_grouped=True, rate=True)
+            print(sorted(party.families, key=lambda f: len(f))[-1])
 
-        # look at family template
-        family = sorted(party.families, key=lambda f: len(f))[-1]
-        fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+            # look at family template
+            family = sorted(party.families, key=lambda f: len(f))[-1]
+            fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
     return party
 
