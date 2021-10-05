@@ -2348,8 +2348,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s',
                        save=False)
-        # now plot template the same way for comparison
-        # TODO
+
+            # now plot template with the linear stack for comparison
+
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
