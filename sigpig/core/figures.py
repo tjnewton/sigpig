@@ -659,9 +659,9 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
         maxTraceValue, _ = max_amplitude(trace)
 
         # define data to work with
-        norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
-                                                              np.min(
-                                                                  trace.data)) * 1.25 + index
+        norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
+                         min(trace.data)) * 1.25 + index
+
         # add trace to waveform plot
         amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
 
