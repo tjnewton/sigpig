@@ -2415,6 +2415,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             family = sorted(party.families, key=lambda f: len(f))[-1]
             fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
+    # TODO: what should the ultimate return be?
+
     return party
 
 # NEXT DO MAX & FIXED, ANIMATE IF BROKEN
