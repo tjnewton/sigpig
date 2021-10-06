@@ -2191,7 +2191,8 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
               snr_threshold, main_trace, shift_method='med', load_party=False,
-              load_stack=False, load_stack_detects=False, plot=False):
+              cull=False, load_stack=False, load_stack_detects=False,
+              plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
     matched-filtering with specified template(s), then stacking of signals
@@ -2244,7 +2245,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           template_length, template_prepick,
                           detection_files_path, start_date, end_date,
                           snr_threshold, main_trace, shift_method='med',
-                          load_party=True, load_stack=True,
+                          load_party=True, cull=False, load_stack=True,
                           load_stack_detects=True, plot=True)
         # --------------------------------------------------------------------
         end = time.time()
@@ -2292,20 +2293,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
     # cull the party detections below the specified signal to noise ratio
-    culled_party = cull_detections(party, detection_files_path, snr_threshold)
-    if plot:
-        # inspect the culled party growth over time
-        detections_fig = culled_party.plot(plot_grouped=True)
-        rate_fig = culled_party.plot(plot_grouped=True, rate=True)
-        print(sorted(culled_party.families, key=lambda f: len(f))[-1])
-    print(f"Culled detections comprise "
-          f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
-          f"detections ({len(culled_party)}/{len(party)}).")
-    # allow old party to get trash collected from memory
-    party = culled_party
-
-    #TODO: cull detections based on cross-correlation clustering? I'm kinda
-    # already doing that with detection thresholding
+    if cull:
+        culled_party = cull_detections(party, detection_files_path, snr_threshold)
+        if plot:
+            # inspect the culled party growth over time
+            detections_fig = culled_party.plot(plot_grouped=True)
+            rate_fig = culled_party.plot(plot_grouped=True, rate=True)
+            print(sorted(culled_party.families, key=lambda f: len(f))[-1])
+        print(f"Culled detections comprise "
+              f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
+              f"detections ({len(culled_party)}/{len(party)}).")
+        # allow old party to get trash collected from memory
+        party = culled_party
 
     # generate stack and time it
     start = time.time()
@@ -2330,12 +2329,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #                f'{shift_method}Shift_MAD8_16s.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
-
-    end = time.time()
-    hours = int((end - start) / 60 / 60)
-    minutes = int(((end - start) / 60) - (hours * 60))
-    seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-    print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
     # plot stacks
     stack_pw, stack_lin = stack_list
