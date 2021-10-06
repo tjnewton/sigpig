@@ -12,7 +12,7 @@ Use conda to create a Python environment from the sigpig.yml file:
 `conda env create -f sigpig.yml`  
 Activate the environment:  
 `conda activate sigpig`  
-Launch Jupyter Lab within snippets environment:  
+Launch Jupyter Lab within sigpig environment:  
 `jupyter lab`  
 Browse the repo directories and notebooks within Jupyter Lab :)
 
