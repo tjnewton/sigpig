@@ -2191,7 +2191,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
               snr_threshold, main_trace, shift_method='med', load_party=False,
-              load_stack=False, plot=False):
+              load_stack=False, load_stack_detects=False, plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
     matched-filtering with specified template(s), then stacking of signals
@@ -2244,7 +2244,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           template_length, template_prepick,
                           detection_files_path, start_date, end_date,
                           snr_threshold, main_trace, shift_method='med',
-                          load_party=True, load_stack=True, plot=True)
+                          load_party=True, load_stack=True,
+                          load_stack_detects=True, plot=True)
         # --------------------------------------------------------------------
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -2400,9 +2401,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # use stacks as templates in matched-filter search to build catalog of
     # detections
-    # TODO: fix template length and run detect again
-    party = detections_from_stacks(stack_lin, detection_files_path, start_date,
-                                   end_date)
+    if load_stack_detects:
+        # load stack list from file
+        infile = open(f'party_{start_date.month:02}_{start_date.day:02}_' \
+                   f'{start_date.year}_to_{end_date.month:02}' \
+                   f'_{end_date.day:02}_' \
+                   f'{end_date.year}_MAD8_16s_stackDetects.pkl', 'rb')
+        party = pickle.load(infile)
+        infile.close()
+    else:
+        party = detections_from_stacks(stack_lin, detection_files_path, start_date,
+                                       end_date)
+
     if plot:
         if party != None and len(party) > 0:
             # inspect the party growth over time
@@ -2410,9 +2420,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             rate_fig = party.plot(plot_grouped=True, rate=True)
             print(sorted(party.families, key=lambda f: len(f))[-1])
 
-            # look at family template
-            family = sorted(party.families, key=lambda f: len(f))[-1]
-            fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+            # # look at family template
+            # family = sorted(party.families, key=lambda f: len(f))[-1]
+            # fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
     return party
 
