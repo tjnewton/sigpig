@@ -2382,8 +2382,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # - make simple visualization of stack as it is built with each component
     # - does the stack look like the initial template? if not what is wrong?
 
-    # TODO: compare stack to detect template
-
     # [[[[ on lfe_finder ]]]]
     # TODO: test 5 second template. How do detections compare to 16 s template?
 
