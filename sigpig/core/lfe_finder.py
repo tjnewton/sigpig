@@ -2192,7 +2192,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
               snr_threshold, main_trace, shift_method='med', load_party=False,
               cull=False, load_stack=False, load_stack_detects=False,
-              plot=False):
+              load_second_stack=False, plot=False):
     """
     Driver function to detect signals (LFEs in this case) in time series via
     matched-filtering with specified template(s), then stacking of signals
@@ -2246,7 +2246,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           detection_files_path, start_date, end_date,
                           snr_threshold, main_trace, shift_method='med',
                           load_party=True, cull=False, load_stack=True,
-                          load_stack_detects=True, plot=True)
+                          load_stack_detects=True, load_second_stack=True,
+                          plot=True)
         # --------------------------------------------------------------------
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -2258,6 +2259,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # shift_method = 'med'
     # load_party = True
     # load_stack = True
+    # load_stack_detects = True
+    # load_second_stack = True
+    # cull = False
     # plot = True
 
     # get main station template detections
@@ -2403,7 +2407,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     else:
         party = detections_from_stacks(stack_lin, detection_files_path, start_date,
                                        end_date)
-
     if plot:
         if party != None and len(party) > 0:
             # inspect the party growth over time
@@ -2414,6 +2417,42 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             # look at family template
             family = sorted(party.families, key=lambda f: len(f))[-1]
             fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+
+    # make another stack from the new detections
+    if load_second_stack:
+        # load stack list from file
+        infile = open(f'inner_stack_0_snr{snr_threshold}_'
+                      f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
+        stack_list = pickle.load(infile)
+        infile.close()
+    else:
+        # stack the culled party detections
+        stack_list = stack_template_detections(party, detection_files_path,
+                                               main_trace,
+                                               align_type=shift_method)
+        # save stacks as pickle file
+        # abs 0.25: h m to stack
+        outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
+        # MAD 8: 6h 35m to stack
+        # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+        #                f'{shift_method}Shift_MAD8_16s.pkl', 'wb')
+        pickle.dump(stack_list, outfile)
+        outfile.close()
+
+    # plot stacks
+    stack_pw, stack_lin = stack_list
+
+    if plot:
+        if len(stack_pw) > 0:
+            plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
+                       f'{snr_threshold}_{shift_method}'
+                       f'Shift_abs.25_16s', save=False)
+        if len(stack_lin) > 0:
+            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s',
+                       save=False)
+
 
     # TODO: what should the ultimate return be?
 
