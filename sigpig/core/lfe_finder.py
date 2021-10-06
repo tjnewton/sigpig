@@ -2413,9 +2413,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             rate_fig = party.plot(plot_grouped=True, rate=True)
             print(sorted(party.families, key=lambda f: len(f))[-1])
 
-            # # look at family template
-            # family = sorted(party.families, key=lambda f: len(f))[-1]
-            # fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+            # look at family template
+            family = sorted(party.families, key=lambda f: len(f))[-1]
+            fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
     return party
 
