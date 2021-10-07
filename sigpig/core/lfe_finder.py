@@ -2421,7 +2421,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # make another stack from the new detections
     if load_second_stack:
         # load stack list from file
-        infile = open(f'inner_stack_1_snr{snr_threshold}_'
+        infile = open(f'inner_stack_2_snr{snr_threshold}_'
                       f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
@@ -2432,7 +2432,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method)
         # save stacks as pickle file
         # abs 0.25: h m to stack
-        outfile = open(f'inner_stack_1_snr{snr_threshold}_'
+        outfile = open(f'inner_stack_2_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
         # MAD 8: 6h 35m to stack
         # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
@@ -2446,11 +2446,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_2_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s', save=True)
+                       f'Shift_abs.25_16s', save=False)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_2_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s',
-                       save=True)
+                       save=False)
 
 
     # TODO: what should the ultimate return be?
