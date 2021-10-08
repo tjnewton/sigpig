@@ -2347,10 +2347,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        f'{shift_method}Shift_abs.25_16s',
                        save=False)
 
-            # now plot template with the linear stack for comparison
+            # now plot template with the linear stack from same station for
+            # comparison
             family = sorted(party.families, key=lambda f: len(f))[-1]
             family_stream = family.template.st
-            template_stack = stack_lin.copy()
+            template_stack = Stream()
             stack_len = stack_lin[0].stats.endtime - stack_lin[
                                                              0].stats.starttime
             stack_start = stack_lin[0].stats.starttime
@@ -2360,7 +2361,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                 new_trace.stats.starttime = stack_start + 20
                 new_trace.trim(stack_start, stack_start + stack_len,
                                pad=True, fill_value=0, nearest_sample=True)
+                # get trace from linear stack with corresponding net/sta/chan
+                template_stack += stack_lin.select(
+                                              network=new_trace.stats.network,
+                                              station=new_trace.stats.station,
+                                              channel=new_trace.stats.channel)
+
+                # add template tag to templates
+                new_trace.stats.station = f"{new_trace.stats.station}_TEMPLATE"
                 template_stack += new_trace
+
             plot_stack(template_stack, title=f'linear_stack_and_template_snr'
                        f'{snr_threshold}_{shift_method}Shift_abs.25_16s',
                        save=False)
