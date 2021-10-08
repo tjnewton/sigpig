@@ -692,6 +692,11 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
     return fig
 
 
+def plot_template_and_stack(stream):
+
+    ...
+
+
 def plot_stream_relative():
     pass
 
