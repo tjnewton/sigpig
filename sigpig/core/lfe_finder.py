@@ -2358,14 +2358,30 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             # assemble templates and stacks into a single stream for plotting
             for trace in family_stream:
                 # FIXME: plot template in context with surrounding waveform
-                template_trace = trace.copy()
-                t_net = template_trace.stats.network
-                t_sta = template_trace.stats.station
-                t_cha = template_trace.stats.channel
-                template_trace.stats.starttime = stack_start + 20
-                template_trace.trim(stack_start, stack_start + stack_len,
-                                    pad=True, fill_value=0,
-                                    nearest_sample=True)
+                # get template info
+                t_net = trace.stats.network
+                t_sta = trace.stats.station
+                t_cha = trace.stats.channel
+                t_date = trace.stats.starttime
+
+                # get file containing template time series
+                file_list = glob.glob(f"{detection_files_path}/{t_net}."
+                                      f"{t_sta}.{t_cha}.{t_date.year}"
+                                      f"-{t_date.month:02}-{t_date.day:02}.ms")
+                # guard against missing files
+                if len(file_list) > 0:
+                    # should only be one file, but safeguard against many
+                    file = file_list[0]
+                    # load day file into stream
+                    template_trace = read(file)
+                    # trim trace to time surrounding pick time
+                    template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
+                    template_trace.trim(template_start, template_start +
+                                        stack_len, pad=True, fill_value=0,
+                                        nearest_sample=True)
+                    # go from stream to trace
+                    template_trace = template_trace[0]
+
                 # get trace from linear stack and phase weighted stack with
                 #  corresponding net/sta/chan
                 lin_trace = stack_lin.select(network=t_net, station=t_sta,
