@@ -2355,8 +2355,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             stack_len = stack_lin[0].stats.endtime - stack_lin[
                                                              0].stats.starttime
             stack_start = stack_lin[0].stats.starttime
+            # assemble templates and stacks into a single stream for plotting
             for trace in family_stream:
-                # FIXME: plot template in context with stack of same station
+                # FIXME: plot template in context with surrounding waveform
                 template_trace = trace.copy()
                 template_trace.stats.starttime = stack_start + 20
                 template_trace.trim(stack_start, stack_start + stack_len,
