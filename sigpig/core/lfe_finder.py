@@ -2357,23 +2357,33 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             stack_start = stack_lin[0].stats.starttime
             for trace in family_stream:
                 # FIXME: plot template in context with stack of same station
-                new_trace = trace.copy()
-                new_trace.stats.starttime = stack_start + 20
-                new_trace.trim(stack_start, stack_start + stack_len,
-                               pad=True, fill_value=0, nearest_sample=True)
-                # get trace from linear stack with corresponding net/sta/chan
-                template_stack += stack_lin.select(
-                                              network=new_trace.stats.network,
-                                              station=new_trace.stats.station,
-                                              channel=new_trace.stats.channel)
+                template_trace = trace.copy()
+                template_trace.stats.starttime = stack_start + 20
+                template_trace.trim(stack_start, stack_start + stack_len,
+                                    pad=True, fill_value=0,
+                                    nearest_sample=True)
+                # get trace from linear stack and phase weighted stack with
+                #  corresponding net/sta/chan
+                lin_trace = stack_lin.select(
+                                       network=template_trace.stats.network,
+                                       station=template_trace.stats.station,
+                                       channel=template_trace.stats.channel)[0]
+                lin_trace.stats.station =f"{lin_trace.stats.station}_LIN_STACK"
+                pw_trace = stack_pw.select(
+                                       network=template_trace.stats.network,
+                                       station=template_trace.stats.station,
+                                       channel=template_trace.stats.channel)[0]
+                pw_trace.stats.station = f"{pw_trace.stats.station}_PW_STACK"
 
                 # add template tag to templates
-                new_trace.stats.station = f"{new_trace.stats.station}_TEMPLATE"
-                template_stack += new_trace
+                template_trace.stats.station = f"{template_trace.stats.station}_TEMPLATE"
+                template_stack += template_trace
+                template_stack += lin_trace
+                template_stack += pw_trace
 
-            plot_stack(template_stack, title=f'linear_stack_and_template_snr'
+            plot_stack(template_stack, title=f'stacks_and_template_snr'
                        f'{snr_threshold}_{shift_method}Shift_abs.25_16s',
-                       save=False)
+                       save=False, filter=True, bandpass=[1, 15])
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
