@@ -692,6 +692,63 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
     return fig
 
 
+def plot_template_and_stack(party, stack_lin, stack_pw,
+                            detection_files_path, save=False):
+    """Plots all templates in a party, with waveform files store in the
+    specified path, and the corresponding linear and phase weighted stacks."""
+    family = sorted(party.families, key=lambda f: len(f))[-1]
+    family_stream = family.template.st
+    template_stack = Stream()
+    stack_len = stack_lin[0].stats.endtime - stack_lin[
+        0].stats.starttime
+    stack_start = stack_lin[0].stats.starttime
+    # assemble templates and stacks into a single stream for plotting
+    for trace in family_stream:
+        # get template info
+        t_net = trace.stats.network
+        t_sta = trace.stats.station
+        t_cha = trace.stats.channel
+        t_date = trace.stats.starttime
+
+        # get file containing template time series
+        file_list = glob.glob(f"{detection_files_path}/{t_net}."
+                              f"{t_sta}.{t_cha}.{t_date.year}"
+                              f"-{t_date.month:02}-{t_date.day:02}.ms")
+        # guard against missing files
+        if len(file_list) > 0:
+            # should only be one file, but safeguard against many
+            file = file_list[0]
+            # load day file into stream
+            template_trace = read(file)
+            # trim trace to time surrounding pick time
+            template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
+            template_trace.trim(template_start, template_start +
+                                stack_len, pad=True, fill_value=0,
+                                nearest_sample=True)
+            # go from stream to trace
+            template_trace = template_trace[0]
+
+        # get trace from linear stack and phase weighted stack with
+        #  corresponding net/sta/chan
+        lin_trace = stack_lin.select(network=t_net, station=t_sta,
+                                     channel=t_cha)[0]
+        lin_trace.stats.station += "_LIN_STACK"
+        pw_trace = stack_pw.select(network=t_net, station=t_sta,
+                                   channel=t_cha)[0]
+        pw_trace.stats.station += "_PW_STACK"
+
+        # add template tag to templates
+        template_trace.stats.station += "_TEMPLATE"
+        template_stack += template_trace
+        template_stack += lin_trace
+        template_stack += pw_trace
+
+    fig = plot_stack(template_stack, title=f'Templates_and_corresponding_'
+                     f'stacks', save=save, filter=True, bandpass=[1, 15])
+
+    return fig
+
+
 def plot_stream_relative():
     pass
 
