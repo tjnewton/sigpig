@@ -2234,7 +2234,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
         # set snr threshold to cull the party detections
-        snr_threshold = 1.0 # 3.5
+        snr_threshold = 1.0 #3.5
 
         # define the main trace to use for detections (best amplitude station)
         main_trace = ("TA", "N25K", "BHN")
@@ -2257,13 +2257,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    # shift_method = 'med'
-    # load_party = True
-    # load_stack = True
-    # load_stack_detects = True
-    # load_second_stack = True
-    # cull = False
-    # plot = True
+    shift_method = 'fixed'
+    load_party = True
+    load_stack = False
+    load_stack_detects = True
+    load_second_stack = True
+    cull = True
+    plot = True
+
+    # TODO: implement upper end SNR filter?
 
     # get main station template detections
     if load_party:
@@ -2342,16 +2344,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s', save=False)
+                       f'Shift_abs.25_16s', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.25_16s',
-                       save=False)
+                       save=True)
 
             # now plot template with the linear stack from same station for
             # comparison
             plot_template_and_stack(party, stack_lin, stack_pw,
-                                    detection_files_path, save=False)
+                                    detection_files_path, save=True)
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
