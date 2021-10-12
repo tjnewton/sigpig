@@ -2234,7 +2234,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
         # set snr threshold to cull the party detections
-        snr_threshold = 1.0 #3.5
+        snr_threshold = 3.5 #1.0
 
         # define the main trace to use for detections (best amplitude station)
         main_trace = ("TA", "N25K", "BHN")
