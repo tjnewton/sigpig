@@ -2379,8 +2379,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # TODO: try larger stacks on talapas (MAD 8 w/ & w/o SNR filter)
 
-    # TODO: is filtering before stacking ok? try without
-
     # use stacks as templates in matched-filter search to build catalog of
     # detections
     if load_stack_detects:
