@@ -2373,7 +2373,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # # TODO via Aaron : #
     # - use one constant time shift over entire network from N25K.
-    # - make simple visualization of stack as it is built with each component
 
 
     # use stacks as templates in matched-filter search to build catalog of
