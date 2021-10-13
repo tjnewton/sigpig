@@ -1186,8 +1186,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=8.0, daylong=True,
-                                 threshold_type="MAD", trig_int=8.0,
+            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
+                                 threshold_type="abs", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
@@ -2225,6 +2225,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # 181 = 6.06 ->
         # 195 = 3.77 -> 2016-09-27T07:37:49.0Z
         # snr > 8 = not LFEs #TODO: max snr filter
+        # FIXME: started at 9:35
 
         # and define a station dict to add data needed by EQcorrscan
         station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
@@ -2286,6 +2287,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if load_party:
         # load party object from file
 
+        ###########################  TEMPLATE 1  ##############################
+        ###################### 2016  9 26  9 28 41.34 #########################
+        #######################################################################
         # abs 0.25 = 1218 detections, fits in MBP memory, first used
         infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
@@ -2297,6 +2301,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # MAD 8.0 = 3857 detections, doesn't fit in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
+
+        ###########################  TEMPLATE 2  ##############################
+        ###################### 2016  9 27  7 37 49.00 #########################
+        #######################################################################
+        # abs 0.25 =  detections
+        infile = open('party_06_15_2016_to_08_12_2018_t2_abs.25_16s.pkl', 'rb')
+
+        # MAD 8.0 = 3388 detections
+        # infile = open('party_06_15_2016_to_08_12_2018_t2_MAD8_16s.pkl', 'rb')
 
         party = pickle.load(infile)
         infile.close()
