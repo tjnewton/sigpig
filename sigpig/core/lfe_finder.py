@@ -2371,7 +2371,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #                f'{shift_method}Shift_abs.25_16s_zoom',
         #                save=False)
 
-    # # TODO via Aaron : # #
+    # # TODO via Aaron : #
     # - use one constant time shift over entire network from N25K.
     # - make simple visualization of stack as it is built with each component
     # - does the stack look like the initial template? if not what is wrong?
