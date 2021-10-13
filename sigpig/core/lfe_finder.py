@@ -2379,7 +2379,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # [[[[ on lfe_finder ]]]]
     # TODO: test 5 second template. How do detections compare to 16 s template?
 
-    # TODO: try larger stacks on talapas (MAD 8 w/ & w/o SNR filter)
 
     # use stacks as templates in matched-filter search to build catalog of
     # detections
