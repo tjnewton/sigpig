@@ -2377,7 +2377,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # - does the stack look like the initial template? if not what is wrong?
 
     # [[[[ on lfe_finder ]]]]
-    # TODO: test 5 second template. How do detections compare to 16 s template?
 
 
     # use stacks as templates in matched-filter search to build catalog of
