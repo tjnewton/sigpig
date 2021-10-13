@@ -2376,8 +2376,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # - make simple visualization of stack as it is built with each component
     # - does the stack look like the initial template? if not what is wrong?
 
-    # [[[[ on lfe_finder ]]]]
-
 
     # use stacks as templates in matched-filter search to build catalog of
     # detections
