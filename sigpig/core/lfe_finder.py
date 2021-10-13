@@ -1239,7 +1239,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
         # save party to pickle
         filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
-                   f'_{end_date.day:02}_{end_date.year}.pkl'
+                   f'_{end_date.day:02}_{end_date.year}_t2.pkl'
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
@@ -2273,7 +2273,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'med'
-    load_party = True
+    load_party = False
     load_stack = False
     load_stack_detects = True
     load_second_stack = True
