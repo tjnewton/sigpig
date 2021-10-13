@@ -2371,10 +2371,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #                f'{shift_method}Shift_abs.25_16s_zoom',
         #                save=False)
 
-    # # TODO via Aaron : #
-    # - use one constant time shift over entire network from N25K.
-
-
     # use stacks as templates in matched-filter search to build catalog of
     # detections
     if load_stack_detects:
