@@ -29,11 +29,11 @@ def snr(obspyObject: Stream or Trace) -> float:
 
     # for Stream objects
     if isinstance(obspyObject, obspy.core.stream.Stream):
-        for trace in obspyObject:
+        for index, trace in enumerate(obspyObject):
             rms = np.sqrt(np.mean(trace.data ** 2))
             maxAmplitude = abs(trace.max())
-            trace_rms.update({trace.id: rms})
-            trace_maxAmplitude.update({trace.id: maxAmplitude})
+            trace_rms.update({index: rms})
+            trace_maxAmplitude.update({index: maxAmplitude})
 
         snrs = [trace_maxAmplitude[key] / trace_rms[key] for key in
                 trace_rms]
