@@ -2208,15 +2208,23 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     Example:
         # manually define templates from station TA.N25K (location is made up)
-        templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        # templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "N25K    0.000  1       P\n"]
+        templates = ["# 2016  9 27  7 37 49.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "N25K    0.000  1       P\n"]
 
-        indices of original sta_chan_stream times to try
-        175 = 6.29 ->
-        181 = 6.06 ->
-        195 = 3.77 ->
-        snr > 8 = not LFEs #TODO: max snr filter
-
+        # st = sta_chan_stream[195].copy()
+        # st.filter('bandpass', freqmin=1, freqmax=15)
+        # st.trim(UTCDateTime("2016-09-27T07:37:49.0Z"), UTCDateTime(
+        #                      "2016-09-27T07:38:05.0Z"), pad=True,
+        #                      fill_value=0, nearest_sample=True)
+        # st.plot()
+        #
+        # indices of original sta_chan_stream times to try
+        # 175 = 6.29 ->
+        # 181 = 6.06 ->
+        # 195 = 3.77 -> 2016-09-27T07:37:49.0Z
+        # snr > 8 = not LFEs #TODO: max snr filter
 
         # and define a station dict to add data needed by EQcorrscan
         station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
