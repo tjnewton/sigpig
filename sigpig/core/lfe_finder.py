@@ -2211,6 +2211,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "N25K    0.000  1       P\n"]
 
+        indices of original sta_chan_stream times to try
+        175 = 6.29 ->
+        181 = 6.06 ->
+        195 = 3.77 ->
+        snr > 8 = not LFEs #TODO: max snr filter
+
+
         # and define a station dict to add data needed by EQcorrscan
         station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
 
@@ -2257,12 +2264,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'fixed'
+    shift_method = 'med'
     load_party = True
     load_stack = False
     load_stack_detects = True
     load_second_stack = True
-    cull = True
+    cull = False
     plot = True
 
     # TODO: implement upper end SNR filter?
