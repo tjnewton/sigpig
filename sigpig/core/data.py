@@ -637,7 +637,8 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
 
 def rattlesnake_Ridge_Station_Locations(format=None):
     """ Returns a dict of station locations, used by EQTransformer
-    downloader.stationListFromMseed to create a station_list.json file
+    downloader.stationListFromMseed to create a station_list.json file,
+    and used by other sigpig functions.
 
     Example: write station locations to a file
         # get station locations coordinates in UTM meters easting and northing
