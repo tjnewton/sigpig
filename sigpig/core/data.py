@@ -655,7 +655,8 @@ def rattlesnake_Ridge_Station_Locations(format=None):
 
     """
     # FIXME: needs to return time dependent station locations
-    #      : check time_miner.py for station list @ time splits
+    #      : check time_miner.py for station list @ time splits, make into func
+    #      : get station list at specified time then get locations at that time
     #      : use locations from https://ds.iris.edu/gmap/#network=5A&maxlat=46.5301&maxlon=-120.4604&minlat=46.5217&minlon=-120.4706&drawingmode=box&planet=earth
     #      : and equivalent for UGAP
     # in decimal degrees format
