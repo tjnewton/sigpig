@@ -2369,7 +2369,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # outfile = open(f'inner_stack_t2_0_snr{snr_threshold}_'
         #                f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
         # MAD 8: 6h 35m to stack
-        outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+        outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs0.23_16s.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
