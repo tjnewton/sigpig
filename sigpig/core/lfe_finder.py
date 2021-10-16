@@ -1186,8 +1186,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=10.0, daylong=True,
-                                 threshold_type="MAD", trig_int=8.0,
+            party = tribe.detect(stream=st, threshold=0.23, daylong=True,
+                                 threshold_type="abs", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
@@ -2306,12 +2306,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 27  7 37 49.00 #########################
         #######################################################################
         # abs 0.25 = 289 detections
-        infile = open('party_06_15_2016_to_08_12_2018_t2_abs.25_16s.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_t2_abs.25_16s.pkl', 'rb')
+
+        # abs 0.23 = 1137 detections
+        infile = open('party_06_15_2016_to_08_12_2018_t2_abs.23_16s.pkl', 'rb')
 
         # MAD 10.0 = 460 detections
         # infile = open('party_06_15_2016_to_08_12_2018_t2_MAD10_16s.pkl','rb')
 
-        # MAD 9.0 =  detections
+        # MAD 9.0 = 1187 detections
         # infile = open('party_06_15_2016_to_08_12_2018_t2_MAD9_16s.pkl','rb')
 
         # MAD 8.0 = 3388 detections
@@ -2363,11 +2366,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method)
         # save stacks as pickle file
         # abs 0.25: h m to stack
-        outfile = open(f'inner_stack_t2_0_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
+        # outfile = open(f'inner_stack_t2_0_snr{snr_threshold}_'
+        #                f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
         # MAD 8: 6h 35m to stack
-        # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
-        #                f'{shift_method}Shift_MAD8_16s.pkl', 'wb')
+        outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs0.23_16s.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -2378,10 +2381,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_t2_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_MAD10_16s', save=True)
+                       f'Shift_abs0.23_16s', save=True)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_t2_snr{snr_threshold}_'
-                       f'{shift_method}Shift_MAD10_16s',
+                       f'{shift_method}Shift_abs0.23_16s',
                        save=True)
 
             # now plot template with the linear stack from same station for
