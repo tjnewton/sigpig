@@ -2274,8 +2274,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'med'
-    load_party = False
-    load_stack = False
+    load_party = True
+    load_stack = True
     load_stack_detects = True
     load_second_stack = True
     cull = False
@@ -2291,7 +2291,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 26  9 28 41.34 #########################
         #######################################################################
         # abs 0.25 = 1218 detections, fits in MBP memory, first used
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
         # abs 0.23 = 4381 detections, require more memory than MBP has
         # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
@@ -2355,8 +2355,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if load_stack:
         # load stack list from file
-        infile = open(f'inner_stack_0_snr{snr_threshold}_'
-                      f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
+        infile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
+                      f'{shift_method}Shift_abs.23_16s.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
     else:
