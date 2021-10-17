@@ -693,8 +693,8 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 
 
 def plot_template_and_stack(party, stack_lin, stack_pw,
-                            detection_files_path, save=False):
-    """Plots all templates in a party, with waveform files store in the
+                            detection_files_path, save=False, title=False):
+    """Plots all templates in a party, with waveform files stored in the
     specified path, and the corresponding linear and phase weighted stacks."""
     family = sorted(party.families, key=lambda f: len(f))[-1]
     family_stream = family.template.st
@@ -720,8 +720,10 @@ def plot_template_and_stack(party, stack_lin, stack_pw,
             file = file_list[0]
             # load day file into stream
             template_trace = read(file)
+            template_trace.filter('bandpass', freqmin=1, freqmax=15)
             # trim trace to time surrounding pick time
-            template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
+            # template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
+            template_start = UTCDateTime("2016-09-27T07:37:32.0Z")
             template_trace.trim(template_start, template_start +
                                 stack_len, pad=True, fill_value=0,
                                 nearest_sample=True)
@@ -731,10 +733,10 @@ def plot_template_and_stack(party, stack_lin, stack_pw,
         # get trace from linear stack and phase weighted stack with
         #  corresponding net/sta/chan
         lin_trace = stack_lin.select(network=t_net, station=t_sta,
-                                     channel=t_cha)[0]
+                                     channel=t_cha).copy()[0]
         lin_trace.stats.station += "_LIN_STACK"
         pw_trace = stack_pw.select(network=t_net, station=t_sta,
-                                   channel=t_cha)[0]
+                                   channel=t_cha).copy()[0]
         pw_trace.stats.station += "_PW_STACK"
 
         # add template tag to templates
@@ -743,8 +745,7 @@ def plot_template_and_stack(party, stack_lin, stack_pw,
         template_stack += lin_trace
         template_stack += pw_trace
 
-    fig = plot_stack(template_stack, title=f'Templates_and_corresponding_'
-                     f'stacks', save=save, filter=True, bandpass=[1, 15])
+    fig = plot_stack(template_stack, title=title, save=save, filter=False)
 
     return fig
 
