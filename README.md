@@ -31,6 +31,15 @@ end_Time =   UTCDateTime("2017-08-11T23:59:59.999999999999999Z")
 get_Waveforms(network, stations, location, channels, start_Time, end_Time)
 ```
 
+Fetch the geophone station locations for the Rattlesnake Ridge experiment on a specified date  
+```
+# specify the date of interest
+date = UTCDateTime("2018-03-13T00:04:00.0Z")
+# get station locations coordinates in UTM meters easting and northing format
+format = "UTM"
+station_locations = rattlesnake_Ridge_Station_Locations(date, format=format)
+```
+
 ### sigpig.core.figures generates various figures:  
 Time series and spectrogram plotting  
 ```
