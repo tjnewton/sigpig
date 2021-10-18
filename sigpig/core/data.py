@@ -637,14 +637,14 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
 
 
 # function to return project stations active on a given date
-def project_stations(project_name: str, start_time: UTCDateTime):
+def project_stations(project_name: str, date_time: UTCDateTime):
     """ Returns a list of the stations active on the specified date for the
     specified project in the linear scarp reference frame from ~North to
     ~South.
     """
     if project_name == "Rattlesnake Ridge":
         # build filepath list based on dates
-        date = datetime(start_time.year, start_time.month, start_time.day)
+        date = datetime(date_time.year, date_time.month, date_time.day)
         if date <= datetime(2018, 4, 8):
             stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 15, 'UGAP3', 16, 17,
                     18, 20, 21, 22, 23, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 30,
@@ -700,6 +700,9 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
     #      : use locations from https://ds.iris.edu/gmap/#network=5A&maxlat=46.5301&maxlon=-120.4604&minlat=46.5217&minlon=-120.4706&drawingmode=box&planet=earth
     #      : and equivalent for UGAP
     stations = project_stations("Rattlesnake Ridge", date)
+
+    # get time dependent locations
+
 
     # in decimal degrees format
     stations = (1,2,3,4,5,6,7,8,9,10,12,13,15,16,17,18,20,21,22,23,25,26,27,
