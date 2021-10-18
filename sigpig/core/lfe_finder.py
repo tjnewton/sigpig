@@ -2296,7 +2296,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # abs 0.25 = 1218 detections, fits in MBP memory, first used
         # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
-        # abs 0.24 =  detections
+        # abs 0.24 = 2248 detections
         infile = open('party_06_15_2016_to_08_12_2018_abs.24_16s.pkl', 'rb')
 
         # abs 0.23 = 4381 detections, require more memory than MBP has
