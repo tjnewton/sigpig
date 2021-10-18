@@ -639,7 +639,8 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
 def process_gmap_file(filename):
     """ Processes the specified gmap-station.txt file and returns a
     dictionary of station keys and entries specifying the location and
-    operating period of the station.
+    operating period of the station. GMAP example:
+    https://ds.iris.edu/gmap/#network=5A&maxlat=46.5301&maxlon=-120.4604&minlat=46.5217&minlon=-120.4706&drawingmode=box&planet=earth
     """
     # TODO:
 
