@@ -636,6 +636,43 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     return obspyStream
 
 
+# function to return project stations active on a given date
+def project_stations(project_name: str, start_time: UTCDateTime):
+    """Returns a list of the stations active on the specified date for the
+    specified project in the linear scarp reference frame from ~North to
+    ~South.
+    """
+    if project_name == "Rattlesnake Ridge":
+        # build filepath list based on dates
+        date = datetime(2018, start_time.month, start_time.day)
+        if date <= datetime(2018, 4, 8):
+            stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 15, 'UGAP3', 16, 17,
+                    18, 20, 21, 22, 23, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 30,
+                    31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        elif date <= datetime(2018, 5, 7):
+            stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
+                    17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
+                    28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        elif date == datetime(2018, 5, 8):
+            stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
+                    17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
+                    28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        elif date <= datetime(2018, 6, 6):
+            stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
+                    17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
+                    28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        elif date == datetime(2018, 6, 7):
+            stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 14, 15, 'UGAP3', 16, 18,
+                    20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 29,
+                    30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+        else:
+            stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 14, 15, 'UGAP3', 16, 18,
+                    20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 29,
+                    30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+
+    return stas
+
+
 def rattlesnake_Ridge_Station_Locations(date, format=None):
     """ Returns a dict of station locations, used by EQTransformer
     downloader.stationListFromMseed to create a station_list.json file,
