@@ -654,6 +654,11 @@ def process_gmap_file(filepath):
         for line_contents in file:
             if len(line_contents) > 90:  # avoid irrelevant short lines
                 content_list = line_contents.split("|")
+                station = content_list[1]
+
+                # get list associated with station or set to empty list
+                station_list = station_dict.setdefault(station, [])
+                # append
 
                 # if (line_Contents[0:5] == 'phase') and (line_Contents[
                 #                                         -20:-19] == 'S'):
