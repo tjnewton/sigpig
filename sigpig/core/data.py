@@ -636,16 +636,28 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     return obspyStream
 
 
-def process_gmap_file(filename):
+def process_gmap_file(filepath):
     """ Processes the specified gmap-station.txt file and returns a
     dictionary of station keys and entries specifying the location and
     operating period of the station. GMAP example:
     https://ds.iris.edu/gmap/#network=5A&maxlat=46.5301&maxlon=-120.4604&minlat=46.5217&minlon=-120.4706&drawingmode=box&planet=earth
 
     Example:
-        filename = "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/gmap-stations.txt"
-        location_dict = process_gmap_file(filename)
+        filepath = "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/gmap-stations.txt"
+        location_dict = process_gmap_file(filepath)
     """
+    # initialize a dict to store station information
+    station_dict = {}
+
+    # open file and loop through each line
+    with open(filepath, 'r') as file:
+        for line_contents in file:
+            if len(line_contents) > 90:  # avoid irrelevant short lines
+                content_list = line_contents.split("|")
+
+                # if (line_Contents[0:5] == 'phase') and (line_Contents[
+                #                                         -20:-19] == 'S'):
+                    # avoids error from "None" contents
     # TODO:
 
     ...
