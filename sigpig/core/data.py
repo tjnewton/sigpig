@@ -636,15 +636,17 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     return obspyStream
 
 
-def rattlesnake_Ridge_Station_Locations(format=None):
+def rattlesnake_Ridge_Station_Locations(date, format=None):
     """ Returns a dict of station locations, used by EQTransformer
     downloader.stationListFromMseed to create a station_list.json file,
     and used by other sigpig functions.
 
     Example: write station locations to a file
+        # specify the date of interest
+        date = UTCDateTime("2018-03-13T00:04:00.0Z")
         # get station locations coordinates in UTM meters easting and northing
         format = "UTM"
-        station_locations = rattlesnake_Ridge_Station_Locations(format=format)
+        station_locations = rattlesnake_Ridge_Station_Locations(date, format=format)
 
         # now write to file
         with open("station.locs", "w") as file:
