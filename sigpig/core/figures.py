@@ -722,8 +722,8 @@ def plot_template_and_stack(party, stack_lin, stack_pw,
             template_trace = read(file)
             template_trace.filter('bandpass', freqmin=1, freqmax=15)
             # trim trace to time surrounding pick time
-            # template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
-            template_start = UTCDateTime("2016-09-27T07:37:32.0Z")
+            template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
+            # template_start = UTCDateTime("2016-09-27T07:37:32.0Z")
             template_trace.trim(template_start, template_start +
                                 stack_len, pad=True, fill_value=0,
                                 nearest_sample=True)
