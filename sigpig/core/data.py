@@ -641,6 +641,10 @@ def process_gmap_file(filename):
     dictionary of station keys and entries specifying the location and
     operating period of the station. GMAP example:
     https://ds.iris.edu/gmap/#network=5A&maxlat=46.5301&maxlon=-120.4604&minlat=46.5217&minlon=-120.4706&drawingmode=box&planet=earth
+
+    Example:
+        filename = "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/gmap-stations.txt"
+        location_dict = process_gmap_file(filename)
     """
     # TODO:
 
