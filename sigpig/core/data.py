@@ -13,6 +13,7 @@ import numpy as np
 import utm
 from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
+import os
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -80,7 +81,7 @@ def max_amplitude(timeSeries):
 
         return traceMax, max_index # return max value and index
 
-    # FIXMEL add max index to return for ndarray case
+    # FIXME add max index to return for ndarray case
     elif isinstance(timeSeries, np.ndarray):
         # returns the max for each row, works with 1D and 2D np.ndarrays
         if len(timeSeries.shape) == 1:  # 1D case
