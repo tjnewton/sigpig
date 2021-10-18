@@ -2274,7 +2274,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'med'
-    load_party = False
+    load_party = True
     load_stack = False
     load_stack_detects = True
     load_second_stack = True
