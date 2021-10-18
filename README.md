@@ -17,8 +17,8 @@ Launch Jupyter Lab within sigpig environment:
 Browse the repo directories and notebooks within Jupyter Lab :)
 
 ## Functionality:
-### sigpig.core.data downloads data:  
-Time series data from IRIS DMC  
+### sigpig.core.data fetches, formats, and analyzes data:  
+Download time series data from IRIS DMC  
 ```
 network = "AK"
 stations = ["BAL", "BARN", "DHY", "DIV", "DOT", "GHO", "GLB", "K218",
