@@ -643,25 +643,54 @@ def project_stations(project_name: str, date_time: UTCDateTime):
     ~South.
     """
     if project_name == "Rattlesnake Ridge":
-        # build filepath list based on dates
-        date = datetime(date_time.year, date_time.month, date_time.day)
-        if date <= datetime(2018, 4, 8):
+        # # build filepath list based on dates
+        # date = datetime(date_time.year, date_time.month, date_time.day)
+        # if date <= datetime(2018, 4, 8):
+        #     stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 15, 'UGAP3', 16, 17,
+        #             18, 20, 21, 22, 23, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 30,
+        #             31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        # elif date <= datetime(2018, 5, 7):
+        #     stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
+        #             17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
+        #             28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        # elif date == datetime(2018, 5, 8):
+        #     stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
+        #             17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
+        #             28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        # elif date <= datetime(2018, 6, 6):
+        #     stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
+        #             17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
+        #             28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        # elif date == datetime(2018, 6, 7):
+        #     stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 14, 15, 'UGAP3', 16, 18,
+        #             20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 29,
+        #             30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+        # else:
+        #     stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 14, 15, 'UGAP3', 16, 18,
+        #             20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 29,
+        #             30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42]
+
+        # get time dependent stations. note: this is not robust so doing
+        # analyses around the edges of deployments is a bad idea
+        zeroed_date = UTCDateTime(f"{date.year}-{date.month:02}-"
+                                  f"{date.day:02}T00:00:00.0Z")
+        if date <= UTCDateTime("2018-04-08T22:00:00.0Z"):
             stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 15, 'UGAP3', 16, 17,
                     18, 20, 21, 22, 23, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 30,
                     31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
-        elif date <= datetime(2018, 5, 7):
+        elif date <= UTCDateTime("2018-05-07T23:59:59.9999999999Z"):
             stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
                     17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
                     28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
-        elif date == datetime(2018, 5, 8):
+        elif zeroed_date == UTCDateTime("2018-05-08T00:00:00.0Z"):
             stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
                     17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
                     28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
-        elif date <= datetime(2018, 6, 6):
+        elif date <= UTCDateTime("2018-06-06T23:59:59.9999999999Z"):
             stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 14, 15, 'UGAP3', 16,
                     17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6',
                     28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
-        elif date == datetime(2018, 6, 7):
+        elif zeroed_date == UTCDateTime("2018-06-07T00:00:00.0Z"):
             stas = [1, 3, 5, 4, 6, 7, 8, 13, 9, 10, 14, 15, 'UGAP3', 16, 18,
                     20, 21, 22, 23, 24, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 29,
                     30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42]
