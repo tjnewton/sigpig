@@ -2355,6 +2355,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if load_stack:
         # load stack list from file
+        # TEMPLATE 1
+        # infile = open(f'inner_stack_0_snr{snr_threshold}_'
+        #               f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
+        # TEMPLATE 2
         infile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
                       f'{shift_method}Shift_abs.23_16s.pkl', 'rb')
         stack_list = pickle.load(infile)
@@ -2366,11 +2370,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method)
         # save stacks as pickle file
         # abs 0.25: h m to stack
-        # outfile = open(f'inner_stack_t2_0_snr{snr_threshold}_'
-        #                f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
+        outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
         # MAD 8: 6h 35m to stack
-        outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs0.23_16s.pkl', 'wb')
+        # outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
+        #                f'{shift_method}Shift_abs0.23_16s.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -2379,21 +2383,21 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'phase_weighted_stack_t2_snr'
+            plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.23_16s', save=True)
+                       f'Shift_abs.25_16s', save=False)
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'linear_stack_t2_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.23_16s',
-                       save=True)
+            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.25_16s',
+                       save=False)
 
             # now plot template with the linear stack from same station for
             # comparison
             plot_template_and_stack(party, stack_lin, stack_pw,
-                                    detection_files_path, save=True,
-                                    title=f'stacks_templates_t2_sn'
+                                    detection_files_path, save=False,
+                                    title=f'stacks_templates_sn'
                                           f'r{snr_threshold}_'
-                                    f'{shift_method}Shift_abs.23_16s')
+                                    f'{shift_method}Shift_abs.25_16s')
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
