@@ -644,7 +644,7 @@ def project_stations(project_name: str, start_time: UTCDateTime):
     """
     if project_name == "Rattlesnake Ridge":
         # build filepath list based on dates
-        date = datetime(2018, start_time.month, start_time.day)
+        date = datetime(start_time.year, start_time.month, start_time.day)
         if date <= datetime(2018, 4, 8):
             stas = [1, 2, 3, 5, 4, 6, 7, 8, 13, 9, 10, 12, 15, 'UGAP3', 16, 17,
                     18, 20, 21, 22, 23, 25, 26, 27, 'UGAP5', 'UGAP6', 28, 30,
