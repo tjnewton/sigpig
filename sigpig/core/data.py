@@ -636,6 +636,15 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     return obspyStream
 
 
+def process_gmap_file(filename):
+    """ Processes the specified gmap-station.txt file and returns a
+    dictionary of station keys and entries specifying the location and
+    operating period of the station.
+    """
+    # TODO:
+
+    ...
+
 # function to return project stations active on a given date
 def project_stations(project_name: str, date: UTCDateTime):
     """ Returns a list of the stations active on the specified date for the
