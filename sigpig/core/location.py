@@ -358,6 +358,32 @@ def stingray_setup(project_name: string):
 
     if project_name == "Rattlesnake Ridge":
 
+        srControl = False
+        srGeometry = False
+        srStation = False
+        srEvent = False
+        srModel = True
+
+        if srControl:
+            # -------------------------------------------------------------------
+            # this makes srControl
+            condict = {}
+            condict['tf_latlon'] = 1
+            condict['tf_anisotropy'] = 0
+            # TODO: ASK DOUG ABOTU LINE INT
+            condict['tf_line_integrate'] = 0
+            # TODO: ASK DOUG ABOUT ARCFILE
+            condict['arcfile'] = 'arc7.mat'
+            condict['tf_waterpath'] = 0
+            # TODO: ASK DOUG ABOTU BUFFER/ZVALUE
+            condict['tf_carve'] = 1
+            condict['carve'] = {}
+            condict['carve']['buffer'] = 2
+            condict['carve']['zvalue'] = [[2]]
+            savemat(
+                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srControl.mat",
+                {'srControl': condict})
+
 
 
 
