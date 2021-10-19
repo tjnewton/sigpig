@@ -369,8 +369,7 @@ def stingray_setup(project_name: str):
             # https://pages.uoregon.edu/drt/Stingray/pages/17-51.html
             condict = {}
             condict['tf_latlon'] = 1 # 1 = geodetic coordinates, 0 = UTM coordinates
-            # include anisotropy in ray tracing forward problem or not?
-            condict['tf_anisotropy'] = 0
+            condict['tf_anisotropy'] = 0 # include anisotropy in ray tracing forward problem?
             condict['tf_line_integrate'] = 0
             condict['arcfile'] = 'arc7.mat'
             condict['tf_waterpath'] = 0
@@ -378,16 +377,14 @@ def stingray_setup(project_name: str):
             condict['carve'] = {}
             condict['carve']['buffer'] = 2
             condict['carve']['zvalue'] = [[2]]
-            savemat(
-                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srControl.mat",
+            savemat("/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srControl.mat",
                 {'srControl': condict})
 
         if srGeometry:
-            # -------------------------------------------------------------------
-            # this makes srGeometry
+            # generate srGeometry file
             geodict = {}
-            geodict['longitude'] = -123.25
-            geodict['latitude'] = 41.1
+            geodict['longitude'] = -120.4668
+            geodict['latitude'] = 46.5253
             geodict['rotation'] = 0.0
             geodict['tf_latlon'] = True
             geodict['tf_flat'] = 0.0
