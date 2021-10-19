@@ -397,6 +397,25 @@ def stingray_setup(project_name: string):
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srGeometry.mat",
                 {'srGeometry': geodict})
 
+        if srStation:
+            # -------------------------------------------------------------------
+            # this makes srStation
+            df = pd.read_csv(
+                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/bulk-elev-query.csv")
+            names = pd.read_csv(
+                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/JESTER_list.txt",
+                names=['name', 'lon', 'lat'], delimiter=' ')
+            df['Station'] = names['name']
+            dfdict = {}
+            dfdict['name'] = df['Station'].values.reshape(len(df), 1)
+            dfdict['latitude'] = df['Lat'].values.reshape(len(df), 1)
+            dfdict['longitude'] = df['Lon'].values.reshape(len(df), 1)
+            dfdict['elevation'] = df['Elev(m)'].values.reshape(len(df),
+                                                               1) / 1000
+            savemat(
+                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srStation.mat",
+                {'srStation': dfdict})
+
 
 
 
