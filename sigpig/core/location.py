@@ -22,6 +22,13 @@ from quakemigrate.lut import compute_traveltimes
 from quakemigrate.signal.pickers import GaussianPicker
 from quakemigrate.signal.local_mag import LocalMag
 
+import pandas as pd
+from scipy.io import savemat
+import numpy as np
+import datetime
+import matplotlib.pyplot as plt
+import math
+
 def download_date():
     """
     This script will download the waveform data and an instrument response
