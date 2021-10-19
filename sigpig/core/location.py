@@ -416,6 +416,35 @@ def stingray_setup(project_name: string):
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srStation.mat",
                 {'srStation': dfdict})
 
+        if srEvent:
+
+            # -------------------------------------------------------------------
+            # this makes srEvent file
+
+            # TODO: is earthquakes.csv from NLL? no, from catalog but maybe not needed to run Stingray.
+            #       Ping Doug and ask if srEvent file is necessary for Stingray.
+            eqdf = pd.read_csv(
+                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/earthquakes.csv")
+
+            datetimes = pd.to_datetime(eqdf['DateTime'])
+            origins = np.zeros((len(eqdf), 1))
+            for ii in range(len(eqdf)):
+                origins[ii] = \
+                (datetimes - datetime.datetime.utcfromtimestamp(0)).values[
+                    ii].item() / 1e9
+            eqdict = {}
+            eqdict['id'] = eqdf['EventID'].values.reshape(len(eqdf), 1)
+            eqdict['type'] = 3 * np.ones((len(eqdf), 1))
+            eqdict['latitude'] = eqdf['Latitude'].values.reshape(len(eqdf), 1)
+            eqdict['longitude'] = eqdf['Longitude'].values.reshape(len(eqdf),
+                                                                   1)
+            eqdict['origintime'] = origins
+            eqdict['depth'] = eqdf['Depth'].values.reshape(len(eqdf), 1)
+            eqdict['datum'] = np.zeros((len(eqdf), 1))
+            savemat(
+                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srEvent.mat",
+                {'srEvent': eqdict})
+
 
 
 
