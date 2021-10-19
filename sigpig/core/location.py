@@ -349,12 +349,14 @@ def locate():
 
 
 # function to generate the necessary files for Stingray local earthquake tomography
-def stingray_setup(project_name: str):
+def stingray_setup(project_name: str, date: UTCDateTime):
     """ Generates the necessary files to run Stingray for a specified project
 
     Example:
+        # to get Rattlesnake Ridge station locations a date must be specified
+        date = UTCDateTime("2018-03-16T00:04:00.0Z")
         project_name = "Rattlesnake Ridge"
-        stingray_setup(project_name)
+        stingray_setup(project_name, date)
     """
 
     if project_name == "Rattlesnake Ridge":
@@ -400,7 +402,6 @@ def stingray_setup(project_name: str):
                       'elevation': []}
 
             # get Rattlesnake Ridge station locations on specified date
-            date = UTCDateTime("2018-03-16T00:04:00.0Z")
             station_locations = rattlesnake_Ridge_Station_Locations(date)
             # assemble dict in proper format for Stingray
             for station in station_locations.keys():
