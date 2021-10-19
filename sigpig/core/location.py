@@ -423,9 +423,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
             # -------------------------------------------------------------------
             # this makes srEvent file
-
-            # TODO: is earthquakes.csv from NLL? no, from catalog but maybe not needed to run Stingray.
-            #       Ping Doug and ask if srEvent file is necessary for Stingray.
+            # TODO: edit this for RR - earthquakes from NLL
             eqdf = pd.read_csv(
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/earthquakes.csv")
 
@@ -455,6 +453,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         # -------------------------------------------------------------------
 
         if srModel:
+            # TODO: edit this for RR
             # this makes srModel file
             # set some options
             for d in [.25]:  # , .5, 1]:
