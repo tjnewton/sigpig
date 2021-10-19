@@ -384,6 +384,19 @@ def stingray_setup(project_name: string):
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srControl.mat",
                 {'srControl': condict})
 
+        if srGeometry:
+            # -------------------------------------------------------------------
+            # this makes srGeometry
+            geodict = {}
+            geodict['longitude'] = -123.25
+            geodict['latitude'] = 41.1
+            geodict['rotation'] = 0.0
+            geodict['tf_latlon'] = True
+            geodict['tf_flat'] = 0.0
+            savemat(
+                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srGeometry.mat",
+                {'srGeometry': geodict})
+
 
 
 
