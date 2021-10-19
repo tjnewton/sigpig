@@ -402,19 +402,18 @@ def stingray_setup(project_name: str):
             # get Rattlesnake Ridge station locations on specified date
             date = UTCDateTime("2018-03-16T00:04:00.0Z")
             station_locations = rattlesnake_Ridge_Station_Locations(date)
+            # assemble dict in proper format for Stingray
+            for station in station_locations.keys():
+                dfdict['name'].append([station])
+                dfdict['latitude'].append([station_locations[station][0]])
+                dfdict['longitude'].append([station_locations[station][1]])
+                dfdict['elevation'].append([station_locations[station][2]])
+            dfdict['name'] = np.asarray(dfdict['name'], dtype=object)
+            dfdict['latitude'] = np.asarray(dfdict['latitude'], dtype=object)
+            dfdict['longitude'] = np.asarray(dfdict['longitude'], dtype=object)
+            dfdict['elevation'] = np.asarray(dfdict['elevation'], dtype=object)
 
-
-            df = pd.read_csv(
-                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/bulk-elev-query.csv")
-            names = pd.read_csv(
-                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/JESTER_list.txt",
-                names=['name', 'lon', 'lat'], delimiter=' ')
-            df['Station'] = names['name']
-            dfdict = {}
-            dfdict['name'] = df['Station'].values.reshape(len(df), 1)
-            dfdict['latitude'] = df['Lat'].values.reshape(len(df), 1)
-            dfdict['longitude'] = df['Lon'].values.reshape(len(df), 1)
-            dfdict['elevation'] = df['Elev(m)'].values.reshape(len(df),1) / 1000
+            # save dict as mat file
             savemat(
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srStation.mat",
                 {'srStation': dfdict})
