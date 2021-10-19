@@ -445,25 +445,67 @@ def stingray_setup(project_name: string):
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srEvent.mat",
                 {'srEvent': eqdict})
 
+        # -------------------------------------------------------------------
+        # this makes srElevation file
+        # Doug gave me this for now....
 
+        # -------------------------------------------------------------------
 
+        if srModel:
+            # this makes srModel file
+            # set some options
+            for d in [.25]:  # , .5, 1]:
+                dx = dy = dz = d  # model node spacing, x-dir
+                # model node spacing, y-dir
+                # model node spacing, z-dir
+                xoffset = -100.0
+                yoffset = -100.0
+                maxdep = 100.0
+                xdist = 200.0
+                ydist = 200.0
+                nx = int(np.ceil(xdist) // dx)
+                ny = int(np.ceil(ydist) // dy)
+                nz = int(maxdep // dz + 1)
 
+                # this makes the model file
+                velmod = pd.read_csv("gil7.txt", delim_whitespace=True)
+                plt.figure()
+                plt.plot(velmod['Top'].values, velmod['Pvel'].values,
+                         label='P model values')
+                plt.plot(velmod['Top'].values, velmod['Svel'].values,
+                         label='S model values')
+                pz = np.polyfit(velmod['Top'].values, velmod['Pvel'].values, 1)
+                sz = np.polyfit(velmod['Top'].values, velmod['Svel'].values, 1)
+                depth = np.arange(100)
+                plt.plot(depth, depth * pz[0] + pz[1], label='P interp values')
+                plt.plot(depth, depth * sz[0] + sz[1], label='S interp values')
+                plt.legend()
 
+                mod = np.concatenate((np.reshape(depth, (-1, 1)),
+                                      np.reshape(depth * pz[0] + pz[1],
+                                                 (-1, 1)),
+                                      np.reshape(depth * sz[0] + sz[1],
+                                                 (-1, 1))), axis=1)
+                np.savetxt('gil7_linear', mod, fmt='%6.5f', delimiter=' ')
 
+                Pmod = np.zeros((nx, ny, nz))
+                Smod = np.zeros((nx, ny, nz))
+                for ii in range(nz):
+                    Pmod[:, :, ii] = 1 / ((ii * dz) * pz[0] + pz[1]) * np.ones(
+                        (nx, ny))  # p slowness
+                    Smod[:, :, ii] = 1 / ((ii * dz) * sz[0] + sz[1]) * np.ones(
+                        (nx, ny))  # s slowness
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+                # make dict
+                modeldict = {}
+                modeldict['ghead'] = [xoffset, yoffset, nx, ny, nz, dx, dy, dz]
+                modeldict['P'] = {}
+                modeldict['P']['u'] = Pmod
+                modeldict['S'] = {}
+                modeldict['S']['u'] = Smod
+                savemat(
+                    "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srModel_" + str(
+                        int(1000 * d)) + ".mat", {'srModel': modeldict})
 
     else:
         pass
