@@ -28,6 +28,7 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 import math
+from data import rattlesnake_Ridge_Station_Locations
 
 def download_date():
     """
@@ -394,7 +395,15 @@ def stingray_setup(project_name: str):
 
         if srStation:
             # -------------------------------------------------------------------
-            # this makes srStation
+            # generates srStation mat file containing station locations
+            dfdict = {'name': [], 'latitude': [], 'longitude': [],
+                      'elevation': []}
+
+            # get Rattlesnake Ridge station locations on specified date
+            date = UTCDateTime("2018-03-16T00:04:00.0Z")
+            station_locations = rattlesnake_Ridge_Station_Locations(date)
+
+
             df = pd.read_csv(
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/bulk-elev-query.csv")
             names = pd.read_csv(
@@ -405,8 +414,7 @@ def stingray_setup(project_name: str):
             dfdict['name'] = df['Station'].values.reshape(len(df), 1)
             dfdict['latitude'] = df['Lat'].values.reshape(len(df), 1)
             dfdict['longitude'] = df['Lon'].values.reshape(len(df), 1)
-            dfdict['elevation'] = df['Elev(m)'].values.reshape(len(df),
-                                                               1) / 1000
+            dfdict['elevation'] = df['Elev(m)'].values.reshape(len(df),1) / 1000
             savemat(
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srStation.mat",
                 {'srStation': dfdict})
