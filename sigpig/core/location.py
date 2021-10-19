@@ -348,7 +348,7 @@ def locate():
 
 
 # function to generate the necessary files for Stingray local earthquake tomography
-def stingray_setup(project_name: string):
+def stingray_setup(project_name: str):
     """ Generates the necessary files to run Stingray for a specified project
 
     Example:
@@ -365,17 +365,15 @@ def stingray_setup(project_name: string):
         srModel = True
 
         if srControl:
-            # -------------------------------------------------------------------
-            # this makes srControl
+            # generate srControl file
+            # https://pages.uoregon.edu/drt/Stingray/pages/17-51.html
             condict = {}
-            condict['tf_latlon'] = 1
+            condict['tf_latlon'] = 1 # 1 = geodetic coordinates, 0 = UTM coordinates
+            # include anisotropy in ray tracing forward problem or not?
             condict['tf_anisotropy'] = 0
-            # TODO: ASK DOUG ABOTU LINE INT
             condict['tf_line_integrate'] = 0
-            # TODO: ASK DOUG ABOUT ARCFILE
             condict['arcfile'] = 'arc7.mat'
             condict['tf_waterpath'] = 0
-            # TODO: ASK DOUG ABOTU BUFFER/ZVALUE
             condict['tf_carve'] = 1
             condict['carve'] = {}
             condict['carve']['buffer'] = 2
