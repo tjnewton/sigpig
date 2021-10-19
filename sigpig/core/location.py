@@ -1,5 +1,5 @@
 """
-Functions to constrain origin location of signals.
+Functions to constrain the origin location of signals.
 """
 # stop numpy using all available threads (these environment variables must be
 # set before numpy is imported for the first time).
@@ -336,5 +336,42 @@ def locate():
     # --- Run locate ---
     scan.locate(starttime=starttime, endtime=endtime)
 
-
+# FIXME: above functions are from QuakeMigrate notebooks and need to be tested
 # TODO: check Quakemigrate notebook for other info
+
+
+# function to generate the necessary files for Stingray local earthquake tomography
+def stingray_setup(project_name: string):
+    """ Generates the necessary files to run Stingray for a specified project
+
+    Example:
+        project_name = "Rattlesnake Ridge"
+        stingray_setup(project_name)
+    """
+
+    if project_name == "Rattlesnake Ridge":
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    else:
+        pass
+
+    return None
