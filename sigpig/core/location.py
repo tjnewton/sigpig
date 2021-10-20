@@ -454,6 +454,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
         if srModel:
             # TODO: edit this for RR
+            #       - what is appropriate model node spacing?
             # this makes srModel file
             # set some options
             for d in [.25]:  # , .5, 1]:
