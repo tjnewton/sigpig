@@ -225,4 +225,6 @@ def elevations_from_raster(raster_file, utm_coordinates):
 
     return elevations
 
+# TODO: try with yakima_basin_2018_dtm_43_hs.tif
+
 # TODO: add content from lidar/ortho_station_map here or to figures.py
