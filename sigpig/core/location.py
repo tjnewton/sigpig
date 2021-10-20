@@ -423,7 +423,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
             # -------------------------------------------------------------------
             # this makes srEvent file
-            # TODO: edit this for RR - earthquakes from NLL
+            # TODO: edit this for RR - earthquake locations from NLL
             eqdf = pd.read_csv(
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/earthquakes.csv")
 
