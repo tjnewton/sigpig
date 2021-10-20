@@ -503,8 +503,8 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     start_Time and end_Time are UTCDateTime objects
 
     Example: for all stations in one stream with distance hack, for picking
-    start_Time = UTCDateTime("2018-03-13T00:09:50.0Z")
-    end_Time =   UTCDateTime("2018-03-13T00:13:00.0Z")
+    start_Time = UTCDateTime("2018-03-13T00:12:50.0Z")
+    end_Time =   UTCDateTime("2018-03-13T00:16:00.0Z")
     project_Name = "Rattlesnake Ridge"
     channels = ['DP1', 'EHN']
     trim_Daily_Waveforms(project_Name, start_Time, end_Time, channels, write_File=True)
