@@ -2341,8 +2341,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
-    cull = False
-    plot = True
+    cull = True
+    plot = False
 
     # TODO: implement upper end SNR filter?
 
@@ -2437,6 +2437,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
     detection_stream = get_detections(party, detection_files_path, main_trace)
+    plot_stack(detection_stream[:51],
+               title="top_0-50_correlation_sum_detections",
+               save=True)
     plot_stack(detection_stream[:51])
     plot_stack(detection_stream[-50:])
 
@@ -2490,21 +2493,37 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
-                       f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.24_16s', save=False)
+            # plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
+            #            f'{snr_threshold}_{shift_method}'
+            #            f'Shift_abs.24_16s', save=False)
+
+            plot_stack(stack_pw, title=f'top_50_phase_weighted_stack_snr'
+                                       f'{snr_threshold}_{shift_method}'
+                                       f'Shift_abs.25_16s', save=True)
+
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.24_16s',
-                       save=False)
+            # plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
+            #            f'{shift_method}Shift_abs.24_16s',
+            #            save=False)
+
+            plot_stack(stack_lin, title=f'top_50_linear_stack_sn'
+                                        f'r{snr_threshold}_'
+                                        f'{shift_method}Shift_abs.25_16s',
+                       save=True)
 
             # now plot template with the linear stack from same station for
             # comparison
+            # plot_template_and_stack(party, stack_lin, stack_pw,
+            #                         detection_files_path, save=False,
+            #                         title=f'stacks_templates_sn'
+            #                               f'r{snr_threshold}_'
+            #                         f'{shift_method}Shift_abs.24_16s')
+
             plot_template_and_stack(party, stack_lin, stack_pw,
-                                    detection_files_path, save=False,
-                                    title=f'stacks_templates_sn'
+                                    detection_files_path, save=True,
+                                    title=f'top_50_stacks_templates_sn'
                                           f'r{snr_threshold}_'
-                                    f'{shift_method}Shift_abs.24_16s')
+                                          f'{shift_method}Shift_abs.25_16s')
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
