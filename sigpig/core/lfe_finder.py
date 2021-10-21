@@ -2333,10 +2333,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'med'
     load_party = True
-    save_detections = False
+    save_detections = True
 
-    top_n = True
-    n = 50
+    top_n = False
+    n = 200
 
     load_stack = False
     load_stack_detects = False
@@ -2357,7 +2357,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s.pkl', 'rb')
 
         # abs 0.25 = 1218 detections, fits in MBP memory, first used
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
         # abs 0.24 = 2248 detections
         # infile = open('party_06_15_2016_to_08_12_2018_abs.24_16s.pkl', 'rb')
@@ -2369,7 +2369,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
 
         # MAD 8.0 = 3857 detections, doesn't fit in MBP memory
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
 
         ###########################  TEMPLATE 2  ##############################
         ###################### 2016  9 27  7 37 49.00 #########################
@@ -2412,7 +2412,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if save_detections:
         # save party detections as text file
-        df.to_csv('detections.csv', index=False)
+        df.to_csv('MAD8_detections.csv', index=False)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2446,8 +2446,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream,
-                   title="top_50_correlation_sum_detections",
+        plot_stack(detection_stream[150:200],
+                   title="top_150-200_correlation_sum_detections",
                    save=True)
 
     # cull the party detections below the specified signal to noise ratio
@@ -2504,7 +2504,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             #            f'{snr_threshold}_{shift_method}'
             #            f'Shift_abs.24_16s', save=False)
 
-            plot_stack(stack_pw, title=f'top_50_phase_weighted_stack_snr'
+            plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
                                        f'{snr_threshold}_{shift_method}'
                                        f'Shift_abs.25_16s', save=True)
 
@@ -2513,7 +2513,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             #            f'{shift_method}Shift_abs.24_16s',
             #            save=False)
 
-            plot_stack(stack_lin, title=f'top_50_linear_stack_sn'
+            plot_stack(stack_lin, title=f'top_{n}_linear_stack_sn'
                                         f'r{snr_threshold}_'
                                         f'{shift_method}Shift_abs.25_16s',
                        save=True)
@@ -2528,7 +2528,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_template_and_stack(party, stack_lin, stack_pw,
                                     detection_files_path, save=True,
-                                    title=f'top_50_stacks_templates_sn'
+                                    title=f'top_{n}_stacks_templates_sn'
                                           f'r{snr_threshold}_'
                                           f'{shift_method}Shift_abs.25_16s')
 
