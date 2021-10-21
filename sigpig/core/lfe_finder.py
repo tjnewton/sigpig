@@ -2279,7 +2279,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = True
 
     top_n = True
-    n = 50
+    n = 200
 
     load_stack = False
     load_stack_detects = False
