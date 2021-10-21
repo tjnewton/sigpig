@@ -2262,9 +2262,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           template_length, template_prepick,
                           detection_files_path, start_date, end_date,
                           snr_threshold, main_trace, shift_method='med',
-                          load_party=True, cull=False, load_stack=True,
-                          load_stack_detects=True, load_second_stack=True,
-                          plot=True)
+                          load_party=True, save_detections=False, cull=False,
+                          load_stack=True, load_stack_detects=True,
+                          load_second_stack=True, plot=True)
         # --------------------------------------------------------------------
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -2275,6 +2275,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'med'
     load_party = True
+    save_detections = True
     load_stack = False
     load_stack_detects = True
     load_second_stack = True
@@ -2294,10 +2295,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s.pkl', 'rb')
 
         # abs 0.25 = 1218 detections, fits in MBP memory, first used
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
 
         # abs 0.24 = 2248 detections
-        infile = open('party_06_15_2016_to_08_12_2018_abs.24_16s.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.24_16s.pkl', 'rb')
 
         # abs 0.23 = 4381 detections, require more memory than MBP has
         # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
@@ -2332,6 +2333,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         party = detect_signals(templates, template_files, station_dict,
                                template_length, template_prepick,
                                detection_files_path, start_date, end_date)
+    if save_detections:
+        # save party detections as dataframe then text file
+
     if plot:
         # inspect the party growth over time
         detections_fig = party.plot(plot_grouped=True)
