@@ -2333,7 +2333,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'med'
     load_party = True
-    save_detections = True
+    save_detections = False
 
     top_n = True
     n = 200
@@ -2395,18 +2395,23 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         party = detect_signals(templates, template_files, station_dict,
                                template_length, template_prepick,
                                detection_files_path, start_date, end_date)
-    if save_detections:
-        # save party detections as dataframe then text file
-        data = []
-        for index, detection in enumerate(party.families[0].detections):
-            data.append([index, detection.detect_time, detection.detect_val,
-                         detection.threshold, detection.threshold_type,
-                         detection.threshold_input, detection.template_name])
 
-        df = pd.DataFrame(data, columns=['index', 'time', 'correlation_sum',
-                                         'correlation_sum_threshold',
-                                         'threshold_metric',
-                                         'metric_input', 'template'])
+    data = []
+    detection_stream = get_detections(party, detection_files_path, main_trace)
+    snrs = snr(detection_stream)
+    for index, detection in enumerate(party.families[0].detections):
+        data.append([index, detection.detect_time, detection.detect_val,
+                     detection.threshold, detection.threshold_type,
+                     detection.threshold_input, detection.template_name,
+                     snrs[index]])
+
+    df = pd.DataFrame(data, columns=['index', 'time', 'correlation_sum',
+                                     'correlation_sum_threshold',
+                                     'threshold_metric',
+                                     'metric_input', 'template', 'snr'])
+
+    if save_detections:
+        # save party detections as text file
         df.to_csv('detections.csv', index=False)
 
     # consider only top n detections ranked by the cross-channel correlation sum
@@ -2430,6 +2435,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # look at family template
         family = sorted(party.families, key=lambda f: len(f))[-1]
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
+
+    detection_stream = get_detections(party, detection_files_path, main_trace)
+    plot_stack(detection_stream[:51])
+    plot_stack(detection_stream[-50:])
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
