@@ -1539,6 +1539,63 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
     return [stack_pw, stack_lin]
 
+# function to get a stream of time series' of detections from a party object
+def get_detections(party, streams_path, main_trace):
+    # first extract pick times for each event from party object
+    # pick_times is a list of the pick times for the main trace
+    pick_times = []
+    pick_network, pick_station, pick_channel = main_trace
+    for event in party.families[0].catalog.events:
+        for pick in event.picks:
+            # trace with highest amplitude signal
+            if pick.waveform_id.station_code == pick_station and \
+                    pick.waveform_id.network_code == pick_network and \
+                    pick.waveform_id.channel_code == pick_channel:
+                pick_times.append(pick.time)
+
+    # loop over stations and generate a stack for each station:channel pair
+
+    print(f"Assembling streams for {pick_station}.{pick_channel}")
+
+    sta_chan_stream = Stream()
+    for index in tqdm(range(len(pick_times))):
+        pick_time = pick_times[index]
+
+        # find the local file corresponding to the station:channel pair
+        day_file_list = glob.glob(f"{streams_path}/{pick_network}."
+                                  f"{pick_station}."
+                                  f"{pick_channel}.{pick_time.year}"
+                                  f"-{pick_time.month:02}"
+                                  f"-{pick_time.day:02}.ms")
+
+        # guard against missing files
+        if len(day_file_list) > 0:
+            # FIXME: lowest sr should be detected, not hard coded
+            lowest_sr = 40  # lowest sampling rate
+            # TODO: try upsampling to 100 Hz
+
+            # should only be one file, but safeguard against many
+            file = day_file_list[0]
+            # load day file into stream
+            day_st = read(file)
+            # bandpass filter
+            day_st.filter('bandpass', freqmin=1, freqmax=15)
+            # interpolate to lowest sampling rate if necessary
+            if day_st[0].stats.sampling_rate != lowest_sr:
+                day_st.interpolate(sampling_rate=lowest_sr)
+            # trim trace to 60 seconds surrounding pick time
+            day_st.trim(pick_time - 20, pick_time + 40, pad=True,
+                        fill_value=np.nan, nearest_sample=True)
+
+            sta_chan_stream += day_st
+
+        # if no file, append blank trace to preserve stream length
+        # equality with pick_times
+        else:
+            sta_chan_stream += Trace()
+
+    return sta_chan_stream
+
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
 def stack_template_detections(party, streams_path, main_trace, align_type):
