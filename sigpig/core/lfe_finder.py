@@ -32,6 +32,7 @@ from data import max_amplitude, snr
 import os
 from celluloid import Camera
 from math import ceil
+import pandas as pd
 
 Logger = logging.getLogger(__name__)
 
@@ -2276,9 +2277,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     shift_method = 'med'
     load_party = True
     save_detections = True
+
+    top_n = True
+    n = 50
+
     load_stack = False
-    load_stack_detects = True
-    load_second_stack = True
+    load_stack_detects = False
+    load_second_stack = False
     cull = False
     plot = True
 
@@ -2335,6 +2340,29 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                detection_files_path, start_date, end_date)
     if save_detections:
         # save party detections as dataframe then text file
+        data = []
+        for index, detection in enumerate(party.families[0].detections):
+            data.append([index, detection.detect_time, detection.detect_val,
+                         detection.threshold, detection.threshold_type,
+                         detection.threshold_input, detection.template_name])
+
+        df = pd.DataFrame(data, columns=['index', 'time', 'correlation_sum',
+                                         'correlation_sum_threshold',
+                                         'threshold_metric',
+                                         'metric_input', 'template'])
+        df.to_csv('detections.csv', index=False)
+
+    # consider only top n detections ranked by the cross-channel correlation sum
+    if top_n:
+        # get top n indices of detections with largest correlation sum
+        top_n_df = df.nlargest(n, 'correlation_sum')
+        keeper_indices = top_n_df['index'].tolist()
+
+        # loop over party detections in reverse
+        for detection_index in range(len(party.families[0].detections) - 1, -1,-1):
+            # delete items not in keeper indices list
+            if detection_index not in keeper_indices:
+                del party.families[0].detections[detection_index]
 
     if plot:
         # inspect the party growth over time
@@ -2382,13 +2410,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method)
         # save stacks as pickle file
         # abs 0.25: h m to stack
-        outfile = open(f'inner_stack_0_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.24_16s.pkl', 'wb')
+        # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
+        #                f'{shift_method}Shift_abs.24_16s.pkl', 'wb')
+
         # MAD 8: 6h 35m to stack
         # outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
         #                f'{shift_method}Shift_abs0.23_16s.pkl', 'wb')
-        pickle.dump(stack_list, outfile)
-        outfile.close()
+        # pickle.dump(stack_list, outfile)
+        # outfile.close()
 
     # plot stacks
     stack_pw, stack_lin = stack_list
@@ -2397,16 +2426,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.24_16s', save=True)
+                       f'Shift_abs.24_16s', save=False)
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
                        f'{shift_method}Shift_abs.24_16s',
-                       save=True)
+                       save=False)
 
             # now plot template with the linear stack from same station for
             # comparison
             plot_template_and_stack(party, stack_lin, stack_pw,
-                                    detection_files_path, save=True,
+                                    detection_files_path, save=False,
                                     title=f'stacks_templates_sn'
                                           f'r{snr_threshold}_'
                                     f'{shift_method}Shift_abs.24_16s')
