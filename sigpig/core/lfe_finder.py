@@ -2445,12 +2445,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         family = sorted(party.families, key=lambda f: len(f))[-1]
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
-    detection_stream = get_detections(party, detection_files_path, main_trace)
-    plot_stack(detection_stream[:51],
-               title="top_0-50_correlation_sum_detections",
-               save=True)
-    plot_stack(detection_stream[:51])
-    plot_stack(detection_stream[-50:])
+        detection_stream = get_detections(party, detection_files_path, main_trace)
+        plot_stack(detection_stream,
+                   title="top_50_correlation_sum_detections",
+                   save=True)
+        plot_stack(detection_stream[:51])
+        plot_stack(detection_stream[-50:])
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
