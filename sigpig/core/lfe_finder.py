@@ -2336,13 +2336,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 200
+    n = 50
 
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
     cull = True
-    plot = False
+    plot = True
 
     # TODO: implement upper end SNR filter?
 
@@ -2420,11 +2420,20 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         top_n_df = df.nlargest(n, 'correlation_sum')
         keeper_indices = top_n_df['index'].tolist()
 
-        # loop over party detections in reverse
-        for detection_index in range(len(party.families[0].detections) - 1, -1,-1):
-            # delete items not in keeper indices list
-            if detection_index not in keeper_indices:
-                del party.families[0].detections[detection_index]
+        # build list of sorted detections to keep
+        detections = [party.families[0].detections[idx] for idx in keeper_indices]
+
+        # make a top n party
+        top_n_party = party.copy()
+        top_n_party.families[0].detections = detections
+
+        # # loop over party detections in reverse, this is unsorted.
+        # for detection_index in range(len(party.families[0].detections) - 1, -1,-1):
+        #     # delete items not in keeper indices list
+        #     if detection_index not in keeper_indices:
+        #         del party.families[0].detections[detection_index]
+
+        party = top_n_party
 
     if plot:
         # inspect the party growth over time
