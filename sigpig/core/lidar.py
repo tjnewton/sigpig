@@ -159,6 +159,11 @@ def elevations_from_raster(raster_file, utm_coordinates):
     coordinates. The raster values at the queried points are returned in a
     list.
 
+    NOTE: a known limitation of this function is that if a queried value is
+          not "close enough" (it's arbitrary) to an existing value in the
+          raster then this function returns the default "missing value"
+          value, i.e. probably not the expected output. Be careful or fix it.
+
     Args:
         raster_file: string defining path to raster file
 
