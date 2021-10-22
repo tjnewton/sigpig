@@ -11,6 +11,7 @@ import pptk
 import rasterio
 from affine import Affine
 from pyproj import Proj, transform
+from obspy.core.utcdatetime import UTCDateTime
 from data import rattlesnake_Ridge_Station_Locations
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
@@ -36,7 +37,7 @@ def visualize_Point_Cloud(filename):
 
     # launch pptk viewer
     v = pptk.viewer(points)
-    v.set(point_size=0.0005,bg_color=[0.2,0,0,1],show_axis=0,show_grid=0)
+    v.set(point_size=0.10, bg_color=[0.2,0,0,1], show_axis=0, show_grid=0)
 
     return v
 
@@ -162,10 +163,11 @@ def elevations_from_raster(raster_file, utm_coordinates):
         None
 
     Example:
-        raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+        # raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+        date = UTCDateTime("2018-03-16T00:04:00.0Z")
 
         # get station coordinates in utm reference frame
-        utm_station_dict = rattlesnake_Ridge_Station_Locations("utm")
+        utm_station_dict = rattlesnake_Ridge_Station_Locations(date, format='utm')
         # transform station dict into list of tuples of x,y coordinates
         utm_coordinates = []
         old_elevations = []
@@ -226,6 +228,39 @@ def elevations_from_raster(raster_file, utm_coordinates):
 
     return elevations
 
-# TODO: try with yakima_basin_2018_dtm_43_hs.tif
+def plot_tiff(tiff_file):
+    """Plots a tiff file using imshow
+
+    Example:
+        tiff_file = "/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif"
+        plot_tiff(tiff_file)
+
+    """
+    import tifffile as tiff
+
+
+    tfile = tiff.imread(tiff_file)
+    tfile.shape
+    tiff.imshow(tfile)
+    plt.show()
+
+    import rasterio
+
+    # Which band are you interested.
+    # 1 if there is only one band
+    band_of_interest = 1
+
+    # Row and Columns of the raster you want to know
+    # the value
+    row_of_interest = 30
+    column_of_interest = 50
+
+    # open the raster and close it automatically
+    # See https://stackoverflow.com/questions/1369526
+    with rasterio.open(tiff_file) as dataset:
+        band = dataset.read(band_of_interest)
+        value_of_interest = band[row_of_interest, column_of_interest]
+
+# TODO: try with yakima_basin_2018_dtm_43.tif
 
 # TODO: add content from lidar/ortho_station_map here or to figures.py
