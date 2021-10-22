@@ -114,8 +114,8 @@ def arrays_from_raster(raster_file):
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
-        or
-        raster_file = '' # TODO:
+        # or
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
 
         elevations, eastings, northings, longitudes, latitudes = arrays_from_raster(raster_file)
     """
@@ -233,6 +233,8 @@ def elevations_from_raster(raster_file, utm_coordinates):
 
 def plot_tiff(tiff_file):
     """Plots a tiff file using imshow
+
+    # FIXME: this function is broken
 
     Example:
         tiff_file = "/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif"
