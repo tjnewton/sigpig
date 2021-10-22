@@ -114,6 +114,9 @@ def arrays_from_raster(raster_file):
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
+        or
+        raster_file = '' # TODO:
+
         elevations, eastings, northings, longitudes, latitudes = arrays_from_raster(raster_file)
     """
 
