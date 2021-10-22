@@ -20,7 +20,8 @@ def visualize_Point_Cloud(filename):
     Visualizes a .laz pointcloud file using pptk viewer.
 
     Example:
-        filename = "/Users/human/Dropbox/Programs/lidar/RR_2019_10cm_NAD83_UTMz10.laz"
+        # filename = "/Users/human/Dropbox/Programs/lidar/RR_2019_10cm_NAD83_UTMz10.laz"
+        filename = '/Users/human/Downloads/datasetsA2/yakima_basin_2018/laz/46120E4313.laz'
         v = visualize_Point_Cloud(filename)
 
         # close point cloud viewer
