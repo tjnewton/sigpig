@@ -271,6 +271,6 @@ def plot_tiff(tiff_file):
         band = dataset.read(band_of_interest)
         value_of_interest = band[row_of_interest, column_of_interest]
 
-# TODO: try with yakima_basin_2018_dtm_43.tif
+# TODO: extract values from yakima_basin_2018_dtm_43.tif
 
 # TODO: add content from lidar/ortho_station_map here or to figures.py
