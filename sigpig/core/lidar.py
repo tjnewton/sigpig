@@ -138,7 +138,7 @@ def arrays_from_raster(raster_file):
     row_col_to_easting_northing = lambda row, col: (col, row) * \
                                                          pixel_center_transform
 
-    # get eastings and northings
+    # get coordinates (eastings and northings if utm)
     eastings, northings = np.vectorize(row_col_to_easting_northing, otypes=[
                                        float, float])(rows, cols)
 
