@@ -139,6 +139,7 @@ def arrays_from_raster(raster_file):
                                                          pixel_center_transform
 
     # get coordinates (eastings and northings if utm)
+    # TODO: rename eastings and northings to something crs agnostic
     eastings, northings = np.vectorize(row_col_to_easting_northing, otypes=[
                                        float, float])(rows, cols)
 
