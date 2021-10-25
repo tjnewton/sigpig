@@ -136,14 +136,14 @@ def arrays_from_raster(raster_file):
     # convert pixel row and col index to x and y coordinates at pixel center
     row_col_to_xy = lambda row, col: (col, row) * pixel_center_transform
 
-    # get x and y coordinates (eastings and northings if utm)
+    # get x and y coordinates in native crs (eastings and northings if utm)
     x, y = np.vectorize(row_col_to_xy, otypes=[float, float])(rows, cols)
 
     # get longitudes and latitudes from x and y coordinates
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
     longitudes, latitudes = transform(raster_crs, lat_lon_crs, x, y)
 
-    # for consistent array sizes
+    # constrain to 2D array for consistent array sizes
     elevations = elevations[0]
 
     return elevations, x, y, longitudes, latitudes
