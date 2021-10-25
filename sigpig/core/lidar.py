@@ -16,6 +16,7 @@ from data import rattlesnake_Ridge_Station_Locations
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 import tifffile as tiff
+import scipy
 
 
 def visualize_Point_Cloud(filename):
@@ -150,6 +151,9 @@ def arrays_from_raster(raster_file):
 
 def elevations_from_arrays(elevations, longitudes, latitudes, query_points):
     """
+    # TODO: double check that this function returns the expected result,
+            something seems weird
+
     Finds the points closest to the corresponding points specified in
     query_points and queries the elevation at the closest point.
 
@@ -157,7 +161,7 @@ def elevations_from_arrays(elevations, longitudes, latitudes, query_points):
         elevations: np.ndarray of elevations in meters
         longitudes: np.ndarray of longitudes in WGS84
         latitudes: np.ndarray of longitudes in WGS84
-        query_points: list of tuples compring longitude latitude pairs
+        query_points: list of lists comprising longitude latitude pairs
 
     Returns:
         list floats specifying queried elevations
@@ -167,12 +171,24 @@ def elevations_from_arrays(elevations, longitudes, latitudes, query_points):
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
         elevations, longitudes, latitudes = arrays_from_raster(raster_file)
 
-        # then query the data at a list of points
-        query_points =
+        # build list of point to query data at
+        query_points = [[-120.50126075151108, 46.624961220076976]]
+        # then query the data at the list of points
         raster_elevations = elevations_from_arrays(elevations, longitudes, latitudes, query_points)
     """
+    # helper function to build a cKD tree
+    def kdtree(transformed_array, query_points):
+        tree = scipy.spatial.cKDTree(transformed_array)
+        _, indices = tree.query(query_points)
 
-    pass
+        return indices
+
+    # transform data for kdtree
+    transformed_array = np.dstack([latitudes.ravel(), longitudes.ravel()])[0]
+    # get the closest points
+    result = kdtree(transformed_array, query_points)
+
+    return result
 
 
 def elevations_from_raster(raster_file, utm_coordinates):
