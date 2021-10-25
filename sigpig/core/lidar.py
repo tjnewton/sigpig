@@ -148,10 +148,28 @@ def arrays_from_raster(raster_file):
     return elevations, longitudes, latitudes
 
 
-def elevations_from_arrays(elevations, longitudes, latitudes):
+def elevations_from_arrays(elevations, longitudes, latitudes, query_points):
     """
-    # TODO: build function and docstring
+    Finds the points closest to the corresponding points specified in
+    query_points and queries the elevation at the closest point.
 
+    Args:
+        elevations: np.ndarray of elevations in meters
+        longitudes: np.ndarray of longitudes in WGS84
+        latitudes: np.ndarray of longitudes in WGS84
+        query_points: list of tuples compring longitude latitude pairs
+
+    Returns:
+        list floats specifying queried elevations
+
+    Example:
+        # first get numpy arrays from a raster file
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+        elevations, longitudes, latitudes = arrays_from_raster(raster_file)
+
+        # then query the data at a list of points
+        query_points =
+        raster_elevations = elevations_from_arrays(elevations, longitudes, latitudes, query_points)
     """
 
     pass
