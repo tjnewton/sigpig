@@ -116,7 +116,7 @@ def arrays_from_raster(raster_file):
         # or
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
 
-        elevations, eastings, northings, longitudes, latitudes = arrays_from_raster(raster_file)
+        elevations, longitudes, latitudes = arrays_from_raster(raster_file)
     """
 
     # read information from file
