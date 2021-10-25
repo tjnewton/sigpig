@@ -120,7 +120,7 @@ def arrays_from_raster(raster_file):
         elevations, eastings, northings, longitudes, latitudes = arrays_from_raster(raster_file)
     """
 
-    # read raster from file
+    # read information from file
     with rasterio.open(raster_file) as r:
         # get upper-left pixel corner affine transform
         upper_left_pixel_transform = r.transform
