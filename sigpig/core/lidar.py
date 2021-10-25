@@ -139,7 +139,7 @@ def arrays_from_raster(raster_file):
     # get x and y coordinates (eastings and northings if utm)
     x, y = np.vectorize(row_col_to_xy, otypes=[float, float])(rows, cols)
 
-    # get longitudes and latitudes from eastings and northings
+    # get longitudes and latitudes from x and y coordinates
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
     longitudes, latitudes = transform(raster_crs, lat_lon_crs, x, y)
 
