@@ -14,9 +14,11 @@ from pyproj import Proj, transform
 from obspy.core.utcdatetime import UTCDateTime
 from data import rattlesnake_Ridge_Station_Locations
 import matplotlib.pyplot as plt
-import matplotlib.ticker as plticker
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator
 import tifffile as tiff
 import scipy
+import numpy.ma as ma
 
 
 def visualize_Point_Cloud(filename):
@@ -137,14 +139,32 @@ def arrays_from_raster(raster_file):
 
     # get x and y coordinates in native crs (eastings and northings if utm)
     x, y = np.vectorize(row_col_to_xy, otypes=[float, float])(rows, cols)
+    # constrain to 2D array for consistent array sizes
+    z = z[0]
 
     # get longitudes and latitudes from native x and y coordinates
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
-    longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs,
-                                                  x, y, z)
+    longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, x, y, z)
 
-    # constrain to 2D array for consistent array sizes
-    elevations = elevations[0]
+    # plot for testing
+    a = longitudes[8000:13500, :5000]
+    b = latitudes[8000:13500, :5000]
+    c = elevations[8000:13500, :5000]
+    # mask missing values
+    a[c <= 0] = np.nan
+    b[c <= 0] = np.nan
+    c[c <= 0] = np.nan
+    import matplotlib as mpl
+    mpl.use('macosx')
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
+                           vmax=np.nanmax(c), linewidth=0, antialiased=False)
+    ax.set_zlim(np.nanmin(c), np.nanmax(c))
+    ax.xaxis.set_major_locator(LinearLocator(10))
+    ax.yaxis.set_major_locator(LinearLocator(10))
+    plt.xlim(max(x), min(x))
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+    plt.show()
 
     return elevations, longitudes, latitudes
 
