@@ -15,6 +15,8 @@ from obspy.core.utcdatetime import UTCDateTime
 from data import rattlesnake_Ridge_Station_Locations
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
+import tifffile as tiff
+
 
 def visualize_Point_Cloud(filename):
     """
@@ -242,15 +244,11 @@ def plot_tiff(tiff_file):
         plot_tiff(tiff_file)
 
     """
-    import tifffile as tiff
-
 
     tfile = tiff.imread(tiff_file)
     tfile.shape
     tiff.imshow(tfile)
     plt.show()
-
-    import rasterio
 
     # Which band are you interested.
     # 1 if there is only one band
