@@ -148,6 +148,15 @@ def arrays_from_raster(raster_file):
     return elevations, longitudes, latitudes
 
 
+def elevations_from_arrays(elevations, longitudes, latitudes):
+    """
+    # TODO: build function and docstring
+
+    """
+
+    pass
+
+
 def elevations_from_raster(raster_file, utm_coordinates):
     """
     Reads the specified raster file and queries it at the specified
