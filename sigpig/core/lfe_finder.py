@@ -1187,8 +1187,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.24, daylong=True,
-                                 threshold_type="abs", trig_int=8.0,
+            party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+                                 threshold_type="MAD", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
@@ -2289,7 +2289,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
 
         # define template length and prepick length (both in seconds)
-        template_length = 16.0
+        # template_length = 16.0
+        template_length = 8.0
         template_prepick = 0.5
 
         # build stream of all station files for templates
@@ -2333,7 +2334,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'med'
     load_party = True
-    save_detections = True
+    save_detections = False
 
     top_n = False
     n = 200
@@ -2353,11 +2354,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###########################  TEMPLATE 1  ##############################
         ###################### 2016  9 26  9 28 41.34 #########################
         #######################################################################
+
         # abs 0.27 = 368 detections
         # infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s.pkl', 'rb')
 
-        # abs 0.25 = 1218 detections, fits in MBP memory, first used
+        # abs 0.25 = 1218 detections, 16 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
+        # abs 0.25 = 1218 detections, 8 seconds
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_8s.pkl', 'rb')
 
         # abs 0.24 = 2248 detections
         # infile = open('party_06_15_2016_to_08_12_2018_abs.24_16s.pkl', 'rb')
@@ -2369,7 +2373,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
 
         # MAD 8.0 = 3857 detections, doesn't fit in MBP memory
-        infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
+        # MAD 8.0 =  detections, 8 seconds
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_8s.pkl', 'rb')
 
         ###########################  TEMPLATE 2  ##############################
         ###################### 2016  9 27  7 37 49.00 #########################
@@ -2446,9 +2452,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream[150:200],
-                   title="top_150-200_correlation_sum_detections",
-                   save=True)
+        plot_stack(detection_stream[14:26],
+                   title="top_correlation_sum_detections",
+                   save=False)
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
