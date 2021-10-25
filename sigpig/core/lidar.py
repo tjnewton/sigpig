@@ -125,11 +125,10 @@ def arrays_from_raster(raster_file):
         # get upper-left pixel corner affine transform
         upper_left_pixel_transform = r.transform
         raster_crs = Proj(r.crs)
-        elevations = r.read()  # pixel values
+        z = r.read()  # pixel values
 
     # get rows and columns
-    cols, rows = np.meshgrid(np.arange(elevations.shape[2]), np.arange(
-                             elevations.shape[1]))
+    cols, rows = np.meshgrid(np.arange(z.shape[2]), np.arange(z.shape[1]))
 
     # get affine transform for pixel centres
     pixel_center_transform = upper_left_pixel_transform * Affine.translation(0.5, 0.5)
@@ -141,7 +140,8 @@ def arrays_from_raster(raster_file):
 
     # get longitudes and latitudes from native x and y coordinates
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
-    longitudes, latitudes = transform(raster_crs, lat_lon_crs, x, y)
+    longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs,
+                                                  x, y, z)
 
     # constrain to 2D array for consistent array sizes
     elevations = elevations[0]
