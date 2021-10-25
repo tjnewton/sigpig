@@ -101,8 +101,7 @@ def ingest_DEM(raster_file, output_file):
 def arrays_from_raster(raster_file):
     """
     Reads a raster file and returns numpy ndarrays containing elevations (
-    meters), UTM easting and northing in NAD83 UTM zone 10N (meters),
-    and longitudes and latitudes.
+    meters) and longitudes and latitudes.
 
     Args:
         raster_file: string defining path to raster file
@@ -141,14 +140,14 @@ def arrays_from_raster(raster_file):
     # get x and y coordinates in native crs (eastings and northings if utm)
     x, y = np.vectorize(row_col_to_xy, otypes=[float, float])(rows, cols)
 
-    # get longitudes and latitudes from x and y coordinates
+    # get longitudes and latitudes from native x and y coordinates
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
     longitudes, latitudes = transform(raster_crs, lat_lon_crs, x, y)
 
     # constrain to 2D array for consistent array sizes
     elevations = elevations[0]
 
-    return elevations, x, y, longitudes, latitudes
+    return elevations, longitudes, latitudes
 
 
 def elevations_from_raster(raster_file, utm_coordinates):
