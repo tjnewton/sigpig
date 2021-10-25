@@ -132,16 +132,13 @@ def arrays_from_raster(raster_file):
                              elevations.shape[1]))
 
     # get affine transform for pixel centres
-    pixel_center_transform = upper_left_pixel_transform * Affine.translation(
-                                                                      0.5, 0.5)
-    # convert pixel row and col index to easting and northing at pixel center
-    row_col_to_easting_northing = lambda row, col: (col, row) * \
-                                                         pixel_center_transform
+    pixel_center_transform = upper_left_pixel_transform * Affine.translation(0.5, 0.5)
+    # convert pixel row and col index to x and y coordinates at pixel center
+    row_col_to_xy = lambda row, col: (col, row) * pixel_center_transform
 
     # get coordinates (eastings and northings if utm)
     # TODO: rename eastings and northings to something crs agnostic
-    eastings, northings = np.vectorize(row_col_to_easting_northing, otypes=[
-                                       float, float])(rows, cols)
+    eastings, northings = np.vectorize(row_col_to_xy, otypes=[float, float])(rows, cols)
 
     # get longitudes and latitudes from eastings and northings
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
