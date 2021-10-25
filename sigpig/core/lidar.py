@@ -100,16 +100,14 @@ def ingest_DEM(raster_file, output_file):
 
 def arrays_from_raster(raster_file):
     """
-    Reads a raster file and returns numpy ndarrays containing elevations (
-    meters) and longitudes and latitudes.
+    Reads a raster file and returns numpy arrays containing elevations,
+    longitudes, and latitudes present in the raster file.
 
     Args:
         raster_file: string defining path to raster file
 
     Returns:
         elevations: np.ndarray of elevations in meters
-        eastings: np.ndarray of eastings in UTM meters
-        northings: np.ndarray of northings in UTM meters
         longitudes: np.ndarray of longitudes in WGS84
         latitudes: np.ndarray of longitudes in WGS84
 
