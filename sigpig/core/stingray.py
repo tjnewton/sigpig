@@ -196,15 +196,35 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
 
     """
     if project_name == "Rattlesnake Ridge":
-
-        # TODO: use code already in liday module
-
-        # load arrays
+        # load arrays from raster file
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+        elevations, longitudes, latitudes = arrays_from_raster(raster_file)
 
         # trim to area of interest
 
         # interpolate values?
 
         # query values
+
+        # plot for testing
+        a = longitudes[8000:13500, :5000]
+        b = latitudes[8000:13500, :5000]
+        c = elevations[8000:13500, :5000]
+        # mask missing values
+        a[c <= 0] = np.nan
+        b[c <= 0] = np.nan
+        c[c <= 0] = np.nan
+        import matplotlib as mpl
+        mpl.use('macosx')
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
+                               vmax=np.nanmax(c), linewidth=0,
+                               antialiased=False)
+        ax.set_zlim(np.nanmin(c), np.nanmax(c) + 1000)
+        ax.xaxis.set_major_locator(LinearLocator(10))
+        ax.yaxis.set_major_locator(LinearLocator(10))
+        plt.xlim(max(x), min(x))
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+        plt.show()
 
     ...
