@@ -10,6 +10,7 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 from data import rattlesnake_Ridge_Station_Locations
+from lidar import arrays_from_raster
 
 
 # function to generate the necessary files for Stingray local earthquake tomography
@@ -181,11 +182,27 @@ def stingray_setup(project_name: str, date: UTCDateTime):
     return None
 
 
-def elevation_map_from_arrays():
+def elevation_map_from_arrays(project_name, elevations, longitudes,
+                              latitudes):
     """
     Generates an elevation map for Stingray from the specified numpy arrays.
 
     # TODO: build function and docstring
+
+    Example:
+        # first get numpy arrays from a raster file
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+        elevations, longitudes, latitudes = arrays_from_raster(raster_file)
+
     """
+    if project_name == "Rattlesnake Ridge":
+
+        # load arrays
+
+        # trim to area of interest
+
+        # interpolate values?
+
+        # query values
 
     ...
