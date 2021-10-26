@@ -159,7 +159,7 @@ def arrays_from_raster(raster_file):
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
                            vmax=np.nanmax(c), linewidth=0, antialiased=False)
-    ax.set_zlim(np.nanmin(c), np.nanmax(c))
+    ax.set_zlim(np.nanmin(c), np.nanmax(c)+1000)
     ax.xaxis.set_major_locator(LinearLocator(10))
     ax.yaxis.set_major_locator(LinearLocator(10))
     plt.xlim(max(x), min(x))
