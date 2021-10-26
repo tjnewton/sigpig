@@ -119,6 +119,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
         if srModel:
             # TODO: edit this for RR
+            #       - ask Doug for srModel.mat
             #       - what is appropriate model node spacing?
             #       - what is appropriate grid size?
             # this makes srModel file
@@ -199,6 +200,17 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         # load arrays from raster file
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
         elevations, longitudes, latitudes = arrays_from_raster(raster_file)
+
+        # define area of interest
+        x_min =
+        x_max =
+        y_min =
+        y_max =
+        x_inc =
+        y_inc =
+        nx =
+        ny =
+        elev_header = [x_min, x_max, y_min, y_max, x_inc, y_inc, nx, ny]
 
         # trim to area of interest
 
