@@ -146,25 +146,25 @@ def arrays_from_raster(raster_file):
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
     longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, x, y, z)
 
-    # plot for testing
-    a = longitudes[8000:13500, :5000]
-    b = latitudes[8000:13500, :5000]
-    c = elevations[8000:13500, :5000]
-    # mask missing values
-    a[c <= 0] = np.nan
-    b[c <= 0] = np.nan
-    c[c <= 0] = np.nan
-    import matplotlib as mpl
-    mpl.use('macosx')
-    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
-                           vmax=np.nanmax(c), linewidth=0, antialiased=False)
-    ax.set_zlim(np.nanmin(c), np.nanmax(c)+1000)
-    ax.xaxis.set_major_locator(LinearLocator(10))
-    ax.yaxis.set_major_locator(LinearLocator(10))
-    plt.xlim(max(x), min(x))
-    fig.colorbar(surf, shrink=0.5, aspect=5)
-    plt.show()
+    # # plot for testing
+    # a = longitudes[8000:13500, :5000]
+    # b = latitudes[8000:13500, :5000]
+    # c = elevations[8000:13500, :5000]
+    # # mask missing values
+    # a[c <= 0] = np.nan
+    # b[c <= 0] = np.nan
+    # c[c <= 0] = np.nan
+    # import matplotlib as mpl
+    # mpl.use('macosx')
+    # fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    # surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
+    #                        vmax=np.nanmax(c), linewidth=0, antialiased=False)
+    # ax.set_zlim(np.nanmin(c), np.nanmax(c)+1000)
+    # ax.xaxis.set_major_locator(LinearLocator(10))
+    # ax.yaxis.set_major_locator(LinearLocator(10))
+    # plt.xlim(max(x), min(x))
+    # fig.colorbar(surf, shrink=0.5, aspect=5)
+    # plt.show()
 
     return elevations, longitudes, latitudes
 
