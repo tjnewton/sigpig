@@ -197,6 +197,8 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
     """
     if project_name == "Rattlesnake Ridge":
 
+        # TODO: use code already in liday module
+
         # load arrays
 
         # trim to area of interest
