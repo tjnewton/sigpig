@@ -201,18 +201,28 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
         elevations, longitudes, latitudes = arrays_from_raster(raster_file)
 
-        # define area of interest
-        x_min =
-        x_max =
-        y_min =
-        y_max =
+        # define area of interest (god parameters)
+        x_min = -120.480
+        x_max = -120.462
+        y_min = 46.519
+        y_max = 46.538
         x_inc =
         y_inc =
         nx =
         ny =
         elev_header = [x_min, x_max, y_min, y_max, x_inc, y_inc, nx, ny]
 
+        # find bounding indices
+        x_vals =
+
         # trim to area of interest
+
+        # apply a mask to missing values
+        longitude_array = np.where(longitudes >= x_min, longitudes, np.nan)
+        latitude_array =
+        elevation_array =
+        # check for missing values
+        # TODO: any nans?
 
         # interpolate values?
 
@@ -222,6 +232,7 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         a = longitudes[8000:13500, :5000]
         b = latitudes[8000:13500, :5000]
         c = elevations[8000:13500, :5000]
+
         # mask missing values
         a[c <= 0] = np.nan
         b[c <= 0] = np.nan
@@ -235,8 +246,9 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         ax.set_zlim(np.nanmin(c), np.nanmax(c) + 1000)
         ax.xaxis.set_major_locator(LinearLocator(10))
         ax.yaxis.set_major_locator(LinearLocator(10))
-        plt.xlim(max(x), min(x))
+        plt.xlim(max(a), min(a))
         fig.colorbar(surf, shrink=0.5, aspect=5)
+        plt.grid(True, which='minor', axis='both')
         plt.show()
 
     ...
