@@ -30,6 +30,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         srStation = False
         srEvent = False
         srModel = True
+        srElevation = True
 
         if srControl:
             # generate srControl file
@@ -111,8 +112,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 {'srEvent': eqdict})
 
         # -------------------------------------------------------------------
-        # this makes srElevation file
-        # Doug gave me this for now....
+        # generates srElevation mat file containing topography
 
         # -------------------------------------------------------------------
 
@@ -179,3 +179,13 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         pass
 
     return None
+
+
+def elevation_map_from_arrays():
+    """
+    Generates an elevation map for Stingray from the specified numpy arrays.
+
+    # TODO: build function and docstring
+    """
+
+    ...
