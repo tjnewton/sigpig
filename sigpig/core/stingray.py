@@ -213,7 +213,7 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         elev_header = [x_min, x_max, y_min, y_max, x_inc, y_inc, nx, ny]
 
         # find bounding indices
-        x_vals =
+        x_vals = longitudes[0]
 
         # trim to area of interest
 
