@@ -213,8 +213,13 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         ny =
         elev_header = [x_min, x_max, y_min, y_max, x_inc, y_inc, nx, ny]
 
-        # find bounding indices
+        # find bounding indices, FIXME: this doesn't work
         x_min_index = np.abs(longitudes - x_min).argmin(axis=1)
+        a = longitudes[8652]
+        a = longitudes[8652][1127:1137]
+        print(a)
+
+        # generate a grid and sample the DEM at those points
 
         # trim to area of interest
 
