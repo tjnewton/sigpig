@@ -188,7 +188,8 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
     """
     Generates an elevation map for Stingray from the specified numpy arrays.
 
-    # TODO: build function and docstring
+    # FIXME: crs is not a grid so instead generate a grid and sample on that
+    #        grid
 
     Example:
         # first get numpy arrays from a raster file
@@ -213,7 +214,7 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         elev_header = [x_min, x_max, y_min, y_max, x_inc, y_inc, nx, ny]
 
         # find bounding indices
-        x_vals = longitudes[0]
+        x_min_index = np.abs(longitudes - x_min).argmin(axis=1)
 
         # trim to area of interest
 
