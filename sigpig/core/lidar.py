@@ -362,15 +362,33 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes):
     elevation_grid = []
 
     # loop over rows from top to bottom
-    for latitude in range(y_limits[1], y_limits[0], -1 * y_step):
+    for row in range(xy_grid_nodes[0]):
+        latitude = y_limits[1] - (row * y_step)
         row_latitudes = []
         row_longitudes = []
-        row_elevations = []
         # loop over each column and build grid
-        for longitude in range(x_limits[0], x_limits[1], x_step):
+        for column in range(xy_grid_nodes[1]):
+            longitude = x_limits[0] + (column * x_step)
             row_latitudes.append(latitude)
             row_longitudes.append(longitude)
         # get elevations for entire row
+        row_elevations = elevations_from_raster(raster_file, row_longitudes,
+                                                row_latitudes)
+        longitude_grid.append(row_longitudes)
+        latitude_grid.append(row_latitudes)
+        elevation_grid.append(row_elevations)
+
+    import matplotlib as mpl
+    mpl.use('macosx')
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
+                           vmax=np.nanmax(c), linewidth=0, antialiased=False)
+    ax.set_zlim(np.nanmin(c), np.nanmax(c) + 1000)
+    ax.xaxis.set_major_locator(LinearLocator(10))
+    ax.yaxis.set_major_locator(LinearLocator(10))
+    plt.xlim(max(x), min(x))
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+    plt.show()
 
     return longitude_grid, latitude_grid, elevation_grid
 
