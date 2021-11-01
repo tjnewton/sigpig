@@ -319,6 +319,9 @@ def elevations_from_raster(raster_file, coordinates):
         for elevation in r.sample(coordinates):
             elevations.append(elevation[0])
 
+    # convert elevations into lat/lon crs
+    longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, x,
+                                                  y, elevations)
 
     return elevations
 
