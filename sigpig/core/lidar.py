@@ -325,6 +325,36 @@ def elevations_from_raster(raster_file, coordinates):
 
     return elevations
 
+
+def grid_from_raster(raster_file, x_limits, y_limits, grid_spacing):
+    """
+    Reads the specified raster file and queries it at the specified
+    coordinates. The raster values at the queried points are returned in a
+    list.
+
+    NOTE: a known limitation of this function is that if a queried value is
+          not "close enough" (it's arbitrary) to an existing value in the
+          raster then this function returns the default "missing value"
+          value, i.e. probably not the expected output. Be careful or fix it.
+
+    Args:
+        raster_file: string defining path to raster file
+        coordinates: list of tuples of latitude, longitude pairs
+
+    Returns:
+        None
+
+    Example:
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+        coordinates = [(-120.480, 46.538), (-120.480, 46.519)]
+
+        # query raster at specified coordinates
+        elevations = elevations_from_raster(raster_file, coordinates)
+    """
+
+    return ...
+
+
 def plot_tiff(tiff_file):
     """Plots a tiff file using imshow
 
