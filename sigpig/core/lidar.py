@@ -219,7 +219,7 @@ def elevations_from_arrays(elevations, longitudes, latitudes, query_points):
     return result
 
 
-def elevations_from_raster(raster_file, coordinates):
+def elevations_from_raster(raster_file, longitudes, latitudes):
     """
     Reads the specified raster file and queries it at the specified
     coordinates. The raster values at the queried points are returned in a
@@ -232,17 +232,19 @@ def elevations_from_raster(raster_file, coordinates):
 
     Args:
         raster_file: string defining path to raster file
-        coordinates: list of tuples of latitude, longitude pairs
+        longitudes: list of floats
+        latitudes: list of floats
 
     Returns:
         elevations: list of floats
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
-        coordinates = [(-120.480, 46.538), (-120.480, 46.519)]
+        longitudes = [-120.480, -120.480]
+        latitudes = [46.538, 46.519]
 
         # query raster at specified coordinates
-        elevations = elevations_from_raster(raster_file, coordinates)
+        elevations = elevations_from_raster(raster_file, longitudes, latitudes)
 
     Another Example:
         # raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
@@ -299,8 +301,9 @@ def elevations_from_raster(raster_file, coordinates):
 
     """
 
-    # a place to store elevations
+    # a place to store elevations and transformed coordinates
     elevations = []
+    coordinates = []
 
     # read raster from file
     with rasterio.open(raster_file) as r:
@@ -309,11 +312,9 @@ def elevations_from_raster(raster_file, coordinates):
         raster_crs = Proj(r.crs)
         # transform longitudes and latitudes to native x and y coordinates
         lat_lon_crs = Proj(proj='latlong', datum='WGS84')
-        longitudes = [coordinate[0] for coordinate in coordinates]
-        latitudes = [coordinate[1] for coordinate in coordinates]
         x, y = transform(lat_lon_crs, raster_crs, longitudes, latitudes)
         for index, coordinate in enumerate(coordinates):
-            coordinates[index] = (x[index], y[index])
+            coordinates.append((x[index], y[index]))
 
         # get elevation at each coordinate
         for elevation in r.sample(coordinates):
@@ -326,7 +327,7 @@ def elevations_from_raster(raster_file, coordinates):
     return elevations
 
 
-def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_spacing):
+def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes):
     """
     Reads the specified raster file and queries it on the specified grid.
     The raster values at the queried points are returned in a list of lists.
@@ -335,7 +336,7 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_spacing):
         raster_file: string defining path to raster file
         x_limits: list of 2 floats: x_minimum, x_maximum
         y_limits: list of 2 floats: y_minimum, y_maximum
-        xy_grid_spacing: list of 2 floats: x_spacing, y_spacing
+        xy_grid_nodes: list of 2 ints: x_nodes, y_nodes
 
     Returns:
         longitude_grid: list of lists of floats
@@ -344,12 +345,32 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_spacing):
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
-        coordinates = [(-120.480, 46.538), (-120.480, 46.519)]
+        x_limits = [-120.480, -120.462]
+        y_limits = [46.519, 46.538]
+        xy_grid_nodes = [100, 100]
 
         # query raster at specified coordinates
-        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits, xy_grid_spacing)
+        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes)
     """
-    # TODO:
+    # calculate x and y steps for loops
+    x_step = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
+    y_step = (y_limits[1] - y_limits[0]) / xy_grid_nodes[1]
+
+    # initialize grid lists
+    longitude_grid = []
+    latitude_grid = []
+    elevation_grid = []
+
+    # loop over rows from top to bottom
+    for latitude in range(y_limits[1], y_limits[0], -1 * y_step):
+        row_latitudes = []
+        row_longitudes = []
+        row_elevations = []
+        # loop over each column and build grid
+        for longitude in range(x_limits[0], x_limits[1], x_step):
+            row_latitudes.append(latitude)
+            row_longitudes.append(longitude)
+        # get elevations for entire row
 
     return longitude_grid, latitude_grid, elevation_grid
 
