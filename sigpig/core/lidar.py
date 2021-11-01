@@ -312,17 +312,17 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
         raster_crs = Proj(r.crs)
         # transform longitudes and latitudes to native x and y coordinates
         lat_lon_crs = Proj(proj='latlong', datum='WGS84')
-        x, y = transform(lat_lon_crs, raster_crs, longitudes, latitudes)
-        for index, coordinate in enumerate(coordinates):
-            coordinates.append((x[index], y[index]))
+        xs, ys = transform(lat_lon_crs, raster_crs, longitudes, latitudes)
+        for x, y in zip(xs, ys):
+            coordinates.append((x, y))
 
         # get elevation at each coordinate
         for elevation in r.sample(coordinates):
             elevations.append(elevation[0])
 
     # convert elevations into lat/lon crs
-    longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, x,
-                                                  y, elevations)
+    longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, xs,
+                                                  ys, elevations)
 
     return elevations
 
