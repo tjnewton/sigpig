@@ -10,7 +10,7 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 from data import rattlesnake_Ridge_Station_Locations
-from lidar import arrays_from_raster
+from lidar import arrays_from_raster, grids_from_raster
 
 
 # function to generate the necessary files for Stingray local earthquake tomography
@@ -112,11 +112,6 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srEvent.mat",
                 {'srEvent': eqdict})
 
-        # -------------------------------------------------------------------
-        # generates srElevation mat file containing topography
-
-        # -------------------------------------------------------------------
-
         if srModel:
             # TODO: edit this for RR
             #       - ask Doug for srModel.mat
@@ -183,91 +178,33 @@ def stingray_setup(project_name: str, date: UTCDateTime):
     return None
 
 
-def elevation_map_from_arrays(project_name, elevations, longitudes,
-                              latitudes):
+def elevation_map_from_arrays(project_name):
     """
-    Generates an elevation map for Stingray from the specified numpy arrays.
-
-    # FIXME: crs is not a grid so instead generate a grid and sample on that
-    #        grid
+    Generates an elevation map for Stingray as srElevation mat file
+    containing topography.
 
     Example:
-        # first get numpy arrays from a raster file
-        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
-        elevations, longitudes, latitudes = arrays_from_raster(raster_file)
+        project_name = "Rattlesnake Ridge"
+        elevation_map_from_arrays(project_name)
 
     """
     if project_name == "Rattlesnake Ridge":
         # load arrays from raster file
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
-        elevations, longitudes, latitudes = arrays_from_raster(raster_file)
+        x_limits = [-120.480, -120.462]
+        y_limits = [46.519, 46.538]
+        xy_grid_nodes = [100, 100]
 
-        # define area of interest (god parameters)
-        x_min = -120.480
-        x_max = -120.462
-        y_min = 46.519
-        y_max = 46.538
-        x_inc =
-        y_inc =
-        nx =
-        ny =
-        elev_header = [x_min, x_max, y_min, y_max, x_inc, y_inc, nx, ny]
+        # query raster at specified coordinates
+        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
+                                raster_file, x_limits, y_limits, xy_grid_nodes)
 
-        # read raster from file
-        r = rasterio.open(raster_file)
-        # get elevation at each coordinate
-        x = (x_min + x_max) / 2
-        y = (y_min + y_max) / 2
-        for a in r.sample([(x, y)]):
-            print(a)
+        # define header
+        x_inc = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
+        y_inc = (y_limits[1] - y_limits[0]) / xy_grid_nodes[1]
+        elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
+                       x_inc, y_inc, xy_grid_nodes[0], xy_grid_nodes[1]]
 
-        a = rasterio.sample.sample_gen(r, [(x, y)])
-        aas = []
-        for item in a:
-            aas.append(item)
 
-        # find bounding indices, FIXME: this doesn't work
-        x_min_index = np.abs(longitudes - x_min).argmin(axis=1)
-        a = longitudes[8652]
-        a = longitudes[8652][1127:1137]
-        print(a)
-
-        # generate a grid and sample the DEM at those points
-
-        # trim to area of interest
-
-        # apply a mask to missing values
-        longitude_array = np.where(longitudes >= x_min, longitudes, np.nan)
-        latitude_array =
-        elevation_array =
-        # check for missing values
-        # TODO: any nans?
-
-        # interpolate values?
-
-        # query values
-
-        # plot for testing
-        a = longitudes[8000:13500, :5000]
-        b = latitudes[8000:13500, :5000]
-        c = elevations[8000:13500, :5000]
-
-        # mask missing values
-        a[c <= 0] = np.nan
-        b[c <= 0] = np.nan
-        c[c <= 0] = np.nan
-        import matplotlib as mpl
-        mpl.use('macosx')
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
-                               vmax=np.nanmax(c), linewidth=0,
-                               antialiased=False)
-        ax.set_zlim(np.nanmin(c), np.nanmax(c) + 1000)
-        ax.xaxis.set_major_locator(LinearLocator(10))
-        ax.yaxis.set_major_locator(LinearLocator(10))
-        plt.xlim(max(a), min(a))
-        fig.colorbar(surf, shrink=0.5, aspect=5)
-        plt.grid(True, which='minor', axis='both')
-        plt.show()
 
     ...
