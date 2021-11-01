@@ -9,6 +9,7 @@ from osgeo.gdalconst import *
 import struct
 import pptk
 import rasterio
+from rasterio.fill import fillnodata
 from affine import Affine
 from pyproj import Proj, transform
 from obspy.core.utcdatetime import UTCDateTime
@@ -126,8 +127,11 @@ def arrays_from_raster(raster_file):
     with rasterio.open(raster_file) as r:
         # get upper-left pixel corner affine transform
         upper_left_pixel_transform = r.transform
+        profile = r.profile
         raster_crs = Proj(r.crs)
-        z = r.read()  # pixel values
+        z = r.read(1)  # pixel values
+        # interpolate to fill missing values
+        z = fillnodata(z, mask=r.read_masks(1))
 
     # get rows and columns
     cols, rows = np.meshgrid(np.arange(z.shape[2]), np.arange(z.shape[1]))
@@ -146,25 +150,29 @@ def arrays_from_raster(raster_file):
     lat_lon_crs = Proj(proj='latlong',datum='WGS84')
     longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, x, y, z)
 
-    # # plot for testing
-    # a = longitudes[8000:13500, :5000]
-    # b = latitudes[8000:13500, :5000]
-    # c = elevations[8000:13500, :5000]
-    # # mask missing values
-    # a[c <= 0] = np.nan
-    # b[c <= 0] = np.nan
-    # c[c <= 0] = np.nan
-    # import matplotlib as mpl
-    # mpl.use('macosx')
-    # fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    # surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
-    #                        vmax=np.nanmax(c), linewidth=0, antialiased=False)
-    # ax.set_zlim(np.nanmin(c), np.nanmax(c)+1000)
-    # ax.xaxis.set_major_locator(LinearLocator(10))
-    # ax.yaxis.set_major_locator(LinearLocator(10))
-    # plt.xlim(max(x), min(x))
-    # fig.colorbar(surf, shrink=0.5, aspect=5)
-    # plt.show()
+    # plot for testing
+    a = longitudes[8000:13500, :5000]
+    b = latitudes[8000:13500, :5000]
+    c = elevations[8000:13500, :5000]
+    # mask missing values
+    a[c <= 0] = np.nan
+    b[c <= 0] = np.nan
+    c[c <= 0] = np.nan
+    import matplotlib as mpl
+    mpl.use('macosx')
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
+                           vmax=np.nanmax(c), linewidth=0, antialiased=False)
+    ax.set_zlim(np.nanmin(c), np.nanmax(c)+1000)
+    ax.xaxis.set_major_locator(LinearLocator(10))
+    ax.yaxis.set_major_locator(LinearLocator(10))
+    plt.xlim(max(x), min(x))
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+    plt.show()
+
+    newtif_file = r"dem_filled.tif"
+    with rasterio.open(newtif_file, 'w', **profile) as dest:
+        dest.write_band(1, z)
 
     return elevations, longitudes, latitudes
 
@@ -211,7 +219,7 @@ def elevations_from_arrays(elevations, longitudes, latitudes, query_points):
     return result
 
 
-def elevations_from_raster(raster_file, utm_coordinates):
+def elevations_from_raster(raster_file, coordinates):
     """
     Reads the specified raster file and queries it at the specified
     coordinates. The raster values at the queried points are returned in a
@@ -224,11 +232,16 @@ def elevations_from_raster(raster_file, utm_coordinates):
 
     Args:
         raster_file: string defining path to raster file
+        coordinates: list of tuples of latitude, longitude pairs
 
     Returns:
         None
 
     Example:
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+
+
+    Old example:
         # raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
         date = UTCDateTime("2018-03-16T00:04:00.0Z")
 
@@ -289,7 +302,7 @@ def elevations_from_raster(raster_file, utm_coordinates):
     with rasterio.open(raster_file) as r:
 
         # get elevation at each coordinate
-        for elevation in r.sample(utm_coordinates):
+        for elevation in r.sample(coordinates):
             elevations.append(elevation[0])
 
     return elevations
