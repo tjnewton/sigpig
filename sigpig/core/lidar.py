@@ -347,7 +347,7 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes):
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
         x_limits = [-120.480, -120.462]
         y_limits = [46.519, 46.538]
-        xy_grid_nodes = [1000, 1000]
+        xy_grid_nodes = [100, 100]
 
         # query raster at specified coordinates
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes)
