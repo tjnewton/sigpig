@@ -213,6 +213,19 @@ def elevation_map_from_arrays(project_name, elevations, longitudes,
         ny =
         elev_header = [x_min, x_max, y_min, y_max, x_inc, y_inc, nx, ny]
 
+        # read raster from file
+        r = rasterio.open(raster_file)
+        # get elevation at each coordinate
+        x = (x_min + x_max) / 2
+        y = (y_min + y_max) / 2
+        for a in r.sample([(x, y)]):
+            print(a)
+
+        a = rasterio.sample.sample_gen(r, [(x, y)])
+        aas = []
+        for item in a:
+            aas.append(item)
+
         # find bounding indices, FIXME: this doesn't work
         x_min_index = np.abs(longitudes - x_min).argmin(axis=1)
         a = longitudes[8652]
