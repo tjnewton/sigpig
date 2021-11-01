@@ -239,9 +239,12 @@ def elevations_from_raster(raster_file, coordinates):
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+        coordinates = [(-120.480, 46.538), (-120.480, 46.519)]
 
+        # query raster at specified coordinates
+        elevations = elevations_from_raster(raster_file, coordinates)
 
-    Old example:
+    Another Example:
         # raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
         date = UTCDateTime("2018-03-16T00:04:00.0Z")
 
@@ -295,15 +298,27 @@ def elevations_from_raster(raster_file, coordinates):
         plt.show()
 
     """
+
     # a place to store elevations
     elevations = []
 
     # read raster from file
     with rasterio.open(raster_file) as r:
 
+        # convert coordinates to native coordinate reference system
+        raster_crs = Proj(r.crs)
+        # transform longitudes and latitudes to native x and y coordinates
+        lat_lon_crs = Proj(proj='latlong', datum='WGS84')
+        longitudes = [coordinate[0] for coordinate in coordinates]
+        latitudes = [coordinate[1] for coordinate in coordinates]
+        x, y = transform(lat_lon_crs, raster_crs, longitudes, latitudes)
+        for index, coordinate in enumerate(coordinates):
+            coordinates[index] = (x[index], y[index])
+
         # get elevation at each coordinate
         for elevation in r.sample(coordinates):
             elevations.append(elevation[0])
+
 
     return elevations
 
