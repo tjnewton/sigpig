@@ -235,7 +235,7 @@ def elevations_from_raster(raster_file, coordinates):
         coordinates: list of tuples of latitude, longitude pairs
 
     Returns:
-        None
+        elevations: list of floats
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
@@ -326,33 +326,32 @@ def elevations_from_raster(raster_file, coordinates):
     return elevations
 
 
-def grid_from_raster(raster_file, x_limits, y_limits, grid_spacing):
+def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_spacing):
     """
-    Reads the specified raster file and queries it at the specified
-    coordinates. The raster values at the queried points are returned in a
-    list.
-
-    NOTE: a known limitation of this function is that if a queried value is
-          not "close enough" (it's arbitrary) to an existing value in the
-          raster then this function returns the default "missing value"
-          value, i.e. probably not the expected output. Be careful or fix it.
+    Reads the specified raster file and queries it on the specified grid.
+    The raster values at the queried points are returned in a list of lists.
 
     Args:
         raster_file: string defining path to raster file
-        coordinates: list of tuples of latitude, longitude pairs
+        x_limits: list of 2 floats: x_minimum, x_maximum
+        y_limits: list of 2 floats: y_minimum, y_maximum
+        xy_grid_spacing: list of 2 floats: x_spacing, y_spacing
 
     Returns:
-        None
+        longitude_grid: list of lists of floats
+        latitude_grid: list of lists of floats
+        elevation_grid: list of lists of floats
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
         coordinates = [(-120.480, 46.538), (-120.480, 46.519)]
 
         # query raster at specified coordinates
-        elevations = elevations_from_raster(raster_file, coordinates)
+        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits, xy_grid_spacing)
     """
+    # TODO:
 
-    return ...
+    return longitude_grid, latitude_grid, elevation_grid
 
 
 def plot_tiff(tiff_file):
