@@ -10,7 +10,7 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 from data import rattlesnake_Ridge_Station_Locations
-from lidar import arrays_from_raster, grids_from_raster
+from lidar import grids_from_raster
 
 
 # function to generate the necessary files for Stingray local earthquake tomography
@@ -205,6 +205,13 @@ def elevation_map_from_arrays(project_name):
         elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
                        x_inc, y_inc, xy_grid_nodes[0], xy_grid_nodes[1]]
 
+        # build dict to make .mat file
+        elev_dict = {}
+        elev_dict['header'] = elev_header
+        elev_dict['data'] = elevation_grid
 
+        savemat("/Users/human/Dropbox/Programs/stingray/projects"
+                "/rattlesnake_ridge/srInput/srElevation.mat",
+                {'srElevation': elev_dict})
 
-    ...
+    return None
