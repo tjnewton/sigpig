@@ -215,3 +215,6 @@ def elevation_map_from_arrays(project_name):
                 {'srElevation': elev_dict})
 
     return None
+
+# TODO: pull station elevations from DEM rather than using native GPS elevation
+
