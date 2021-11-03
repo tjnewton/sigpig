@@ -2260,7 +2260,7 @@ def inspect_template(template_date, main_trace, streams_path):
 
     Example:
         # define start time of template
-        template = UTCDateTime("2016-09-26T09:28:41.34Z")
+        template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
 
         # define the main trace to use for template
         main_trace = ("TA", "N25K", "BHN")
@@ -2271,10 +2271,49 @@ def inspect_template(template_date, main_trace, streams_path):
         # generate the figures and time series file
         inspect_template(template_date, main_trace, streams_path)
     """
-    # fetch the corresponding files
+    # bandpass filter or not
+    filter = False
+
+    # find the local file corresponding to the main trace station:channel pair
+    file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
+                          f"{main_trace[1]}."
+                          f"{main_trace[2]}.{template_date.year}"
+                          f"-{template_date.month:02}"
+                          f"-{template_date.day:02}.ms")
+
+    # load time series into stream
+    if len(file_list) > 0: # guard against missing files
+        lowest_sr = 40  # lowest sampling rate
+
+        # should only be one file, but safeguard against many
+        file = file_list[0]
+        # load file into stream
+        st = read(file)
+        # bandpass filter
+        if filter:
+            st.filter('bandpass', freqmin=1, freqmax=15)
+        # interpolate to lowest sampling rate if necessary
+        if st[0].stats.sampling_rate != lowest_sr:
+            st.interpolate(sampling_rate=lowest_sr)
+        # trim trace to 60 seconds surrounding pick time
+        st.trim(template_date - 600, template_date + 600, pad=True,
+                fill_value=np.nan, nearest_sample=True)
+
+        st_1min = st.copy().trim(template_date - 20, template_date + 40,
+                                 pad=True, fill_value=np.nan,
+                                 nearest_sample=True)
+
+    st.plot()
+    st_1min.plot()
+
+    # generate spectrogram
 
 
-    # TODO: finish function
+    # TODO: working here
+    # TODO: working here
+    # TODO: working here
+    # TODO: working here
+    # TODO: working here
 
     return None
 
