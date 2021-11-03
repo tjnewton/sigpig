@@ -10,7 +10,7 @@ import numpy as np
 import datetime
 import matplotlib.pyplot as plt
 from data import rattlesnake_Ridge_Station_Locations
-from lidar import grids_from_raster
+from lidar import grids_from_raster, elevations_from_raster
 
 
 # function to generate the necessary files for Stingray local earthquake tomography
@@ -67,13 +67,17 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                       'elevation': []}
 
             # get station locations on specified date from native GPS elevation
-             station_locations = rattlesnake_Ridge_Station_Locations(date)
+            station_locations = rattlesnake_Ridge_Station_Locations(date)
 
             # get station elevations from DEM rather than using native GPS
             # elevations
-            # TODO: build out elevation replacement
-            station_locations =
-
+            # FIXME: 900's to 1500's for elevation change
+            raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+            for station in station_locations.keys():
+                elevation = elevations_from_raster(raster_file,
+                                               [station_locations[station][1]],
+                                               [station_locations[station][0]])
+                station_locations[station][2] = elevation[0]
 
             # assemble dict in proper format for Stingray
             for station in station_locations.keys():
