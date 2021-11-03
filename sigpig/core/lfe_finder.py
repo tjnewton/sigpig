@@ -2247,20 +2247,29 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         return None
 
 
-def inspect_template(template_date, main_trace):
+def inspect_template(template_date, main_trace, streams_path):
     """
-    Generates figures to visualize a template event and writes a stream
+    Generates figures to visualize a template event and writes a file
     containing the template time series.
 
     Input:
         template_date: UTCDateTime object
 
     Output:
+        returns: None, and writes files
 
     Example:
+        # define start time of template
         template = UTCDateTime("2016-09-26T09:28:41.34Z")
+
+        # define the main trace to use for template
         main_trace = ("TA", "N25K", "BHN")
-        inspect_template(template_date)
+
+        # define path of files for template and detections
+        streams_path = "/Users/human/ak_data/inner"
+
+        # generate the figures and time series file
+        inspect_template(template_date, main_trace, streams_path)
     """
     # fetch the corresponding files
 
