@@ -66,8 +66,15 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             dfdict = {'name': [], 'latitude': [], 'longitude': [],
                       'elevation': []}
 
-            # get Rattlesnake Ridge station locations on specified date
-            station_locations = rattlesnake_Ridge_Station_Locations(date)
+            # get station locations on specified date from native GPS elevation
+             station_locations = rattlesnake_Ridge_Station_Locations(date)
+
+            # get station elevations from DEM rather than using native GPS
+            # elevations
+            # TODO: build out elevation replacement
+            station_locations =
+
+
             # assemble dict in proper format for Stingray
             for station in station_locations.keys():
                 dfdict['name'].append([station])
@@ -214,6 +221,4 @@ def elevation_map_from_arrays(project_name):
                 {'srElevation': elev_dict})
 
     return None
-
-# TODO: pull station elevations from DEM rather than using native GPS elevation
 
