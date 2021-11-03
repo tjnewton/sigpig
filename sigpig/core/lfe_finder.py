@@ -1024,12 +1024,12 @@ def detect_signals(templates, template_files, station_dict, template_length,
         # # this takes 18h 13m for 1 template of N25K across inner stations
         # #          abs.25: 1218
         # # SNR > 3: abs.25: 445 (36.5%)
-        # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
-        # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
+        start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
         # # MAD8: 195, MAD9: 55, MAD10: 25, MAD11: 11, abs.2: 425, abs.25: 45,
         # #       abs.23: 100
-        start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
-        end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
+        # start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
+        # end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
 
         # run detection and time it
         start = time.time()
@@ -2247,6 +2247,16 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         return None
 
 
+def inspect_template():
+    """
+
+    Returns:
+
+    """
+
+    ...
+
+
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
               snr_threshold, main_trace, shift_method='med', load_party=False,
@@ -2289,8 +2299,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
 
         # define template length and prepick length (both in seconds)
-        # template_length = 16.0
-        template_length = 8.0
+        template_length = 16.0
+        # template_length = 8.0
         template_prepick = 0.5
 
         # build stream of all station files for templates
@@ -2359,7 +2369,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s.pkl', 'rb')
 
         # abs 0.25 = 1218 detections, 16 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
         # abs 0.25 = 1218 detections, 8 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.25_8s.pkl', 'rb')
 
@@ -2375,7 +2385,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # MAD 8.0 = 3857 detections, doesn't fit in MBP memory
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
         # MAD 8.0 =  detections, 8 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_MAD8_8s.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_8s.pkl', 'rb')
 
         ###########################  TEMPLATE 2  ##############################
         ###################### 2016  9 27  7 37 49.00 #########################
