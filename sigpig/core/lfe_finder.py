@@ -2247,14 +2247,27 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         return None
 
 
-def inspect_template():
+def inspect_template(template_date, main_trace):
     """
+    Generates figures to visualize a template event and writes a stream
+    containing the template time series.
 
-    Returns:
+    Input:
+        template_date: UTCDateTime object
 
+    Output:
+
+    Example:
+        template = UTCDateTime("2016-09-26T09:28:41.34Z")
+        main_trace = ("TA", "N25K", "BHN")
+        inspect_template(template_date)
     """
+    # fetch the corresponding files
 
-    ...
+
+    # TODO: finish function
+
+    return None
 
 
 def find_LFEs(templates, template_files, station_dict, template_length,
