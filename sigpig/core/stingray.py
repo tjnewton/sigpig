@@ -31,7 +31,6 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         srStation = False
         srEvent = False
         srModel = True
-        srElevation = True
 
         if srControl:
             # generate srControl file
