@@ -2332,7 +2332,6 @@ def inspect_template(template_date, main_trace, streams_path):
     # TODO: working here
     # TODO: working here
     # TODO: working here
-    # TODO: working here
 
     return None
 
