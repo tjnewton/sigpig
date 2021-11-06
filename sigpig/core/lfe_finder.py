@@ -2304,17 +2304,17 @@ def inspect_template(template_date, main_trace, streams_path):
                 pad=True,
                 fill_value=np.nan, nearest_sample=True)
 
-        st_1min = st.copy().trim(template_date - min_offset, template_date +
+        st_min = st.copy().trim(template_date - min_offset, template_date +
                                  min_offset,
                                  pad=True, fill_value=np.nan,
                                  nearest_sample=True)
 
     st.plot()
-    st_1min.plot()
+    st_min.plot()
 
     # define time period for spectrogram
-    doi = template_date - 20  # period start
-    doi_end = doi + 60  # period end
+    doi = template_date - max_offset  # period start
+    doi_end = doi + max_offset  # period end
 
     # define time series files path
     files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
