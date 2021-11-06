@@ -2309,6 +2309,9 @@ def inspect_template(template_date, main_trace, streams_path):
                                  pad=True, fill_value=np.nan,
                                  nearest_sample=True)
 
+    else:
+        return False
+
     st.plot()
     st_min.plot()
 
@@ -2333,7 +2336,7 @@ def inspect_template(template_date, main_trace, streams_path):
     # TODO: working here
     # TODO: working here
 
-    return None
+    return True
 
 
 def find_LFEs(templates, template_files, station_dict, template_length,
