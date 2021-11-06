@@ -2274,8 +2274,9 @@ def inspect_template(template_date, main_trace, streams_path):
     # bandpass filter or not
     filter = False
 
-    # time offset
+    # time offsets
     max_offset = 600
+    min_offset = 30
 
     # find the local file corresponding to the main trace station:channel pair
     file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
@@ -2303,7 +2304,8 @@ def inspect_template(template_date, main_trace, streams_path):
                 pad=True,
                 fill_value=np.nan, nearest_sample=True)
 
-        st_1min = st.copy().trim(template_date - 20, template_date + 40,
+        st_1min = st.copy().trim(template_date - min_offset, template_date +
+                                 min_offset,
                                  pad=True, fill_value=np.nan,
                                  nearest_sample=True)
 
@@ -2317,13 +2319,9 @@ def inspect_template(template_date, main_trace, streams_path):
     # define time series files path
     files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
-    # bandpass filter from 2-8 Hz
-    filter = True
-    bandpass = [1, 15]
-
     fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
                                            filter=filter,
-                                           bandpass=bandpass)
+                                           bandpass=[1, 15])
 
     # save template stream to file
 
