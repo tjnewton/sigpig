@@ -2306,10 +2306,9 @@ def inspect_template(template_date, main_trace, streams_path):
     st.plot()
     st_1min.plot()
 
-    # generate spectrogram
-    # define time period
-    doi = UTCDateTime("2016-09-26T09:23:00.0Z")  # period start
-    doi_end = UTCDateTime("2016-09-26T09:33:00.0Z")  # period end
+    # define time period for spectrogram
+    doi = template_date - 20  # period start
+    doi_end = doi + 60  # period end
 
     # define time series files path
     files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
@@ -2318,18 +2317,9 @@ def inspect_template(template_date, main_trace, streams_path):
     filter = True
     bandpass = [1, 15]
 
-    # build time markers from snuffler marker file
-    marker_file_path = "lfe_template.mrkr"
-    prepick_offset = 11  # in seconds
-    templates, station_dict, time_markers = markers_to_template(
-        marker_file_path,
-        prepick_offset,
-        time_markers=True)
-
     fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
                                            filter=filter,
-                                           bandpass=bandpass,
-                                           time_markers=time_markers)
+                                           bandpass=bandpass)
 
     # save template stream to file
 
