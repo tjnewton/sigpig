@@ -2274,6 +2274,9 @@ def inspect_template(template_date, main_trace, streams_path):
     # bandpass filter or not
     filter = False
 
+    # time offset
+    max_offset = 600
+
     # find the local file corresponding to the main trace station:channel pair
     file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
                           f"{main_trace[1]}."
@@ -2296,7 +2299,8 @@ def inspect_template(template_date, main_trace, streams_path):
         if st[0].stats.sampling_rate != lowest_sr:
             st.interpolate(sampling_rate=lowest_sr)
         # trim trace to 60 seconds surrounding pick time
-        st.trim(template_date - 600, template_date + 600, pad=True,
+        st.trim(template_date - max_offset, template_date + max_offset,
+                pad=True,
                 fill_value=np.nan, nearest_sample=True)
 
         st_1min = st.copy().trim(template_date - 20, template_date + 40,
