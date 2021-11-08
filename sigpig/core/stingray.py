@@ -269,7 +269,7 @@ def stingray_ttg_to_nonlinloc(project_name):
 
     % loop over each station's srRays file
     for n =[10 12 13 14 15 16 17 18 2 20 21 22 23 25 26 27 28 3 30 31 32 33 34 35 36 37 38 39 4 40 41 42 5 6 7 8 9 103 105 106]
-
+        % missing 1, 14 is additional
 
         % define path to stingray travel time grid
         file=['/Users/amt/Documents/rattlesnake_ridge/ray_tracing/srRays_' num2str(n) '.mat']
@@ -279,7 +279,7 @@ def stingray_ttg_to_nonlinloc(project_name):
         % where label can be any characters
         output_name = ['RR.P.' num2str(n) '.time.buf'];
 
-        % transform the travel time grid, save as nlloc .buf and .hdr files
+        % transform the travel time grid, save as nlloc .buf file
         file_id = fopen(output_name, 'w');
         [nx,ny,nz] = size(srRays.time);
         index = 1;
