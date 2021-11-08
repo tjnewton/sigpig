@@ -227,3 +227,11 @@ def elevation_map_from_arrays(project_name):
 
     return None
 
+def stingray_ttg_to_nonlinloc():
+    """
+
+    Returns:
+
+    """
+
+    return None
