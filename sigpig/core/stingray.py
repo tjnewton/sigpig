@@ -207,7 +207,8 @@ def elevation_map_from_arrays(project_name):
 
         # query raster at specified coordinates
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, xy_grid_nodes)
+                                raster_file, x_limits, y_limits, xy_grid_nodes,
+                                plot=True)
 
         # define header
         x_inc = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
