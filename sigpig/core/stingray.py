@@ -227,15 +227,23 @@ def elevation_map_from_arrays(project_name):
 
     return None
 
-def stingray_ttg_to_nonlinloc():
+def stingray_ttg_to_nonlinloc(project_name):
     """
     Takes in Stingray-generated travel time grids (srRays files) and converts
-    them to a travel time grid in the NonLinLoc format. Adapted from a
+    them to a travel time grid in the NonLinLoc format. The NonLinLoc .hdr
+    format is:
+        Line 1:
+            xNum, yNum, zNum: integers representing the number of grid nodes in
+                              the x, y, and z directions
+            xOrig, yOrig, xOrig: floats representing
 
-    Returns:
+    Returns: None
 
+    Example:
+        project_name = "Rattlesnake Ridge"
+        stingray_ttg_to_nonlinloc(project_name)
     """
-
+    if project_name == "Rattlesnake Ridge":
     # TODO: open a MATLAB shell
 
     clear all;
@@ -292,6 +300,6 @@ def stingray_ttg_to_nonlinloc():
         fclose(file_id);
     end
 
-    # TODO: close a MATLAB shell
+    # TODO: close the MATLAB shell
 
     return None
