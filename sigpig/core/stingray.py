@@ -235,7 +235,19 @@ def stingray_ttg_to_nonlinloc(project_name):
         Line 1:
             xNum, yNum, zNum: integers representing the number of grid nodes in
                               the x, y, and z directions
-            xOrig, yOrig, xOrig: floats representing
+            xOrig, yOrig, xOrig: floats representing the x, y, z location of
+                                 the grid origin in km relative to the
+                                 geographic origin in Non-Global. If Global,
+                                 longitude and latitude in degrees, and z in km
+                                 of the location of the southwest corner of
+                                 the grid.
+            dx, dy, dz: floats representing the grid node spacing in
+                        kilometers in the x, y, and z directions if Non-Global.
+                        If Global, x and y in degrees, and z in kilometers.
+            gridType: string
+        Line 2:
+            label: string representing the source or station label
+
 
     Returns: None
 
