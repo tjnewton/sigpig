@@ -229,12 +229,14 @@ def elevation_map_from_arrays(project_name):
 
 def stingray_ttg_to_nonlinloc():
     """
+    Takes in Stingray-generated travel time grids (srRays files) and converts
+    them to a travel time grid in the NonLinLoc format. Adapted from a
 
     Returns:
 
     """
 
-    % TODO: run ML from Python? : if so, include as .py, else .m
+    # TODO: open a MATLAB shell
 
     clear all;
 
@@ -305,7 +307,6 @@ def stingray_ttg_to_nonlinloc():
         
     end
 
-
-
+    # TODO: close a MATLAB shell
 
     return None
