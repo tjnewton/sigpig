@@ -247,7 +247,11 @@ def stingray_ttg_to_nonlinloc(project_name):
             gridType: string
         Line 2:
             label: string representing the source or station label
-
+            xSrce, ySrce: floats representing the x and y positions relative to
+                          geographic origin in kilometers for source if
+                          Non-Global. If Global, longitude and latitude in
+                          degrees for source.
+            zSrce: float representing the depth in kilometers for source
 
     Returns: None
 
@@ -290,22 +294,9 @@ def stingray_ttg_to_nonlinloc(project_name):
         fclose(file_id)
         
         ind=find(stalocs_1(:,1)==n)
-        
+
+        % build .hdr file
         file_id = fopen(['RR.P.' num2str(n) '.time.hdr'],'w');
-    %%   .hdr file format 
-    %%   line 1 fields
-    %       xNum yNum zNum (integer) -- number of grid nodes in the x, y and z directions
-    %       xOrig yOrig zOrig (float) -- Non-GLOBAL: x, y and z location of the grid origin in km relative to the geographic origin.
-    %                                   GLOBAL: longitude and latitude in degrees, and z in km of the location of the south-west corner of the grid.
-    %       dx dy dz (float) -- Non-GLOBAL: grid node spacing in kilometers along the x, y and z axes
-    %                        -- GLOBAL: grid node spacing in degrees along the x and y axes, and in kilometers along the z axes..
-    %       gridType (chars)
-    %%   line 2 fields
-    %       label (chars) -- source/station label (i.e. a station code: ABC)
-    %       xSrce ySrce (float) -- Non-GLOBAL: x and y positions relative to geographic origin in kilometers for source.
-    %                           -- GLOBAL: longitude and latitude in degrees for source.
-    %       zSrce (float)
-    %       z grid position (depth) in kilometers for source
         fprintf(file_id,'%d %d %d %f %f %f %f %f %f %s\n', srRays.nx, srRays.ny, srRays.nz, ...
             srRays.srGeometry.easting, srRays.srGeometry.northing, 0, srRays.gx, srRays.gy, srRays.gz, 'TIME');
         fprintf(file_id,'%s %f %f %f\n', num2str(n), stalocs_1(ind,4)/1000, stalocs_1(ind,5)/1000, 0); %-1*stalocs_1(ind,6)/1000);
