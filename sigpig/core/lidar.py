@@ -327,7 +327,8 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
     return elevations
 
 
-def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes):
+def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
+                      plot=False):
     """
     Reads the specified raster file and queries it on the specified grid.
     The raster values at the queried points are returned in a list of lists.
@@ -378,25 +379,26 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes):
         latitude_grid.append(row_latitudes)
         elevation_grid.append(row_elevations)
 
-    # # plot it?
+    # plot surface
+    if plot:
 
-    # longitude_grid = np.asarray(longitude_grid)
-    # latitude_grid = np.asarray(latitude_grid)
-    # elevation_grid = np.asarray(elevation_grid)
-    #
-    # import matplotlib as mpl
-    # mpl.use('macosx')
-    # fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    # surf = ax.plot_surface(longitude_grid, latitude_grid, elevation_grid,
-    #                        cmap=cm.coolwarm,
-    #                        vmin=np.nanmin(elevation_grid),
-    #                        vmax=np.nanmax(elevation_grid), linewidth=0, antialiased=False)
-    # ax.set_zlim(np.nanmin(elevation_grid), np.nanmax(elevation_grid) + 1000)
-    # ax.xaxis.set_major_locator(LinearLocator(10))
-    # ax.yaxis.set_major_locator(LinearLocator(10))
-    # plt.xlim(max(longitude_grid), min(longitude_grid))
-    # fig.colorbar(surf, shrink=0.5, aspect=5)
-    # plt.show()
+        longitude_grid = np.asarray(longitude_grid)
+        latitude_grid = np.asarray(latitude_grid)
+        elevation_grid = np.asarray(elevation_grid)
+
+        import matplotlib as mpl
+        mpl.use('macosx')
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        surf = ax.plot_surface(longitude_grid, latitude_grid, elevation_grid,
+                               cmap=cm.coolwarm,
+                               vmin=np.nanmin(elevation_grid),
+                               vmax=np.nanmax(elevation_grid), linewidth=0, antialiased=False)
+        ax.set_zlim(np.nanmin(elevation_grid), np.nanmax(elevation_grid) + 1000)
+        ax.xaxis.set_major_locator(LinearLocator(10))
+        ax.yaxis.set_major_locator(LinearLocator(10))
+        plt.xlim(max(longitude_grid), min(longitude_grid))
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+        plt.show()
 
     return longitude_grid, latitude_grid, elevation_grid
 
