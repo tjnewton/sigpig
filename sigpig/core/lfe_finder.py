@@ -2261,7 +2261,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     Example:
         # define start time of template
         # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
-        template_date = UTCDateTime("2016-09-30T12:00:00.0000000Z")
+        template_date = UTCDateTime("2016-10-01T12:00:00.0000000Z")
 
         # define the main trace to use for template
         main_trace = ("TA", "N25K", "BHN")
