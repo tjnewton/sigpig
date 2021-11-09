@@ -2247,7 +2247,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         return None
 
 
-def inspect_template(template_date, main_trace, streams_path):
+def inspect_template(template_date, main_trace, streams_path, filter):
     """
     Generates figures to visualize a template event and writes a file
     containing the template time series.
@@ -2260,7 +2260,8 @@ def inspect_template(template_date, main_trace, streams_path):
 
     Example:
         # define start time of template
-        template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
+        # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
+        template_date = UTCDateTime("2016-09-26T12:00:00.0000000Z")
 
         # define the main trace to use for template
         main_trace = ("TA", "N25K", "BHN")
@@ -2269,13 +2270,11 @@ def inspect_template(template_date, main_trace, streams_path):
         streams_path = "/Users/human/ak_data/inner"
 
         # generate the figures and time series file
-        inspect_template(template_date, main_trace, streams_path)
+        inspect_template(template_date, main_trace, streams_path, filter=True)
     """
-    # bandpass filter or not
-    filter = True
 
     # time offsets
-    max_offset = 300
+    max_offset = 43200 # 300
     min_offset = 30
 
     # find the local file corresponding to the main trace station:channel pair
@@ -2313,18 +2312,18 @@ def inspect_template(template_date, main_trace, streams_path):
         return False
 
     # plot the time series
-    st.plot()
-    st_min.plot()
+    # st.plot()
+    # st_min.plot()
 
     # plot spectrograms and time series together
     fig_max = plot_Time_Series_And_Spectrogram(template_date - max_offset,
                                                template_date + max_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15])
-    fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
-                                               template_date + min_offset,
-                                               streams_path, filter=filter,
-                                               bandpass=[1, 15])
+    # fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
+    #                                            template_date + min_offset,
+    #                                            streams_path, filter=filter,
+    #                                            bandpass=[1, 15])
 
     # save template stream to file
     write = False
@@ -2337,10 +2336,25 @@ def inspect_template(template_date, main_trace, streams_path):
     # put all this in a shareable folder for Aaron
 
 
+
+
+
+
+
+
     # TODO: working here
     # TODO: working here
     # TODO: working here
     # TODO: working here
+
+
+
+
+
+
+
+
+
 
     return True
 
