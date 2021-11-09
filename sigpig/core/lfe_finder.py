@@ -25,7 +25,7 @@ import calendar
 from tqdm import tqdm
 from figures import plot_stack, plot_stream_absolute, plot_stream_relative, \
                     plot_party_detections, plot_distribution, \
-                    plot_template_and_stack
+                    plot_template_and_stack, plot_Time_Series_And_Spectrogram
 from scipy.signal import hilbert
 import time
 from data import max_amplitude, snr
@@ -2272,10 +2272,10 @@ def inspect_template(template_date, main_trace, streams_path):
         inspect_template(template_date, main_trace, streams_path)
     """
     # bandpass filter or not
-    filter = False
+    filter = True
 
     # time offsets
-    max_offset = 600
+    max_offset = 300
     min_offset = 30
 
     # find the local file corresponding to the main trace station:channel pair
@@ -2315,16 +2315,15 @@ def inspect_template(template_date, main_trace, streams_path):
     st.plot()
     st_min.plot()
 
-    # define time period for spectrogram
-    doi = template_date - max_offset  # period start
-    doi_end = doi + max_offset  # period end
-
-    # define time series files path
-    files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-
-    fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
-                                           filter=filter,
-                                           bandpass=[1, 15])
+    # plot spectrograms and time series
+    fig_max = plot_Time_Series_And_Spectrogram(template_date - max_offset,
+                                               template_date + max_offset,
+                                               streams_path, filter=filter,
+                                               bandpass=[1, 15])
+    fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
+                                               template_date + min_offset,
+                                               streams_path, filter=filter,
+                                               bandpass=[1, 15])
 
     # save template stream to file
 
