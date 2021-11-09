@@ -2260,8 +2260,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
     Example:
         # define start time of template
-        # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
-        template_date = UTCDateTime("2016-10-01T12:00:00.0000000Z")
+        template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
 
         # define the main trace to use for template
         main_trace = ("TA", "N25K", "BHN")
@@ -2270,11 +2269,11 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         streams_path = "/Users/human/ak_data/inner"
 
         # generate the figures and time series file
-        inspect_template(template_date, main_trace, streams_path, filter=False)
+        inspect_template(template_date, main_trace, streams_path, filter=True)
     """
 
     # time offsets
-    max_offset = 43200 # 300
+    max_offset = 6000 # 43200
     min_offset = 30
 
     # find the local file corresponding to the main trace station:channel pair
@@ -2320,10 +2319,10 @@ def inspect_template(template_date, main_trace, streams_path, filter):
                                                template_date + max_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15])
-    # fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
-    #                                            template_date + min_offset,
-    #                                            streams_path, filter=filter,
-    #                                            bandpass=[1, 15])
+    fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
+                                               template_date + min_offset,
+                                               streams_path, filter=filter,
+                                               bandpass=[1, 15])
 
     # save template stream to file
     write = False
@@ -2331,30 +2330,23 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         st_copy = st.copy()
         st_copy.trim(template_date - 0.5, template_date + 16, pad=True,
                      fill_value=np.nan, nearest_sample=True)
-        st_copy.write(f"template_1min.ms", format="MSEED")
+        st_copy.write(f"template_16.5_seconds_bandpass_1-15.ms",
+                      format="MSEED")
+        st_copy.plot()
+
+        st_copy = st.copy()
+        st_copy.trim(template_date - 30, template_date + 30, pad=True,
+                     fill_value=np.nan, nearest_sample=True)
+        st_copy.write(f"template_1_minute_bandpass_1-15.ms", format="MSEED")
+        st_copy.plot()
+
+        st_copy = st.copy()
+        st_copy.write(f"template_whole_day_bandpass_1-15.ms", format="MSEED")
+        st_copy.plot()
 
     # put all this in a shareable folder for Aaron
         # spectrograms
-
-
-
-
-
-
-
-    # TODO: working here
-    # TODO: working here
-    # TODO: working here
-    # TODO: working here
-
-
-
-
-
-
-
-
-
+        # template
 
     return True
 
