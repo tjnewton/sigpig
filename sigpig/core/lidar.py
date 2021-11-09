@@ -19,8 +19,7 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 import tifffile as tiff
 import scipy
-import numpy.ma as ma
-
+import utm
 
 def visualize_Point_Cloud(filename):
     """
@@ -225,11 +224,6 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
     coordinates. The raster values at the queried points are returned in a
     list.
 
-    NOTE: a known limitation of this function is that if a queried value is
-          not "close enough" (it's arbitrary) to an existing value in the
-          raster then this function returns the default "missing value"
-          value, i.e. probably not the expected output. Be careful or fix it.
-
     Args:
         raster_file: string defining path to raster file
         longitudes: list of floats
@@ -246,23 +240,28 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
         # query raster at specified coordinates
         elevations = elevations_from_raster(raster_file, longitudes, latitudes)
 
-    A Broken Example: # FIXME
+    Another example:
+        # get Rattlesnake Ridge station locations from raster in UTM meters
         # raster_file = '/Users/human/Dropbox/Programs/lidar/GeoTiff/rr_dem_1m/hdr.adf'
-        date = UTCDateTime("2018-03-16T00:04:00.0Z")
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
 
-        # get station coordinates in utm reference frame
-        utm_station_dict = rattlesnake_Ridge_Station_Locations(date, format='utm')
-        # transform station dict into list of tuples of x,y coordinates
-        utm_coordinates = []
-        old_elevations = []
-        for key in utm_station_dict.keys():
-            # extract easting and northing
-            easting, northing, old_elevation = utm_station_dict[key]
-            utm_coordinates.append((easting, northing))
-            old_elevations.append(old_elevation)
+        # get the geophone-derived station locatons based on the date
+        date = UTCDateTime("2018-03-16T00:04:00.0Z")
+        station_dict = rattlesnake_Ridge_Station_Locations(date)
+
+        # transform station dict into lists of of lat, lon coordinates
+        latitudes = []
+        longitudes = []
+        for key in station_dict.keys():
+            latitude, longitude, _ = utm_station_dict[key]
+            latitudes.append(latitude)
+            longitude.append(longitude)
 
         # query raster at specified coordinates
-        elevations = elevations_from_raster(raster_file, utm_coordinates)
+        longitudes, latitudes, elevations = elevations_from_raster(raster_file,
+                                                                   longitudes,
+                                                                   latitudes,
+                                                                   format='utm)
 
         # calculate difference between old elevations and new elevations
         differences = np.asarray(elevations) - np.asarray(old_elevations)
@@ -323,6 +322,14 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
     # convert elevations into lat/lon crs
     longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, xs,
                                                   ys, elevations)
+
+    # convert coordinate to utm if specified
+    if format == "UTM" or format == "utm":
+        utm_crs = # FIXME
+        longitudes, latitudes, elevations = transform(raster_crs, utm_crs,
+                                                      longitudes, latitudes,
+                                                      elevations)
+        return longitudes, latitudes, elevations
 
     return elevations
 
