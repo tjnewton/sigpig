@@ -2261,7 +2261,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     Example:
         # define start time of template
         # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
-        template_date = UTCDateTime("2016-09-26T12:00:00.0000000Z")
+        template_date = UTCDateTime("2016-09-30T12:00:00.0000000Z")
 
         # define the main trace to use for template
         main_trace = ("TA", "N25K", "BHN")
@@ -2270,7 +2270,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         streams_path = "/Users/human/ak_data/inner"
 
         # generate the figures and time series file
-        inspect_template(template_date, main_trace, streams_path, filter=True)
+        inspect_template(template_date, main_trace, streams_path, filter=False)
     """
 
     # time offsets
@@ -2334,7 +2334,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         st_copy.write(f"template_1min.ms", format="MSEED")
 
     # put all this in a shareable folder for Aaron
-
+        # spectrograms
 
 
 
