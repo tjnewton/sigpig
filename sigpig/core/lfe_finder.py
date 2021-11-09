@@ -2312,10 +2312,11 @@ def inspect_template(template_date, main_trace, streams_path):
     else:
         return False
 
+    # plot the time series
     st.plot()
     st_min.plot()
 
-    # plot spectrograms and time series
+    # plot spectrograms and time series together
     fig_max = plot_Time_Series_And_Spectrogram(template_date - max_offset,
                                                template_date + max_offset,
                                                streams_path, filter=filter,
@@ -2326,6 +2327,12 @@ def inspect_template(template_date, main_trace, streams_path):
                                                bandpass=[1, 15])
 
     # save template stream to file
+    write = False
+    if write:
+        st_copy = st.copy()
+        st_copy.trim(template_date - 0.5, template_date + 16, pad=True,
+                     fill_value=np.nan, nearest_sample=True)
+        st_copy.write(f"template_1min.ms", format="MSEED")
 
     # put all this in a shareable folder for Aaron
 
