@@ -2509,8 +2509,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 26  9 28 41.34 #########################
         #######################################################################
         # abs 0.25 = 96 detections, 16 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_mcr1.pkl',
-        # 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_mcr1.pkl','rb')
 
         # abs 0.29 =  detections, 16 seconds
         infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_mcr1.pkl',
