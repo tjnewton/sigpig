@@ -10,8 +10,7 @@ for n =[10 12 13 1 15 16 17 18 2 20 21 22 23 25 26 27 28 3 30 31 32 33 34 35 36 
     file=['/Users/human/Dropbox/Research/Rattlesnake_Ridge/ray_tracing/srRays_' num2str(n) '.mat']
     load(file);
 
-    % travel time grid format for NLLOC: label.PHASE.STATIONCODE.time.buf
-    % where label can be any characters
+    % travel time grid format for NLLOC: label.PHASE.STATIONCODE.time.buf, where label can be any characters
     output_name = ['RR.P.' num2str(n) '.time.buf'];
 
     % transform the travel time grid, save as nlloc .buf file
