@@ -351,8 +351,12 @@ def locate():
 def picks_to_nonlinloc():
     """
 
+    http://alomax.free.fr/nlloc/soft7.00/formats.html#_phase_nlloc_
+
     Returns:
 
     """
+
+
 
     pass
