@@ -29,9 +29,9 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
     if project_name == "Rattlesnake Ridge":
 
-        srControl = False
-        srGeometry = False
-        srStation = False
+        srControl = True
+        srGeometry = True
+        srStation = True
         srEvent = False
         srModel = True
 
@@ -101,7 +101,24 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
             # -------------------------------------------------------------------
             # this makes srEvent file
-            # TODO: edit this for RR - earthquake locations from NLL
+            # TODO: edit this for RR - earthquake locations from NLL?
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+
             eqdf = pd.read_csv(
                 "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/earthquakes.csv")
 
@@ -125,8 +142,19 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 {'srEvent': eqdict})
 
         if srModel:
+            # TODO:
+            # TODO:
+            # TODO:
+            # TODO:
+            # TODO:
+            # TODO:
+            # TODO:
+            # TODO:
+            # TODO:
+            # TODO:
+
             # TODO: edit this for RR
-            #       - ask Doug for srModel.mat
+            #       - ask Doug for srModel.mat, I don't have gil7.txt
             #       - what is appropriate model node spacing?
             #       - what is appropriate grid size?
             # this makes srModel file
@@ -259,6 +287,18 @@ def stingray_ttg_to_nonlinloc(project_name):
 
     Example:
         # FIXME: get station locs from lidar.elevations_from_raster in utm first
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
+
         project_name = "Rattlesnake Ridge"
         stingray_ttg_to_nonlinloc(project_name)
     """
