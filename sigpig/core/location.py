@@ -346,3 +346,13 @@ def locate():
 
 # FIXME: above functions are from QuakeMigrate notebooks and need to be tested
 # TODO: check Quakemigrate notebook for other info
+
+
+def picks_to_nonlinloc():
+    """
+
+    Returns:
+
+    """
+
+    pass
