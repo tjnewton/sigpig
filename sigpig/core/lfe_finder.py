@@ -1187,7 +1187,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.30, daylong=True,
+            party = tribe.detect(stream=st, threshold=0.29, daylong=True,
                                  threshold_type="abs", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
