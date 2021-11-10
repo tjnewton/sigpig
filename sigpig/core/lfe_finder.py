@@ -1187,7 +1187,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.25, daylong=True,
+            party = tribe.detect(stream=st, threshold=0.30, daylong=True,
                                  threshold_type="abs", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
@@ -2446,8 +2446,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = False
     save_detections = False
 
-    top_n = False
-    n = 200
+    top_n = True
+    n = 95
 
     load_stack = False
     load_stack_detects = False
@@ -2509,8 +2509,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 26  9 28 41.34 #########################
         #######################################################################
         # abs 0.25 = 1218 detections, 16 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_mcr1.pkl',
-                      'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_mcr1.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2535,7 +2534,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if save_detections:
         # save party detections as text file
-        df.to_csv('MAD8_detections.csv', index=False)
+        df.to_csv('MCR1_abs.25_detections.csv', index=False)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2569,9 +2568,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream[14:26],
+        plot_stack(detection_stream,
                    title="top_correlation_sum_detections",
-                   save=False)
+                   save=True)
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
