@@ -231,8 +231,8 @@ def elevation_map_from_arrays(project_name):
 def stingray_ttg_to_nonlinloc(project_name):
     """
     Takes in Stingray-generated travel time grids (srRays files) and converts
-    them to a travel time grid in the NonLinLoc format. The NonLinLoc .hdr
-    format is:
+    them to a travel time grid in the NonLinLoc format via a Matlab script.
+    The NonLinLoc .hdr format is:
         Line 1:
             xNum, yNum, zNum: integers representing the number of grid nodes in
                               the x, y, and z directions
