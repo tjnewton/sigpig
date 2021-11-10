@@ -4,8 +4,7 @@ clear all;
 load /Users/human/Dropbox/Research/Rattlesnake_Ridge/rattlesnake/stalocs_1.dat
 
 % loop over each station's srRays file
-for n =[10 12 13 14 15 16 17 18 2 20 21 22 23 25 26 27 28 3 30 31 32 33 34 35 36 37 38 39 4 40 41 42 5 6 7 8 9 103 105 106]
-    % missing 1, and 14 is additional, check iris, what does this mean for srRays files? how to generate?
+for n =[10 12 13 1 15 16 17 18 2 20 21 22 23 25 26 27 28 3 30 31 32 33 34 35 36 37 38 39 4 40 41 42 5 6 7 8 9 103 105 106]
 
     % define path to stingray travel time grid
     file=['/Users/human/Dropbox/Research/Rattlesnake_Ridge/ray_tracing/srRays_' num2str(n) '.mat']
