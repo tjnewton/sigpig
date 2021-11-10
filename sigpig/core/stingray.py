@@ -16,7 +16,9 @@ import matlab.engine
 
 # function to generate the necessary files for Stingray local earthquake tomography
 def stingray_setup(project_name: str, date: UTCDateTime):
-    """ Generates the necessary files to run Stingray for a specified project
+    """ Generates the necessary files to run Stingray for a specified project.
+                       Stingray structures specified here:
+              https://pages.uoregon.edu/drt/Stingray/pages/89.html
 
     Example:
         # to get Rattlesnake Ridge station locations a date must be specified
@@ -72,7 +74,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
             # get station elevations from DEM rather than using native GPS
             # elevations
-            # FIXME: 900's to 1500's for elevation change. Why? Check GoogEarth
+            # FIXME: 900's to 1500's for elevation change. In feet?
             raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
             for station in station_locations.keys():
                 elevation = elevations_from_raster(raster_file,
