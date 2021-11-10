@@ -35,12 +35,12 @@ addpath([work_dir,'/srOutput/']);
 res=1000
 
 % Stingray/TomoLab Structures
-theControl     = which('srControl_AMT.mat');
-theGeometry    = which('srGeometry_AMT.mat');
-theEvent       = which('srEvent_AMT.mat');
-theStation     = which('srStation_AMT.mat');
-theElevation   = which('srElevation_AMT.mat');
-theModel       = which('srModel_1000_AMT.mat');
+theControl     = which('srControl_TJN.mat');
+theGeometry    = which('srGeometry_TJN.mat');
+theEvent       = which('srEvent_TJN.mat');
+theStation     = which('srStation_TJN.mat');
+theElevation   = which('srElevation_TJN.mat');
+theModel       = which('srModel_1000_TJN.mat');
 
 %% Load StingRay structures
 
