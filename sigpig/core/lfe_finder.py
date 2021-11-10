@@ -2447,7 +2447,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 95
+    n = 5
 
     load_stack = False
     load_stack_detects = False
@@ -2573,7 +2573,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream,
-                   title="top_correlation_sum_detections",
+                   title="MCR1_abs0.29_top_5_correlation_sum_detections",
                    save=True)
 
     # cull the party detections below the specified signal to noise ratio
