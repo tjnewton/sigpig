@@ -325,7 +325,8 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
 
     # convert coordinate to utm if specified
     if format == "UTM" or format == "utm":
-        utm_crs = # FIXME
+        utm_crs = Proj(proj='utm', zone=10, ellps='WGS84',
+                       preserve_units=False)
         longitudes, latitudes, elevations = transform(raster_crs, utm_crs,
                                                       longitudes, latitudes,
                                                       elevations)
