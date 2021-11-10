@@ -327,10 +327,12 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
     if format == "UTM" or format == "utm":
         utm_crs = Proj(proj='utm', zone=10, ellps='WGS84',
                        preserve_units=False)
-        longitudes, latitudes, elevations = transform(raster_crs, utm_crs,
-                                                      longitudes, latitudes,
-                                                      elevations)
-        return longitudes, latitudes, elevations
+        eastings, northings, elevations = transform(raster_crs, utm_crs,
+                                                    longitudes, latitudes,
+                                                    elevations)
+
+    # convert elevations from feet to meters
+    elevations = [elevation * 0.3048 for elevation in elevations]
 
     return elevations
 
