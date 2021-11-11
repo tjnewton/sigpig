@@ -348,15 +348,48 @@ def locate():
 # TODO: check Quakemigrate notebook for other info
 
 
-def picks_to_nonlinloc():
-    """
-
+def picks_to_nonlinloc(marker_file_path):
+    """ Reads the specified snuffler format marker file and converts it to
+    NonLinLoc phase file format:
     http://alomax.free.fr/nlloc/soft7.00/formats.html#_phase_nlloc_
 
-    Returns:
+    Returns: None
 
+    Example:
+        marker_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
+        picks_to_nonlinloc(marker_file_path)
     """
+    # build dict of picks from the marker file
+    pick_dict = {}
 
+    # read the marker file line by line
+    file = open(marker_file_path, 'r') # TODO: delete after testing
+    with open(marker_file_path, 'r') as file:
+        for line_Contents in file:
+            if len(line_Contents) > 52:  # avoid irrelevant short lines
 
+                # location picks file contains lines of uncertainties and
+                # lines of pick times. Pick times are ignored and the pick time
+                # is chosen as half of uncertainty range for simplicity
+                if (line_Contents[0:5] == 'phase') and (line_Contents[
+                    -20:-19] == 'P') and (line_Contents[33:35] == '20'):
 
-    pass
+                    pick_station = line_Contents[79:97].strip().split()[
+                                                               1].split('.')[1]
+                    pick_channel = line_Contents[79:97].strip().split()[
+                                                               1].split('.')[3]
+                    start_time = UTCDateTime(line_Contents[7:32])
+                    end_time = UTCDateTime(line_Contents[33:58])
+                    one_sigma = (end_time - start_time) / 2
+                    pick_time = start_time + one_sigma
+                    first_motion = "?"
+
+                # # extract pick times from short lines
+                # if (line_Contents[0:5] == 'phase') and (line_Contents[
+                #     -19:-18] == 'P') and (line_Contents[33:35] == ' 0'):
+                #
+                #     pick_station = line_Contents[36:49].split('.')[1]
+                #     pick_channel = line_Contents[36:49].strip().split(".")[3]
+                #     pick_time = UTCDateTime(line_Contents[81:108])
+
+    return None
