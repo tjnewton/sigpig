@@ -353,7 +353,7 @@ def picks_to_nonlinloc(marker_file_path):
     NonLinLoc phase file format:
     http://alomax.free.fr/nlloc/soft7.00/formats.html#_phase_nlloc_
 
-    Returns: None
+    Returns: Nonehf74d&$%JHD
 
     Example:
         marker_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
@@ -373,6 +373,14 @@ def picks_to_nonlinloc(marker_file_path):
                             and (len(line_Contents) > 168):
 
                         pick_station = line_Contents[79:96].strip().split('.')[1]
+                        # convert UGAP station names
+                        if pick_station == "UGAP3":
+                            pick_station = "103"
+                        elif pick_station == "UGAP5":
+                            pick_station = "105"
+                        elif pick_station == "UGAP6":
+                            pick_station = "106"
+
                         pick_channel = line_Contents[79:96].strip().split('.')[3]
                         start_time = UTCDateTime(line_Contents[7:32])
                         end_time = UTCDateTime(line_Contents[33:58])
