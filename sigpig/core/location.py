@@ -359,37 +359,37 @@ def picks_to_nonlinloc(marker_file_path):
         marker_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
         picks_to_nonlinloc(marker_file_path)
     """
-    # build dict of picks from the marker file
-    pick_dict = {}
-
     # read the marker file line by line
-    file = open(marker_file_path, 'r') # TODO: delete after testing
-    with open(marker_file_path, 'r') as file:
-        for line_Contents in file:
-            if len(line_Contents) > 52:  # avoid irrelevant short lines
+    with open("nll_picks.obs", "w") as write_file:
+        with open(marker_file_path, 'r') as file:
+            for index, line_Contents in enumerate(file):
+                if len(line_Contents) > 52:  # avoid irrelevant short lines
 
-                # location picks file contains lines of uncertainties and
-                # lines of pick times. Pick times are ignored and the pick time
-                # is chosen as half of uncertainty range for simplicity
-                if (line_Contents[0:5] == 'phase') and (line_Contents[
-                    -20:-19] == 'P') and (line_Contents[33:35] == '20'):
+                    # location picks file contains lines of uncertainties and
+                    # lines of pick times. Pick times are ignored and the pick time
+                    # is chosen as half of uncertainty range for simplicity
+                    if (line_Contents[0:5] == 'phase') and (line_Contents[
+                        -20:-19] == 'P') and (line_Contents[33:35] == '20') \
+                            and (len(line_Contents) > 168):
 
-                    pick_station = line_Contents[79:97].strip().split()[
-                                                               1].split('.')[1]
-                    pick_channel = line_Contents[79:97].strip().split()[
-                                                               1].split('.')[3]
-                    start_time = UTCDateTime(line_Contents[7:32])
-                    end_time = UTCDateTime(line_Contents[33:58])
-                    one_sigma = (end_time - start_time) / 2
-                    pick_time = start_time + one_sigma
-                    first_motion = "?"
+                        pick_station = line_Contents[79:96].strip().split('.')[1]
+                        pick_channel = line_Contents[79:96].strip().split('.')[3]
+                        start_time = UTCDateTime(line_Contents[7:32])
+                        end_time = UTCDateTime(line_Contents[33:58])
+                        one_sigma = (end_time - start_time) / 2
+                        pick_time = start_time + one_sigma
+                        first_motion = "?"
 
-                # # extract pick times from short lines
-                # if (line_Contents[0:5] == 'phase') and (line_Contents[
-                #     -19:-18] == 'P') and (line_Contents[33:35] == ' 0'):
-                #
-                #     pick_station = line_Contents[36:49].split('.')[1]
-                #     pick_channel = line_Contents[36:49].strip().split(".")[3]
-                #     pick_time = UTCDateTime(line_Contents[81:108])
+                        # write extracted information to nonlinloc phase file
+                        line = f"{pick_station:<6} ?    N    ? P      ? {pick_time.year}{pick_time.month:02}{pick_time.day:02} {pick_time.hour:02}{pick_time.minute:02} {pick_time.second:02}{str(round(pick_time.microsecond / 1000000))[1:]} GAU {one_sigma:1.2e} ? ? ? ?\n"
+                        write_file.write(line)
+
+                    # # extract pick times from short lines
+                    # if (line_Contents[0:5] == 'phase') and (line_Contents[
+                    #     -19:-18] == 'P') and (line_Contents[33:35] == ' 0'):
+                    #
+                    #     pick_station = line_Contents[36:49].split('.')[1]
+                    #     pick_channel = line_Contents[36:49].strip().split(".")[3]
+                    #     pick_time = UTCDateTime(line_Contents[81:108])
 
     return None
