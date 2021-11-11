@@ -381,7 +381,12 @@ def picks_to_nonlinloc(marker_file_path):
                         first_motion = "?"
 
                         # write extracted information to nonlinloc phase file
-                        line = f"{pick_station:<6} ?    N    ? P      ? {pick_time.year}{pick_time.month:02}{pick_time.day:02} {pick_time.hour:02}{pick_time.minute:02} {pick_time.second:02}{str(round(pick_time.microsecond / 1000000))[1:]} GAU {one_sigma:1.2e} ? ? ? ?\n"
+                        line = f"{pick_station:<6} ?    N    ? P      ? " \
+                               f"{pick_time.year}{pick_time.month:02}" \
+                               f"{pick_time.day:02} {pick_time.hour:02}" \
+                               f"{pick_time.minute:02} " \
+                               f"{pick_time.second:02}." \
+                               f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e} ? ? ? ?\n"
                         write_file.write(line)
 
                     # # extract pick times from short lines
