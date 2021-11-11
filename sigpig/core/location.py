@@ -350,10 +350,11 @@ def locate():
 
 def picks_to_nonlinloc(marker_file_path):
     """ Reads the specified snuffler format marker file and converts it to
-    NonLinLoc phase file format:
+    NonLinLoc phase file format (written to present working directory):
     http://alomax.free.fr/nlloc/soft7.00/formats.html#_phase_nlloc_
 
-    Returns: Nonehf74d&$%JHD
+    Returns: None
+    Side effects: writes .obs file to current path
 
     Example:
         marker_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
