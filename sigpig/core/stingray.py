@@ -34,6 +34,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         srStation = True
         srEvent = False
         srModel = True
+        srElevation = True
 
         if srControl:
             # generate srControl file
@@ -48,19 +49,22 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             condict['carve'] = {}
             condict['carve']['buffer'] = 0.2 # was 2
             condict['carve']['zvalue'] = [[]] # was [2]
-            savemat("/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srControl.mat",
+            savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
+                    "/srControl_TN.mat",
                 {'srControl': condict})
 
         if srGeometry:
             # generate srGeometry file
             geodict = {}
-            geodict['longitude'] = -120.4668
-            geodict['latitude'] = 46.5253
+            # define center point
+            geodict['longitude'] = -120.46653901782679
+            geodict['latitude'] = 46.52635322514362
             geodict['rotation'] = 0.0
             geodict['tf_latlon'] = True
             geodict['tf_flat'] = 0.0
             savemat(
-                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srGeometry.mat",
+                "/Users/human/git/sigpig/sigpig/stingray/srInput/srGeometry_TN"
+                ".mat",
                 {'srGeometry': geodict})
 
         if srStation:
@@ -94,7 +98,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
             # save dict as mat file
             savemat(
-                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srStation.mat",
+                "/Users/human/git/sigpig/sigpig/stingray/srInput/srStation_TN"
+                ".mat",
                 {'srStation': dfdict})
 
         if srEvent:
@@ -138,79 +143,65 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             eqdict['depth'] = eqdf['Depth'].values.reshape(len(eqdf), 1)
             eqdict['datum'] = np.zeros((len(eqdf), 1))
             savemat(
-                "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srEvent.mat",
+                "/Users/human/git/sigpig/sigpig/stingray/srInput/srEvent_TN"
+                ".mat",
                 {'srEvent': eqdict})
 
         if srModel:
-            # TODO:
-            # TODO:
-            # TODO:
-            # TODO:
-            # TODO:
-            # TODO:
-            # TODO:
-            # TODO:
-            # TODO:
-            # TODO:
+            # generates srModel structure containing the slowness model
+            dx = dy = dz = 0.002 # 2 m model node spacing in all directions
+            xoffset = 0
+            yoffset = 0
+            maxdep = 0.150 # 150 meters
+            xdist = 0.300
+            ydist = 0.500
+            nx = int(np.ceil(xdist) // dx)
+            ny = int(np.ceil(ydist) // dy)
+            nz = int(maxdep // dz + 1)
 
-            # TODO: edit this for RR
-            #       - ask Doug for srModel.mat, I don't have gil7.txt
-            #       - what is appropriate model node spacing?
-            #       - what is appropriate grid size?
-            # generates srModel file
-            # set some options
-            for d in [.25]:  # , .5, 1]:
-                dx = dy = dz = d  # model node spacing, x-dir
-                # model node spacing, y-dir
-                # model node spacing, z-dir
-                xoffset = -100.0
-                yoffset = -100.0
-                maxdep = 100.0
-                xdist = 200.0
-                ydist = 200.0
-                nx = int(np.ceil(xdist) // dx)
-                ny = int(np.ceil(ydist) // dy)
-                nz = int(maxdep // dz + 1)
+            # make the velocity model
+            velmod = pd.read_csv("/Users/human/git/sigpig/sigpig/stingray/m-files/vels.txt", delim_whitespace=True)
+            plt.figure()
+            plt.plot(velmod['Top'].values, velmod['Pvel'].values,
+                     label='P model values')
+            # plt.plot(velmod['Top'].values, velmod['Svel'].values,
+            #          label='S model values')
+            pz = np.polyfit(velmod['Top'].values, velmod['Pvel'].values, 1)
+            # sz = np.polyfit(velmod['Top'].values, velmod['Svel'].values, 1)
+            depth = np.linspace(0, 0.15, 100)
+            plt.plot(depth, depth * pz[0] + pz[1], label='P interp values')
+            # plt.plot(depth, depth * sz[0] + sz[1], label='S interp values')
+            plt.legend()
+            plt.show()
 
-                # this makes the model file
-                velmod = pd.read_csv("gil7.txt", delim_whitespace=True)
-                plt.figure()
-                plt.plot(velmod['Top'].values, velmod['Pvel'].values,
-                         label='P model values')
-                plt.plot(velmod['Top'].values, velmod['Svel'].values,
-                         label='S model values')
-                pz = np.polyfit(velmod['Top'].values, velmod['Pvel'].values, 1)
-                sz = np.polyfit(velmod['Top'].values, velmod['Svel'].values, 1)
-                depth = np.arange(100)
-                plt.plot(depth, depth * pz[0] + pz[1], label='P interp values')
-                plt.plot(depth, depth * sz[0] + sz[1], label='S interp values')
-                plt.legend()
+            mod = np.concatenate((np.reshape(depth, (-1, 1)),
+                                  np.reshape(depth * pz[0] + pz[1],
+                                             (-1, 1))), axis=1)
+                    # , np.reshape(depth * sz[0] + sz[1], (-1, 1))
+            np.savetxt('vels_linear.txt', mod, fmt='%6.5f', delimiter=' ')
 
-                mod = np.concatenate((np.reshape(depth, (-1, 1)),
-                                      np.reshape(depth * pz[0] + pz[1],
-                                                 (-1, 1)),
-                                      np.reshape(depth * sz[0] + sz[1],
-                                                 (-1, 1))), axis=1)
-                np.savetxt('gil7_linear', mod, fmt='%6.5f', delimiter=' ')
+            Pmod = np.zeros((nx, ny, nz))
+            # Smod = np.zeros((nx, ny, nz))
+            for ii in range(nz):
+                Pmod[:, :, ii] = 1 / ((ii * dz) * pz[0] + pz[1]) * np.ones(
+                    (nx, ny))  # p slowness
+                # Smod[:, :, ii] = 1 / ((ii * dz) * sz[0] + sz[1]) * np.ones(
+                #     (nx, ny))  # s slowness
 
-                Pmod = np.zeros((nx, ny, nz))
-                Smod = np.zeros((nx, ny, nz))
-                for ii in range(nz):
-                    Pmod[:, :, ii] = 1 / ((ii * dz) * pz[0] + pz[1]) * np.ones(
-                        (nx, ny))  # p slowness
-                    Smod[:, :, ii] = 1 / ((ii * dz) * sz[0] + sz[1]) * np.ones(
-                        (nx, ny))  # s slowness
+            # make dict
+            modeldict = {}
+            modeldict['ghead'] = [xoffset, yoffset, nx, ny, nz, dx, dy, dz]
+            modeldict['P'] = {}
+            modeldict['P']['u'] = Pmod
+            # modeldict['S'] = {}
+            # modeldict['S']['u'] = Smod
+            savemat(
+                "/Users/human/git/sigpig/sigpig/stingray/srInput/srModel_" + str(
+                    int(1000 * dz)) + "m_TN.mat", {'srModel': modeldict})
 
-                # make dict
-                modeldict = {}
-                modeldict['ghead'] = [xoffset, yoffset, nx, ny, nz, dx, dy, dz]
-                modeldict['P'] = {}
-                modeldict['P']['u'] = Pmod
-                modeldict['S'] = {}
-                modeldict['S']['u'] = Smod
-                savemat(
-                    "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srModel_" + str(
-                        int(1000 * d)) + ".mat", {'srModel': modeldict})
+        if srElevation:
+            project_name = "Rattlesnake Ridge"
+            elevation_map_from_arrays(project_name)
 
     else:
         pass
@@ -251,8 +242,8 @@ def elevation_map_from_arrays(project_name):
         elev_dict['header'] = elev_header
         elev_dict['data'] = elevation_grid
 
-        savemat("/Users/human/Dropbox/Programs/stingray/projects"
-                "/rattlesnake_ridge/srInput/srElevation.mat",
+        savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
+                "/srElevation_TN.mat",
                 {'srElevation': elev_dict})
 
     return None
