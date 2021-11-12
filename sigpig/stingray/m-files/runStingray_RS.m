@@ -4,7 +4,6 @@ clear variables; close all; format short g
 % resolvepaths
 % cd ../
 work_dir = [pwd,'/'];
-cd m-files
 addpath ('../srInput/','-end');
 addpath ('../../stingray/toolbox/','-end');
 
@@ -27,11 +26,11 @@ addpath ('../../stingray/toolbox/','-end');
 
 %% Input
 
-theControl     = which('srControl_RS.mat');
-theGeometry    = which('srGeometry_RS.mat');
-theStation     = which('srStation_RS_CA.mat');
-theModel       = which('srModel_RS_1D600.mat');
-theElevation   = which('srElevation_RS.mat');
+theControl     = which('srControl_TN.mat');
+theGeometry    = which('srGeometry_TN.mat');
+theStation     = which('srStation_TN.mat');
+theModel       = which('srModel_2m_TN.mat');
+theElevation   = which('srElevation_TN.mat');
 % % theArrival     = which('tlArrival_Hansa_subset_5p.mat');
 
 %% Load StingRay structures
