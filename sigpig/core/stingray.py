@@ -11,6 +11,7 @@ import datetime
 import matplotlib.pyplot as plt
 from data import rattlesnake_Ridge_Station_Locations
 from lidar import grids_from_raster, elevations_from_raster
+import utm
 import matlab.engine
 
 
@@ -29,6 +30,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
     if project_name == "Rattlesnake Ridge":
 
+        UTM_COOR = False
+
         srControl = True
         srGeometry = True
         srStation = True
@@ -40,7 +43,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             # generate srControl file
             # https://pages.uoregon.edu/drt/Stingray/pages/17-51.html
             condict = {}
-            condict['tf_latlon'] = 1 # 1 = geodetic coordinates, 0 = UTM coordinates
+            condict['tf_latlon'] = 1 if not UTM_COOR else 0
             condict['tf_anisotropy'] = 0 # include anisotropy in ray tracing forward problem?
             condict['tf_line_integrate'] = 0
             condict['arcfile'] = 'arc7.mat'
@@ -56,12 +59,20 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         if srGeometry:
             # generate srGeometry file
             geodict = {}
-            # define center point
-            geodict['longitude'] = -120.46653901782679
-            geodict['latitude'] = 46.52635322514362
+
+            if UTM_COOR:
+            # define lower left corner in utm
+                geodict['tf_latlon'] = 0
+                geodict['easting'] = 694.15
+                geodict['northing'] = 5155.40
+            else:
+                geodict['tf_latlon'] = 1
+                geodict['longitude'] = -120.46653901782679
+                geodict['latitude'] = 46.52635322514362
+                geodict['tf_flat'] = 0
+
             geodict['rotation'] = 0.0
-            geodict['tf_latlon'] = True
-            geodict['tf_flat'] = 0.0
+
             savemat(
                 "/Users/human/git/sigpig/sigpig/stingray/srInput/srGeometry_TN"
                 ".mat",
@@ -70,8 +81,12 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         if srStation:
             # -------------------------------------------------------------------
             # generates srStation mat file containing station locations
-            dfdict = {'name': [], 'latitude': [], 'longitude': [],
-                      'elevation': []}
+            if UTM_COOR:
+                dfdict = {'name': [], 'northing': [], 'easting': [],
+                          'elevation': []}
+            else:
+                dfdict = {'name': [], 'latitude': [], 'longitude': [],
+                          'elevation': []}
 
             # get station locations on specified date from native GPS elevation
             station_locations = rattlesnake_Ridge_Station_Locations(date)
@@ -87,14 +102,39 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
             # assemble dict in proper format for Stingray
             for station in station_locations.keys():
+                if UTM_COOR:
+                    easting, northing, _, _ = utm.from_latlon(station_locations[
+                                                              station][0],
+                                                              station_locations[
+                                                              station][1])
+
+                    # append eastings, northings, and elevations in km
+                    dfdict['northing'].append(northing / 1000)
+                    dfdict['easting'].append(easting / 1000)
+                else:
+                    dfdict['latitude'].append(station_locations[station][0])
+                    dfdict['longitude'].append(station_locations[station][1])
+
+                dfdict['elevation'].append(station_locations[station][2] /1000)
+
+                # convert UGAP station names
+                if station == "UGAP3":
+                    station = "103"
+                elif station == "UGAP5":
+                    station = "105"
+                elif station == "UGAP6":
+                    station = "106"
                 dfdict['name'].append([station])
-                dfdict['latitude'].append([station_locations[station][0]])
-                dfdict['longitude'].append([station_locations[station][1]])
-                dfdict['elevation'].append([station_locations[station][2]])
             dfdict['name'] = np.asarray(dfdict['name'], dtype=object)
-            dfdict['latitude'] = np.asarray(dfdict['latitude'], dtype=object)
-            dfdict['longitude'] = np.asarray(dfdict['longitude'], dtype=object)
-            dfdict['elevation'] = np.asarray(dfdict['elevation'], dtype=object)
+
+            if UTM_COOR:
+                dfdict['northing'] = np.asarray(dfdict['northing'], dtype=float)
+                dfdict['easting'] = np.asarray(dfdict['easting'], dtype=float)
+            else:
+                dfdict['latitude'] = np.asarray(dfdict['latitude'], dtype=float)
+                dfdict['longitude'] = np.asarray(dfdict['longitude'], dtype=float)
+
+            dfdict['elevation'] = np.asarray(dfdict['elevation'], dtype=float)
 
             # save dict as mat file
             savemat(
@@ -148,6 +188,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 {'srEvent': eqdict})
 
         if srModel:
+
             # generates srModel structure containing the slowness model
             dx = dy = dz = 0.002 # 2 m model node spacing in all directions
             xoffset = 0
