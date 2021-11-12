@@ -188,6 +188,15 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 {'srEvent': eqdict})
 
         if srModel:
+            # FIXME: update based on Dougs .m scripts
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
 
             # generates srModel structure containing the slowness model
             dx = dy = dz = 0.002 # 2 m model node spacing in all directions
@@ -241,6 +250,16 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                     int(1000 * dz)) + "m_TN.mat", {'srModel': modeldict})
 
         if srElevation:
+            # FIXME: update based on Dougs .m scripts
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+            # FIXME:
+
             project_name = "Rattlesnake Ridge"
             elevation_map_from_arrays(project_name)
 
