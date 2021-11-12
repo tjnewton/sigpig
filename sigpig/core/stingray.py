@@ -46,8 +46,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             condict['tf_waterpath'] = 0
             condict['tf_carve'] = 1
             condict['carve'] = {}
-            condict['carve']['buffer'] = 2
-            condict['carve']['zvalue'] = [[2]]
+            condict['carve']['buffer'] = 0.2 # was 2
+            condict['carve']['zvalue'] = [[]] # was [2]
             savemat("/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/srInput/srControl.mat",
                 {'srControl': condict})
 
@@ -157,7 +157,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             #       - ask Doug for srModel.mat, I don't have gil7.txt
             #       - what is appropriate model node spacing?
             #       - what is appropriate grid size?
-            # this makes srModel file
+            # generates srModel file
             # set some options
             for d in [.25]:  # , .5, 1]:
                 dx = dy = dz = d  # model node spacing, x-dir
