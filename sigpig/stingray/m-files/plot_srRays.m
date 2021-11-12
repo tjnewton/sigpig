@@ -6,7 +6,7 @@ load ../srInput/srStation_RS_CA.mat
 nsta = length(srStation.name);
 
 for jj = 1:nsta
-    file_in = ['../srOutput/srRays_',char(srStation.name(jj)),'.mat'];
+    file_in = ['/Users/human/Dropbox/Programs/location/srOutput/srRays_',char(srStation.name(jj)),'.mat'];
     load(file_in)
     easting = srRays.srGeometry.easting + srRays.xg;
     northing= srRays.srGeometry.northing+ srRays.yg;
