@@ -2399,7 +2399,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # define template length and prepick length (both in seconds)
         # template_length = 16.0
-        template_length = 10.5
+        template_length = 7.0 # 10.5
         template_prepick = 0.0
 
         # build stream of all station files for templates
@@ -2448,7 +2448,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 5
+    n = 15
 
     load_stack = False
     load_stack_detects = False
@@ -2512,8 +2512,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # abs 0.25 = 96 detections, 16 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_mcr1.pkl','rb')
 
-        # abs 0.29 =  detections, 16 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3.pkl',
+        # abs 0.29 = 15 detections, 10.5 seconds
+        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3_10.5.pkl',
+                      'rb')
+
+        # abs 0.29 =  detections, 7.0 seconds
+        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3_7.0.pkl',
                       'rb')
 
         party = pickle.load(infile)
@@ -2574,7 +2578,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream,
-                   title="MCR1_abs0.29_top_5_correlation_sum_detections",
+                   title="t3_abs0.29_top_15_correlation_sum_detections",
                    save=True)
 
     # cull the party detections below the specified signal to noise ratio
