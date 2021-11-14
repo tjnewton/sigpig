@@ -2260,7 +2260,8 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
     Example:
         # define start time of template
-        template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
+        # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
+        template_date = UTCDateTime("2016-09-27T06:31:00.00000Z")
 
         # define the main trace to use for template
         main_trace = ("TA", "N25K", "BHN")
@@ -2273,8 +2274,8 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     """
 
     # time offsets
-    max_offset = 6000 # 43200
-    min_offset = 30
+    max_offset = 200  # 43200
+    min_offset = 60
 
     # find the local file corresponding to the main trace station:channel pair
     file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
@@ -2372,11 +2373,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # manually define templates from station TA.N25K (location is made up)
         # templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "N25K    0.000  1       P\n"]
-        templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "MCR1    0.000  1       P\n"]
+        # templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "MCR1    0.000  1       P\n"]
 
-        # templates = ["# 2016  9 27  7 37 49.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-        #              "N25K    0.000  1       P\n"]
+        templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "N25K    0.000  1       P\n"]
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2393,17 +2394,17 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # FIXME: started at 9:35
 
         # and define a station dict to add data needed by EQcorrscan
-        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
-        station_dict = {"MCR1": {"network": "YG", "channel": "BHZ"}}
+        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+        # station_dict = {"MCR1": {"network": "YG", "channel": "BHZ"}}
 
         # define template length and prepick length (both in seconds)
-        template_length = 16.0
-        # template_length = 8.0
-        template_prepick = 0.5
+        # template_length = 16.0
+        template_length = 10.5
+        template_prepick = 0.0
 
         # build stream of all station files for templates
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09
@@ -2421,8 +2422,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         snr_threshold = 1.0 # 3.5
 
         # define the main trace to use for detections (best amplitude station)
-        # main_trace = ("TA", "N25K", "BHN")
-        main_trace = ("YG", "MCR1", "BHN")
+        main_trace = ("TA", "N25K", "BHN")
+        # main_trace = ("YG", "MCR1", "BHN")
 
         # run detection and time it
         start = time.time()
@@ -2505,14 +2506,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # MAD 8.0 = 3388 detections
         # infile = open('party_06_15_2016_to_08_12_2018_t2_MAD8_16s.pkl', 'rb')
 
-        #######################  TEMPLATE 3 - MCR1  ###########################
-        ###################### 2016  9 26  9 28 41.34 #########################
+        ############################  TEMPLATE 3  #############################
+        ###################### 2016  9 27  6 31 15.00 #########################
         #######################################################################
         # abs 0.25 = 96 detections, 16 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_mcr1.pkl','rb')
 
         # abs 0.29 =  detections, 16 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_mcr1.pkl',
+        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3.pkl',
                       'rb')
 
         party = pickle.load(infile)
