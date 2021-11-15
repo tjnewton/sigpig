@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from data import rattlesnake_Ridge_Station_Locations
 from lidar import grids_from_raster, elevations_from_raster
 import utm
+import geopy.distance
 import matlab.engine
 
 
@@ -278,18 +279,27 @@ def elevation_map_from_arrays(project_name):
     if project_name == "Rattlesnake Ridge":
         # load arrays from raster file
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
-        # FIXME: make lims same as above
-        x_limits = [-120.480, -120.462]
-        y_limits = [46.519, 46.538]
-        xy_grid_nodes = [100, 100]
+
+        # my limits
+        # x_limits = [-120.480, -120.462]
+        # y_limits = [46.519, 46.538]
+
+        # doug's limits
+        x_limits = [-120.4706347915009, -120.46074932200101]
+        y_limits = [46.52239398104922, 46.530274799769188]
+
+        # get x and y distance in meters
+        x_dist = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                         (y_limits[0], x_limits[1])).m
+        y_dist = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                         (y_limits[1], x_limits[0])).m
+        # define number of nodes for desired 1 meter grid spacing
+        xy_grid_nodes = [int(x_dist), int(y_dist)]
 
         # query raster at specified coordinates
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
                                 raster_file, x_limits, y_limits, xy_grid_nodes,
                                 plot=False)
-
-        # interpolate elevation model from raster
-        # TODO:
 
         # define header
         x_inc = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
