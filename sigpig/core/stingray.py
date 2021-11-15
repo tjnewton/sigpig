@@ -188,6 +188,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 {'srEvent': eqdict})
 
         if srModel:
+            # generates srModel structure containing the slowness model
             # FIXME: update based on Dougs .m scripts
             # FIXME:
             # FIXME:
@@ -198,7 +199,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             # FIXME:
             # FIXME:
 
-            # generates srModel structure containing the slowness model
+            # grid information for srModel header
             dx = dy = dz = 0.002 # 2 m model node spacing in all directions
             xoffset = 0
             yoffset = 0
@@ -209,8 +210,10 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             ny = int(np.ceil(ydist) // dy)
             nz = int(maxdep // dz + 1)
 
-            # make the velocity model
+            # load the velocity model
             velmod = pd.read_csv("/Users/human/git/sigpig/sigpig/stingray/m-files/vels.txt", delim_whitespace=True)
+
+            # plot an interpolated velocity model
             plt.figure()
             plt.plot(velmod['Top'].values, velmod['Pvel'].values,
                      label='P model values')
@@ -224,12 +227,14 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             plt.legend()
             plt.show()
 
+            # save the interpolated velocity model
             mod = np.concatenate((np.reshape(depth, (-1, 1)),
                                   np.reshape(depth * pz[0] + pz[1],
                                              (-1, 1))), axis=1)
                     # , np.reshape(depth * sz[0] + sz[1], (-1, 1))
             np.savetxt('vels_linear.txt', mod, fmt='%6.5f', delimiter=' ')
 
+            # make a 3D slowness model from the 1D velocity model
             Pmod = np.zeros((nx, ny, nz))
             # Smod = np.zeros((nx, ny, nz))
             for ii in range(nz):
@@ -238,7 +243,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 # Smod[:, :, ii] = 1 / ((ii * dz) * sz[0] + sz[1]) * np.ones(
                 #     (nx, ny))  # s slowness
 
-            # make dict
+            # make dict of P wave slowness
             modeldict = {}
             modeldict['ghead'] = [xoffset, yoffset, nx, ny, nz, dx, dy, dz]
             modeldict['P'] = {}
