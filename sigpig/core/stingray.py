@@ -190,7 +190,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         if srModel:
             # generates srModel structure containing the slowness model
 
-            # first specify grid information for srModel header
+            # first specify grid information for srModel header in kilometers
             dx = dy = dz = 0.002 # 2 m model node spacing in all directions
             xoffset = 0
             yoffset = 0
@@ -212,7 +212,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             #          label='S model values')
             pz = np.polyfit(velmod['Top'].values, velmod['Pvel'].values, 1)
             # sz = np.polyfit(velmod['Top'].values, velmod['Svel'].values, 1)
-            depth = np.linspace(0, 0.15, 100)
+            depth = np.linspace(0, maxdep, 100)
             plt.plot(depth, depth * pz[0] + pz[1], label='P interp values')
             # plt.plot(depth, depth * sz[0] + sz[1], label='S interp values')
             plt.legend()
@@ -286,6 +286,9 @@ def elevation_map_from_arrays(project_name):
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
                                 raster_file, x_limits, y_limits, xy_grid_nodes,
                                 plot=False)
+
+        # interpolate elevation model from raster
+        # TODO:
 
         # define header
         x_inc = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
