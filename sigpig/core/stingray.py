@@ -289,23 +289,23 @@ def elevation_map_from_arrays(project_name):
         y_limits = [46.52239398104922, 46.530274799769188]
 
         # get x and y distance in meters
-        x_dist = geopy.distance.distance((y_limits[0], x_limits[0]),
-                                         (y_limits[0], x_limits[1])).m
-        y_dist = geopy.distance.distance((y_limits[0], x_limits[0]),
-                                         (y_limits[1], x_limits[0])).m
-        # define number of nodes for desired 1 meter grid spacing
-        xy_grid_nodes = [int(x_dist), int(y_dist)]
+        x_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                         (y_limits[0], x_limits[1])).ft
+        y_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                         (y_limits[1], x_limits[0])).ft
+        # x and y steps for loops
+        num_x_steps = int(x_dist_ft / 3) # dataset resolution is 3 ft
+        num_y_steps = int(y_dist_ft / 3)
+        x_step = (x_limits[1] - x_limits[0]) / num_x_steps
+        y_step = (y_limits[1] - y_limits[0]) / num_y_steps
 
         # query raster at specified coordinates
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, xy_grid_nodes,
-                                plot=False)
+                                raster_file, x_limits, y_limits, plot=False)
 
         # define header
-        x_inc = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
-        y_inc = (y_limits[1] - y_limits[0]) / xy_grid_nodes[1]
         elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
-                       x_inc, y_inc, xy_grid_nodes[0], xy_grid_nodes[1]]
+                       x_step, y_step, num_x_steps, num_y_steps]
 
         # build dict to make .mat file
         elev_dict = {}
