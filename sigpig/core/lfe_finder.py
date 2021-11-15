@@ -2530,7 +2530,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 27  6 31 15.00 #########################
         #######################################################################
 
-        # abs 0.29 = 212 detections, 7.0 seconds
+        # abs 0.29 = 272 detections, 7.0 seconds
         infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t4_7.0.pkl',
                       'rb')
 
@@ -2592,7 +2592,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream,
-                   title="t3_7.0_abs0.29_top_50_correlation_sum_detections",
+                   title="t4_7.0_abs0.29_top_50_correlation_sum_detections",
                    save=True)
 
     # cull the party detections below the specified signal to noise ratio
