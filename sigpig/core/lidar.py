@@ -20,6 +20,7 @@ from matplotlib.ticker import LinearLocator
 import tifffile as tiff
 import scipy
 import utm
+import geopy.distance
 
 def visualize_Point_Cloud(filename):
     """
@@ -363,16 +364,27 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
         # query raster at specified coordinates
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes)
     """
-    # calculate x and y steps for loops
-    x_step = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
-    y_step = (y_limits[1] - y_limits[0]) / xy_grid_nodes[1]
+    # set dataset resolution
+    if raster_file == '/Users/human/Dropbox/Programs/lidar' \
+                      '/yakima_basin_2018_dtm_43.tif':
+        DATASET_RESOLUTION = (3, 'ft')
+
+    # get x and y distance in meters
+    x_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                     (y_limits[0], x_limits[1])).ft
+    y_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                     (y_limits[1], x_limits[0])).ft
+    # x and y steps for loops
+    num_x_steps = int(x_dist_ft / DATASET_RESOLUTION[0])
+    num_y_steps = int(y_dist_ft / DATASET_RESOLUTION[0])
+    x_steps =
 
     # initialize grid lists
     longitude_grid = []
     latitude_grid = []
     elevation_grid = []
 
-    # loop over rows from top to bottom
+    # loop over rows from top to bottom and sample at dataset resolution
     for row in range(xy_grid_nodes[0]):
         latitude = y_limits[1] - (row * y_step)
         row_latitudes = []
@@ -388,6 +400,12 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
         longitude_grid.append(row_longitudes)
         latitude_grid.append(row_latitudes)
         elevation_grid.append(row_elevations)
+
+    # calculate x and y steps for loops?
+    x_step = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
+    y_step = (y_limits[1] - y_limits[0]) / xy_grid_nodes[1]
+    # interpolate to specified resolution
+    # TODO:
 
     # plot surface
     if plot:
