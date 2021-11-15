@@ -247,16 +247,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                     int(1000 * dz)) + "m_TN.mat", {'srModel': modeldict})
 
         if srElevation:
-            # FIXME: update based on Dougs .m scripts
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-
+            # generates stingray elevation .mat file from raster
             project_name = "Rattlesnake Ridge"
             elevation_map_from_arrays(project_name)
 
