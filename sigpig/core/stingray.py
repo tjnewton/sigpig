@@ -278,6 +278,7 @@ def elevation_map_from_arrays(project_name):
     if project_name == "Rattlesnake Ridge":
         # load arrays from raster file
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+        # FIXME: make lims same as above
         x_limits = [-120.480, -120.462]
         y_limits = [46.519, 46.538]
         xy_grid_nodes = [100, 100]
