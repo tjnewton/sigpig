@@ -168,7 +168,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
     """
 
     # find all files for specified day
-    day_file_list = sorted(glob.glob(f"{files_path}/*Z.{doi.year}"
+    day_file_list = sorted(glob.glob(f"{files_path}/*N.{doi.year}"
                                      f"-{doi.month:02}-{doi.day:02}.ms"))
     # load files into stream
     st = Stream()
