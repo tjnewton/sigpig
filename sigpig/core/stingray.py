@@ -189,17 +189,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
         if srModel:
             # generates srModel structure containing the slowness model
-            # FIXME: update based on Dougs .m scripts
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
-            # FIXME:
 
-            # grid information for srModel header
+            # first specify grid information for srModel header
             dx = dy = dz = 0.002 # 2 m model node spacing in all directions
             xoffset = 0
             yoffset = 0
