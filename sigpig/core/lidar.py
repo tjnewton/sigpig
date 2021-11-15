@@ -21,6 +21,7 @@ import tifffile as tiff
 import scipy
 import utm
 import geopy.distance
+import matplotlib as mpl
 
 def visualize_Point_Cloud(filename):
     """
@@ -158,7 +159,7 @@ def arrays_from_raster(raster_file):
     a[c <= 0] = np.nan
     b[c <= 0] = np.nan
     c[c <= 0] = np.nan
-    import matplotlib as mpl
+
     mpl.use('macosx')
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     surf = ax.plot_surface(a, b, c, cmap=cm.coolwarm, vmin=np.nanmin(c),
@@ -338,8 +339,7 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
     return elevations
 
 
-def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
-                      plot=False):
+def grids_from_raster(raster_file, x_limits, y_limits, plot=False):
     """
     Reads the specified raster file and queries it on the specified grid.
     The raster values at the queried points are returned in a list of lists.
@@ -367,7 +367,10 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
     # set dataset resolution
     if raster_file == '/Users/human/Dropbox/Programs/lidar' \
                       '/yakima_basin_2018_dtm_43.tif':
+        # spatial resolution at which data was sampled
         DATASET_RESOLUTION = (3, 'ft')
+        # a threshold value below which is assigned to np.nan
+        NAN_THRESHOLD = 0
 
     # get x and y distance in meters
     x_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
@@ -377,7 +380,8 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
     # x and y steps for loops
     num_x_steps = int(x_dist_ft / DATASET_RESOLUTION[0])
     num_y_steps = int(y_dist_ft / DATASET_RESOLUTION[0])
-    x_steps =
+    x_step = (x_limits[1] - x_limits[0]) / num_x_steps
+    y_step = (y_limits[1] - y_limits[0]) / num_y_steps
 
     # initialize grid lists
     longitude_grid = []
@@ -385,12 +389,12 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
     elevation_grid = []
 
     # loop over rows from top to bottom and sample at dataset resolution
-    for row in range(xy_grid_nodes[0]):
+    for row in range(num_y_steps):
         latitude = y_limits[1] - (row * y_step)
         row_latitudes = []
         row_longitudes = []
         # loop over each column and build grid
-        for column in range(xy_grid_nodes[1]):
+        for column in range(num_x_steps):
             longitude = x_limits[0] + (column * x_step)
             row_latitudes.append(latitude)
             row_longitudes.append(longitude)
@@ -401,31 +405,26 @@ def grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes,
         latitude_grid.append(row_latitudes)
         elevation_grid.append(row_elevations)
 
-    # calculate x and y steps for loops?
-    x_step = (x_limits[1] - x_limits[0]) / xy_grid_nodes[0]
-    y_step = (y_limits[1] - y_limits[0]) / xy_grid_nodes[1]
-    # interpolate to specified resolution
-    # TODO:
+    longitude_grid = np.asarray(longitude_grid)
+    latitude_grid = np.asarray(latitude_grid)
+    elevation_grid = np.asarray(elevation_grid)
+    # replace NaN proxy with np.nan's
+    elevation_grid[np.where(elevation_grid < NAN_THRESHOLD)] = np.nan
 
     # plot surface
     if plot:
-
-        longitude_grid = np.asarray(longitude_grid)
-        latitude_grid = np.asarray(latitude_grid)
-        elevation_grid = np.asarray(elevation_grid)
-
-        import matplotlib as mpl
         mpl.use('macosx')
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
         surf = ax.plot_surface(longitude_grid, latitude_grid, elevation_grid,
                                cmap=cm.coolwarm,
                                vmin=np.nanmin(elevation_grid),
                                vmax=np.nanmax(elevation_grid), linewidth=0, antialiased=False)
-        ax.set_zlim(np.nanmin(elevation_grid), np.nanmax(elevation_grid) + 1000)
+        ax.set_zlim(np.nanmin(elevation_grid), np.nanmax(elevation_grid) +
+                    200)
         ax.xaxis.set_major_locator(LinearLocator(10))
         ax.yaxis.set_major_locator(LinearLocator(10))
         plt.xlim(max(longitude_grid), min(longitude_grid))
-        fig.colorbar(surf, shrink=0.5, aspect=5)
+        fig.colorbar(surf, shrink=0.5, aspect=2)
         plt.show()
 
     return longitude_grid, latitude_grid, elevation_grid
