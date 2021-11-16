@@ -21,6 +21,10 @@ def stingray_setup(project_name: str, date: UTCDateTime):
     """ Generates the necessary files to run Stingray for a specified project.
                        Stingray structures specified here:
               https://pages.uoregon.edu/drt/Stingray/pages/89.html
+        A side effect of this function is that it also writes a
+        station_locations.dat file containing station location information
+        that is used by the stingray_ttg_to_nonlinloc function and
+        stingray_ttg_2_nonlinloc.m.
 
     Example:
         # to get Rattlesnake Ridge station locations a date must be specified
