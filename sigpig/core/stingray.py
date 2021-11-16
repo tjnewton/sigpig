@@ -37,12 +37,12 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
         UTM_COOR = True
 
-        srControl = True
-        srGeometry = True
+        srControl = False
+        srGeometry = False
         srStation = True
         srEvent = False
-        srModel = True
-        srElevation = True
+        srModel = False
+        srElevation = False
 
         if srControl:
             # generate srControl file
@@ -130,6 +130,16 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 elif station == "UGAP6":
                     station = "106"
                 dfdict['name'].append([station])
+
+            # write station locations to file
+            with open('station_locations.dat', 'a') as file:
+                for index in range(len(dfdict['name'])):
+                    # write station, easting, northing, elevation
+                    file.write(f'{dfdict["name"][index][0]} '
+                               f'{dfdict["easting"][index]} '
+                               f'{dfdict["northing"][index]} '
+                               f'{dfdict["elevation"][index]}\n')
+
             dfdict['name'] = np.asarray(dfdict['name'], dtype=object)
 
             if UTM_COOR:
