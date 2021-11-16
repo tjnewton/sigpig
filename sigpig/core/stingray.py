@@ -255,8 +255,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             modeldict['P'] = {}
             modeldict['P']['u'] = Pmod
             modeldict['S'] = {}
-            modeldict['S']['u'] = []
-            # modeldict['S']['u'] = Smod
+            modeldict['S']['u'] = [] # modeldict['S']['u'] = Smod
             savemat(
                 "/Users/human/git/sigpig/sigpig/stingray/srInput/srModel_" + str(
                     int(1000 * dz)) + "m_TN.mat", {'srModel': modeldict})
