@@ -320,7 +320,7 @@ def elevation_map_from_arrays(project_name, UTM=False):
         # build dict to make .mat file
         elev_dict = {}
         elev_dict['header'] = elev_header
-        elev_dict['data'] = elevation_grid.T
+        elev_dict['data'] = np.rot90(elevation_grid, k=3)
 
         savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
                 "/srElevation_TN.mat",
