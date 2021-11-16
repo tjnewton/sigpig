@@ -33,11 +33,11 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
         UTM_COOR = True
 
-        srControl = False
-        srGeometry = False
-        srStation = False
+        srControl = True
+        srGeometry = True
+        srStation = True
         srEvent = False
-        srModel = False
+        srModel = True
         srElevation = True
 
         if srControl:
