@@ -31,13 +31,13 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
     if project_name == "Rattlesnake Ridge":
 
-        UTM_COOR = False
+        UTM_COOR = True
 
-        srControl = True
-        srGeometry = True
-        srStation = True
+        srControl = False
+        srGeometry = False
+        srStation = False
         srEvent = False
-        srModel = True
+        srModel = False
         srElevation = True
 
         if srControl:
@@ -198,8 +198,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             maxdep = 0.150 # 150 meters
             xdist = 0.300
             ydist = 0.500
-            nx = int(np.ceil(xdist) // dx)
-            ny = int(np.ceil(ydist) // dy)
+            nx = int(xdist // dx + 1)
+            ny = int(ydist // dy + 1)
             nz = int(maxdep // dz + 1)
 
             # load the velocity model
@@ -240,7 +240,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             modeldict['ghead'] = [xoffset, yoffset, nx, ny, nz, dx, dy, dz]
             modeldict['P'] = {}
             modeldict['P']['u'] = Pmod
-            # modeldict['S'] = {}
+            modeldict['S'] = {}
+            modeldict['S']['u'] = []
             # modeldict['S']['u'] = Smod
             savemat(
                 "/Users/human/git/sigpig/sigpig/stingray/srInput/srModel_" + str(
@@ -249,7 +250,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         if srElevation:
             # generates stingray elevation .mat file from raster
             project_name = "Rattlesnake Ridge"
-            elevation_map_from_arrays(project_name)
+            elevation_map_from_arrays(project_name, UTM=UTM_COOR)
 
     else:
         pass
@@ -257,42 +258,60 @@ def stingray_setup(project_name: str, date: UTCDateTime):
     return None
 
 
-def elevation_map_from_arrays(project_name):
+def elevation_map_from_arrays(project_name, UTM=False):
     """
     Generates an elevation map for Stingray as srElevation mat file
     containing topography.
 
     Example:
         project_name = "Rattlesnake Ridge"
-        elevation_map_from_arrays(project_name)
+        # get elevation map in UTM coordinates
+        elevation_map_from_arrays(project_name, UTM=True)
 
     """
     if project_name == "Rattlesnake Ridge":
         # load arrays from raster file
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
 
-        # my limits
-        # x_limits = [-120.480, -120.462]
-        # y_limits = [46.519, 46.538]
+        if UTM:
+            # doug's limits
+            x_limits = [694.15, 694.45]
+            y_limits = [5155.40, 5155.90]
 
-        # doug's limits
-        x_limits = [-120.4706347915009, -120.46074932200101]
-        y_limits = [46.52239398104922, 46.530274799769188]
+            # get x and y distance in meters
+            x_dist_m = (x_limits[1] - x_limits[0]) * 1000
+            y_dist_m = (y_limits[1] - y_limits[0]) * 1000
+            # x and y steps for loops
+            num_x_steps = int(x_dist_m)  # 1 m resolution
+            num_y_steps = int(y_dist_m)
+            x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
+            y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
 
-        # get x and y distance in meters
-        x_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
-                                         (y_limits[0], x_limits[1])).ft
-        y_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
-                                         (y_limits[1], x_limits[0])).ft
-        # x and y steps for loops
-        num_x_steps = int(x_dist_ft / 3) # dataset resolution is 3 ft
-        num_y_steps = int(y_dist_ft / 3)
-        x_step = (x_limits[1] - x_limits[0]) / num_x_steps
-        y_step = (y_limits[1] - y_limits[0]) / num_y_steps
+        # in lat/lon
+        else:
+            # my limits
+            # x_limits = [-120.480, -120.462]
+            # y_limits = [46.519, 46.538]
+
+            # doug's limits
+            x_limits = [-120.4706347915009, -120.46074932200101]
+            y_limits = [46.52239398104922, 46.530274799769188]
+
+            # get x and y distance in feet
+            x_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                             (y_limits[0], x_limits[1])).ft
+            y_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                             (y_limits[1], x_limits[0])).ft
+            # x and y steps for loops
+            num_x_steps = int(x_dist_ft / 3) # dataset resolution is 3 ft
+            num_y_steps = int(y_dist_ft / 3)
+            x_step = (x_limits[1] - x_limits[0]) / num_x_steps
+            y_step = (y_limits[1] - y_limits[0]) / num_y_steps
 
         # query raster at specified coordinates
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, plot=False)
+                                raster_file, x_limits, y_limits, plot=False,
+                                UTM=True)
 
         # define header
         elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
@@ -301,7 +320,7 @@ def elevation_map_from_arrays(project_name):
         # build dict to make .mat file
         elev_dict = {}
         elev_dict['header'] = elev_header
-        elev_dict['data'] = elevation_grid
+        elev_dict['data'] = np.transpose(elevation_grid.conjugate())
 
         savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
                 "/srElevation_TN.mat",
