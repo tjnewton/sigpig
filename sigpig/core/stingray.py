@@ -371,19 +371,6 @@ def stingray_ttg_to_nonlinloc(project_name):
     Returns: None
 
     Example:
-        # FIXME: get station locs from lidar.elevations_from_raster in utm first
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
-
         project_name = "Rattlesnake Ridge"
         stingray_ttg_to_nonlinloc(project_name)
     """
