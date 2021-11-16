@@ -311,6 +311,7 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
 
         # convert coordinates to native coordinate reference system
         raster_crs = Proj(r.crs)
+
         # transform longitudes and latitudes to native x and y coordinates
         lat_lon_crs = Proj(proj='latlong', datum='WGS84')
         xs, ys = transform(lat_lon_crs, raster_crs, longitudes, latitudes)
@@ -325,13 +326,13 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
     longitudes, latitudes, elevations = transform(raster_crs, lat_lon_crs, xs,
                                                   ys, elevations)
 
-    # convert coordinate to utm if specified
-    if format == "UTM" or format == "utm":
-        utm_crs = Proj(proj='utm', zone=10, ellps='WGS84',
-                       preserve_units=False)
-        eastings, northings, elevations = transform(raster_crs, utm_crs,
-                                                    longitudes, latitudes,
-                                                    elevations)
+    # # convert coordinate to utm if specified
+    # if format == "UTM" or format == "utm":
+    #     utm_crs = Proj(proj='utm', zone=10, ellps='WGS84',
+    #                    preserve_units=False)
+    #     eastings, northings, elevations = transform(raster_crs, utm_crs,
+    #                                                 longitudes, latitudes,
+    #                                                 elevations)
 
     # convert elevations from feet to meters
     elevations = [elevation * 0.3048 for elevation in elevations]
@@ -339,7 +340,7 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
     return elevations
 
 
-def grids_from_raster(raster_file, x_limits, y_limits, plot=False):
+def grids_from_raster(raster_file, x_limits, y_limits, plot=False, UTM=False):
     """
     Reads the specified raster file and queries it on the specified grid.
     The raster values at the queried points are returned in a list of lists.
@@ -348,7 +349,6 @@ def grids_from_raster(raster_file, x_limits, y_limits, plot=False):
         raster_file: string defining path to raster file
         x_limits: list of 2 floats: x_minimum, x_maximum
         y_limits: list of 2 floats: y_minimum, y_maximum
-        xy_grid_nodes: list of 2 ints: x_nodes, y_nodes
 
     Returns:
         longitude_grid: list of lists of floats
@@ -359,29 +359,38 @@ def grids_from_raster(raster_file, x_limits, y_limits, plot=False):
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
         x_limits = [-120.480, -120.462]
         y_limits = [46.519, 46.538]
-        xy_grid_nodes = [100, 100]
 
         # query raster at specified coordinates
-        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits, xy_grid_nodes)
+        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits)
     """
     # set dataset resolution
     if raster_file == '/Users/human/Dropbox/Programs/lidar' \
                       '/yakima_basin_2018_dtm_43.tif':
-        # spatial resolution at which data was sampled
-        DATASET_RESOLUTION = (3, 'ft')
+        if not UTM:
+            # spatial resolution at which data was sampled
+            DATASET_RESOLUTION = (3, 'ft')
+        else:
+            DATASET_RESOLUTION = (1, 'm')
         # a threshold value below which is assigned to np.nan
         NAN_THRESHOLD = 0
 
-    # get x and y distance in meters
-    x_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
-                                     (y_limits[0], x_limits[1])).ft
-    y_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
-                                     (y_limits[1], x_limits[0])).ft
+    if UTM:
+        # get x and y distance in meters
+        x_dist = (x_limits[1] - x_limits[0]) * 1000
+        y_dist = (y_limits[1] - y_limits[0]) * 1000
+
+    # else lat/lon
+    else:
+        # get x and y distance in feet
+        x_dist = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                         (y_limits[0], x_limits[1])).ft
+        y_dist = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                         (y_limits[1], x_limits[0])).ft
     # x and y steps for loops
-    num_x_steps = int(x_dist_ft / DATASET_RESOLUTION[0])
-    num_y_steps = int(y_dist_ft / DATASET_RESOLUTION[0])
-    x_step = (x_limits[1] - x_limits[0]) / num_x_steps
-    y_step = (y_limits[1] - y_limits[0]) / num_y_steps
+    num_x_steps = int(x_dist / DATASET_RESOLUTION[0])
+    num_y_steps = int(y_dist / DATASET_RESOLUTION[0])
+    x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
+    y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
 
     # initialize grid lists
     longitude_grid = []
@@ -398,9 +407,23 @@ def grids_from_raster(raster_file, x_limits, y_limits, plot=False):
             longitude = x_limits[0] + (column * x_step)
             row_latitudes.append(latitude)
             row_longitudes.append(longitude)
+
         # get elevations for entire row
-        row_elevations = elevations_from_raster(raster_file, row_longitudes,
-                                                row_latitudes)
+        if UTM:
+            lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
+                                     np.asarray(row_latitudes) * 1000, 10, 'N')
+
+            # convert eastings and northings to lat/lon
+            row_lons = [lon for lon in lats_lons[1]]
+            row_lats = [lat for lat in lats_lons[0]]
+            row_elevations = elevations_from_raster(raster_file,
+                                                    row_lons,
+                                                    row_lats)
+
+        else:
+            row_elevations = elevations_from_raster(raster_file,
+                                                    row_longitudes,
+                                                    row_latitudes)
         longitude_grid.append(row_longitudes)
         latitude_grid.append(row_latitudes)
         elevation_grid.append(row_elevations)
