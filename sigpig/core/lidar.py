@@ -360,7 +360,7 @@ def grids_from_raster(raster_file, x_limits, y_limits, plot=False, UTM=False):
         x_limits = [-120.480, -120.462]
         y_limits = [46.519, 46.538]
 
-        # query raster at specified coordinates
+        # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, y_limits)
     """
     # set dataset resolution
