@@ -1,7 +1,10 @@
 """
-Functions to interface with the Stingray ray tracing application.
-Stingray docs: https://pages.uoregon.edu/drt/Stingray/pages/26-48.html
+Functions to interface with the Stingray ray tracing application. Also
+contains functions to interface with NonLinLoc as part of the Stingray
+workflow.
 
+Stingray docs: https://pages.uoregon.edu/drt/Stingray/pages/26-48.html
+NonLinLoc docs:
 """
 from obspy import read, UTCDateTime, Inventory
 import pandas as pd
@@ -321,9 +324,9 @@ def elevation_map_from_arrays(project_name, UTM=False):
             x_step = (x_limits[1] - x_limits[0]) / num_x_steps
             y_step = (y_limits[1] - y_limits[0]) / num_y_steps
 
-        # query raster at specified coordinates
+        # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, plot=False,
+                                raster_file, x_limits, y_limits, plot=True,
                                 UTM=True)
 
         # define header
