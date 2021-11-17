@@ -93,6 +93,19 @@ latitudes = [46.538, 46.519]
 elevations = elevations_from_raster(raster_file, longitudes, latitudes)
 ```
 
+Query raster on a grid    
+```
+raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+# define limits of grid
+x_limits = [694.15, 694.45]
+y_limits = [5155.40, 5155.90]
+
+# query raster on a grid
+longitude_grid, latitude_grid, elevation_grid = grids_from_raster(raster_file, x_limits, 
+				                                  y_limits, plot=False,
+                                                                  UTM=True)
+```
+
 ### sigpig.core.lfe_finder detects LFEs using matched-filtering:  
 Process arrival time picks from a Snuffler marker file into detections
 #FIXME: add single call function for detection
