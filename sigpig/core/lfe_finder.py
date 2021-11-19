@@ -2473,7 +2473,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s.pkl', 'rb')
 
         # abs 0.25 = 1218 detections, 16 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
         # abs 0.25 = 1218 detections, 8 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.25_8s.pkl', 'rb')
 
@@ -2519,12 +2519,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_mcr1.pkl','rb')
 
         # abs 0.29 = 15 detections, 10.5 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3_10.5.pkl',
-                      'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3_10.5.pkl',
+        #               'rb')
 
         # abs 0.29 = 212 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3_7.0.pkl',
-                      'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t3_7.0.pkl',
+        #               'rb')
 
         #########################  TEMPLATE 4 MCR1  ###########################
         ###################### 2016  9 27  6 31 15.00 #########################
