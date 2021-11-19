@@ -1187,7 +1187,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.29, daylong=True,
+            party = tribe.detect(stream=st, threshold=0.27, daylong=True,
                                  threshold_type="abs", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
@@ -2450,7 +2450,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 50
+    n = 272
 
     load_stack = False
     load_stack_detects = False
@@ -2534,6 +2534,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t4_7.0.pkl',
                       'rb')
 
+        # abs 0.27 =  detections, 7.0 seconds
+        infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s_t4_7.0.pkl',
+                      'rb')
+
+        # abs 0.25 = 8384 detections, 7.0 seconds
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_t4_7.0.pkl',
+                      'rb')
+
         party = pickle.load(infile)
         infile.close()
     else:
@@ -2591,7 +2599,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream,
+        plot_stack(detection_stream[:57],
                    title="t4_7.0_abs0.29_top_50_correlation_sum_detections",
                    save=True)
 
