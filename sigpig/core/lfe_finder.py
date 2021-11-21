@@ -1187,8 +1187,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=0.27, daylong=True,
-                                 threshold_type="abs", trig_int=8.0,
+            party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+                                 threshold_type="MAD", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
@@ -2236,7 +2236,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
-                   f'{end_date.year}_MAD8_16s_stackDetects.pkl'
+                   f'{end_date.year}_MAD8_7s_stackDetects.pkl'
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
@@ -2534,12 +2534,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t4_7.0.pkl',
                       'rb')
 
-        # abs 0.27 =  detections, 7.0 seconds
+        # abs 0.27 = 1609 detections, 7.0 seconds
         infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s_t4_7.0.pkl',
                       'rb')
 
         # abs 0.25 = 8384 detections, 7.0 seconds
         infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_t4_7.0.pkl',
+                      'rb')
+
+        # MAD 8.0 =  detections, 7.0 seconds
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s_t4_7.0.pkl',
                       'rb')
 
         party = pickle.load(infile)
@@ -2549,9 +2553,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                template_length, template_prepick,
                                detection_files_path, start_date, end_date)
 
-    data = []
+    # plot snrs
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
+    plot_distribution(snrs, title="SNR distribution t4 abs=0.27", save=True)
+
+    data = []
     for index, detection in enumerate(party.families[0].detections):
         data.append([index, detection.detect_time, detection.detect_val,
                      detection.threshold, detection.threshold_type,
@@ -2599,8 +2606,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream[:57],
-                   title="t4_7.0_abs0.29_top_50_correlation_sum_detections",
+        plot_stack(detection_stream[:100],
+                   title="t4_7.0_abs0.27_top_50_correlation_sum_detections",
                    save=True)
 
     # cull the party detections below the specified signal to noise ratio
@@ -2638,15 +2645,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                main_trace,
                                                align_type=shift_method)
         # save stacks as pickle file
-        # abs 0.25: h m to stack
-        # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
-        #                f'{shift_method}Shift_abs.24_16s.pkl', 'wb')
+        # abs 0.29: h m to stack
+        outfile = open(f'inner_stack_t4_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.27_7s.pkl', 'wb')
 
         # MAD 8: 6h 35m to stack
         # outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
         #                f'{shift_method}Shift_abs0.23_16s.pkl', 'wb')
-        # pickle.dump(stack_list, outfile)
-        # outfile.close()
+
+        pickle.dump(stack_list, outfile)
+        outfile.close()
 
     # plot stacks
     stack_pw, stack_lin = stack_list
@@ -2659,7 +2667,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
                                        f'{snr_threshold}_{shift_method}'
-                                       f'Shift_abs.25_16s', save=True)
+                                       f'Shift_abs.27_7s', save=True)
 
         if len(stack_lin) > 0:
             # plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
@@ -2668,7 +2676,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_stack(stack_lin, title=f'top_{n}_linear_stack_sn'
                                         f'r{snr_threshold}_'
-                                        f'{shift_method}Shift_abs.25_16s',
+                                        f'{shift_method}Shift_abs.27_7s',
                        save=True)
 
             # now plot template with the linear stack from same station for
@@ -2683,7 +2691,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                     detection_files_path, save=True,
                                     title=f'top_{n}_stacks_templates_sn'
                                           f'r{snr_threshold}_'
-                                          f'{shift_method}Shift_abs.25_16s')
+                                          f'{shift_method}Shift_abs.27_7s')
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
@@ -2739,8 +2747,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method)
         # save stacks as pickle file
         # abs 0.25: h m to stack
-        outfile = open(f'inner_stack_2_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s.pkl', 'wb')
+        outfile = open(f'inner_stack_t4_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.29_7s.pkl', 'wb')
         # MAD 8: 6h 35m to stack
         # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
         #                f'{shift_method}Shift_MAD8_16s.pkl', 'wb')
@@ -2751,13 +2759,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     stack_pw, stack_lin = stack_list
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'phase_weighted_stack_2_snr'
+            plot_stack(stack_pw, title=f'phase_weighted_stack_t4_snr'
                        f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.25_16s', save=False)
+                       f'Shift_abs.29_7s', save=True)
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'linear_stack_2_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.25_16s',
-                       save=False)
+            plot_stack(stack_lin, title=f'linear_stack_t4_snr{snr_threshold}_'
+                       f'{shift_method}Shift_abs.29_7s',
+                       save=True)
 
 
     # TODO: what should the ultimate return be?
