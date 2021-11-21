@@ -693,11 +693,15 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
 
 
 def plot_template_and_stack(party, stack_lin, stack_pw,
-                            detection_files_path, save=False, title=False):
+                            detection_files_path, template, save=False,
+                            title=False):
     """Plots all templates in a party, with waveform files stored in the
     specified path, and the corresponding linear and phase weighted stacks."""
     family = sorted(party.families, key=lambda f: len(f))[-1]
+
+    # get template stream
     family_stream = family.template.st
+
     template_stack = Stream()
     stack_len = stack_lin[0].stats.endtime - stack_lin[
         0].stats.starttime
@@ -722,11 +726,20 @@ def plot_template_and_stack(party, stack_lin, stack_pw,
             template_trace = read(file)
             template_trace.filter('bandpass', freqmin=1, freqmax=15)
             # trim trace to time surrounding pick time
-            template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
-            # template_start = UTCDateTime("2016-09-27T07:37:32.0Z")
+            if template == 1:
+                template_start = UTCDateTime("2016-09-26T09:28:21.5Z")
+            elif template == 2:
+                template_start = UTCDateTime("2016-09-27T07:37:32.0Z")
+            elif template == 4:
+                template_start = UTCDateTime("2016-09-27T06:30:55.5Z")
+
+            # make sure sampling is 40 Hz
+            template_trace.interpolate(sampling_rate=40.0)
+
             template_trace.trim(template_start, template_start +
                                 stack_len, pad=True, fill_value=0,
                                 nearest_sample=True)
+
             # go from stream to trace
             template_trace = template_trace[0]
 
