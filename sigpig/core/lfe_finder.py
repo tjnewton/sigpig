@@ -2535,15 +2535,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.29_7s_t4.pkl',
         #               'rb')
 
+        # MAD 9.0 = 306 detections, 7.0 seconds, BHN only
+        # infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
+        #               'rb')
+
+        # MAD 8.5 =  detections, 7.0 seconds, BHN only
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
+                      'rb')
+
         # MAD 8.0 = 480 detections, 7.0 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4.pkl',
         #               'rb')
 
-        # MAD 9.0 =  detections, 7.0 seconds, BHN
-        infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
-                      'rb')
-
-        # MAD 8.0 = 3467 detections, 7.0 seconds, BHN
+        # MAD 8.0 = 3467 detections, 7.0 seconds, BHN only
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
         #               'rb')
 
@@ -2616,7 +2620,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title="t4_7.0_abs0.27_top_50_correlation_sum_detections",
+                   title="t4_7.0_MAD9_top_50_correlation_sum_detections",
                    save=True)
 
     # cull the party detections below the specified signal to noise ratio
