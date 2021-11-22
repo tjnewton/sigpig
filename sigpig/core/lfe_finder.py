@@ -2679,7 +2679,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
                                        f'{snr_threshold}_{shift_method}'
-                                       f'Shift_MAD9_7s', save=True)
+                                       f'Shift_MAD8.5_7s', save=True)
 
         if len(stack_lin) > 0:
             # plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
@@ -2688,7 +2688,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_stack(stack_lin, title=f'top_{n}_linear_stack_sn'
                                         f'r{snr_threshold}_'
-                                        f'{shift_method}Shift_MAD9_7s',
+                                        f'{shift_method}Shift_MAD8.5_7s',
                        save=True)
 
             # now plot template with the linear stack from same station for
