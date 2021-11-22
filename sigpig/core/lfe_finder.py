@@ -2531,19 +2531,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #######################################################################
 
         # abs 0.29 = 272 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.29_16s_t4_7.0.pkl',
+        infile = open('party_06_15_2016_to_08_12_2018_abs.29_7s_t4.pkl',
+                      'rb')
+
+        # MAD 8.0 = 480 detections, 7.0 seconds
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4.pkl',
                       'rb')
 
         # abs 0.27 = 1609 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s_t4_7.0.pkl',
+        infile = open('party_06_15_2016_to_08_12_2018_abs.27_7s_t4.pkl',
                       'rb')
 
         # abs 0.25 = 8384 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s_t4_7.0.pkl',
-                      'rb')
-
-        # MAD 8.0 =  detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s_t4_7.0.pkl',
+        infile = open('party_06_15_2016_to_08_12_2018_abs.25_7s_t4.pkl',
                       'rb')
 
         party = pickle.load(infile)
@@ -2556,7 +2556,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot snrs
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
-    plot_distribution(snrs, title="SNR distribution t4 abs=0.27", save=True)
+    plot_distribution(snrs, title="SNR distribution t4 MAD=8", save=True)
 
     data = []
     for index, detection in enumerate(party.families[0].detections):
