@@ -1187,7 +1187,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=9.0, daylong=True,
+            party = tribe.detect(stream=st, threshold=8.5, daylong=True,
                                  threshold_type="MAD", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
@@ -2394,7 +2394,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # 181 = 6.06 ->
         # 195 = 3.77 -> 2016-09-27T07:37:49.0Z
         # snr > 8 = not LFEs #TODO: max snr filter
-        # FIXME: started at 9:35
 
         # and define a station dict to add data needed by EQcorrscan
         # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
@@ -2451,7 +2450,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 272
+    n = 0
 
     load_stack = False
     load_stack_detects = False
@@ -2569,7 +2568,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot snrs
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
-    plot_distribution(snrs, title="SNR distribution t4 MAD=9 BHN", save=True)
+    plot_distribution(snrs, title="SNR distribution t4 MAD=8.5 BHN", save=True)
 
     data = []
     for index, detection in enumerate(party.families[0].detections):
@@ -2660,7 +2659,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # save stacks as pickle file
         # abs 0.29: h m to stack
         outfile = open(f'inner_stack_t4_snr{snr_threshold}_'
-                       f'{shift_method}Shift_MAD9.0_7s.pkl', 'wb')
+                       f'{shift_method}Shift_MAD8.5_7s.pkl', 'wb')
 
         # MAD 8: 6h 35m to stack
         # outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
