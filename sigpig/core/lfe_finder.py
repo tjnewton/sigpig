@@ -963,16 +963,16 @@ def make_Templates(templates, template_files, station_dict, template_length,
                     station_dict[pick.waveform_id.station_code]["network"]
                 picks[index].waveform_id.channel_code = \
                     station_dict[pick.waveform_id.station_code]["channel"]
-                # copy Z entry
-                pick_copy1 = picks[index].copy()
-                pick_copy2 = picks[index].copy()
-                # make N and E entries
-                pick_copy1.waveform_id.channel_code = \
-                    pick_copy1.waveform_id.channel_code[:-1] + 'N'
-                picks.append(pick_copy1)
-                pick_copy2.waveform_id.channel_code = \
-                    pick_copy2.waveform_id.channel_code[:-1] + 'E'
-                picks.append(pick_copy2)
+                # # copy Z entry
+                # pick_copy1 = picks[index].copy()
+                # pick_copy2 = picks[index].copy()
+                # # make N and E entries
+                # pick_copy1.waveform_id.channel_code = \
+                #     pick_copy1.waveform_id.channel_code[:-1] + 'N'
+                # picks.append(pick_copy1)
+                # pick_copy2.waveform_id.channel_code = \
+                #     pick_copy2.waveform_id.channel_code[:-1] + 'E'
+                # picks.append(pick_copy2)
 
         event.picks = picks
 
@@ -1316,7 +1316,7 @@ def cull_detections(party, detection_files_path, snr_threshold):
         doi = detection.detect_time
 
         # find all files for specified day
-        day_file_list = sorted(glob.glob(f"{detection_files_path}/TA.N25K.BHZ"
+        day_file_list = sorted(glob.glob(f"{detection_files_path}/YG.MCR1.BHN"
                                          f".{doi.year}-{doi.month:02}"
                                          f"-{doi.day:02}.ms"))
 
@@ -1449,9 +1449,9 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
             #         pick.waveform_id.channel_code == "SHZ":
             #     pick_times.append(pick.time)
             # FIXME: this should be dynamic, not hard coded
-            if pick.waveform_id.station_code == "WAT7" and \
-                    pick.waveform_id.network_code == "AK" and \
-                    pick.waveform_id.channel_code == "BHE":
+            if pick.waveform_id.station_code == "MCR1" and \
+                    pick.waveform_id.network_code == "YG" and \
+                    pick.waveform_id.channel_code == "BHN":
                 pick_times.append(pick.time)
 
     # loop over stations and generate a stack for each station:channel pair
@@ -1461,8 +1461,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"]) # append Z component
-        channels.append(f"{channels[0][:-1]}N") # append N component
-        channels.append(f"{channels[0][:-1]}E")  # append E component
+        # channels.append(f"{channels[0][:-1]}N") # append N component
+        # channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
             print(f"Assembling streams for {station}.{channel}")
@@ -1963,7 +1963,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         file_station = filename.split(".")[1]
         if file_station not in station_dict:
             file_network = filename.split(".")[0]
-            file_channel = filename.split(".")[2][:-1] + "Z" # force z component
+            file_channel = filename.split(".")[2][:-1] + "N" # force N
+            # component
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
@@ -1987,8 +1988,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
         network = station_dict[station]["network"]
         channels = []
         channels.append(station_dict[station]["channel"])  # append Z component
-        channels.append(f"{channels[0][:-1]}N")  # append N component
-        channels.append(f"{channels[0][:-1]}E")  # append E component
+        # channels.append(f"{channels[0][:-1]}N")  # append N component
+        # channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
             print(f"Assembling streams for {station}.{channel} ["
@@ -2397,7 +2398,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # and define a station dict to add data needed by EQcorrscan
         # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
-        station_dict = {"MCR1": {"network": "YG", "channel": "BHZ"}}
+        station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
 
         # define template length and prepick length (both in seconds)
         # template_length = 16.0
@@ -2531,20 +2532,24 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #######################################################################
 
         # abs 0.29 = 272 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.29_7s_t4.pkl',
-                      'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.29_7s_t4.pkl',
+        #               'rb')
 
         # MAD 8.0 = 480 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4.pkl',
+        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4.pkl',
+        #               'rb')
+
+        # MAD 8.0 = 3467 detections, 7.0 seconds, BHN
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
                       'rb')
 
         # abs 0.27 = 1609 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.27_7s_t4.pkl',
-                      'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.27_7s_t4.pkl',
+        #               'rb')
 
         # abs 0.25 = 8384 detections, 7.0 seconds
-        infile = open('party_06_15_2016_to_08_12_2018_abs.25_7s_t4.pkl',
-                      'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_7s_t4.pkl',
+        #               'rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2556,7 +2561,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot snrs
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
-    plot_distribution(snrs, title="SNR distribution t4 MAD=8", save=True)
+    plot_distribution(snrs, title="SNR distribution t4 MAD=8 BHN", save=True)
 
     data = []
     for index, detection in enumerate(party.families[0].detections):
@@ -2647,7 +2652,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # save stacks as pickle file
         # abs 0.29: h m to stack
         outfile = open(f'inner_stack_t4_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.27_7s.pkl', 'wb')
+                       f'{shift_method}Shift_MAD8.0_7s.pkl', 'wb')
 
         # MAD 8: 6h 35m to stack
         # outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
@@ -2667,7 +2672,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
                                        f'{snr_threshold}_{shift_method}'
-                                       f'Shift_abs.27_7s', save=True)
+                                       f'Shift_MAD8_7s', save=True)
 
         if len(stack_lin) > 0:
             # plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
@@ -2676,7 +2681,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_stack(stack_lin, title=f'top_{n}_linear_stack_sn'
                                         f'r{snr_threshold}_'
-                                        f'{shift_method}Shift_abs.27_7s',
+                                        f'{shift_method}Shift_MAD8_7s',
                        save=True)
 
             # now plot template with the linear stack from same station for
