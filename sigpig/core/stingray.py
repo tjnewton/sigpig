@@ -89,7 +89,6 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         if srStation:
             # -------------------------------------------------------------------
             # generates srStation mat file containing station locations
-            # relative to specified "center" (actually lower left corner here)
             if UTM_COOR:
                 dfdict = {'name': [], 'northing': [], 'easting': [],
                           'elevation': []}
