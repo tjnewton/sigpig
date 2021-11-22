@@ -2656,7 +2656,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # save stacks as pickle file
         # abs 0.29: h m to stack
         outfile = open(f'inner_stack_t4_snr{snr_threshold}_'
-                       f'{shift_method}Shift_MAD8.0_7s.pkl', 'wb')
+                       f'{shift_method}Shift_MAD9.0_7s.pkl', 'wb')
 
         # MAD 8: 6h 35m to stack
         # outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
