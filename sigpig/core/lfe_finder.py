@@ -2450,7 +2450,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 0
+    n = 1000
 
     load_stack = False
     load_stack_detects = False
@@ -2572,7 +2572,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     data = []
     for index, detection in enumerate(party.families[0].detections):
-        data.append([index, detection.detect_time, detection.detect_val,
+        data.append([index, detection.detect_time, abs(detection.detect_val),
                      detection.threshold, detection.threshold_type,
                      detection.threshold_input, detection.template_name,
                      snrs[index]])
@@ -2584,7 +2584,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if save_detections:
         # save party detections as text file
-        df.to_csv('MCR1_abs.25_detections.csv', index=False)
+        df.to_csv('MCR1_MAD8.5_detections.csv', index=False)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2619,7 +2619,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title="t4_7.0_MAD9_top_50_correlation_sum_detections",
+                   title="t4_7.0_MAD8.5_top_100_correlation_sum_detections",
                    save=True)
 
     # cull the party detections below the specified signal to noise ratio
