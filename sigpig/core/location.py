@@ -364,6 +364,7 @@ def picks_to_nonlinloc(marker_file_path):
     with open("nll_picks.obs", "w") as write_file:
         with open(marker_file_path, 'r') as file:
             for index, line_Contents in enumerate(file):
+                # process contents of line
                 if len(line_Contents) > 52:  # avoid irrelevant short lines
 
                     # location picks file contains lines of uncertainties and
@@ -398,12 +399,9 @@ def picks_to_nonlinloc(marker_file_path):
                                f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e} ? ? ? ?\n"
                         write_file.write(line)
 
-                    # # extract pick times from short lines
-                    # if (line_Contents[0:5] == 'phase') and (line_Contents[
-                    #     -19:-18] == 'P') and (line_Contents[33:35] == ' 0'):
-                    #
-                    #     pick_station = line_Contents[36:49].split('.')[1]
-                    #     pick_channel = line_Contents[36:49].strip().split(".")[3]
-                    #     pick_time = UTCDateTime(line_Contents[81:108])
+                # # add blank lines between events # FIXME:
+                # elif (line_Contents[0:5] == 'event') and (index != 1):
+                #     line = "\n"
+                #     write_file.write(line)
 
     return None
