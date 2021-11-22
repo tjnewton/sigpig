@@ -1187,7 +1187,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=8.0, daylong=True,
+            party = tribe.detect(stream=st, threshold=9.0, daylong=True,
                                  threshold_type="MAD", trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
@@ -2539,9 +2539,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4.pkl',
         #               'rb')
 
-        # MAD 8.0 = 3467 detections, 7.0 seconds, BHN
-        infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
+        # MAD 9.0 =  detections, 7.0 seconds, BHN
+        infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
                       'rb')
+
+        # MAD 8.0 = 3467 detections, 7.0 seconds, BHN
+        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
+        #               'rb')
 
         # abs 0.27 = 1609 detections, 7.0 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.27_7s_t4.pkl',
@@ -2561,7 +2565,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot snrs
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
-    plot_distribution(snrs, title="SNR distribution t4 MAD=8 BHN", save=True)
+    plot_distribution(snrs, title="SNR distribution t4 MAD=9 BHN", save=True)
 
     data = []
     for index, detection in enumerate(party.families[0].detections):
