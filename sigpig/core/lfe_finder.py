@@ -2538,7 +2538,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
         #               'rb')
 
-        # MAD 8.5 =  detections, 7.0 seconds, BHN only
+        # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
         infile = open('party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
                       'rb')
 
