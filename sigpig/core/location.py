@@ -396,7 +396,7 @@ def picks_to_nonlinloc(marker_file_path):
                                f"{pick_time.day:02} {pick_time.hour:02}" \
                                f"{pick_time.minute:02} " \
                                f"{pick_time.second:02}." \
-                               f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e} ? ? ? ?\n"
+                               f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  0.00e+00  0.00e+00    1.0000\n"
                         write_file.write(line)
 
                 # # add blank lines between events # FIXME:
