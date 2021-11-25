@@ -1810,8 +1810,11 @@ def stack_template_detections(party, streams_path, main_trace,
             reference_idx = np.nanargmin(np.abs(snrs - median_snr))
         elif reference_signal == "self":
             # find index that corresponds with template event time
-            something with template_time
-            reference_idx = reference_signal
+            for tr_idx, trace in enumerate(stream):
+                if trace.stats.starttime < template_times[0] and \
+                        trace.stats.endtime > template_times[1]:
+                    reference_idx = tr_idx
+                    break
 
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
