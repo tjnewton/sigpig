@@ -1808,11 +1808,17 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             # find index of SNR closest to median
             reference_idx = np.nanargmin(np.abs(snrs - median_snr))
         elif reference_signal == "self":
+            # find index that corresponds with template event time
             reference_idx = reference_signal
 
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
 
+        # FIXME: this max amplitude thing needs to go & be smarter
+        # FIXME:
+        # FIXME:
+        # FIXME:
+        # FIXME:
         # guard against empty trace
         if len(trace) > 0:
             # get the time associated with the target signal
