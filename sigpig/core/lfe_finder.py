@@ -1339,7 +1339,7 @@ def cull_detections(party, detection_files_path, snr_threshold):
 
         trace_snr = snr(trace)[0]
         # check the snr
-        if trace_snr < snr_threshold:
+        if trace_snr < snr_threshold[0] or trace_snr > snr_threshold[1]:
             deletion_indices.append(index)
             old_snrs.append(trace_snr)
         else:
