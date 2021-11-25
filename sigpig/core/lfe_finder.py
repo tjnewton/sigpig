@@ -2626,17 +2626,24 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
-        culled_party = cull_detections(party, detection_files_path, snr_threshold)
+        culled_party = cull_detections(party, detection_files_path,
+                                       snr_threshold)
         if plot:
             # inspect the culled party growth over time
             detections_fig = culled_party.plot(plot_grouped=True)
             rate_fig = culled_party.plot(plot_grouped=True, rate=True)
             print(sorted(culled_party.families, key=lambda f: len(f))[-1])
+
         print(f"Culled detections comprise "
               f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
               f"detections ({len(culled_party)}/{len(party)}).")
         # allow old party to get trash collected from memory
         party = culled_party
+
+        if plot:
+            detection_stream = get_detections(party, detection_files_path,
+                                              main_trace)
+            plot_stack(detection_stream[:100], title="t4_7.0_MAD8.5_top_100_culled_correlation_sum_detections", save=True)
 
     # generate stack and time it
     start = time.time()
