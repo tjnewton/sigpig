@@ -1819,28 +1819,11 @@ def stack_template_detections(party, streams_path, main_trace,
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
 
-        # FIXME: this max amplitude thing needs to go & be smarter
-        # FIXME:
-        # FIXME:
-        # FIXME:
-        # FIXME:
         # guard against empty trace
         if len(trace) > 0:
-            # get the time associated with the target signal
-            max_amplitude_value, max_amplitude_index = max_amplitude(trace)
-            # print(f"Finding xcorr time shifts for {stream[0].stats.station}."
-            #       f"{stream[0].stats.channel}")
-            max_amplitude_offset = max_amplitude_index / \
-                                   trace.stats.sampling_rate
-            # trim the reference trace to + and - 1.5 seconds
-            # surrounding max amplitude signal
-            reference_start_time = trace.stats.starttime + \
-                                   max_amplitude_offset -(3*ref_trace_length/5)
-            reference_trace = trace.copy().trim(reference_start_time,
-                                                reference_start_time +
-                                                ref_trace_length)
-            # note that the reference trace duration defined above via trim is
-            #  an arbitrary design choice that affects the results
+            # trim the reference trace to the template length
+            reference_trace = trace.copy().trim(template_times[0],
+                                                template_times[1])
 
             # print a warning if SNR is bad
             if ref_snr == 0:
