@@ -2448,11 +2448,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'med'
-    load_party = False
+    load_party = True
     save_detections = False
 
     top_n = True
-    n = 100
+    n = 1127
 
     load_stack = False
     load_stack_detects = False
@@ -2567,7 +2567,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                template_length, template_prepick,
                                detection_files_path, start_date, end_date)
 
-    # plot snrs
+    # calculate and plot snrs of detections
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
     # plot_distribution(snrs, title="SNR distribution t4 MAD=8.5 BHN", save=True)
