@@ -22,7 +22,8 @@
 # echo
 
 echo "Visualize the model grid"
-Grid2GMT run/RR_nlloc.in model/RR.P.mod gmt/ V G 1 0 1 401
+Grid2GMT run/RR_nlloc.in model/RR.P.mod gmt/ V G 1 10 20 10
+# gmt script needs to be edited before running
 ${PS_VIEWER} gmt/RR.P.mod.VG.ps &
 echo
 
