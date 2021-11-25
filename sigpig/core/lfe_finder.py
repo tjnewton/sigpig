@@ -1607,6 +1607,9 @@ def stack_template_detections(party, streams_path, main_trace,
     independent of EQcorrscan routines, allowing more customization of the
     workflow.
 
+    'self' xcorr shift uses definered template on each station to determine
+    shifts.
+
     Example:
         # time the run
         start = time.time()
@@ -1964,10 +1967,6 @@ def stack_template_detections(party, streams_path, main_trace,
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
-    # FIXME: this shouldn't be hard coded!
-    # FIXME:
-    # FIXME:
-    # FIXME:
     if align_type == 'fixed':
         # get the main trace detections in a stream
         print(f"Assembling main stream {pick_network}.{pick_station}"
@@ -1976,9 +1975,8 @@ def stack_template_detections(party, streams_path, main_trace,
                                                           streams_path,
                                                           pick_times)
         # get the fixed location time shifts from the main trace
-        # FIXME: reference signal index is hard coded to template event
-        shifts, indices, main_time = xcorr_time_shifts(main_stream,
-                                                       reference_signal=177)
+        shifts, indices, main_time = xcorr_time_shifts(main_stream, 'self',
+                                                       template_times)
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -2052,8 +2050,9 @@ def stack_template_detections(party, streams_path, main_trace,
                             align_type == 'self':
                         # get xcorr time shift from reference signal
                         shifts, indices, main_time = xcorr_time_shifts(
-                                               sta_chan_stream,
-                                               reference_signal=align_type)
+                                                               sta_chan_stream,
+                                                               align_type,
+                                                               template_times)
 
                         # align stream traces from time shifts
                         align_stream(sta_chan_stream, shifts, indices,
