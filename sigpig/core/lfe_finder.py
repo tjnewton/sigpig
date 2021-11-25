@@ -1989,7 +1989,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
     for station_idx, station in enumerate(stations):
         network = station_dict[station]["network"]
         channels = []
-        channels.append(station_dict[station]["channel"])  # append Z component
+        channels.append(station_dict[station]["channel"])  # append main component
         # channels.append(f"{channels[0][:-1]}N")  # append N component
         # channels.append(f"{channels[0][:-1]}E")  # append E component
 
@@ -2050,8 +2050,9 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
                     if align_type == 'zero':
                         # align the start time of each trace in stream
                         zero_shift_stream(sta_chan_stream)
-                    elif align_type == 'med' or align_type == 'max':
-                        # get xcorr time shift from median reference signal
+                    elif align_type == 'med' or align_type == 'max' or \
+                            align_type == 'self':
+                        # get xcorr time shift from reference signal
                         shifts, indices, main_time = xcorr_time_shifts(
                                                sta_chan_stream,
                                                reference_signal=align_type)
@@ -2447,7 +2448,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'med'
+    shift_method = 'self'
     load_party = True
     save_detections = False
 
