@@ -24,7 +24,7 @@
 echo "Visualize the model grid"
 Grid2GMT run/RR_nlloc.in model/RR.P.mod gmt/ V G 1 250 300 250
 # gmt script needs to be edited before running
-${PS_VIEWER} gmt/RR.P.mod.VG.ps &
+# ${PS_VIEWER} gmt/RR.P.mod.VG.ps &
 echo
 
 # echo "Generate and view the travel-time and take-off angle grids "
