@@ -1600,7 +1600,8 @@ def get_detections(party, streams_path, main_trace):
 
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
-def stack_template_detections(party, streams_path, main_trace, align_type):
+def stack_template_detections(party, streams_path, main_trace,
+                              template_times, align_type):
     """
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
@@ -1782,8 +1783,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
     # helper function to determine time offset of each time series in a
     # stream with respect to a main trace via cross correlation
-    def xcorr_time_shifts(stream, reference_signal, pick_times?, template_time,
-                          ref_trace_length=template_length):
+    def xcorr_time_shifts(stream, reference_signal, template_times):
         # TODO: rename "maxs" to targets
         shifts = []
         indices = []
@@ -1810,6 +1810,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             reference_idx = np.nanargmin(np.abs(snrs - median_snr))
         elif reference_signal == "self":
             # find index that corresponds with template event time
+            something with template_time
             reference_idx = reference_signal
 
         trace = stream[reference_idx]
@@ -2369,7 +2370,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              snr_threshold, main_trace, shift_method='med', load_party=False,
+              snr_threshold, main_trace, shift_method='self', load_party=False,
               cull=False, load_stack=False, load_stack_detects=False,
               load_second_stack=False, plot=False):
     """
@@ -2402,12 +2403,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #                      "2016-09-27T07:38:05.0Z"), pad=True,
         #                      fill_value=0, nearest_sample=True)
         # st.plot()
-        #
-        # indices of original sta_chan_stream times to try
-        # 175 = 6.29 ->
-        # 181 = 6.06 ->
-        # 195 = 3.77 -> 2016-09-27T07:37:49.0Z
-        # snr > 8 = not LFEs #TODO: max snr filter
 
         # and define a station dict to add data needed by EQcorrscan
         # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
@@ -2471,8 +2466,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_second_stack = False
     cull = True
     plot = False
-
-    # TODO: implement upper end SNR filter?
 
     # get main station template detections
     if load_party:
@@ -2673,9 +2666,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = pickle.load(infile)
         infile.close()
     else:
+        # get the template time
+        family = sorted(party.families, key=lambda f: len(f))[-1]
+        template_times = [family.template.st[0].stats.starttime,
+                          family.template.st[0].stats.endtime]
         # stack the culled party detections
+        # FIXME: add template_times functionality to stack_temp_detects belows
         stack_list = stack_template_detections(party, detection_files_path,
-                                               main_trace,
+                                               main_trace, template_times,
                                                align_type=shift_method)
         # save stacks as pickle file
         # abs 0.29: h m to stack
