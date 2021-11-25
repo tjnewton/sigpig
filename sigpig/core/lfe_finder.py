@@ -1882,14 +1882,13 @@ def stack_template_detections(party, streams_path, main_trace,
         else:
             shifts = None
             indices = None
-            max_amplitude_offset = None
 
-        return shifts, indices, max_amplitude_offset
+        return shifts, indices
 
     # helper function to align all traces in a stream based on xcorr shifts
     # from the main_trace for each pick time. Stream is altered in place and
     # each trace is trimmed to be ## seconds long.
-    def align_stream(stream, shifts, indices, main_time):
+    def align_stream(stream, shifts, indices):
         # first check if data are bad, if so zero shift instead
         if shifts == None:
             zero_shift_stream(stream)
@@ -1975,7 +1974,7 @@ def stack_template_detections(party, streams_path, main_trace,
                                                           streams_path,
                                                           pick_times)
         # get the fixed location time shifts from the main trace
-        shifts, indices, main_time = xcorr_time_shifts(main_stream, 'self',
+        shifts, indices = xcorr_time_shifts(main_stream, 'self',
                                                        template_times)
 
     # loop over stations and generate a stack for each station:channel pair
@@ -2049,18 +2048,15 @@ def stack_template_detections(party, streams_path, main_trace,
                     elif align_type == 'med' or align_type == 'max' or \
                             align_type == 'self':
                         # get xcorr time shift from reference signal
-                        shifts, indices, main_time = xcorr_time_shifts(
-                                                               sta_chan_stream,
-                                                               align_type,
-                                                               template_times)
+                        shifts, indices = xcorr_time_shifts(sta_chan_stream,
+                                                            align_type,
+                                                            template_times)
 
                         # align stream traces from time shifts
-                        align_stream(sta_chan_stream, shifts, indices,
-                                     main_time)
+                        align_stream(sta_chan_stream, shifts, indices)
                     else:
                         # align stream traces from fixed location time shifts
-                        align_stream(sta_chan_stream, shifts, indices,
-                                     main_time)
+                        align_stream(sta_chan_stream, shifts, indices)
 
                     # plot aligned stream to verify align function works
                     # plot_stream_absolute(sta_chan_stream[:100])
@@ -2443,8 +2439,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     save_detections = False
 
-    top_n = True
-    n = 100
+    top_n = False
+    n = 0
 
     load_stack = False
     load_stack_detects = False
@@ -2651,18 +2647,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = pickle.load(infile)
         infile.close()
     else:
-        # get the template time
+        # get the template start and end times
         family = sorted(party.families, key=lambda f: len(f))[-1]
         template_times = [family.template.st[0].stats.starttime,
                           family.template.st[0].stats.endtime]
         # stack the culled party detections
-        # FIXME: add template_times functionality to stack_temp_detects belows
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method)
         # save stacks as pickle file
         # abs 0.29: h m to stack
-        outfile = open(f'inner_stack_t4_snr{snr_threshold}_'
+        outfile = open(f'inner_stack_t4_snr{snr_threshold[0]}-'
+                       f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_MAD8.5_7s.pkl', 'wb')
 
         # MAD 8: 6h 35m to stack
@@ -2677,23 +2673,17 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         if len(stack_pw) > 0:
-            # plot_stack(stack_pw, title=f'phase_weighted_stack_snr'
-            #            f'{snr_threshold}_{shift_method}'
-            #            f'Shift_abs.24_16s', save=False)
-
             plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
-                                       f'{snr_threshold}_{shift_method}'
+                                       f'{snr_threshold[0]}-'
+                                       f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_MAD8.5_7s', save=True)
 
         if len(stack_lin) > 0:
-            # plot_stack(stack_lin, title=f'linear_stack_snr{snr_threshold}_'
-            #            f'{shift_method}Shift_abs.24_16s',
-            #            save=False)
-
             plot_stack(stack_lin, title=f'top_{n}_linear_stack_sn'
-                                        f'r{snr_threshold}_'
+                                        f'r{snr_threshold[0]}-'
+                                        f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_MAD8.5_7s',
-                       save=True)
+                                        save=True)
 
             # now plot template with the linear stack from same station for
             # comparison
