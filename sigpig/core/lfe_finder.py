@@ -1807,7 +1807,7 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             median_snr = np.nanmedian(snrs)
             # find index of SNR closest to median
             reference_idx = np.nanargmin(np.abs(snrs - median_snr))
-        else:
+        elif reference_signal == "self":
             reference_idx = reference_signal
 
         trace = stream[reference_idx]
@@ -1970,6 +1970,10 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
+    # FIXME: this shouldn't be hard coded!
+    # FIXME:
+    # FIXME:
+    # FIXME:
     if align_type == 'fixed':
         # get the main trace detections in a stream
         print(f"Assembling main stream {pick_network}.{pick_station}"
@@ -2436,7 +2440,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         party = find_LFEs(templates, template_files, station_dict,
                           template_length, template_prepick,
                           detection_files_path, start_date, end_date,
-                          snr_threshold, main_trace, shift_method='med',
+                          snr_threshold, main_trace, shift_method='self',
                           load_party=True, save_detections=False, cull=False,
                           load_stack=True, load_stack_detects=True,
                           load_second_stack=True, plot=True)
@@ -2453,13 +2457,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 1127
+    n = 100
 
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
     cull = True
-    plot = True
+    plot = False
 
     # TODO: implement upper end SNR filter?
 
