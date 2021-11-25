@@ -2591,7 +2591,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
         # get top n indices of detections with largest correlation sum
-        top_n_df = df.nlargest(n, 'correlation_sum')
+        top_n_df = df.nlargest(n, 'abs_correlation_sum')
         keeper_indices = top_n_df['index'].tolist()
 
         # build list of sorted detections to keep
