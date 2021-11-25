@@ -1281,13 +1281,14 @@ def detect_signals(templates, template_files, station_dict, template_length,
 def cull_detections(party, detection_files_path, snr_threshold):
     """
     Removes detections in a party object that are below a specified signal
-    to noise ration (snr_threshold). Also generates a histogram of the new
+    to noise ratio (snr_threshold[0]), and above a specified signal to noise
+    ratio (snr_threshold[1]). Also generates a histogram of the new
     and old SNR distributions.
 
     Args:
         party: EQcorrscan Party object
         detection_files_path: string containing path to waveforms
-        snr_threshold: float of signal to noise ration cut-off
+        snr_threshold: list of two floats of signal to noise ratio cut-offs
 
     Returns:
         new_party: EQcorrscan Party object containing only detections with
@@ -1303,7 +1304,7 @@ def cull_detections(party, detection_files_path, snr_threshold):
         detection_files_path = "/Users/human/ak_data/inner"
 
         # set snr threshold and cull the party detections
-        snr_threshold = 3.0
+        snr_threshold = [3.0, 8.0]
         culled_party = cull_detections(party, detection_files_path, snr_threshold)
 
     """
@@ -1332,7 +1333,8 @@ def cull_detections(party, detection_files_path, snr_threshold):
             # bandpass filter specified frequencies
             st.filter('bandpass', freqmin=1, freqmax=15)
 
-        st.trim(doi - 0.5, doi + 16)
+        # trim to 60 seconds total
+        st.trim(doi - 20, doi + 40)
         trace = st[0]  # get the trace
 
         trace_snr = snr(trace)[0]
@@ -2450,7 +2452,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 1000
+    n = 100
 
     load_stack = False
     load_stack_detects = False
@@ -2568,7 +2570,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot snrs
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
-    plot_distribution(snrs, title="SNR distribution t4 MAD=8.5 BHN", save=True)
+    # plot_distribution(snrs, title="SNR distribution t4 MAD=8.5 BHN", save=True)
 
     data = []
     for index, detection in enumerate(party.families[0].detections):
@@ -2577,7 +2579,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                      detection.threshold_input, detection.template_name,
                      snrs[index]])
 
-    df = pd.DataFrame(data, columns=['index', 'time', 'correlation_sum',
+    df = pd.DataFrame(data, columns=['index', 'time', 'abs_correlation_sum',
                                      'correlation_sum_threshold',
                                      'threshold_metric',
                                      'metric_input', 'template', 'snr'])
