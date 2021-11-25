@@ -13,7 +13,7 @@
 
 # alias ghostview="open -a Preview"    # MacOSX
 # PS_VIEWER=ghostview    # Linux, MacOSX
-# setGMT4    # make sure GMT4 and not GMT5 commands are on path
+setGMT4    # make sure GMT4 and not GMT5 commands are on path
 
 
 # echo
@@ -21,17 +21,17 @@
 # Vel2Grid run/RR_nlloc.in
 # echo
 
-echo "Visualize the model grid"
-Grid2GMT run/RR_nlloc.in model/RR.P.mod gmt/ V G 1 250 300 250
+# echo "Visualize the model grid"
+# Grid2GMT run/RR_nlloc.in model/RR.P.mod gmt/ V G 1 250 300 250
 # gmt script needs to be edited before running
 # ${PS_VIEWER} gmt/RR.P.mod.VG.ps &
-echo
+# echo
 
 # echo "Generate and view the travel-time and take-off angle grids "
 # Grid2Time run/RR_nlloc.in
 # echo
-# echo "Visualize P travel-time grid"
-# Grid2GMT run/RR_nlloc.in time/RR.P.32.time gmt/ V G 0 0 0 401
+echo "Visualize P travel-time grid"
+Grid2GMT run/RR_nlloc.in time/RR.P.32.time gmt/ V G 1 250 300 250
 # ${PS_VIEWER} gmt/RR.P.32.time.VG.ps &
 # echo
 
