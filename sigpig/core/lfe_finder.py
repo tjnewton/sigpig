@@ -1782,7 +1782,8 @@ def stack_template_detections(party, streams_path, main_trace, align_type):
 
     # helper function to determine time offset of each time series in a
     # stream with respect to a main trace via cross correlation
-    def xcorr_time_shifts(stream, reference_signal, ref_trace_length=16):
+    def xcorr_time_shifts(stream, reference_signal, pick_times?, template_time,
+                          ref_trace_length=template_length):
         # TODO: rename "maxs" to targets
         shifts = []
         indices = []
