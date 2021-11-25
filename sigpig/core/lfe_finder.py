@@ -2694,10 +2694,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             #                         f'{shift_method}Shift_abs.24_16s')
 
             plot_template_and_stack(party, stack_lin, stack_pw,
-                                    detection_files_path, save=True,
+                                    detection_files_path, 4, save=True,
                                     title=f'top_{n}_stacks_templates_sn'
-                                          f'r{snr_threshold}_'
-                                          f'{shift_method}Shift_MAD9_7s_BHN')
+                                          f'r{snr_threshold[0]}-'
+                                          f'{snr_threshold[1]}_'
+                                          f'{shift_method}Shift_MAD8.5_7s_BHN')
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
