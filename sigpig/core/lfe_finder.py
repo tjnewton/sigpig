@@ -2351,7 +2351,8 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              snr_threshold, main_trace, shift_method='self', load_party=False,
+              snr_threshold, main_trace, detect_thresh,
+              thresh_type, shift_method='self', load_party=False,
               cull=False, load_stack=False, load_stack_detects=False,
               load_second_stack=False, plot=False):
     """
@@ -2412,6 +2413,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
+        # set detection threshold and type
+        detect_thresh = 9.0
+        thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
         # main_trace = ("TA", "N25K", "BHN")
@@ -2423,7 +2427,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         party = find_LFEs(templates, template_files, station_dict,
                           template_length, template_prepick,
                           detection_files_path, start_date, end_date,
-                          snr_threshold, main_trace, shift_method='self',
+                          snr_threshold, main_trace,
+                          detect_thresh, thresh_type, shift_method='self',
                           load_party=True, save_detections=False, cull=False,
                           load_stack=True, load_stack_detects=True,
                           load_second_stack=True, plot=True)
@@ -2521,22 +2526,20 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # abs 0.29 = 272 detections, 7.0 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.29_7s_t4.pkl',
         #               'rb')
+        if thresh_type == "MAD":
 
-        # MAD 9.0 = 306 detections, 7.0 seconds, BHN only
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
-        #               'rb')
-
-        # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
-        infile = open('party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
-                      'rb')
-
-        # MAD 8.0 = 480 detections, 7.0 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4.pkl',
-        #               'rb')
-
-        # MAD 8.0 = 3467 detections, 7.0 seconds, BHN only
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
-        #               'rb')
+            if detect_thresh == 9.0:
+                # MAD 9.0 = 306 detections, 7.0 seconds, BHN only
+                infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
+                              'rb')
+            elif detect_thresh == 8.5:
+                # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
+                infile = open('party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
+                              'rb')
+            elif detect_thresh == 8.0:
+                # MAD 8.0 = 3467 detections, 7.0 seconds, BHN only
+                infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
+                              'rb')
 
         # abs 0.27 = 1609 detections, 7.0 seconds
         # infile = open('party_06_15_2016_to_08_12_2018_abs.27_7s_t4.pkl',
@@ -2556,7 +2559,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # calculate and plot snrs of detections
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
-    # plot_distribution(snrs, title="SNR distribution t4 MAD=8.5 BHN", save=True)
+    if plot:
+        plot_distribution(snrs, title=f"SNR distribution t4 {thresh_type}={detect_thresh} "
+                                      f"BHN", save=True)
 
     data = []
     for index, detection in enumerate(party.families[0].detections):
@@ -2572,7 +2577,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if save_detections:
         # save party detections as text file
-        df.to_csv('MCR1_MAD8.5_detections.csv', index=False)
+        df.to_csv(f'MCR1_{thresh_type}{detect_thresh}_detections.csv', index=False)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2607,8 +2612,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title="t4_7.0_MAD8.5_top_100_correlation_sum_detections",
-                   save=True)
+                   title=f"t4_7.0_{thresh_type}"
+                         f"{detect_thresh}_top_100_correlation_sum_detections", save=True)
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
@@ -2629,7 +2634,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if plot:
             detection_stream = get_detections(party, detection_files_path,
                                               main_trace)
-            plot_stack(detection_stream[:100], title="t4_7.0_MAD8.5_top_100_culled_correlation_sum_detections", save=True)
+            plot_stack(detection_stream[:100],
+                       title=f"t4_7.0_{thresh_type}"
+                             f"{detect_thresh}_top_100_culled_correlation_sum_detections", save=True)
 
     # generate stack and time it
     start = time.time()
@@ -2647,7 +2654,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # TEMPLATE 4
         infile = open(f'inner_stack_t4_snr{snr_threshold[0]}-'
                       f'{snr_threshold[1]}_'
-                      f'{shift_method}Shift_MAD8.5_7s.pkl', 'rb')
+                      f'{shift_method}Shift_{thresh_type}{detect_thresh}_7s.pkl', 'rb')
 
         stack_list = pickle.load(infile)
         infile.close()
@@ -2663,7 +2670,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # save stacks as pickle file
         outfile = open(f'inner_stack_t4_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
-                       f'{shift_method}Shift_MAD8.5_7s.pkl', 'wb')
+                       f'{shift_method}Shift_{thresh_type}{detect_thresh}_7s.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -2676,14 +2683,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
-                                       f'Shift_MAD8.5_7s', save=True)
+                                       f'Shift_{thresh_type}{detect_thresh}_7s',
+                       save=True)
 
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'top_{n}_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
-                                        f'{shift_method}Shift_MAD8.5_7s',
-                                        save=True)
+                                        f'{shift_method}Shift_{thresh_type}'
+                                        f'{detect_thresh}_7s', save=True)
 
             # now plot template with the linear stack from same station for
             # comparison
@@ -2698,7 +2706,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                     title=f'top_{n}_stacks_templates_sn'
                                           f'r{snr_threshold[0]}-'
                                           f'{snr_threshold[1]}_'
-                                          f'{shift_method}Shift_MAD8.5_7s_BHN')
+                                          f'{shift_method}Shift_'
+                                          f'{thresh_type}'
+                                          f'{detect_thresh}_7s_BHN')
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
