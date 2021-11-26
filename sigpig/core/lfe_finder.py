@@ -2637,13 +2637,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if load_stack:
         # load stack list from file
         # TEMPLATE 1
-        infile = open(f'inner_stack_0_snr{snr_threshold}_'
-                      f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
+        # infile = open(f'inner_stack_0_snr{snr_threshold}_'
+        #               f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
         # infile = open(f'inner_stack_0_snr{snr_threshold}_'
         #               f'{shift_method}Shift_abs.27_16s.pkl', 'rb')
         # TEMPLATE 2
         # infile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
         #               f'{shift_method}Shift_abs.23_16s.pkl', 'rb')
+        # TEMPLATE 4
+        infile = open(f'inner_stack_t4_snr{snr_threshold[0]}-'
+                      f'{snr_threshold[1]}_'
+                      f'{shift_method}Shift_MAD8.5_7s.pkl', 'rb')
+
         stack_list = pickle.load(infile)
         infile.close()
     else:
@@ -2656,14 +2661,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                main_trace, template_times,
                                                align_type=shift_method)
         # save stacks as pickle file
-        # abs 0.29: h m to stack
         outfile = open(f'inner_stack_t4_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_MAD8.5_7s.pkl', 'wb')
-
-        # MAD 8: 6h 35m to stack
-        # outfile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
-        #                f'{shift_method}Shift_abs0.23_16s.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
