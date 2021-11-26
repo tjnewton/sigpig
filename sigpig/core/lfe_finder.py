@@ -2414,7 +2414,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
         # set detection threshold and type
-        detect_thresh = 9.0
+        detect_thresh = 8.0
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2563,24 +2563,27 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         plot_distribution(snrs, title=f"SNR distribution t4 {thresh_type}={detect_thresh} "
                                       f"BHN", save=True)
 
-    data = []
-    for index, detection in enumerate(party.families[0].detections):
-        data.append([index, detection.detect_time, abs(detection.detect_val),
-                     detection.threshold, detection.threshold_type,
-                     detection.threshold_input, detection.template_name,
-                     snrs[index]])
-
-    df = pd.DataFrame(data, columns=['index', 'time', 'abs_correlation_sum',
-                                     'correlation_sum_threshold',
-                                     'threshold_metric',
-                                     'metric_input', 'template', 'snr'])
-
-    if save_detections:
-        # save party detections as text file
-        df.to_csv(f'MCR1_{thresh_type}{detect_thresh}_detections.csv', index=False)
-
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
+        data = []
+        for index, detection in enumerate(party.families[0].detections):
+            data.append(
+                [index, detection.detect_time, abs(detection.detect_val),
+                 detection.threshold, detection.threshold_type,
+                 detection.threshold_input, detection.template_name,
+                 snrs[index]])
+
+        df = pd.DataFrame(data,
+                          columns=['index', 'time', 'abs_correlation_sum',
+                                   'correlation_sum_threshold',
+                                   'threshold_metric',
+                                   'metric_input', 'template', 'snr'])
+
+        if save_detections:
+            # save party detections as text file
+            df.to_csv(f'MCR1_{thresh_type}{detect_thresh}_detections.csv',
+                      index=False)
+
         # get top n indices of detections with largest correlation sum
         top_n_df = df.nlargest(n, 'abs_correlation_sum')
         keeper_indices = top_n_df['index'].tolist()
@@ -2638,9 +2641,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        title=f"t4_7.0_{thresh_type}"
                              f"{detect_thresh}_top_100_culled_correlation_sum_detections", save=True)
 
-    # generate stack and time it
-    start = time.time()
-
+    # generate or load a stack
     if load_stack:
         # load stack list from file
         # TEMPLATE 1
@@ -2659,6 +2660,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = pickle.load(infile)
         infile.close()
     else:
+        # free up some memory
+        del detection_stream
+
         # get the template start and end times
         family = sorted(party.families, key=lambda f: len(f))[-1]
         template_times = [family.template.st[0].stats.starttime,
