@@ -2419,7 +2419,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
         # set detection threshold and type
-        detect_thresh = 8.0
+        detect_thresh = 9.0
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2453,7 +2453,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     n = 0
 
     load_stack = True
-    load_stack_detects = True
+    load_stack_detects = False
     load_second_stack = False
     cull = True
     plot = False
@@ -2742,7 +2742,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open(f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
-                   f'{end_date.year}_MAD8_7s_t4_stackDetects.pkl', 'rb')
+                   f'{end_date.year}_{thresh_type}'
+                      f'{detect_thresh}_7s_t4_stackDetects_MAD8.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
     else:
