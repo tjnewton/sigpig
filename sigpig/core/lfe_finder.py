@@ -2086,7 +2086,8 @@ def stack_template_detections(party, streams_path, main_trace,
     return [stack_pw, stack_lin]
 
 
-def detections_from_stacks(stack, detection_files_path, start_date, end_date):
+def detections_from_stacks(stack, detection_files_path, start_date,
+                           end_date, main_trace):
     """ Transform stacks so they can be used as templates for matched-filter
     analysis via EQcorrscan, FIXME, then finds detections corresponding to
     stacks.
@@ -2105,31 +2106,34 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     picks = []
     add_noise = False
     for index, trace in enumerate(stack):
-        if add_noise:
-            # take first 10 seconds of trace data as noise
-            tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
-            # generate a gaussian distribution and extract values from12 it to
-            # generate synthetic noise to fill day-long stream
-            tr_mean = tr_data.mean()
-            tr_stdev = tr_data.std()
-            # extend the stack to be a day long
-            st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
-                             "2016-01-01T23:59:59.99999999999Z"), pad=True,
-                             fill_value=0, nearest_sample=True)
+        # only use the main trace
+        if trace.stats.network == main_trace[0] and trace.stats.station == \
+                main_trace[1] and trace.stats.channel == main_trace[2]:
+            if add_noise:
+                # take first 10 seconds of trace data as noise
+                tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
+                # generate a gaussian distribution and extract values from12 it to
+                # generate synthetic noise to fill day-long stream
+                tr_mean = tr_data.mean()
+                tr_stdev = tr_data.std()
+                # extend the stack to be a day long
+                st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
+                                 "2016-01-01T23:59:59.99999999999Z"), pad=True,
+                                 fill_value=0, nearest_sample=True)
 
-            # fill the data before the stack
-            samples = int(43180 * trace.stats.sampling_rate)
-            tr_data = np.random.normal(tr_mean, tr_stdev, samples)
-            st[index].data[:samples] = tr_data
-            # then fill the data after the stack
-            tr_data = np.random.normal(tr_mean, tr_stdev, samples)
-            st[index].data[-1 * samples:] = tr_data
+                # fill the data before the stack
+                samples = int(43180 * trace.stats.sampling_rate)
+                tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+                st[index].data[:samples] = tr_data
+                # then fill the data after the stack
+                tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+                st[index].data[-1 * samples:] = tr_data
 
-            # set process length for EQcorrscan
-            process_len = 86400
-        else:
-            st += trace
-            process_len = 40
+                # set process length for EQcorrscan
+                process_len = 86400
+            else:
+                st += trace
+                process_len = 40
 
         # # for testing
         # new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 5
@@ -2140,7 +2144,8 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
         #             fill_value=np.nan, nearest_sample=True)
         # st2.plot()
 
-        picks.append(Pick(time=UTCDateTime(2016, 1, 1, 11, 59, 58, 500000),
+        # t4: 2016  9 27  6 31 15.00
+        picks.append(Pick(time=UTCDateTime(2016, 1, 1, 11, 59, 57, 400000),
                           phase_hint="P", waveform_id=WaveformStreamID(
                           network_code=trace.stats.network,
                           station_code=trace.stats.station,
@@ -2156,7 +2161,7 @@ def detections_from_stacks(stack, detection_files_path, start_date, end_date):
     stack_template = Tribe().construct(method="from_meta_file",
                                        meta_file=catalog, st=st, lowcut=1.0,
                                        highcut=15.0, samp_rate=40.0,
-                                       length=16.0, filt_order=4, prepick=0.5,
+                                       length=11.6, filt_order=4, prepick=0.0,
                                        swin='all', process_len=process_len,
                                        parallel=True, skip_short_chans=False)
 
@@ -2447,7 +2452,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     top_n = False
     n = 0
 
-    load_stack = False
+    load_stack = True
     load_stack_detects = False
     load_second_stack = False
     cull = True
@@ -2737,12 +2742,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open(f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
-                   f'{end_date.year}_MAD8_16s_stackDetects.pkl', 'rb')
+                   f'{end_date.year}_MAD8_7s_t4_stackDetects.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
     else:
-        party = detections_from_stacks(stack_lin, detection_files_path, start_date,
-                                       end_date)
+        party = detections_from_stacks(stack_lin, detection_files_path,
+                                       start_date, end_date, main_trace)
     if plot:
         if party != None and len(party) > 0:
             # inspect the party growth over time
