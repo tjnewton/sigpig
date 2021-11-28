@@ -1975,7 +1975,7 @@ def stack_template_detections(party, streams_path, main_trace,
                                                           pick_times)
         # get the fixed location time shifts from the main trace
         shifts, indices = xcorr_time_shifts(main_stream, 'self',
-                                                       template_times)
+                                            template_times)
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
