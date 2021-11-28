@@ -2263,10 +2263,10 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     Example:
         # define start time of template
         # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
-        template_date = UTCDateTime("2016-09-27T06:31:00.00000Z")
+        template_date = UTCDateTime("2016-09-27T06:31:15.00000Z")
 
         # define the main trace to use for template
-        main_trace = ("TA", "N25K", "BHN")
+        main_trace = ("YG", "MCR1", "BHN")
 
         # define path of files for template and detections
         streams_path = "/Users/human/ak_data/inner"
@@ -2276,8 +2276,8 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     """
 
     # time offsets
-    max_offset = 200  # 43200
-    min_offset = 60
+    max_offset = 600  # 43200
+    min_offset = 150
 
     # find the local file corresponding to the main trace station:channel pair
     file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
@@ -2321,24 +2321,30 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     fig_max = plot_Time_Series_And_Spectrogram(template_date - max_offset,
                                                template_date + max_offset,
                                                streams_path, filter=filter,
-                                               bandpass=[1, 15])
+                                               bandpass=[1, 15],
+                                               time_markers={"YG.MCR1":
+                                        [UTCDateTime("2016-09-27T06:31:15.0Z"),
+                                       UTCDateTime("2016-09-27T06:31:22.0Z")]})
     fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
                                                template_date + min_offset,
                                                streams_path, filter=filter,
-                                               bandpass=[1, 15])
+                                               bandpass=[1, 15],
+                                               time_markers={"YG.MCR1":
+                                        [UTCDateTime("2016-09-27T06:31:15.0Z"),
+                                       UTCDateTime("2016-09-27T06:31:22.0Z")]})
 
     # save template stream to file
     write = False
     if write:
         st_copy = st.copy()
-        st_copy.trim(template_date - 0.5, template_date + 16, pad=True,
+        st_copy.trim(template_date - 15, template_date + 15, pad=True,
                      fill_value=np.nan, nearest_sample=True)
         st_copy.write(f"template_16.5_seconds_bandpass_1-15.ms",
                       format="MSEED")
         st_copy.plot()
 
         st_copy = st.copy()
-        st_copy.trim(template_date - 30, template_date + 30, pad=True,
+        st_copy.trim(template_date - 150, template_date + 150, pad=True,
                      fill_value=np.nan, nearest_sample=True)
         st_copy.write(f"template_1_minute_bandpass_1-15.ms", format="MSEED")
         st_copy.plot()
