@@ -1970,12 +1970,15 @@ def stack_template_detections(party, streams_path, main_trace,
         # get the main trace detections in a stream
         print(f"Assembling main stream {pick_network}.{pick_station}"
               f".{pick_channel}")
-        main_stream, main_stream_snrs = build_main_stream(main_trace,
+        main_stream, _ = build_main_stream(main_trace,
                                                           streams_path,
                                                           pick_times)
         # get the fixed location time shifts from the main trace
         shifts, indices = xcorr_time_shifts(main_stream, 'self',
                                             template_times)
+
+        # free up memory
+        del main_stream
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -2451,18 +2454,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'self'
+    shift_method = 'fixed'
     load_party = True
     save_detections = False
 
     top_n = False
     n = 0
 
-    load_stack = True
+    load_stack = False
     load_stack_detects = True
     load_second_stack = False
     cull = True
-    plot = False
+    plot = True
 
     # get main station template detections
     if load_party:
