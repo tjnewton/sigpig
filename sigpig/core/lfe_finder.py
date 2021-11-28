@@ -2419,7 +2419,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
         # set detection threshold and type
-        detect_thresh = 9.0
+        detect_thresh = 8.0
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2453,7 +2453,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     n = 0
 
     load_stack = True
-    load_stack_detects = False
+    load_stack_detects = True
     load_second_stack = False
     cull = True
     plot = False
@@ -2738,6 +2738,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # use stacks as templates in matched-filter search to build catalog of
     # detections
     if load_stack_detects:
+        # MAD 8 template: 39,176 detections
+        # MAD 9 template: 39,185 detections
         # load stack list from file
         infile = open(f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
