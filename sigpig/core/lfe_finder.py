@@ -2404,7 +2404,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # T5
         templates = ["# 2016  9 27  6 31 32.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "MCR1    0.000  1       P\n"]
-        template_length = 10.0
+        template_length = 7.0
         template_prepick = 0.0
 
         # st = sta_chan_stream[195].copy()
@@ -2819,7 +2819,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        save=True)
 
 
-    # TODO: what should the ultimate return be?
+    # TODO: what should the ultimate return(s) be after generating second
+    #  stack? Need to guard memory from large stacks.
 
     return party
 
