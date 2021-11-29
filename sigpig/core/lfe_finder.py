@@ -997,7 +997,8 @@ def make_Templates(templates, template_files, station_dict, template_length,
 
 # function to drive signal detection with the help of EQcorrscan
 def detect_signals(templates, template_files, station_dict, template_length,
-                template_prepick, detection_files_path, start_date, end_date):
+                template_prepick, detection_files_path, start_date,
+                   end_date, thresh_type, detect_thresh):
     """
     Detects signals (LFEs in this case) in time series via matched-filtering
     with specified template(s).
@@ -1187,8 +1188,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         try:
             # detect
-            party = tribe.detect(stream=st, threshold=8.5, daylong=True,
-                                 threshold_type="MAD", trig_int=8.0,
+            party = tribe.detect(stream=st, threshold=detect_thresh, daylong=True,
+                                 threshold_type=thresh_type, trig_int=8.0,
                                  plot=False,
                                  return_stream=False, parallel_process=False,
                                  ignore_bad_data=True)
@@ -2266,7 +2267,9 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     Example:
         # define start time of template
         # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
-        template_date = UTCDateTime("2016-09-27T06:31:15.00000Z")
+        # template_date = UTCDateTime("2016-09-27T06:31:15.00000Z")
+        template_date = UTCDateTime("2016-09-27T06:31:32.00000Z")
+        # template_date = UTCDateTime("2017-12-01T11:51:00.00000Z")
 
         # define the main trace to use for template
         main_trace = ("YG", "MCR1", "BHN")
@@ -2279,7 +2282,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     """
 
     # time offsets
-    max_offset = 600  # 43200
+    max_offset = 60*10  # 43200
     min_offset = 150
 
     # find the local file corresponding to the main trace station:channel pair
@@ -2326,15 +2329,15 @@ def inspect_template(template_date, main_trace, streams_path, filter):
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
                                                time_markers={"YG.MCR1":
-                                        [UTCDateTime("2016-09-27T06:31:15.0Z"),
-                                       UTCDateTime("2016-09-27T06:31:22.0Z")]})
+                                        [UTCDateTime("2016-09-27T06:31:32.0Z"),
+                                       UTCDateTime("2016-09-27T06:31:42.0Z")]})
     fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
                                                template_date + min_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
                                                time_markers={"YG.MCR1":
-                                        [UTCDateTime("2016-09-27T06:31:15.0Z"),
-                                       UTCDateTime("2016-09-27T06:31:22.0Z")]})
+                                        [UTCDateTime("2016-09-27T06:31:32.0Z"),
+                                       UTCDateTime("2016-09-27T06:31:42.0Z")]})
 
     # save template stream to file
     write = False
@@ -2382,7 +2385,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                       options.
 
     Example:
-        # manually define templates from station TA.N25K (location is made up)
+        # manually define templates from station (location is made up)
         # templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "N25K    0.000  1       P\n"]
         # templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
@@ -2390,8 +2393,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "N25K    0.000  1       P\n"]
-        templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+
+        # T4
+        # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "MCR1    0.000  1       P\n"]
+        # define template length and prepick length (both in seconds)
+        # template_length = 7.0
+        # template_prepick = 0.0
+
+        # T5
+        templates = ["# 2016  9 27  6 31 32.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "MCR1    0.000  1       P\n"]
+        template_length = 10.0
+        template_prepick = 0.0
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2404,10 +2418,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
         station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
 
-        # define template length and prepick length (both in seconds)
-        # template_length = 16.0
-        template_length = 7.0 # 10.5
-        template_prepick = 0.0
 
         # build stream of all station files for templates
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
@@ -2455,10 +2465,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'fixed'
-    load_party = True
+    load_party = False
     save_detections = False
 
-    top_n = True
+    top_n = False
     n = 100
 
     load_stack = False
@@ -2568,7 +2578,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     else:
         party = detect_signals(templates, template_files, station_dict,
                                template_length, template_prepick,
-                               detection_files_path, start_date, end_date)
+                               detection_files_path, start_date, end_date,
+                               thresh_type, detect_thresh)
 
     # calculate and plot snrs of detections
     detection_stream = get_detections(party, detection_files_path, main_trace)
