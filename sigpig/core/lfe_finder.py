@@ -2458,8 +2458,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     save_detections = False
 
-    top_n = False
-    n = 0
+    top_n = True
+    n = 100
 
     load_stack = False
     load_stack_detects = True
@@ -2573,6 +2573,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # calculate and plot snrs of detections
     detection_stream = get_detections(party, detection_files_path, main_trace)
     snrs = snr(detection_stream)
+    del detection_stream
+
     if plot:
         plot_distribution(snrs, title=f"SNR distribution t4 {thresh_type}={detect_thresh} "
                                       f"BHN", save=True)
