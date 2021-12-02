@@ -2391,21 +2391,20 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "MCR1    0.000  1       P\n"]
 
-        # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-        #              "N25K    0.000  1       P\n"]
-
         # T4
+        templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "N25K    0.000  1       P\n"]
         # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "MCR1    0.000  1       P\n"]
         # define template length and prepick length (both in seconds)
-        # template_length = 7.0
-        # template_prepick = 0.0
-
-        # T5
-        templates = ["# 2016  9 27  6 31 32.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "MCR1    0.000  1       P\n"]
         template_length = 7.0
         template_prepick = 0.0
+
+        # T5
+        # templates = ["# 2016  9 27  6 31 32.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "MCR1    0.000  1       P\n"]
+        # template_length = 7.0
+        # template_prepick = 0.0
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2415,13 +2414,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # st.plot()
 
         # and define a station dict to add data needed by EQcorrscan
-        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
-        station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
+        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+        # station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
 
 
         # build stream of all station files for templates
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09
@@ -2442,8 +2441,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
-        # main_trace = ("TA", "N25K", "BHN")
-        main_trace = ("YG", "MCR1", "BHN")
+        main_trace = ("TA", "N25K", "BHN")
+        # main_trace = ("YG", "MCR1", "BHN")
 
         # run detection and time it
         start = time.time()
