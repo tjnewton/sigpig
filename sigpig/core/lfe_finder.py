@@ -1141,7 +1141,8 @@ def detect_signals(templates, template_files, station_dict, template_length,
 
         stack_list = stack_waveforms(party, pick_offset, detection_files_path,
                                      template_length, template_prepick,
-                                     load_stream_list=load_stream_list)
+                                     load_stream_list=load_stream_list,
+                                     main_trace)
 
         end = time.time()
         hours = int((end - start) / 60 / 60)
@@ -1368,7 +1369,7 @@ def cull_detections(party, detection_files_path, snr_threshold, main_trace):
 # function to generate linear and phase-weighted waveform stacks station by
 # station (to avoid memory bottleneck) via EQcorrscan stacking routines
 def stack_waveforms(party, pick_offset, streams_path, template_length,
-                    template_prepick, station_dict):
+                    template_prepick, station_dict, main_trace):
     """
     Generates stacks of waveforms from families specified within a Party
     object, using the miniseed files present in the specified path
@@ -1413,7 +1414,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
         # # get the stacks station by station to avoid memory error
         # stack_list = stack_waveforms(party, pick_offset,
         #                              detection_files_path, template_length,
-        #                              template_prepick, station_dict)
+        #                              template_prepick, station_dict,
+        #                              main_trace)
         # end = time.time()
         # hours = int((end - start) / 60 / 60)
         # minutes = int(((end - start) / 60) - (hours * 60))
@@ -1455,9 +1457,9 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
             #         pick.waveform_id.channel_code == "SHZ":
             #     pick_times.append(pick.time)
             # FIXME: this should be dynamic, not hard coded
-            if pick.waveform_id.station_code == "MCR1" and \
-                    pick.waveform_id.network_code == "YG" and \
-                    pick.waveform_id.channel_code == "BHN":
+            if pick.waveform_id.station_code == main_trace[1] and \
+                    pick.waveform_id.network_code == main_trace[0] and \
+                    pick.waveform_id.channel_code == main_trace[2]:
                 pick_times.append(pick.time)
 
     # loop over stations and generate a stack for each station:channel pair
