@@ -1279,7 +1279,7 @@ def detect_signals(templates, template_files, station_dict, template_length,
     # 52 detections: "MAD" @ 8.0
 
 
-def cull_detections(party, detection_files_path, snr_threshold):
+def cull_detections(party, detection_files_path, snr_threshold, main_trace):
     """
     Removes detections in a party object that are below a specified signal
     to noise ratio (snr_threshold[0]), and above a specified signal to noise
@@ -1306,7 +1306,8 @@ def cull_detections(party, detection_files_path, snr_threshold):
 
         # set snr threshold and cull the party detections
         snr_threshold = [3.0, 8.0]
-        culled_party = cull_detections(party, detection_files_path, snr_threshold)
+        culled_party = cull_detections(party, detection_files_path,
+                                       snr_threshold, main_trace)
 
     """
     deletion_indices = []
@@ -1318,7 +1319,9 @@ def cull_detections(party, detection_files_path, snr_threshold):
         doi = detection.detect_time
 
         # find all files for specified day
-        day_file_list = sorted(glob.glob(f"{detection_files_path}/YG.MCR1.BHN"
+        day_file_list = sorted(glob.glob(f"{detection_files_path}/"
+                                         f"{main_trace[0]}.{main_trace[1]}."
+                                         f"{main_trace[2]}"
                                          f".{doi.year}-{doi.month:02}"
                                          f"-{doi.day:02}.ms"))
 
@@ -2268,11 +2271,12 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         # define start time of template
         # template_date = UTCDateTime("2016-09-26T09:28:41.34Z")
         # template_date = UTCDateTime("2016-09-27T06:31:15.00000Z")
-        template_date = UTCDateTime("2016-09-27T06:31:32.00000Z")
+        # template_date = UTCDateTime("2016-09-27T06:31:32.00000Z")
         # template_date = UTCDateTime("2017-12-01T11:51:00.00000Z")
+        template_date = UTCDateTime("2016-09-26T09:25:50.00000Z")
 
         # define the main trace to use for template
-        main_trace = ("YG", "MCR1", "BHN")
+        main_trace = ("TA", "N25K", "BHN")
 
         # define path of files for template and detections
         streams_path = "/Users/human/ak_data/inner"
@@ -2283,7 +2287,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
     # time offsets
     max_offset = 60*10  # 43200
-    min_offset = 150
+    min_offset = 30
 
     # find the local file corresponding to the main trace station:channel pair
     file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
@@ -2328,16 +2332,16 @@ def inspect_template(template_date, main_trace, streams_path, filter):
                                                template_date + max_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
-                                               time_markers={"YG.MCR1":
-                                        [UTCDateTime("2016-09-27T06:31:32.0Z"),
-                                       UTCDateTime("2016-09-27T06:31:42.0Z")]})
+                                               time_markers={"TA.N25K":
+                                        [UTCDateTime("2016-09-26T09:25:49.5Z"),
+                                       UTCDateTime("2016-09-26T09:25:58.5Z")]})
     fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
                                                template_date + min_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
-                                               time_markers={"YG.MCR1":
-                                        [UTCDateTime("2016-09-27T06:31:32.0Z"),
-                                       UTCDateTime("2016-09-27T06:31:42.0Z")]})
+                                               time_markers={"TA.N25K":
+                                        [UTCDateTime("2016-09-26T09:25:49.5Z"),
+                                       UTCDateTime("2016-09-26T09:25:58.5Z")]})
 
     # save template stream to file
     write = False
@@ -2394,17 +2398,17 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # T4
         # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "N25K    0.000  1       P\n"]
-        templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "MCR1    0.000  1       P\n"]
-        # define template length and prepick length (both in seconds)
-        template_length = 7.0
-        template_prepick = 0.0
-
-        # T5
-        # templates = ["# 2016  9 27  6 31 32.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "MCR1    0.000  1       P\n"]
+        # # define template length and prepick length (both in seconds)
         # template_length = 7.0
         # template_prepick = 0.0
+
+        # T5 - Aaron's template
+        templates = ["# 2016  9 26  9 25 49.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "N25K    0.000  1       P\n"]
+        template_length = 9.0
+        template_prepick = 0.0
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2414,13 +2418,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # st.plot()
 
         # and define a station dict to add data needed by EQcorrscan
-        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
-        station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
+        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+        # station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
 
 
         # build stream of all station files for templates
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09
@@ -2437,12 +2441,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
         # set detection threshold and type
-        detect_thresh = 8.0
+        detect_thresh = 9.0
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
-        # main_trace = ("TA", "N25K", "BHN")
-        main_trace = ("YG", "MCR1", "BHN")
+        main_trace = ("TA", "N25K", "BHN")
+        # main_trace = ("YG", "MCR1", "BHN")
 
         # run detection and time it
         start = time.time()
@@ -2467,7 +2471,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     save_detections = False
 
-    top_n = False
+    top_n = True
     n = 100
 
     load_stack = False
@@ -2647,7 +2651,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # cull the party detections below the specified signal to noise ratio
     if cull:
         culled_party = cull_detections(party, detection_files_path,
-                                       snr_threshold)
+                                       snr_threshold, main_trace)
         if plot:
             # inspect the culled party growth over time
             detections_fig = culled_party.plot(plot_grouped=True)
