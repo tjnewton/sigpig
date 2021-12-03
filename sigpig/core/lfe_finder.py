@@ -2406,9 +2406,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_length = 7.0
         # template_prepick = 0.0
 
-        # T5 - Aaron's template
+        # T5 - Aaron's template on WASW
         templates = ["# 2016  9 26  9 25 49.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "N25K    0.000  1       P\n"]
+                     "WASW    0.000  1       P\n"]
         template_length = 9.0
         template_prepick = 0.0
 
@@ -2420,12 +2420,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # st.plot()
 
         # and define a station dict to add data needed by EQcorrscan
-        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+        station_dict = {"WASW": {"network": "AV", "channel": "SHN"}}
+        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
         # station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
 
 
         # build stream of all station files for templates
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/WASW"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
         template_files = glob.glob(f"{files_path}/*.ms")
 
@@ -2447,7 +2449,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
-        main_trace = ("TA", "N25K", "BHN")
+        main_trace = ("AV", "WASW", "SHN")
+        # main_trace = ("TA", "N25K", "BHN")
         # main_trace = ("YG", "MCR1", "BHN")
 
         # run detection and time it
@@ -2470,7 +2473,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'zero'
-    load_party = False
+    load_party = True
     save_detections = False
 
     top_n = False
