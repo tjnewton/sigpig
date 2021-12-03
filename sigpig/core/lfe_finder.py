@@ -2278,7 +2278,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         template_date = UTCDateTime("2016-09-26T09:25:50.00000Z")
 
         # define the main trace to use for template
-        main_trace = ("TA", "N25K", "BHN")
+        main_trace = ("AV", "WASW", "SHN")
 
         # define path of files for template and detections
         streams_path = "/Users/human/ak_data/inner"
@@ -2334,16 +2334,16 @@ def inspect_template(template_date, main_trace, streams_path, filter):
                                                template_date + max_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
-                                               time_markers={"TA.N25K":
-                                        [UTCDateTime("2016-09-26T09:25:49.5Z"),
-                                       UTCDateTime("2016-09-26T09:25:58.5Z")]})
+                                               time_markers={"AV.WASW":
+                                        [UTCDateTime("2016-09-26T09:25:48.5Z"),
+                                       UTCDateTime("2016-09-26T09:25:55.5Z")]})
     fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
                                                template_date + min_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
-                                               time_markers={"TA.N25K":
-                                        [UTCDateTime("2016-09-26T09:25:49.5Z"),
-                                       UTCDateTime("2016-09-26T09:25:58.5Z")]})
+                                               time_markers={"AV.WASW":
+                                        [UTCDateTime("2016-09-26T09:25:48.5Z"),
+                                       UTCDateTime("2016-09-26T09:25:55.5Z")]})
 
     # save template stream to file
     write = False
@@ -2407,9 +2407,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_prepick = 0.0
 
         # T5 - Aaron's template on WASW
-        templates = ["# 2016  9 26  9 25 49.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n"]
-        template_length = 9.0
+        template_length = 7.0
         template_prepick = 0.0
 
         # st = sta_chan_stream[195].copy()
@@ -2431,7 +2431,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
         template_files = glob.glob(f"{files_path}/*.ms")
 
-        # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09
+        # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09, AV.WASW
         detection_files_path = "/Users/human/ak_data/inner"
 
         # define dates of interest
@@ -2445,7 +2445,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
         # set detection threshold and type
-        detect_thresh = 8.0
+        detect_thresh = 10.0
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2473,7 +2473,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'zero'
-    load_party = True
+    load_party = False
     save_detections = False
 
     top_n = False
@@ -2576,10 +2576,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if thresh_type == "MAD":
 
-            if detect_thresh == 9.0:
-                # MAD 9.0 = 306 detections, 7.0 seconds, BHN only
+            if detect_thresh == 10.0:
+                # MAD 10.0 =  detections, 9 seconds, BHN only
                 infile = open(
-                    'party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
+                    'party_06_15_2016_to_08_12_2018_MAD10_9s_t5_SHN.pkl',
                     'rb')
             elif detect_thresh == 8.5:
                 # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
@@ -2587,9 +2587,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                     'party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
                     'rb')
             elif detect_thresh == 8.0:
-                # MAD 8.0 = 2104 detections, 9 seconds, BHN only
+                # MAD 8.0 = 49340 detections, 9 seconds, BHN only
                 infile = open(
-                    'party_06_15_2016_to_08_12_2018_MAD8_9s_t5_BHN.pkl',
+                    'party_06_15_2016_to_08_12_2018_MAD8_9s_t5_SHN.pkl',
                     'rb')
 
         party = pickle.load(infile)
