@@ -2443,7 +2443,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
         # set detection threshold and type
-        detect_thresh = 9.0
+        detect_thresh = 8.0
         thresh_type = "MAD"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2470,14 +2470,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'zero'
-    load_party = True
+    load_party = False
     save_detections = False
 
-    top_n = True
+    top_n = False
     n = 100
 
     load_stack = False
-    load_stack_detects = True
+    load_stack_detects = False
     load_second_stack = False
     cull = True
     plot = True
@@ -2552,31 +2552,42 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 27  6 31 15.00 #########################
         #######################################################################
 
-        # abs 0.29 = 272 detections, 7.0 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.29_7s_t4.pkl',
-        #               'rb')
+        # if thresh_type == "MAD":
+        #
+        #     if detect_thresh == 9.0:
+        #         # MAD 9.0 = 306 detections, 7.0 seconds, BHN only
+        #         infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
+        #                       'rb')
+        #     elif detect_thresh == 8.5:
+        #         # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
+        #         infile = open('party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
+        #                       'rb')
+        #     elif detect_thresh == 8.0:
+        #         # MAD 8.0 = 3467 detections, 7.0 seconds, BHN only
+        #         infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
+        #                       'rb')
+
+        #########################  TEMPLATE 5 N25K  ###########################
+        ###################### 2016  9 26  9 25 49.50 #########################
+        #######################################################################
+
         if thresh_type == "MAD":
 
             if detect_thresh == 9.0:
                 # MAD 9.0 = 306 detections, 7.0 seconds, BHN only
-                infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
-                              'rb')
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
+                    'rb')
             elif detect_thresh == 8.5:
                 # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
-                infile = open('party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
-                              'rb')
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
+                    'rb')
             elif detect_thresh == 8.0:
-                # MAD 8.0 = 3467 detections, 7.0 seconds, BHN only
-                infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
-                              'rb')
-
-        # abs 0.27 = 1609 detections, 7.0 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.27_7s_t4.pkl',
-        #               'rb')
-
-        # abs 0.25 = 8384 detections, 7.0 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_7s_t4.pkl',
-        #               'rb')
+                # MAD 8.0 = 2104 detections, 9 seconds, BHN only
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_MAD8_9s_t5_BHN.pkl',
+                    'rb')
 
         party = pickle.load(infile)
         infile.close()
