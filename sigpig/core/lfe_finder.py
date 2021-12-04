@@ -2418,7 +2418,7 @@ def party_snrs(party, streams_path, main_trace):
             day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                         fill_value=np.nan, nearest_sample=True)
 
-            snrs.append(snr(day_st))
+            snrs.append(snr(day_st)[0])
 
         # if no file, append blank trace to preserve stream length
         # equality with pick_times
@@ -2670,11 +2670,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                thresh_type, detect_thresh)
 
     # # calculate and plot snrs of detections, this call is memory-limited
+    # # because get_detections loads all traces into a single stream
     # detection_stream = get_detections(party, detection_files_path, main_trace)
     # snrs = snr(detection_stream)
     # del detection_stream
 
-    # this call is not memory-limited
+    # this call is not memory-limited because party_snrs loads only one trace
+    # into memory at a time
     snrs = party_snrs(party, detection_files_path, main_trace)
 
     if plot:
