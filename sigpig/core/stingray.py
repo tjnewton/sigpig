@@ -228,11 +228,23 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             #                   [0.10, 0.70],
             #                   [0.15, 0.75]]
 
-            # half-speed velocity model
-            velocity_model = [[0.00, 0.30],
-                              [0.05, 0.35],
-                              [0.10, 0.40],
-                              [0.15, 0.45]]
+            # 0.5-0.65 velocity model
+            velocity_model = [[0.00, 0.50],
+                              [0.05, 0.55],
+                              [0.10, 0.60],
+                              [0.15, 0.65]]
+
+            # # 0.4-0.55 velocity model
+            # velocity_model = [[0.00, 0.40],
+            #                   [0.05, 0.45],
+            #                   [0.10, 0.50],
+            #                   [0.15, 0.55]]
+
+            # # half-speed velocity model
+            # velocity_model = [[0.00, 0.30],
+            #                   [0.05, 0.35],
+            #                   [0.10, 0.40],
+            #                   [0.15, 0.45]]
 
             velocity_model = pd.DataFrame(velocity_model, columns=['Top', 'Pvel'])
 
@@ -275,7 +287,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             modeldict['S']['u'] = [] # modeldict['S']['u'] = Smod
             savemat(
                 "/Users/human/git/sigpig/sigpig/stingray/srInput/srModel_" + str(
-                    int(1000 * dz)) + "m_0.3-0.6_TN.mat", {'srModel':modeldict})
+                    int(1000 * dz)) + "m_0.5-0.65_TN.mat",
+                {'srModel':modeldict})
 
         if srElevation:
             # generates stingray elevation .mat file from raster
