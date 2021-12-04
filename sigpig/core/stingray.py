@@ -42,9 +42,9 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
         srControl = False
         srGeometry = False
-        srStation = True
+        srStation = False
         srEvent = False
-        srModel = False
+        srModel = True
         srElevation = False
 
         if srControl:
@@ -275,7 +275,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             modeldict['S']['u'] = [] # modeldict['S']['u'] = Smod
             savemat(
                 "/Users/human/git/sigpig/sigpig/stingray/srInput/srModel_" + str(
-                    int(1000 * dz)) + "m_TN.mat", {'srModel': modeldict})
+                    int(1000 * dz)) + "m_0.3-0.6_TN.mat", {'srModel':modeldict})
 
         if srElevation:
             # generates stingray elevation .mat file from raster
