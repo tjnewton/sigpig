@@ -2407,6 +2407,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_prepick = 0.0
 
         # T5 - Aaron's template on WASW
+        # MAD detections return anamolous detections for WASW
         templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n"]
         template_length = 7.0
@@ -2445,8 +2446,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 8.0] # 3.5
         # set detection threshold and type
-        detect_thresh = 10.0
-        thresh_type = "MAD"
+        # detect_thresh = 15.0
+        # thresh_type = "MAD"
+        detect_thresh = 0.35
+        thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
         main_trace = ("AV", "WASW", "SHN")
@@ -2575,21 +2578,25 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #######################################################################
 
         if thresh_type == "MAD":
-
-            if detect_thresh == 10.0:
-                # MAD 10.0 =  detections, 9 seconds, BHN only
+            if detect_thresh == 15.0:
+                # MAD 15.0 = 2547 detections, 7 seconds, BHN only
                 infile = open(
-                    'party_06_15_2016_to_08_12_2018_MAD10_9s_t5_SHN.pkl',
+                    'party_06_15_2016_to_08_12_2018_MAD15_7s_t5_SHN.pkl',
                     'rb')
-            elif detect_thresh == 8.5:
-                # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
+            elif detect_thresh == 12.0:
+                # MAD 10.0 =  detections, 7 seconds, BHN only
                 infile = open(
-                    'party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
+                    'party_06_15_2016_to_08_12_2018_MAD12_7s_t5_SHN.pkl',
+                    'rb')
+            elif detect_thresh == 10.0:
+                # MAD 10.0 =  detections, 7 seconds, BHN only
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_MAD10_7s_t5_SHN.pkl',
                     'rb')
             elif detect_thresh == 8.0:
-                # MAD 8.0 = 49340 detections, 9 seconds, BHN only
+                # MAD 8.0 = 49340 detections, 7 seconds, BHN only
                 infile = open(
-                    'party_06_15_2016_to_08_12_2018_MAD8_9s_t5_SHN.pkl',
+                    'party_06_15_2016_to_08_12_2018_MAD8_7s_t5_SHN.pkl',
                     'rb')
 
         party = pickle.load(infile)
@@ -2661,7 +2668,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"t4_7.0_{thresh_type}"
+                   title=f"t5_9.0_{thresh_type}"
                          f"{detect_thresh}_top_100_correlation_sum_detections", save=True)
 
     # cull the party detections below the specified signal to noise ratio
