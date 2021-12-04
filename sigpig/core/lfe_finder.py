@@ -2372,16 +2372,60 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     return True
 
 # function to calculate snrs of traces that correspond to party detections
-def party_snrs(party, detection_files_path, main_trace):
+def party_snrs(party, streams_path, main_trace):
     """
 
     """
-    # calculate and plot snrs of detections, this call is memory-limited
-    detection_stream = get_detections(party, detection_files_path, main_trace)
-    snrs = snr(detection_stream)
-    del detection_stream
+    # first extract pick times for each event from party object
+    # pick_times is a list of the pick times for the main trace
+    pick_times = []
+    pick_network, pick_station, pick_channel = main_trace
+    for event in party.families[0].catalog.events:
+        for pick in event.picks:
+            # trace with highest amplitude signal
+            if pick.waveform_id.station_code == pick_station and \
+                    pick.waveform_id.network_code == pick_network and \
+                    pick.waveform_id.channel_code == pick_channel:
+                pick_times.append(pick.time)
 
-    ...
+    snrs = []
+    for index in range(len(pick_times)):
+        pick_time = pick_times[index]
+
+        # find the local file corresponding to the station:channel pair
+        day_file_list = glob.glob(f"{streams_path}/{pick_network}."
+                                  f"{pick_station}."
+                                  f"{pick_channel}.{pick_time.year}"
+                                  f"-{pick_time.month:02}"
+                                  f"-{pick_time.day:02}.ms")
+
+        # guard against missing files
+        if len(day_file_list) > 0:
+            # FIXME: lowest sr should be detected, not hard coded
+            lowest_sr = 40  # lowest sampling rate
+            # TODO: try upsampling to 100 Hz
+
+            # should only be one file, but safeguard against many
+            file = day_file_list[0]
+            # load day file into stream
+            day_st = read(file)
+            # bandpass filter
+            day_st.filter('bandpass', freqmin=1, freqmax=15)
+            # interpolate to lowest sampling rate if necessary
+            if day_st[0].stats.sampling_rate != lowest_sr:
+                day_st.interpolate(sampling_rate=lowest_sr)
+            # trim trace to 60 seconds surrounding pick time
+            day_st.trim(pick_time - 20, pick_time + 40, pad=True,
+                        fill_value=np.nan, nearest_sample=True)
+
+            snrs.append(snr(day_st))
+
+        # if no file, append blank trace to preserve stream length
+        # equality with pick_times
+        else:
+            snrs.append(np.nan)
+
+    return snrs
 
 # driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
