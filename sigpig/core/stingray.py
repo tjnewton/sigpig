@@ -220,16 +220,30 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             nz = int(maxdep // dz + 1)
 
             # load the velocity model
-            velmod = pd.read_csv("/Users/human/git/sigpig/sigpig/stingray/m-files/vels.txt", delim_whitespace=True)
+            # velmod = pd.read_csv("/Users/human/git/sigpig/sigpig/stingray/m-files/vels.txt", delim_whitespace=True)
+
+            # # original velocity model from Doug
+            # velocity_model = [[0.00, 0.60],
+            #                   [0.05, 0.65],
+            #                   [0.10, 0.70],
+            #                   [0.15, 0.75]]
+
+            # half-speed velocity model
+            velocity_model = [[0.00, 0.30],
+                              [0.05, 0.35],
+                              [0.10, 0.40],
+                              [0.15, 0.45]]
+
+            velocity_model = pd.DataFrame(velocity_model, columns=['Top', 'Pvel'])
 
             # plot an interpolated velocity model
             plt.figure()
-            plt.plot(velmod['Top'].values, velmod['Pvel'].values,
+            plt.plot(velocity_model['Top'].values, velocity_model['Pvel'].values,
                      label='P model values')
             # plt.plot(velmod['Top'].values, velmod['Svel'].values,
             #          label='S model values')
-            pz = np.polyfit(velmod['Top'].values, velmod['Pvel'].values, 1)
-            # sz = np.polyfit(velmod['Top'].values, velmod['Svel'].values, 1)
+            pz = np.polyfit(velocity_model['Top'].values, velocity_model['Pvel'].values, 1)
+            # sz = np.polyfit(velocity_model['Top'].values, velocity_model['Svel'].values, 1)
             depth = np.linspace(0, maxdep, 100)
             plt.plot(depth, depth * pz[0] + pz[1], label='P interp values')
             # plt.plot(depth, depth * sz[0] + sz[1], label='S interp values')
@@ -241,7 +255,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                                   np.reshape(depth * pz[0] + pz[1],
                                              (-1, 1))), axis=1)
                     # , np.reshape(depth * sz[0] + sz[1], (-1, 1))
-            np.savetxt('vels_linear.txt', mod, fmt='%6.5f', delimiter=' ')
+            # np.savetxt('vels_linear.txt', mod, fmt='%6.5f', delimiter=' ')
 
             # make a 3D slowness model from the 1D velocity model
             Pmod = np.zeros((nx, ny, nz))
