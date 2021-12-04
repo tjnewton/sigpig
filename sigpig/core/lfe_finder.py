@@ -2598,6 +2598,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                 infile = open(
                     'party_06_15_2016_to_08_12_2018_MAD8_7s_t5_SHN.pkl',
                     'rb')
+        elif thresh_type == "abs":
+            if detect_thresh == 0.35:
+                # abs 0.35 =  detections, 7 seconds, BHN only
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_abs.35_7s_t5_SHN.pkl',
+                    'rb')
 
         party = pickle.load(infile)
         infile.close()
