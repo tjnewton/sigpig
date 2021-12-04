@@ -1609,6 +1609,8 @@ def get_detections(party, streams_path, main_trace):
 def stack_template_detections(party, streams_path, main_trace,
                               template_times, align_type):
     """
+    # FIXME: change to non-memory-limited implementation
+
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
     workflow.
