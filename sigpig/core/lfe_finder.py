@@ -2535,8 +2535,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = False
     save_detections = False
 
-    top_n = False
-    n = 100
+    top_n = True
+    n = 2547
 
     load_stack = False
     load_stack_detects = False
@@ -2734,7 +2734,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream[:100],
+        plot_stack(detection_stream[:16],
                    title=f"t5_9.0_{thresh_type}"
                          f"{detect_thresh}_top_100_correlation_sum_detections", save=True)
 
