@@ -2371,7 +2371,19 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
     return True
 
+# function to calculate snrs of traces that correspond to party detections
+def party_snrs(party, detection_files_path, main_trace):
+    """
 
+    """
+    # calculate and plot snrs of detections, this call is memory-limited
+    detection_stream = get_detections(party, detection_files_path, main_trace)
+    snrs = snr(detection_stream)
+    del detection_stream
+
+    ...
+
+# driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
               snr_threshold, main_trace, detect_thresh,
@@ -2613,10 +2625,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                detection_files_path, start_date, end_date,
                                thresh_type, detect_thresh)
 
-    # calculate and plot snrs of detections
-    detection_stream = get_detections(party, detection_files_path, main_trace)
-    snrs = snr(detection_stream)
-    del detection_stream
+    # # calculate and plot snrs of detections, this call is memory-limited
+    # detection_stream = get_detections(party, detection_files_path, main_trace)
+    # snrs = snr(detection_stream)
+    # del detection_stream
+
+    # this call is not memory-limited
+    snrs = party_snrs(party, detection_files_path, main_trace)
 
     if plot:
         plot_distribution(snrs, title=f"SNR distribution t4 {thresh_type}={detect_thresh} "
