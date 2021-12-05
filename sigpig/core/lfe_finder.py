@@ -2506,7 +2506,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set detection threshold and type
         # detect_thresh = 15.0
         # thresh_type = "MAD"
-        detect_thresh = 0.35
+        detect_thresh = 0.70
         thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2657,10 +2657,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                     'party_06_15_2016_to_08_12_2018_MAD8_7s_t5_SHN.pkl',
                     'rb')
         elif thresh_type == "abs":
-            if detect_thresh == 0.35:
-                # abs 0.35 =  detections, 7 seconds, BHN only
+            if detect_thresh == 0.90:
+                # abs 0.9 = 6 detections, 7 seconds, BHN only
                 infile = open(
-                    'party_06_15_2016_to_08_12_2018_abs.35_7s_t5_SHN.pkl',
+                    'party_06_15_2016_to_08_12_2018_abs.9_7s_t5_SHN.pkl',
+                    'rb')
+            elif detect_thresh == 0.70:
+                # abs 0.7 = 98 detections, 7 seconds, BHN only
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_abs.7_7s_t5_SHN.pkl',
                     'rb')
 
         party = pickle.load(infile)
@@ -2682,8 +2687,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     snrs = party_snrs(party, detection_files_path, main_trace)
 
     if plot:
-        plot_distribution(snrs, title=f"SNR distribution t4 {thresh_type}={detect_thresh} "
-                                      f"BHN", save=True)
+        plot_distribution(snrs, title=f"SNR distribution t5 {thresh_type}"
+                                      f"={detect_thresh} BHN", save=True)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2736,7 +2741,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream[:16],
+        plot_stack(detection_stream,
                    title=f"t5_9.0_{thresh_type}"
                          f"{detect_thresh}_top_100_correlation_sum_detections", save=True)
 
@@ -2794,7 +2799,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                main_trace, template_times,
                                                align_type=shift_method)
         # save stacks as pickle file
-        outfile = open(f'inner_stack_t4_snr{snr_threshold[0]}-'
+        outfile = open(f'inner_stack_t5_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}{detect_thresh}_7s.pkl', 'wb')
 
