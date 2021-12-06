@@ -1284,8 +1284,8 @@ def cull_detections(party, detection_files_path, snr_threshold, main_trace):
     """
     Removes detections in a party object that are below a specified signal
     to noise ratio (snr_threshold[0]), and above a specified signal to noise
-    ratio (snr_threshold[1]). Also generates a histogram of the new
-    and old SNR distributions.
+    ratio (snr_threshold[1]). Also removes traces with mostly zeros and
+    generates a histogram of the new and old SNR distributions.
 
     Args:
         party: EQcorrscan Party object
@@ -1342,9 +1342,17 @@ def cull_detections(party, detection_files_path, snr_threshold, main_trace):
         st.trim(doi - 20, doi + 40)
         trace = st[0]  # get the trace
 
+        # round data array to nearest int to count zeros
+        trace_data_zeros = np.rint(trace.data.copy())
+        zero_count = trace_data_zeros[np.where(trace_data_zeros == 0)].size
+
         trace_snr = snr(trace)[0]
-        # check the snr
+        # check the snr condition for deletion
         if trace_snr < snr_threshold[0] or trace_snr > snr_threshold[1]:
+            deletion_indices.append(index)
+            old_snrs.append(trace_snr)
+        # check the zeros condition for deletion
+        elif zero_count > 0.3 * trace.stats.npts:
             deletion_indices.append(index)
             old_snrs.append(trace_snr)
         else:
