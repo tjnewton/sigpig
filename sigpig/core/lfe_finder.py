@@ -2510,11 +2510,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
         # set snr threshold to cull the party detections
-        snr_threshold = [1.0, 8.0] # 3.5
+        snr_threshold = [1.0, 15.0] # [1.0, 8.0]
         # set detection threshold and type
         # detect_thresh = 15.0
         # thresh_type = "MAD"
-        detect_thresh = 0.70
+        detect_thresh = 0.65
         thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2546,7 +2546,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 98
+    n = 50
 
     load_stack = False
     load_stack_detects = False
@@ -2675,6 +2675,22 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                 infile = open(
                     'party_06_15_2016_to_08_12_2018_abs.7_7s_t5_SHN.pkl',
                     'rb')
+            elif detect_thresh == 0.65:
+                # abs 0.65 = 1573 detections, 7 seconds, SHN only
+                # same threshold at 12 seconds only gets 3 detections
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN.pkl',
+                    'rb')
+            elif detect_thresh == 0.60:
+                # abs 0.60 = 9973 detections, 7 seconds, BHN only
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_abs.6_7s_t5_SHN.pkl',
+                    'rb')
+            elif detect_thresh == 0.50:
+                # abs 0.5 = 139552 detections, 7 seconds, BHN only
+                infile = open(
+                    'party_06_15_2016_to_08_12_2018_abs.5_7s_t5_SHN.pkl',
+                    'rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2696,7 +2712,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         plot_distribution(snrs, title=f"SNR distribution t5 {thresh_type}"
-                                      f"={detect_thresh} BHN", save=True)
+                                      f"={detect_thresh} SHN", save=True)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2749,8 +2765,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream,
-                   title=f"t5_9.0_{thresh_type}"
+        plot_stack(detection_stream[:100],
+                   title=f"t5_7.0_{thresh_type}"
                          f"{detect_thresh}_top_100_correlation_sum_detections", save=True)
 
     # cull the party detections below the specified signal to noise ratio
@@ -2772,7 +2788,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if plot:
             detection_stream = get_detections(party, detection_files_path,
                                               main_trace)
-            plot_stack(detection_stream[:100],
+            plot_stack(detection_stream,
                        title=f"t4_7.0_{thresh_type}"
                              f"{detect_thresh}_top_100_culled_correlation_sum_detections", save=True)
 
@@ -2807,7 +2823,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                main_trace, template_times,
                                                align_type=shift_method)
         # save stacks as pickle file
-        outfile = open(f'inner_stack_t5_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_inner_stack_t5_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}{detect_thresh}_7s.pkl', 'wb')
 
@@ -2841,7 +2857,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             #                         f'{shift_method}Shift_abs.24_16s')
 
             plot_template_and_stack(party, stack_lin, stack_pw,
-                                    detection_files_path, 4, save=True,
+                                    detection_files_path, 5, save=True,
                                     title=f'top_{n}_stacks_templates_sn'
                                           f'r{snr_threshold[0]}-'
                                           f'{snr_threshold[1]}_'
