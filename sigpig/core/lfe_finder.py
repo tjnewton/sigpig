@@ -2690,7 +2690,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         plot_distribution(snrs, title=f"SNR distribution t5 {thresh_type}"
-                                      f"={detect_thresh} SHN", save=True)
+                                      f"={detect_thresh} SHN 100 Hz",save=True)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2744,8 +2744,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"t5_7.0_{thresh_type}"
-                         f"{detect_thresh}_top_100_correlation_sum_detections", save=True)
+                   title=f"t5_7.0_{thresh_type}{detect_thresh}_top_"
+                         f"{n}_correlation_sum_detections_100Hz", save=True)
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
@@ -2767,8 +2767,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             detection_stream = get_detections(party, detection_files_path,
                                               main_trace)
             plot_stack(detection_stream,
-                       title=f"t4_7.0_{thresh_type}"
-                             f"{detect_thresh}_top_100_culled_correlation_sum_detections", save=True)
+                       title=f"t5_7.0_{thresh_type}"
+                             f"{detect_thresh}_top_{n}_culled_correlation_sum_detections", save=True)
+                             }
 
     # generate or load a stack
     if load_stack:
@@ -2803,7 +2804,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # save stacks as pickle file
         outfile = open(f'top_{n}_inner_stack_t5_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
-                       f'{shift_method}Shift_{thresh_type}{detect_thresh}_7s.pkl', 'wb')
+                       f'{shift_method}Shift_{thresh_type}'
+                       f'{detect_thresh}_7s_100Hz.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -2816,7 +2818,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
-                                       f'Shift_{thresh_type}{detect_thresh}_7s',
+                                       f'Shift_{thresh_type}'
+                                       f'{detect_thresh}_7s_100Hz',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -2824,7 +2827,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_7s', save=True)
+                                        f'{detect_thresh}_7s_100Hz', save=True)
 
             # now plot template with the linear stack from same station for
             # comparison
