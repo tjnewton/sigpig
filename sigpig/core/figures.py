@@ -669,7 +669,8 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
         network_station = f"{trace.stats.network}.{trace.stats.station}"
 
         # add station name to list of y labels
-        y_labels.append(f"{network_station}.{trace.stats.channel}.{index}")
+        y_labels.append(f"{network_station}.{trace.stats.channel}.{index} "
+                        f"SNR:{snr(trace)[0]}")
 
     # set axes attributes
     amplitude_plot.set_yticks(np.arange(0.5, len(stack) + 0.5))
