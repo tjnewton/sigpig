@@ -982,9 +982,10 @@ def make_Templates(templates, template_files, station_dict, template_length,
     st = Stream()
     for file in template_files:
         st += read(file)
+    st.interpolate(sampling_rate=100.0)
 
     tribe = Tribe().construct(method="from_meta_file", meta_file=catalog,
-                              st=st, lowcut=1.0, highcut=15.0, samp_rate=40.0,
+                              st=st, lowcut=1.0, highcut=15.0, samp_rate=100.0,
                               length=template_length, filt_order=4,
                               prepick=template_prepick, swin='all',
                               process_len=86400, parallel=False)  # min_snr=5.0,
@@ -1496,8 +1497,6 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
 
                 # guard against missing expected files
                 if len(day_file_list) > 0:
-                    # FIXME: lowest samp rate should be detected, not hard coded
-                    lowest_sr = 40
 
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
@@ -1509,8 +1508,8 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
                     day_st += read(file)
                     # bandpass filter
                     day_st.filter('bandpass', freqmin=1, freqmax=15)
-                    # interpolate to lowest sampling rate
-                    day_st.interpolate(sampling_rate=lowest_sr)
+                    # interpolate to 100 Hz
+                    day_st.interpolate(sampling_rate=100)
 
                     # match station with specified pick offset
                     station_pick_time = pick_time + pick_offset[file_station]
@@ -1586,19 +1585,14 @@ def get_detections(party, streams_path, main_trace):
 
         # guard against missing files
         if len(day_file_list) > 0:
-            # FIXME: lowest sr should be detected, not hard coded
-            lowest_sr = 40  # lowest sampling rate
-            # TODO: try upsampling to 100 Hz
-
             # should only be one file, but safeguard against many
             file = day_file_list[0]
             # load day file into stream
             day_st = read(file)
             # bandpass filter
             day_st.filter('bandpass', freqmin=1, freqmax=15)
-            # interpolate to lowest sampling rate if necessary
-            if day_st[0].stats.sampling_rate != lowest_sr:
-                day_st.interpolate(sampling_rate=lowest_sr)
+            # interpolate to 100 Hz
+            day_st.interpolate(sampling_rate=100)
             # trim trace to 60 seconds surrounding pick time
             day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                         fill_value=np.nan, nearest_sample=True)
@@ -1682,19 +1676,14 @@ def stack_template_detections(party, streams_path, main_trace,
 
             # guard against missing files
             if len(file_list) > 0:
-                # FIXME: lowest sr should be detected, not hard coded
-                lowest_sr = 40  # lowest sampling rate
-                # TODO: try upsampling to 100 Hz
-
                 # should only be one file, but safeguard against many
                 file = file_list[0]
                 # load day file into stream
                 day_st = read(file)
                 # bandpass filter
                 day_st.filter('bandpass', freqmin=1, freqmax=15)
-                # interpolate to lowest sampling rate if necessary
-                if day_st[0].stats.sampling_rate != lowest_sr:
-                    day_st.interpolate(sampling_rate=lowest_sr)
+                # interpolate to 100 Hz
+                day_st.interpolate(sampling_rate=100)
                 # trim trace to 60 seconds surrounding pick time
                 day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                             fill_value=np.nan, nearest_sample=True)
@@ -2024,19 +2013,14 @@ def stack_template_detections(party, streams_path, main_trace,
 
                 # guard against missing files
                 if len(day_file_list) > 0:
-                    # FIXME: lowest sr should be detected, not hard coded
-                    lowest_sr = 40 # lowest sampling rate
-                    # TODO: try upsampling to 100 Hz
-
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
                     # load day file into stream
                     day_st = read(file)
                     # bandpass filter
                     day_st.filter('bandpass', freqmin=1, freqmax=15)
-                    # interpolate to lowest sampling rate if necessary
-                    if day_st[0].stats.sampling_rate != lowest_sr:
-                        day_st.interpolate(sampling_rate=lowest_sr)
+                    # interpolate to 100 Hz
+                    day_st.interpolate(sampling_rate=100.0)
                     # trim trace to 60 seconds surrounding pick time
                     day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                                 fill_value=np.nan, nearest_sample=True)
@@ -2179,7 +2163,7 @@ def detections_from_stacks(stack, detection_files_path, start_date,
     # construct the EQcorrscan tribe object using my construct_stack method
     stack_template = Tribe().construct(method="from_meta_file",
                                        meta_file=catalog, st=st, lowcut=1.0,
-                                       highcut=15.0, samp_rate=40.0,
+                                       highcut=15.0, samp_rate=100.0,
                                        length=11.6, filt_order=4, prepick=0.0,
                                        swin='all', process_len=process_len,
                                        parallel=True, skip_short_chans=False)
@@ -2310,8 +2294,6 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
     # load time series into stream
     if len(file_list) > 0: # guard against missing files
-        lowest_sr = 40  # lowest sampling rate
-
         # should only be one file, but safeguard against many
         file = file_list[0]
         # load file into stream
@@ -2319,9 +2301,8 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         # bandpass filter
         if filter:
             st.filter('bandpass', freqmin=1, freqmax=15)
-        # interpolate to lowest sampling rate if necessary
-        if st[0].stats.sampling_rate != lowest_sr:
-            st.interpolate(sampling_rate=lowest_sr)
+        # interpolate to 100 Hz
+        st.interpolate(sampling_rate=100.0)
         # trim trace to 60 seconds surrounding pick time
         st.trim(template_date - max_offset, template_date + max_offset,
                 pad=True,
@@ -2411,19 +2392,14 @@ def party_snrs(party, streams_path, main_trace):
 
         # guard against missing files
         if len(day_file_list) > 0:
-            # FIXME: lowest sr should be detected, not hard coded
-            lowest_sr = 40  # lowest sampling rate
-            # TODO: try upsampling to 100 Hz
-
             # should only be one file, but safeguard against many
             file = day_file_list[0]
             # load day file into stream
             day_st = read(file)
             # bandpass filter
             day_st.filter('bandpass', freqmin=1, freqmax=15)
-            # interpolate to lowest sampling rate if necessary
-            if day_st[0].stats.sampling_rate != lowest_sr:
-                day_st.interpolate(sampling_rate=lowest_sr)
+            # interpolate to 100 Hz
+            day_st.interpolate(sampling_rate=100.0)
             # trim trace to 60 seconds surrounding pick time
             day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                         fill_value=np.nan, nearest_sample=True)
