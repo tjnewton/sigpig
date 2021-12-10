@@ -2668,6 +2668,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                     'party_06_15_2016_to_08_12_2018_abs.5_7s_t5_SHN.pkl',
                     'rb')
 
+        # load 100 Hz party for testing, 906 detections
+        infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz'
+                      '.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
     else:
