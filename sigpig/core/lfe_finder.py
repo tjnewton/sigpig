@@ -5,13 +5,15 @@ Functions to find low-frequency earthquakes in seismic time series data.
 import getpass
 import logging
 import obspy
-from obspy import UTCDateTime, Stream, Trace, read, read_events
+from obspy import UTCDateTime, Stream, Trace, read, read_events, Inventory
+from obspy.clients.fdsn import Client
 from obspy.signal.cross_correlation import xcorr, correlate_template
 from obspy.core.event import Catalog, Comment, CreationInfo
 from obspy.core.event.event import Event
 from obspy.core.event.magnitude import Magnitude
 from obspy.core.event.origin import Pick, Origin
 from obspy.core.event.base import WaveformStreamID
+from obspy.signal import PPSD
 from eqcorrscan import Tribe, Party, Family, Template
 from eqcorrscan.utils.clustering import cluster
 from eqcorrscan.utils.sac_util import sactoevent
@@ -2747,6 +2749,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         plot_stack(detection_stream[:100],
                    title=f"t5_7.0_{thresh_type}{detect_thresh}_top_"
                          f"{n}_correlation_sum_detections_100Hz", save=True)
+        # free up some memory
+        del detection_stream
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
@@ -2767,9 +2771,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         if plot:
             detection_stream = get_detections(party, detection_files_path,
                                               main_trace)
-            plot_stack(detection_stream,
-                       title=f"t5_7.0_{thresh_type}"
-                             f"{detect_thresh}_top_{n}_culled_correlation_sum_detections", save=True)
+            plot_stack(detection_stream[:100],
+                       title=f"t5_7.0_{thresh_type}{detect_thresh}_top_100_culled_correlation_sum_detections", save=True)
+            # free up some memory
+            del detection_stream
 
     # generate or load a stack
     if load_stack:
@@ -2790,9 +2795,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = pickle.load(infile)
         infile.close()
     else:
-        # free up some memory
-        del detection_stream
-
         # get the template start and end times
         family = sorted(party.families, key=lambda f: len(f))[-1]
         template_times = [family.template.st[0].stats.starttime,
@@ -2930,7 +2932,27 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     return party
 
 # NEXT DO MAX & FIXED, ANIMATE IF BROKEN
+if False:
+    trace = detection_stream[11].copy()
+    trace.spectrogram()
 
+    # download instrument response inventory
+    datacenter = "IRIS"
+    client = Client(datacenter)
+    inv = Inventory()
+    inv += client.get_stations(network=trace.stats.network,
+                               station=trace.stats.station,
+                               starttime=trace.stats.starttime,
+                               endtime=trace.stats.endtime, level="response")
+
+    # get PSD
+    ppsd = PPSD(trace.stats, metadata=inv)
+    ppsd.add(trace)
+    print("number of psd segments:", len(ppsd.times_processed))
+    ppsd.plot()
+
+    # better spectrogram
+    # https://krischer.github.io/seismo_live_build/html/Signal%20Processing/spectral_analysis+preprocessing_solution_wrapper.html
 
 # get locations from detection times and stacks
 # TODO
