@@ -2767,7 +2767,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             plot_stack(detection_stream,
                        title=f"t5_7.0_{thresh_type}"
                              f"{detect_thresh}_top_{n}_culled_correlation_sum_detections", save=True)
-                             }
 
     # generate or load a stack
     if load_stack:
