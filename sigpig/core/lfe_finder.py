@@ -2455,7 +2455,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n"]
         template_length = 7.0
-        template_prepick = 0.0
+        template_prepick = 0.5
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2670,9 +2670,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                     'party_06_15_2016_to_08_12_2018_abs.5_7s_t5_SHN.pkl',
                     'rb')
 
-        # load 100 Hz party for testing, 906 detections
-        infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz'
-                      '.pkl', 'rb')
+        # # 100 Hz party for testing, 906 detections
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz'
+        #               '.pkl', 'rb')
+        # 100 Hz party w/ 0.5s prepick for testing,  detections
+        infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
     else:
@@ -2693,7 +2695,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         plot_distribution(snrs, title=f"SNR distribution t5 {thresh_type}"
-                                      f"={detect_thresh} SHN 100 Hz",save=True)
+                                      f"={detect_thresh} SHN 100 Hz_ prepick",
+                          save=True)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
@@ -2748,7 +2751,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
                    title=f"t5_7.0_{thresh_type}{detect_thresh}_top_"
-                         f"{n}_correlation_sum_detections_100Hz", save=True)
+                         f"{n}_correlation_sum_detections_100Hz_prepick",
+                   save=True)
         # free up some memory
         del detection_stream
 
@@ -2807,7 +2811,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile = open(f'top_{n}_inner_stack_t5_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_7s_100Hz.pkl', 'wb')
+                       f'{detect_thresh}_7s_100Hz_prepick.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -2821,7 +2825,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_7s_100Hz',
+                                       f'{detect_thresh}_7s_100Hz_prepick',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -2829,7 +2833,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_7s_100Hz', save=True)
+                                        f'{detect_thresh}_7s_100Hz_prepick',
+                       save=True)
 
             # now plot template with the linear stack from same station for
             # comparison
