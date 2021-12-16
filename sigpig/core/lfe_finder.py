@@ -2961,7 +2961,7 @@ if False:
     # better spectrogram
     # https://krischer.github.io/seismo_live_build/html/Signal%20Processing/spectral_analysis+preprocessing_solution_wrapper.html
 
-# get locations from detection times and stacks
+# get locations from detection times and stacks via NLL
 # TODO
 
 # generate focal mechanisms from phase weighted stacks and locations
