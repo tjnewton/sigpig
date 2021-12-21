@@ -2962,7 +2962,9 @@ if False:
     # https://krischer.github.io/seismo_live_build/html/Signal%20Processing/spectral_analysis+preprocessing_solution_wrapper.html
 
 # get locations from detection times and stacks via NLL
-# TODO
+# TODO:
+#     - build grid via stingray
+#     - build NLL files from stingray files
 
 # generate focal mechanisms from phase weighted stacks and locations
 # TODO
