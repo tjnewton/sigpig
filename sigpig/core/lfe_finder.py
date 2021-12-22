@@ -2979,3 +2979,4 @@ if False:
 
 # STATUS: detections contain events that are not similar period and spectrum
 # TODO: culling function based on spectral energy & period
+#     : notes below find_LFEs have structure for spect.
