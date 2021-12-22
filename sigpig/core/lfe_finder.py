@@ -2758,8 +2758,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
+        # SNR based culling & removal of traces with many NaNs
         culled_party = cull_detections(party, detection_files_path,
                                        snr_threshold, main_trace)
+        # cull based on spectral energy in a specific band
+        # TODO: add spectral function above
+
+
+
+
         if plot:
             # inspect the culled party growth over time
             detections_fig = culled_party.plot(plot_grouped=True)
@@ -2968,3 +2975,7 @@ if False:
 
 # generate focal mechanisms from phase weighted stacks and locations
 # TODO
+
+
+# STATUS: detections contain events that are not similar period and spectrum
+# TODO: culling function based on spectral energy & period
