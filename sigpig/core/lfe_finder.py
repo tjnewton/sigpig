@@ -2971,6 +2971,9 @@ if False:
     # better spectrogram
     # https://krischer.github.io/seismo_live_build/html/Signal%20Processing/spectral_analysis+preprocessing_solution_wrapper.html
 
+    # for fft npts
+    # https://docs.obspy.org/packages/autogen/obspy.signal.util._npts2nfft.html?highlight=fft#obspy.signal.util._npts2nfft
+
 # get locations from detection times and stacks via NLL
 # TODO:
 #     - build grid via stingray
