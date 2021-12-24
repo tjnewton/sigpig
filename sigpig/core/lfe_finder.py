@@ -2758,7 +2758,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # cull the party detections below the specified signal to noise ratio
     if cull:
-        # SNR based culling & removal of traces with many NaNs
+        # SNR based culling & removal of traces with > 0.3 *
+        # trace.stats.npts NaNs.
         culled_party = cull_detections(party, detection_files_path,
                                        snr_threshold, main_trace)
         # cull based on spectral energy in a specific band
@@ -2960,6 +2961,8 @@ if False:
                                endtime=trace.stats.endtime, level="response")
 
     # get PSD
+    # FIXME: this doesn't always successfully add trace. Guard against
+    #  empty case
     ppsd = PPSD(trace.stats, metadata=inv)
     ppsd.add(trace)
     print("number of psd segments:", len(ppsd.times_processed))
