@@ -75,6 +75,17 @@ def plot_stalta(obspy_Trace: obspy.core.trace.Trace, cft: np.ndarray,
     return None
 
 
+def plot_spectrogram(trace):
+    """
+    Plots spectrogram from Obspy trace object.
+
+    Example:
+
+    """
+
+    pass
+
+
 def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
                                      bandpass=[], time_markers={}):
     """
