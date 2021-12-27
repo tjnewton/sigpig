@@ -2963,7 +2963,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 if False:
     # TODO: develop time-frequency filter based on template signal to
     #  exclude shorter-period signal that xcorr captures
-    trace = detection_stream[11].copy()
+    trace = detection_stream[0].copy()
     trace.spectrogram()
 
     # download instrument response inventory
