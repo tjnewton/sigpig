@@ -2521,16 +2521,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'self'
     load_party = True
-    save_detections = False
+    save_detections = True
 
     top_n = True
-    n = 50
+    n = 3048
 
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
     cull = True
-    plot = True
+    plot = False
 
     # get main station template detections
     if load_party:
@@ -2674,7 +2674,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz'
         #               '.pkl', 'rb')
         # 100 Hz party w/ 0.5s prepick for testing,  detections
-        infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
+        # CULLED 100 Hz party w/ 0.5s prepick for testing
+        infile = open(
+            'top_3048_WASW_t5_culled_snr1.0-15.0_selfShift_abs0.65_7s_100Hz_prepick_party.pkl',
+            'rb')
+
         party = pickle.load(infile)
         infile.close()
     else:
@@ -2716,8 +2721,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save party detections as text file
-            df.to_csv(f'MCR1_{thresh_type}{detect_thresh}_detections.csv',
+            df.to_csv(f'WASW_{thresh_type}{detect_thresh}_detections.csv',
                       index=False)
+
+            # save pickle file
+            outfile = open(f'top_{n}_WASW_t5_culled_snr{snr_threshold[0]}-'
+                           f'{snr_threshold[1]}_'
+                           f'{shift_method}Shift_{thresh_type}'
+                           f'{detect_thresh}_7s_100Hz_prepick_party.pkl',
+                           'wb')
+
+            pickle.dump(party, outfile)
+            outfile.close()
 
         # get top n indices of detections with largest correlation sum
         top_n_df = df.nlargest(n, 'abs_correlation_sum')
