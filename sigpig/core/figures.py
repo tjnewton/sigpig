@@ -1063,6 +1063,11 @@ def plot_distribution(data, bins=False, title=False, save=False):
     return fig
 
 
+def nll_locs_to_():
+
+    pass
+
+
 def examine_stack():
     "Animate building of stack"
 
