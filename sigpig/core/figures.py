@@ -95,11 +95,12 @@ def plot_stream(stream):
     figureWidth = 20
     figureHeight = 4.5 * len(st)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
-    fig2 = plt.figure(figsize=(18, 10))
-    psd_plot = fig2.add_subplot()
-    gs = fig.add_gridspec(3, 1)
+    # fig2 = plt.figure(figsize=(18, 10))
+    # psd_plot = fig2.add_subplot()
+    gs = fig.add_gridspec(4, 1)
     amplitude_plot = fig.add_subplot(gs[0, :])
-    frequency_plot = fig.add_subplot(gs[1:, :])
+    psd_plot = fig.add_subplot(gs[1, :])
+    frequency_plot = fig.add_subplot(gs[2:, :])
     # make a subplot of subplots for spectrograms
     frequency_plots = gridspec.GridSpecFromSubplotSpec(len(st), 1,
                                                        subplot_spec=frequency_plot)
@@ -132,7 +133,7 @@ def plot_stream(stream):
         network_station = f"{trace.stats.network}.{trace.stats.station}"
 
         # add station name to list of y labels
-        y_labels.append(f"{network_station}.{trace.stats.channel}")
+        y_labels.append(f"{network_station}.{trace.stats.channel}.{index}")
 
         # print(trace.stats.sampling_rate)
 
@@ -148,6 +149,14 @@ def plot_stream(stream):
                                                  nperseg=window_length,
                                                  noverlap=overlap,
                                                  nfft=nfftSTFT)
+
+        # plot the PSD
+        f, Pxx_den = spsig.welch(trace.data, trace.stats.sampling_rate,
+                                 nperseg=window_length, noverlap=overlap,
+                                 nfft=nfftSTFT)
+        psd_plot.plot(f, Pxx_den, label=str(index))
+        # psd_plot.plot(, Pxx_den, label=str(index))
+
         # plot the spectrogram
         spec = fig.add_subplot(frequency_plots[(index + 1) * -1, 0])
 
@@ -157,17 +166,11 @@ def plot_stream(stream):
 
         # spec.set_xlim([30, duration - 30])
         spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
-                        f"{trace.stats.channel}",
+                        f"{trace.stats.channel}.{index}",
                         rotation=0, labelpad=40)
         spec.tick_params(axis='x', which='both', bottom=False, top=False,
                          labelbottom=False)
 
-        # plot the PSD
-        f, Pxx_den = spsig.welch(trace.data, trace.stats.sampling_rate,
-                                 nperseg=window_length, noverlap=overlap,
-                                 nfft=nfftSTFT)
-        psd_plot.plot(f, Pxx_den, label=str(index))
-        # psd_plot.plot(, Pxx_den, label=str(index))
     # spec.set_yticks([])
 
     # set axes attributes
@@ -175,20 +178,12 @@ def plot_stream(stream):
     amplitude_plot.set_yticklabels(y_labels)
     amplitude_plot.set_ylabel('Station.Channel')
     amplitude_plot.set_xlim([time[0], time[-1]])
-    amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {trace_start.month:02}-'
-                              f'{trace_start.day:02}-{trace_start.year}')
-    myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    amplitude_plot.set_xlabel(f'Time: Min:Sec')
+    myFmt = DateFormatter("%M:%S")  # "%H:%M:%S.f"
     amplitude_plot.xaxis.set_major_formatter(myFmt)
-    locator_x = AutoDateLocator(minticks=10, maxticks=35)
+    locator_x = AutoDateLocator(minticks=10, maxticks=15)
     amplitude_plot.xaxis.set_major_locator(locator_x)
     amplitude_plot.set_ylim((0, len(st) + 0.5))
-    # frequency_plot.set_ylabel('Frequency (Hz)')
-    # frequency_plot.set_xlabel('Time (s)')
-    frequency_plot.set_yticks([])
-    frequency_plot.set_xticks([])
-    frequency_plot.set_ylim([0, 20])
-    # fig.tight_layout()
-    fig.savefig(f"stream_plot.png", dpi=100)
 
     # set PSD plot labels
     psd_plot.set_xlabel('frequency [Hz]')
@@ -196,7 +191,16 @@ def plot_stream(stream):
     psd_plot.set_title("Power spectral density")
     psd_plot.set_xlim([0, 20])
     psd_plot.legend()
-    fig2.savefig(f"psd_plot.png", dpi=300)
+
+    # frequency_plot.set_ylabel('Frequency (Hz)')
+    # frequency_plot.set_xlabel('Time (s)')
+    frequency_plot.set_yticks([])
+    frequency_plot.set_xticks([])
+    frequency_plot.set_ylim([0, 20])
+    # fig.tight_layout()
+    fig.savefig(f"stream_plot.png", dpi=200)
+
+    # fig2.savefig(f"psd_plot.png", dpi=300)
 
     plt.show()
     return fig
