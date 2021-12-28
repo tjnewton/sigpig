@@ -14,6 +14,7 @@ import utm
 from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
 import os
+from lidar import grids_from_raster
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -866,7 +867,7 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
 
     return location_dict
 
-def dtm_to_gmt_grid():
+def dtm_to_gmt_grid(project_name, UTM=False):
     """
     Takes a DTM file and converts it to a file that is a GMT-compatible grid
     for plotting.
@@ -882,7 +883,7 @@ def dtm_to_gmt_grid():
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
 
         if UTM:
-            # doug's limits
+            # spatial limits
             x_limits = [694.15, 694.45]
             y_limits = [5155.40, 5155.90]
 
@@ -897,11 +898,11 @@ def dtm_to_gmt_grid():
 
         # in lat/lon
         else:
-            # my limits
+            # testing limits
             # x_limits = [-120.480, -120.462]
             # y_limits = [46.519, 46.538]
 
-            # doug's limits
+            # limits
             x_limits = [-120.4706347915009, -120.46074932200101]
             y_limits = [46.52239398104922, 46.530274799769188]
 
@@ -921,18 +922,17 @@ def dtm_to_gmt_grid():
                                 raster_file, x_limits, y_limits, plot=True,
                                 UTM=True)
 
-        # define header
-        elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
-                       x_step, y_step, num_x_steps, num_y_steps]
+        # # define header
+        # elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
+        #                x_step, y_step, num_x_steps, num_y_steps]
 
-        # build dict to make .mat file
-        elev_dict = {}
-        elev_dict['header'] = elev_header
-        elev_dict['data'] = np.rot90(elevation_grid, k=3)
+        # elev_dict['data'] = np.rot90(elevation_grid, k=3)
 
-        savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
-                "/srElevation_TN.mat",
-                {'srElevation': elev_dict})
+        # savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
+        #         "/srElevation_TN.mat",
+        #         {'srElevation': elev_dict})
+
+        # TODO: convert grid to NetCDF
 
     return None
 
