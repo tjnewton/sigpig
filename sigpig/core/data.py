@@ -866,20 +866,79 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
 
     return location_dict
 
-def rattlesnake_ridge_dtm_to_gmt_grid():
+def dtm_to_gmt_grid():
     """
     Takes a DTM file and converts it to a file that is a GMT-compatible grid
     for plotting.
 
     Example:
-
-
+    project_name = "Rattlesnake Ridge"
+    # write elevation grid in UTM coordinates
+    dtm_to_gmt_grid(project_name, UTM=True)
     """
 
-    pass
+    if project_name == "Rattlesnake Ridge":
+        # load arrays from raster file
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+
+        if UTM:
+            # doug's limits
+            x_limits = [694.15, 694.45]
+            y_limits = [5155.40, 5155.90]
+
+            # get x and y distance in meters
+            x_dist_m = (x_limits[1] - x_limits[0]) * 1000
+            y_dist_m = (y_limits[1] - y_limits[0]) * 1000
+            # x and y steps for loops
+            num_x_steps = int(x_dist_m)  # 1 m resolution
+            num_y_steps = int(y_dist_m)
+            x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
+            y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
+
+        # in lat/lon
+        else:
+            # my limits
+            # x_limits = [-120.480, -120.462]
+            # y_limits = [46.519, 46.538]
+
+            # doug's limits
+            x_limits = [-120.4706347915009, -120.46074932200101]
+            y_limits = [46.52239398104922, 46.530274799769188]
+
+            # get x and y distance in feet
+            x_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                             (y_limits[0], x_limits[1])).ft
+            y_dist_ft = geopy.distance.distance((y_limits[0], x_limits[0]),
+                                             (y_limits[1], x_limits[0])).ft
+            # x and y steps for loops
+            num_x_steps = int(x_dist_ft / 3) # dataset resolution is 3 ft
+            num_y_steps = int(y_dist_ft / 3)
+            x_step = (x_limits[1] - x_limits[0]) / num_x_steps
+            y_step = (y_limits[1] - y_limits[0]) / num_y_steps
+
+        # query raster on a grid
+        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
+                                raster_file, x_limits, y_limits, plot=True,
+                                UTM=True)
+
+        # define header
+        elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
+                       x_step, y_step, num_x_steps, num_y_steps]
+
+        # build dict to make .mat file
+        elev_dict = {}
+        elev_dict['header'] = elev_header
+        elev_dict['data'] = np.rot90(elevation_grid, k=3)
+
+        savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
+                "/srElevation_TN.mat",
+                {'srElevation': elev_dict})
+
+    return None
+
 
 def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
-    """
+"""
     Formats data into EQTransformer station subdirectory format and naming
     convention.
 
