@@ -866,6 +866,18 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
 
     return location_dict
 
+def rattlesnake_ridge_dtm_to_gmt_grid():
+    """
+    Takes a DTM file and converts it to a file that is a GMT-compatible grid
+    for plotting.
+
+    Example:
+
+
+    """
+
+    pass
+
 def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
     """
     Formats data into EQTransformer station subdirectory format and naming
