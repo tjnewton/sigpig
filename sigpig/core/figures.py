@@ -99,8 +99,8 @@ def plot_stream(stream):
     # psd_plot = fig2.add_subplot()
     gs = fig.add_gridspec(4, 1)
     amplitude_plot = fig.add_subplot(gs[0, :])
-    psd_plot = fig.add_subplot(gs[1, :])
-    frequency_plot = fig.add_subplot(gs[2:, :])
+    frequency_plot = fig.add_subplot(gs[1:2, :])
+    psd_plot = fig.add_subplot(gs[3, :])
     # make a subplot of subplots for spectrograms
     frequency_plots = gridspec.GridSpecFromSubplotSpec(len(st), 1,
                                                        subplot_spec=frequency_plot)
@@ -186,7 +186,7 @@ def plot_stream(stream):
     amplitude_plot.set_ylim((0, len(st) + 0.5))
 
     # set PSD plot labels
-    psd_plot.set_xlabel('frequency [Hz]')
+    psd_plot.set_xlabel('Frequency [Hz]')
     psd_plot.set_ylabel('PSD [V**2/Hz]')
     psd_plot.set_title("Power Spectrum")
     psd_plot.set_xlim([0, 20])
