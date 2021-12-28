@@ -94,6 +94,10 @@ def plot_stream(st):
     # make a subplot of subplots for spectrograms
     frequency_plots = gridspec.GridSpecFromSubplotSpec(len(st), 1,
                                                        subplot_spec=frequency_plot)
+    # define data to work with
+    time = st[0].times("matplotlib")
+    trace_start = st[0].stats.starttime
+    trace_end = st[0].stats.endtime
 
     # loop through stream and generate plots
     y_labels = []
@@ -101,12 +105,9 @@ def plot_stream(st):
         # find max trace value for normalization
         maxTraceValue, _ = max_amplitude(trace)
 
-        # define data to work with
-        time = trace.times("matplotlib")
-        trace_start = trace.stats.starttime
+        # define amplitude data to work with
         norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
-                                                              np.min(
-                                                                  trace.data)) * 1.25 + index
+                         np.min(trace.data)) * 1.25 + index
         # add trace to waveform plot
         amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
 
@@ -119,13 +120,12 @@ def plot_stream(st):
         # print(trace.stats.sampling_rate)
 
         # build information for spectrogram
-        duration = trace.stats.endtime - trace_start
+        duration = trace_end - trace_start
         num_windows = (duration / 60) * 40 - 2
         window_duration = duration / num_windows
         window_length = int(window_duration * trace.stats.sampling_rate)
         nfftSTFT = window_length * 2  # nyquist
-        overlap = int(
-            window_length / 2)  # overlap between spec. windows in samples
+        overlap = int(window_length / 2)  # overlap between spec. windows in samples
         [fSTFT, tSTFT, STFT] = spsig.spectrogram(trace.data,
                                                  trace.stats.sampling_rate,
                                                  nperseg=window_length,
@@ -150,9 +150,9 @@ def plot_stream(st):
     amplitude_plot.set_yticks(np.arange(0.5, len(st) + 0.5))
     amplitude_plot.set_yticklabels(y_labels)
     amplitude_plot.set_ylabel('Station.Channel')
-    amplitude_plot.set_xlim([doi.matplotlib_date, doi_end.matplotlib_date])
-    amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {doi.month:02}-'
-                              f'{doi.day:02}-{doi.year}')
+    amplitude_plot.set_xlim([time[0], time[-1]])
+    amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {trace_start.month:02}-'
+                              f'{trace_start.day:02}-{trace_start.year}')
     myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
     amplitude_plot.xaxis.set_major_formatter(myFmt)
     locator_x = AutoDateLocator(minticks=10, maxticks=35)
