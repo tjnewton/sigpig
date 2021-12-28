@@ -163,8 +163,7 @@ def plot_stream(st):
     frequency_plot.set_yticks([])
     frequency_plot.set_xticks([])
     # fig.tight_layout()
-    fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
-                f"{doi.minute:02}.png", dpi=100)
+    fig.savefig(f"stream_plot.png", dpi=100)
 
     plt.show()
 
