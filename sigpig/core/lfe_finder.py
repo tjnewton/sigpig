@@ -2700,7 +2700,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         plot_distribution(snrs, title=f"SNR distribution t5 {thresh_type}"
-                                      f"={detect_thresh} SHN 100 Hz_ prepick",
+                                      f"={detect_thresh} SHN 100 Hz_1.5 "
+                                      f"prepick",
                           save=True)
 
     # consider only top n detections ranked by the cross-channel correlation sum
@@ -2766,7 +2767,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
                    title=f"t5_7.0_{thresh_type}{detect_thresh}_top_"
-                         f"{n}_correlation_sum_detections_100Hz_prepick",
+                         f"{n}_correlation_sum_detections_100Hz_1.5_prepick",
                    save=True)
         # free up some memory
         del detection_stream
@@ -2799,7 +2800,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             detection_stream = get_detections(party, detection_files_path,
                                               main_trace)
             plot_stack(detection_stream[:100],
-                       title=f"t5_7.0_{thresh_type}{detect_thresh}_top_100_culled_correlation_sum_detections", save=True)
+                       title=f"t5_7.0_{thresh_type}"
+                             f"{detect_thresh}_top_100_culled_correlation_sum_detections_1.5_prepick", save=True)
             # free up some memory
             del detection_stream
 
