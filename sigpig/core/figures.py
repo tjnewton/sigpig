@@ -188,7 +188,7 @@ def plot_stream(stream):
     # set PSD plot labels
     psd_plot.set_xlabel('frequency [Hz]')
     psd_plot.set_ylabel('PSD [V**2/Hz]')
-    psd_plot.set_title("Power spectral density")
+    psd_plot.set_title("Power Spectrum")
     psd_plot.set_xlim([0, 20])
     psd_plot.legend()
 
