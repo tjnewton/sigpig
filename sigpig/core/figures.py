@@ -95,11 +95,11 @@ def plot_stream(stream):
     figureWidth = 20
     figureHeight = 4.5 * len(st)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
-    # fig2 = plt.figure(figsize=(18, 10))
-    # psd_plot = fig2.add_subplot()
+    fig2 = plt.figure(figsize=(18, 10))
+    coh_plot = fig2.add_subplot()
     gs = fig.add_gridspec(4, 1)
     amplitude_plot = fig.add_subplot(gs[0, :])
-    frequency_plot = fig.add_subplot(gs[1:2, :])
+    frequency_plot = fig.add_subplot(gs[1:3, :])
     psd_plot = fig.add_subplot(gs[3, :])
     # make a subplot of subplots for spectrograms
     frequency_plots = gridspec.GridSpecFromSubplotSpec(len(st), 1,
@@ -155,7 +155,18 @@ def plot_stream(stream):
                                  nperseg=window_length, noverlap=overlap,
                                  nfft=nfftSTFT)
         psd_plot.plot(f, Pxx_den, label=str(index))
-        # psd_plot.plot(, Pxx_den, label=str(index))
+
+        # plot the coherence
+        if index == 0:
+            coh_trace_0 = trace.copy()
+        if index == 3:
+            coh_trace_4 = trace.copy()
+            f, Cxy = spsig.coherence(coh_trace_0, coh_trace_4,
+                                     coh_trace_0.stats.sampling_rate)
+            f, Pxy = spsig.csd(coh_trace_0, coh_trace_4,
+                                     coh_trace_0.stats.sampling_rate)
+            # coh_plot.semilogy(f, Cxy)
+            coh_plot.plot(f, np.abs(Pxy))
 
         # plot the spectrogram
         spec = fig.add_subplot(frequency_plots[(index + 1) * -1, 0])
@@ -200,7 +211,12 @@ def plot_stream(stream):
     # fig.tight_layout()
     fig.savefig(f"stream_plot.png", dpi=200)
 
-    # fig2.savefig(f"psd_plot.png", dpi=300)
+    # set coherence plot labels
+    coh_plot.set_xlabel('Frequency [Hz]')
+    coh_plot.set_ylabel('Coherence')
+    coh_plot.set_xlim([0, 20])
+    coh_plot.set_title("Coherence between traces 0 and 4")
+    fig2.savefig(f"coh_plot.png", dpi=300)
 
     plt.show()
     return fig
