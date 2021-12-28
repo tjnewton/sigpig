@@ -75,15 +75,98 @@ def plot_stalta(obspy_Trace: obspy.core.trace.Trace, cft: np.ndarray,
     return None
 
 
-def plot_spectrogram(trace):
+def plot_stream(st):
     """
-    Plots spectrogram from Obspy trace object.
+    Plots times series and spectrograms from traces of an Obspy stream object.
 
     Example:
+        st = Stream()
+        st += detection_stream[0].copy()
 
     """
+    # initialize figure and set the figure size
+    figureWidth = 30
+    figureHeight = 3.5 * len(st)
+    fig = plt.figure(figsize=(figureWidth, figureHeight))
+    gs = fig.add_gridspec(3, 1)
+    amplitude_plot = fig.add_subplot(gs[0, :])
+    frequency_plot = fig.add_subplot(gs[1:, :])
+    # make a subplot of subplots for spectrograms
+    frequency_plots = gridspec.GridSpecFromSubplotSpec(len(st), 1,
+                                                       subplot_spec=frequency_plot)
 
-    pass
+    # loop through stream and generate plots
+    y_labels = []
+    for index, trace in enumerate(st):
+        # find max trace value for normalization
+        maxTraceValue, _ = max_amplitude(trace)
+
+        # define data to work with
+        time = trace.times("matplotlib")
+        trace_start = trace.stats.starttime
+        norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
+                                                              np.min(
+                                                                  trace.data)) * 1.25 + index
+        # add trace to waveform plot
+        amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
+
+        # plot time markers for this trace if they exist
+        network_station = f"{trace.stats.network}.{trace.stats.station}"
+
+        # add station name to list of y labels
+        y_labels.append(f"{network_station}.{trace.stats.channel}")
+
+        # print(trace.stats.sampling_rate)
+
+        # build information for spectrogram
+        duration = trace.stats.endtime - trace_start
+        num_windows = (duration / 60) * 40 - 2
+        window_duration = duration / num_windows
+        window_length = int(window_duration * trace.stats.sampling_rate)
+        nfftSTFT = window_length * 2  # nyquist
+        overlap = int(
+            window_length / 2)  # overlap between spec. windows in samples
+        [fSTFT, tSTFT, STFT] = spsig.spectrogram(trace.data,
+                                                 trace.stats.sampling_rate,
+                                                 nperseg=window_length,
+                                                 noverlap=overlap,
+                                                 nfft=nfftSTFT)
+        # plot the spectrogram
+        spec = fig.add_subplot(frequency_plots[(index + 1) * -1, 0])
+
+        # dB = 20*log() convention
+        spec.pcolormesh(tSTFT, fSTFT, 20 * np.log10(np.absolute(STFT)),
+                        cmap='magma')
+
+        # spec.set_xlim([30, duration - 30])
+        spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
+                        f"{trace.stats.channel}",
+                        rotation=0, labelpad=40)
+        spec.tick_params(axis='x', which='both', bottom=True, top=False,
+                         labelbottom=True)
+    # spec.set_yticks([])
+
+    # set axes attributes
+    amplitude_plot.set_yticks(np.arange(0.5, len(st) + 0.5))
+    amplitude_plot.set_yticklabels(y_labels)
+    amplitude_plot.set_ylabel('Station.Channel')
+    amplitude_plot.set_xlim([doi.matplotlib_date, doi_end.matplotlib_date])
+    amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {doi.month:02}-'
+                              f'{doi.day:02}-{doi.year}')
+    myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    amplitude_plot.xaxis.set_major_formatter(myFmt)
+    locator_x = AutoDateLocator(minticks=10, maxticks=35)
+    amplitude_plot.xaxis.set_major_locator(locator_x)
+    amplitude_plot.set_ylim((0, len(st) + 0.5))
+    # frequency_plot.set_ylabel('Frequency (Hz)')
+    # frequency_plot.set_xlabel('Time (s)')
+    frequency_plot.set_yticks([])
+    frequency_plot.set_xticks([])
+    # fig.tight_layout()
+    fig.savefig(f"{doi.month:02}-{doi.day:02}-{doi.year}T{doi.hour:02}."
+                f"{doi.minute:02}.png", dpi=100)
+
+    plt.show()
 
 
 def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
