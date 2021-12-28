@@ -76,25 +76,26 @@ def plot_stalta(obspy_Trace: obspy.core.trace.Trace, cft: np.ndarray,
     return None
 
 
-def plot_stream(st):
+def plot_stream(stream):
     """
     Plots times series and spectrograms from traces of an Obspy stream object.
 
     Example:
         # build a stream
-        st = Stream()
+        stream = Stream()
         for index in range(10):
-            st += detection_stream[index].copy()
+            stream += detection_stream[index].copy()
 
         # plot the stream
-        fig = plot_stream(st)
-
+        fig = plot_stream(stream)
     """
+    st = stream.copy()
+
     # initialize figure and set the figure size
     figureWidth = 20
     figureHeight = 4.5 * len(st)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
-    fig2 = plt.figure(figsize=(10, 10))
+    fig2 = plt.figure(figsize=(18, 10))
     psd_plot = fig2.add_subplot()
     gs = fig.add_gridspec(3, 1)
     amplitude_plot = fig.add_subplot(gs[0, :])
@@ -103,13 +104,21 @@ def plot_stream(st):
     frequency_plots = gridspec.GridSpecFromSubplotSpec(len(st), 1,
                                                        subplot_spec=frequency_plot)
     # define data to work with
-    time = st[0].times("matplotlib")
-    trace_start = st[0].stats.starttime
-    trace_end = st[0].stats.endtime
+    trace_start = st[0].stats.starttime + 15
+    trace_end = st[0].stats.endtime - 15
 
     # loop through stream and generate plots
     y_labels = []
     for index, trace in enumerate(st):
+        # trim trace to period of interest
+        tr_start = trace.stats.starttime
+        tr_end = trace.stats.endtime
+        trace.trim(tr_start + 15, tr_end - 15)
+
+        # set times on first iteration
+        if index == 0:
+            time = trace.times("matplotlib")
+
         # find max trace value for normalization
         maxTraceValue, _ = max_amplitude(trace)
 
@@ -150,14 +159,15 @@ def plot_stream(st):
         spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
                         f"{trace.stats.channel}",
                         rotation=0, labelpad=40)
-        spec.tick_params(axis='x', which='both', bottom=True, top=False,
-                         labelbottom=True)
+        spec.tick_params(axis='x', which='both', bottom=False, top=False,
+                         labelbottom=False)
 
         # plot the PSD
         f, Pxx_den = spsig.welch(trace.data, trace.stats.sampling_rate,
                                  nperseg=window_length, noverlap=overlap,
                                  nfft=nfftSTFT)
-        psd_plot.semilogy(f, Pxx_den, label=str(index))
+        psd_plot.plot(f, Pxx_den, label=str(index))
+        # psd_plot.plot(, Pxx_den, label=str(index))
     # spec.set_yticks([])
 
     # set axes attributes
@@ -176,6 +186,7 @@ def plot_stream(st):
     # frequency_plot.set_xlabel('Time (s)')
     frequency_plot.set_yticks([])
     frequency_plot.set_xticks([])
+    frequency_plot.set_ylim([0, 20])
     # fig.tight_layout()
     fig.savefig(f"stream_plot.png", dpi=100)
 
@@ -183,6 +194,7 @@ def plot_stream(st):
     psd_plot.set_xlabel('frequency [Hz]')
     psd_plot.set_ylabel('PSD [V**2/Hz]')
     psd_plot.set_title("Power spectral density")
+    psd_plot.set_xlim([0, 20])
     psd_plot.legend()
     fig2.savefig(f"psd_plot.png", dpi=300)
 
