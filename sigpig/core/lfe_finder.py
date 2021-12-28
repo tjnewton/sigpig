@@ -2455,7 +2455,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n"]
         template_length = 7.0
-        template_prepick = 0.5
+        template_prepick = 1.5 # was 0.5
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2520,7 +2520,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'self'
-    load_party = True
+    load_party = False
     save_detections = False
 
     top_n = True
@@ -2530,7 +2530,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_stack_detects = False
     load_second_stack = False
     cull = True
-    plot = False
+    plot = True
 
     # get main station template detections
     if load_party:
