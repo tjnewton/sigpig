@@ -2521,10 +2521,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'self'
     load_party = True
-    save_detections = True
+    save_detections = False
 
     top_n = True
-    n = 3048
+    n = 100
 
     load_stack = False
     load_stack_detects = False
