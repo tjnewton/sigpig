@@ -80,8 +80,13 @@ def plot_stream(st):
     Plots times series and spectrograms from traces of an Obspy stream object.
 
     Example:
+        # build a stream
         st = Stream()
-        st += detection_stream[0].copy()
+        for index in range(2)
+            st += detection_stream[index].copy()
+
+        # plot the stream
+        fig = plot_stream(st)
 
     """
     # initialize figure and set the figure size
