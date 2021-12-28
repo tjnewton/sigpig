@@ -83,7 +83,7 @@ def plot_stream(st):
     Example:
         # build a stream
         st = Stream()
-        for index in range(2):
+        for index in range(10):
             st += detection_stream[index].copy()
 
         # plot the stream
@@ -94,6 +94,8 @@ def plot_stream(st):
     figureWidth = 20
     figureHeight = 4.5 * len(st)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
+    fig2 = plt.figure(figsize=(10, 10))
+    psd_plot = fig2.add_subplot()
     gs = fig.add_gridspec(3, 1)
     amplitude_plot = fig.add_subplot(gs[0, :])
     frequency_plot = fig.add_subplot(gs[1:, :])
@@ -150,6 +152,12 @@ def plot_stream(st):
                         rotation=0, labelpad=40)
         spec.tick_params(axis='x', which='both', bottom=True, top=False,
                          labelbottom=True)
+
+        # plot the PSD
+        f, Pxx_den = spsig.welch(trace.data, trace.stats.sampling_rate,
+                                 nperseg=window_length, noverlap=overlap,
+                                 nfft=nfftSTFT)
+        psd_plot.semilogy(f, Pxx_den, label=str(index))
     # spec.set_yticks([])
 
     # set axes attributes
@@ -170,6 +178,13 @@ def plot_stream(st):
     frequency_plot.set_xticks([])
     # fig.tight_layout()
     fig.savefig(f"stream_plot.png", dpi=100)
+
+    # set PSD plot labels
+    psd_plot.set_xlabel('frequency [Hz]')
+    psd_plot.set_ylabel('PSD [V**2/Hz]')
+    psd_plot.set_title("Power spectral density")
+    psd_plot.legend()
+    fig2.savefig(f"psd_plot.png", dpi=300)
 
     plt.show()
     return fig
