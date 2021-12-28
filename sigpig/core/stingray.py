@@ -417,7 +417,7 @@ def stingray_ttg_to_nonlinloc(project_name):
 
 def nonlinloc_setup():
     """
-    Function to generate files necessary to run NonLinLoc.
+    Function to generate all files necessary to run NonLinLoc.
 
     """
 
