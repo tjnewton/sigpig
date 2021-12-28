@@ -166,6 +166,7 @@ def plot_stream(st):
     fig.savefig(f"stream_plot.png", dpi=100)
 
     plt.show()
+    return fig
 
 
 def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
@@ -388,6 +389,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
                 f"{doi.minute:02}.png", dpi=100)
 
     plt.show()
+    return fig
 
 
 # plot time series for specified dates of interest from specified files
