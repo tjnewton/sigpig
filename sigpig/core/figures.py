@@ -159,14 +159,14 @@ def plot_stream(stream):
         # plot the coherence
         if index == 0:
             coh_trace_0 = trace.copy()
-        if index == 3:
+        if index == 4:
             coh_trace_4 = trace.copy()
             f, Cxy = spsig.coherence(coh_trace_0, coh_trace_4,
                                      coh_trace_0.stats.sampling_rate)
             f, Pxy = spsig.csd(coh_trace_0, coh_trace_4,
                                      coh_trace_0.stats.sampling_rate)
-            # coh_plot.semilogy(f, Cxy)
-            coh_plot.plot(f, np.abs(Pxy))
+            coh_plot.semilogy(f, Cxy)
+            # coh_plot.plot(f, np.abs(Pxy))
 
         # plot the spectrogram
         spec = fig.add_subplot(frequency_plots[(index + 1) * -1, 0])
@@ -181,6 +181,7 @@ def plot_stream(stream):
                         rotation=0, labelpad=40)
         spec.tick_params(axis='x', which='both', bottom=False, top=False,
                          labelbottom=False)
+        spec.set_ylim([0, 20])
 
     # spec.set_yticks([])
 
@@ -207,7 +208,7 @@ def plot_stream(stream):
     # frequency_plot.set_xlabel('Time (s)')
     frequency_plot.set_yticks([])
     frequency_plot.set_xticks([])
-    frequency_plot.set_ylim([0, 20])
+    # frequency_plot.set_ylim([0, 20])
     # fig.tight_layout()
     fig.savefig(f"stream_plot.png", dpi=200)
 
