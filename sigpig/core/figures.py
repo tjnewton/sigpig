@@ -5,6 +5,7 @@ Functions to generate various figures.
 import obspy
 from obspy import read, Stream, Trace
 from obspy.core.utcdatetime import UTCDateTime
+from obspy.signal.util import _npts2nfft
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from matplotlib.dates import DateFormatter, AutoDateLocator
@@ -82,7 +83,7 @@ def plot_stream(st):
     Example:
         # build a stream
         st = Stream()
-        for index in range(2)
+        for index in range(2):
             st += detection_stream[index].copy()
 
         # plot the stream
@@ -90,8 +91,8 @@ def plot_stream(st):
 
     """
     # initialize figure and set the figure size
-    figureWidth = 30
-    figureHeight = 3.5 * len(st)
+    figureWidth = 20
+    figureHeight = 4.5 * len(st)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     gs = fig.add_gridspec(3, 1)
     amplitude_plot = fig.add_subplot(gs[0, :])
