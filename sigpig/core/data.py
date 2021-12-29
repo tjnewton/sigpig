@@ -938,7 +938,7 @@ def dtm_to_gmt_grid(project_name, UTM=False):
 
 
 def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
-"""
+    """
     Formats data into EQTransformer station subdirectory format and naming
     convention.
 
