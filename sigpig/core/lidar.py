@@ -13,7 +13,7 @@ from rasterio.fill import fillnodata
 from affine import Affine
 from pyproj import Proj, transform
 from obspy.core.utcdatetime import UTCDateTime
-from data import rattlesnake_Ridge_Station_Locations
+# from data import rattlesnake_Ridge_Station_Locations
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
