@@ -2692,6 +2692,37 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                detection_files_path, start_date, end_date,
                                thresh_type, detect_thresh)
 
+    # cull the party detections below the specified signal to noise ratio
+    if cull:
+        # SNR based culling & removal of traces with > 0.3 *
+        # trace.stats.npts NaNs.
+        culled_party = cull_detections(party, detection_files_path,
+                                       snr_threshold, main_trace)
+        # cull based on spectral energy in a specific band
+        # TODO: add spectral function above?
+
+        if plot:
+            # inspect the culled party growth over time
+            detections_fig = culled_party.plot(plot_grouped=True)
+            rate_fig = culled_party.plot(plot_grouped=True, rate=True)
+            print(sorted(culled_party.families, key=lambda f: len(f))[-1])
+
+        print(f"Culled detections comprise "
+              f"{(round(100 * (len(culled_party) / len(party)), 1))}% of all "
+              f"detections ({len(culled_party)}/{len(party)}).")
+        # allow old party to get trash collected from memory
+        party = culled_party
+
+        if plot:
+            detection_stream = get_detections(party, detection_files_path,
+                                              main_trace)
+            plot_stack(detection_stream[:100],
+                       title=f"WASW_t5_{template_length}s_"
+                             f"{template_prepick}_prepick_{thresh_type}"
+                             f"{detect_thresh}_culled_unsorted", save=True)
+            # free up some memory
+            del detection_stream
+
     # # calculate and plot snrs of detections, this call is memory-limited
     # # because get_detections loads all traces into a single stream
     # detection_stream = get_detections(party, detection_files_path, main_trace)
@@ -2703,13 +2734,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     snrs = party_snrs(party, detection_files_path, main_trace)
 
     if plot:
-        plot_distribution(snrs, title=f"SNR distribution t5 {thresh_type}"
-                                      f"={detect_thresh} SHN 100 Hz_1.5 "
-                                      f"prepick",
-                          save=True)
+        plot_distribution(snrs, title=f"SNR_distribution_WASW_t5"
+                          f"_{template_length}s_{template_prepick}_prepick"
+                          f"_{thresh_type}{detect_thresh}", save=True)
 
     # consider only top n detections ranked by the cross-channel correlation sum
     if top_n:
+        # FIXME: move this to a sort function, too complex for inline
         data = []
         for index, detection in enumerate(party.families[0].detections):
             data.append(
@@ -2724,39 +2755,37 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                    'threshold_metric',
                                    'metric_input', 'template', 'snr'])
 
-        if save_detections:
-            # save party detections as text file
-            df.to_csv(f'WASW_{thresh_type}{detect_thresh}_detections.csv',
-                      index=False)
-
-            # save pickle file
-            outfile = open(f'top_{n}_WASW_t5_culled_snr{snr_threshold[0]}-'
-                           f'{snr_threshold[1]}_'
-                           f'{shift_method}Shift_{thresh_type}'
-                           f'{detect_thresh}_7s_100Hz_prepick_party.pkl',
-                           'wb')
-
-            pickle.dump(party, outfile)
-            outfile.close()
-
         # get top n indices of detections with largest correlation sum
         top_n_df = df.nlargest(n, 'abs_correlation_sum')
         keeper_indices = top_n_df['index'].tolist()
 
         # build list of sorted detections to keep
         detections = [party.families[0].detections[idx] for idx in keeper_indices]
+        # build catalog for sorted party object by copying, clearing, rebuild
+        catalog = party.families[0].catalog.copy()
+        catalog.clear()
+        for idx in keeper_indices:
+            catalog.append(party.families[0].catalog.events[idx])
 
-        # make a top n party
-        top_n_party = party.copy()
-        top_n_party.families[0].detections = detections
-
-        # # loop over party detections in reverse, this is unsorted.
-        # for detection_index in range(len(party.families[0].detections) - 1, -1,-1):
-        #     # delete items not in keeper indices list
-        #     if detection_index not in keeper_indices:
-        #         del party.families[0].detections[detection_index]
-
+        # make a sorted top n party
+        template = party.families[0].template
+        top_n_party = Party(families=Family(template, detections, catalog))
         party = top_n_party
+
+        if save_detections:
+            # save party detections as text file
+            df.to_csv(f"WASW_t5_{template_length}s_"
+                      f"{template_prepick}_prepick_{thresh_type}"
+                      f"{detect_thresh}_culled_sorted_detections.csv",
+                      index=False)
+
+            # save party to pickle file
+            outfile = open(f"top_{n}_WASW_t5_{template_length}s_"
+                      f"{template_prepick}_prepick_{thresh_type}"
+                      f"{detect_thresh}_culled_sorted_party.pkl", 'wb')
+
+            pickle.dump(party, outfile)
+            outfile.close()
 
     if plot:
         # inspect the party growth over time
@@ -2770,44 +2799,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"t5_7.0_{thresh_type}{detect_thresh}_top_"
+                   title=f"test_t5_7.0_{thresh_type}{detect_thresh}_top_"
                          f"{n}_correlation_sum_detections_100Hz_1.5_prepick",
                    save=True)
         # free up some memory
         del detection_stream
-
-    # cull the party detections below the specified signal to noise ratio
-    if cull:
-        # SNR based culling & removal of traces with > 0.3 *
-        # trace.stats.npts NaNs.
-        culled_party = cull_detections(party, detection_files_path,
-                                       snr_threshold, main_trace)
-        # cull based on spectral energy in a specific band
-        # TODO: add spectral function above
-
-
-
-
-        if plot:
-            # inspect the culled party growth over time
-            detections_fig = culled_party.plot(plot_grouped=True)
-            rate_fig = culled_party.plot(plot_grouped=True, rate=True)
-            print(sorted(culled_party.families, key=lambda f: len(f))[-1])
-
-        print(f"Culled detections comprise "
-              f"{(round(100 * (len(culled_party)/len(party)), 1))}% of all "
-              f"detections ({len(culled_party)}/{len(party)}).")
-        # allow old party to get trash collected from memory
-        party = culled_party
-
-        if plot:
-            detection_stream = get_detections(party, detection_files_path,
-                                              main_trace)
-            plot_stack(detection_stream[:100],
-                       title=f"t5_7.0_{thresh_type}"
-                             f"{detect_thresh}_top_100_culled_correlation_sum_detections_1.5_prepick", save=True)
-            # free up some memory
-            del detection_stream
 
     # generate or load a stack
     if load_stack:
