@@ -66,16 +66,16 @@ def max_amplitude(timeSeries):
     # for Stream objects
     if isinstance(timeSeries, obspy.core.stream.Stream):
         # creates a list of the max value in each trace
-        traceMax = [np.max(np.abs(timeSeries[trace].data)) for trace in
+        traceMax = [np.nanmax(np.abs(timeSeries[trace].data)) for trace in
                     range(len(timeSeries))]
         # return max value among all traces
-        return np.max(traceMax), np.argmax(traceMax)
+        return np.max(traceMax), np.nanargmax(traceMax)
 
     # for Trace objects
     elif isinstance(timeSeries, obspy.core.trace.Trace):
         if len(timeSeries.data) > 0:
-            traceMax = np.max(np.abs(timeSeries.data))
-            max_index = np.argmax(np.abs(timeSeries.data))
+            traceMax = np.nanmax(np.abs(timeSeries.data))
+            max_index = np.nanargmax(np.abs(timeSeries.data))
         else:
             traceMax = None
             max_index = None
