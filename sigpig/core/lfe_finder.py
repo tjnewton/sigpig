@@ -1354,6 +1354,9 @@ def cull_detections(party, detection_files_path, snr_threshold, main_trace):
         if trace_snr < snr_threshold[0] or trace_snr > snr_threshold[1]:
             deletion_indices.append(index)
             old_snrs.append(trace_snr)
+        elif trace_snr == np.nan:
+            deletion_indices.append(index)
+            old_snrs.append(trace_snr)
         # check the zeros condition for deletion
         elif zero_count > 0.3 * trace.stats.npts:
             deletion_indices.append(index)
@@ -2799,11 +2802,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"WASW_t5_{template_length}s_"
+                   title=f"top_{n}_WASW_t5_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted", save=True)
         # free up some memory
         del detection_stream
+
+    # TODO: inspect detections here
+
 
     # generate or load a stack
     if load_stack:
