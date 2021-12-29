@@ -2488,7 +2488,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
 
         # set snr threshold to cull the party detections
-        snr_threshold = [1.0, 15.0] # [1.0, 8.0]
+        snr_threshold = [1.0, 25.0] # [1.0, 8.0]
         # set detection threshold and type
         # detect_thresh = 15.0
         # thresh_type = "MAD"
@@ -2769,7 +2769,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # make a sorted top n party
         template = party.families[0].template
-        top_n_party = Party(families=Family(template, detections, catalog))
+        top_n_party = Party(families=Family(template, detections))
         party = top_n_party
 
         if save_detections:
