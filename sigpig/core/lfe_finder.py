@@ -2799,9 +2799,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"test_t5_7.0_{thresh_type}{detect_thresh}_top_"
-                         f"{n}_correlation_sum_detections_100Hz_1.5_prepick",
-                   save=True)
+                   title=f"WASW_t5_{template_length}s_"
+                         f"{template_prepick}_prepick_{thresh_type}"
+                         f"{detect_thresh}_culled_sorted", save=True)
         # free up some memory
         del detection_stream
 
