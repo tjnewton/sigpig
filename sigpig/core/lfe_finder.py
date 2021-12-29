@@ -1317,6 +1317,7 @@ def cull_detections(party, detection_files_path, snr_threshold, main_trace):
     deletion_indices = []
     old_snrs = []
     new_snrs = []
+    detections = []
     # loop over detections
     for index, detection in enumerate(party.families[0].detections):
         # define the date of interest to get appropriate files
@@ -1364,14 +1365,20 @@ def cull_detections(party, detection_files_path, snr_threshold, main_trace):
         else:
             new_snrs.append(trace_snr)
             old_snrs.append(trace_snr)
+            # build list of detections to keep
+            detections.append(detection)
 
-    new_party = party.copy()
-    # delete detections below threshold
-    deleted_detections = []
-    for index in sorted(deletion_indices, reverse=True):
-        deleted_detections.append(new_party.families[0].detections[
-                                      index].copy())
-        del new_party.families[0].detections[index]
+    # make a new party object
+    template = party.families[0].template
+    new_party = Party(families=Family(template, detections))
+
+    # new_party = party.copy()
+    # # delete detections below threshold
+    # deleted_detections = []
+    # for index in sorted(deletion_indices, reverse=True):
+    #     deleted_detections.append(new_party.families[0].detections[
+    #                                   index].copy())
+    #     del new_party.families[0].detections[index]
 
     plot_distribution(old_snrs, title="SNR distribution of all detections",
                       save=False)
@@ -2523,8 +2530,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'self'
-    load_party = False
-    save_detections = False
+    load_party = True
+    save_detections = True
 
     top_n = True
     n = 100
@@ -2678,14 +2685,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #               '.pkl', 'rb')
 
         # 100 Hz party w/ 0.5s prepick for testing,  detections
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
 
         # # Culled 100 Hz party w/ 0.5s prepick for testing
         # infile = open('top_3048_WASW_t5_culled_snr1.0-15.0_selfShift_abs0'
         #               '.65_7s_100Hz_prepick_party.pkl', 'rb')
 
         # 100 Hz party w/ 1.5s prepick for testing
-        infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        # infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
 
         party = pickle.load(infile)
         infile.close()
