@@ -405,3 +405,14 @@ def picks_to_nonlinloc(marker_file_path):
                 #     write_file.write(line)
 
     return None
+
+
+def process_nll_hypocenters(filename):
+    """ Reads a NonLinLoc .hyp file and writes the hypocenter locations to a
+    file for plotting via GMT.
+
+    Example:
+
+    """
+
+    return None
