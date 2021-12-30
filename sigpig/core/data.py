@@ -923,7 +923,7 @@ def dtm_to_netcdf(project_name, UTM=False):
 
         # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, plot=True,
+                                raster_file, x_limits, y_limits, plot=False,
                                 UTM=True)
 
         # # define header
