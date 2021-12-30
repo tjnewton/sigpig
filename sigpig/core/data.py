@@ -870,11 +870,13 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
     return location_dict
 
 
-def dtm_to_netcdf(project_name, UTM=False, stingray_format=False):
+def dtm_to_grid(project_name, UTM=False, stingray_format=False):
     """
     Takes a DTM file and converts it to a file that is a GMT-compatible grid
     for plotting. For more information on netCDF see:
     https://towardsdatascience.com/create-netcdf-files-with-python-1d86829127dd
+    or converts the DTM file to the format necessary for Stingray (which is
+    a .mat file containing the same information in a different format).
 
     # FIXME: only UTM implementation has been tested. Lat/lon has bugs.
 
