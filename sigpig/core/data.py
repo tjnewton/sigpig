@@ -15,6 +15,8 @@ from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
 import os
 from lidar import grids_from_raster
+import netCDF4 as nc
+
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -871,12 +873,13 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
 def dtm_to_netcdf(project_name, UTM=False):
     """
     Takes a DTM file and converts it to a file that is a GMT-compatible grid
-    for plotting.
+    for plotting. For more information on netCDF see:
+    https://towardsdatascience.com/create-netcdf-files-with-python-1d86829127dd
 
     Example:
     project_name = "Rattlesnake Ridge"
     # write elevation grid in UTM coordinates
-    dtm_to_gmt_grid(project_name, UTM=True)
+    dtm_to_netcdf(project_name, UTM=True)
     """
 
     if project_name == "Rattlesnake Ridge":
@@ -920,7 +923,7 @@ def dtm_to_netcdf(project_name, UTM=False):
 
         # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, plot=True,
+                                raster_file, x_limits, y_limits, plot=False,
                                 UTM=True)
 
         # # define header
@@ -933,7 +936,25 @@ def dtm_to_netcdf(project_name, UTM=False):
         #         "/srElevation_TN.mat",
         #         {'srElevation': elev_dict})
 
-        # TODO: convert grid to NetCDF
+        # save grid to NetCDF file
+        filename = 'gridded_rr_dtm.nc'
+        ds = nc.Dataset(filename, 'w', format='NETCDF4')
+        # add no time dimension, and lat & lon dimensions
+        time = ds.createDimension('time', None)
+        lat = ds.createDimension('lat', num_y_steps)
+        lon = ds.createDimension('lon', num_x_steps)
+        # generate netCDF variables to store data
+        times = ds.createVariable('time', 'f4', ('time',))
+        lats = ds.createVariable('lat', 'f4', ('lat',))
+        lons = ds.createVariable('lon', 'f4', ('lon',))
+        value = ds.createVariable('value', 'f4', ('time', 'lat', 'lon',))
+        value.units = 'm'
+        # set spatial values of grid
+        lats[:] = latitude_grid[:,0]
+        lons[:] = longitude_grid[0,:]
+        value[0, :, :] = elevation_grid
+        # close the netCDF file
+        ds.close()
 
     return None
 
