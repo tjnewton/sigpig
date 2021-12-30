@@ -16,7 +16,7 @@ from obspy.core.utcdatetime import UTCDateTime
 import os
 from lidar import grids_from_raster
 import netCDF4 as nc
-
+import geopy
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -887,8 +887,11 @@ def dtm_to_netcdf(project_name, UTM=False):
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
 
         if UTM:
-            # spatial limits
-            x_limits = [694.15, 694.45]
+            # stingray spatial limits
+            # x_limits = [694.15, 694.45]
+            # y_limits = [5155.40, 5155.90]
+            # expanded spatial limits for plotting NLL results in GMT
+            x_limits = [694.10, 694.45]
             y_limits = [5155.40, 5155.90]
 
             # get x and y distance in meters
@@ -924,7 +927,7 @@ def dtm_to_netcdf(project_name, UTM=False):
         # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
                                 raster_file, x_limits, y_limits, plot=False,
-                                UTM=True)
+                                UTM=UTM)
 
         # # define header
         # elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
@@ -952,7 +955,7 @@ def dtm_to_netcdf(project_name, UTM=False):
         # set spatial values of grid
         lats[:] = np.flip(latitude_grid[:,0])
         lons[:] = longitude_grid[0,:]
-        value[0, :, :] = elevation_grid
+        value[0, :, :] = np.flip(elevation_grid, axis=0)
         # close the netCDF file
         ds.close()
 
