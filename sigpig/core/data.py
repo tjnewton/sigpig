@@ -868,7 +868,7 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
     return location_dict
 
 
-def dtm_to_gmt_grid(project_name, UTM=False):
+def dtm_to_netcdf(project_name, UTM=False):
     """
     Takes a DTM file and converts it to a file that is a GMT-compatible grid
     for plotting.
