@@ -2464,8 +2464,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # MAD detections return anamolous detections for WASW
         templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n"]
-        template_length = 7.0
-        template_prepick = 1.5 # was 0.5
+        template_length = 12.0 # was 7.0
+        template_prepick = 0.5
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2530,7 +2530,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'self'
-    load_party = True
+    load_party = False
     save_detections = True
 
     top_n = True
@@ -2692,7 +2692,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #               '.65_7s_100Hz_prepick_party.pkl', 'rb')
 
         # 100 Hz party w/ 1.5s prepick for testing
-        # infile = open('party_06_15_2016_to_08_12_2018.pkl', 'rb')
+        # infile = open('WASW_t5_culled_snr1.0-15.0_selfShift_abs0'
+        #               '.65_7s_100Hz_1.5prepick_party.pkl', 'rb')
 
         party = pickle.load(infile)
         infile.close()
