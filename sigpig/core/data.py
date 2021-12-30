@@ -923,7 +923,7 @@ def dtm_to_netcdf(project_name, UTM=False):
 
         # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, plot=False,
+                                raster_file, x_limits, y_limits, plot=True,
                                 UTM=True)
 
         # # define header
@@ -950,7 +950,7 @@ def dtm_to_netcdf(project_name, UTM=False):
         value = ds.createVariable('value', 'f4', ('time', 'lat', 'lon',))
         value.units = 'm'
         # set spatial values of grid
-        lats[:] = latitude_grid[:,0]
+        lats[:] = np.flip(latitude_grid[:,0])
         lons[:] = longitude_grid[0,:]
         value[0, :, :] = elevation_grid
         # close the netCDF file
