@@ -419,13 +419,16 @@ def grids_from_raster(raster_file, x_limits, y_limits, plot=False, UTM=False):
             row_elevations = elevations_from_raster(raster_file,
                                                     row_lons,
                                                     row_lats)
+            longitude_grid.append(row_lons)
+            latitude_grid.append(row_lats)
 
         else:
             row_elevations = elevations_from_raster(raster_file,
                                                     row_longitudes,
                                                     row_latitudes)
-        longitude_grid.append(row_longitudes)
-        latitude_grid.append(row_latitudes)
+            longitude_grid.append(row_longitudes)
+            latitude_grid.append(row_latitudes)
+
         elevation_grid.append(row_elevations)
 
     longitude_grid = np.asarray(longitude_grid)
