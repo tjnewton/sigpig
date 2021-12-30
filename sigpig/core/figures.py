@@ -105,8 +105,8 @@ def plot_stream(stream):
     frequency_plots = gridspec.GridSpecFromSubplotSpec(len(st), 1,
                                                        subplot_spec=frequency_plot)
     # define data to work with
-    trace_start = st[0].stats.starttime + 15
-    trace_end = st[0].stats.endtime - 15
+    trace_start = st[0].stats.starttime# + 15
+    trace_end = st[0].stats.endtime# - 15
 
     # loop through stream and generate plots
     y_labels = []
@@ -114,7 +114,7 @@ def plot_stream(stream):
         # trim trace to period of interest
         tr_start = trace.stats.starttime
         tr_end = trace.stats.endtime
-        trace.trim(tr_start + 15, tr_end - 15)
+        #trace.trim(tr_start + 15, tr_end - 15)
 
         # set times on first iteration
         if index == 0:
