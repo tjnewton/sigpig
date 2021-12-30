@@ -2502,7 +2502,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set detection threshold and type
         # detect_thresh = 15.0
         # thresh_type = "MAD"
-        detect_thresh = 0.65
+        detect_thresh = 0.5
         thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
