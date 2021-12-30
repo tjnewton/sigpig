@@ -870,11 +870,13 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
     return location_dict
 
 
-def dtm_to_netcdf(project_name, UTM=False):
+def dtm_to_netcdf(project_name, UTM=False, stingray_format=False):
     """
     Takes a DTM file and converts it to a file that is a GMT-compatible grid
     for plotting. For more information on netCDF see:
     https://towardsdatascience.com/create-netcdf-files-with-python-1d86829127dd
+
+    # FIXME: only UTM implementation has been tested. Lat/lon has bugs.
 
     Example:
     project_name = "Rattlesnake Ridge"
@@ -887,12 +889,14 @@ def dtm_to_netcdf(project_name, UTM=False):
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
 
         if UTM:
-            # stingray spatial limits
-            # x_limits = [694.15, 694.45]
-            # y_limits = [5155.40, 5155.90]
-            # expanded spatial limits for plotting NLL results in GMT
-            x_limits = [694.10, 694.45]
-            y_limits = [5155.40, 5155.90]
+            if stingray_format:
+                # stingray spatial limits
+                x_limits = [694.15, 694.45]
+                y_limits = [5155.40, 5155.90]
+            else:
+                # expanded spatial limits for plotting NLL results in GMT
+                x_limits = [694.10, 694.50]
+                y_limits = [5155.3, 5155.99]
 
             # get x and y distance in meters
             x_dist_m = (x_limits[1] - x_limits[0]) * 1000
@@ -928,36 +932,36 @@ def dtm_to_netcdf(project_name, UTM=False):
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
                                 raster_file, x_limits, y_limits, plot=False,
                                 UTM=UTM)
+        if stingray_format:
+            # define header
+            elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
+                           x_step, y_step, num_x_steps, num_y_steps]
 
-        # # define header
-        # elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
-        #                x_step, y_step, num_x_steps, num_y_steps]
+            elev_dict['data'] = np.rot90(elevation_grid, k=3)
 
-        # elev_dict['data'] = np.rot90(elevation_grid, k=3)
-
-        # savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
-        #         "/srElevation_TN.mat",
-        #         {'srElevation': elev_dict})
-
-        # save grid to NetCDF file
-        filename = 'gridded_rr_dtm.nc'
-        ds = nc.Dataset(filename, 'w', format='NETCDF4')
-        # add no time dimension, and lat & lon dimensions
-        time = ds.createDimension('time', None)
-        lat = ds.createDimension('lat', num_y_steps)
-        lon = ds.createDimension('lon', num_x_steps)
-        # generate netCDF variables to store data
-        times = ds.createVariable('time', 'f4', ('time',))
-        lats = ds.createVariable('lat', 'f4', ('lat',))
-        lons = ds.createVariable('lon', 'f4', ('lon',))
-        value = ds.createVariable('value', 'f4', ('time', 'lat', 'lon',))
-        value.units = 'm'
-        # set spatial values of grid
-        lats[:] = np.flip(latitude_grid[:,0])
-        lons[:] = longitude_grid[0,:]
-        value[0, :, :] = np.flip(elevation_grid, axis=0)
-        # close the netCDF file
-        ds.close()
+            savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
+                    "/srElevation_TN.mat",
+                    {'srElevation': elev_dict})
+        else:
+            # save grid to NetCDF file
+            filename = 'gridded_rr_dtm.nc'
+            ds = nc.Dataset(filename, 'w', format='NETCDF4')
+            # add no time dimension, and lat & lon dimensions
+            time = ds.createDimension('time', None)
+            lat = ds.createDimension('lat', num_y_steps)
+            lon = ds.createDimension('lon', num_x_steps)
+            # generate netCDF variables to store data
+            times = ds.createVariable('time', 'f4', ('time',))
+            lats = ds.createVariable('lat', 'f4', ('lat',))
+            lons = ds.createVariable('lon', 'f4', ('lon',))
+            value = ds.createVariable('value', 'f4', ('time', 'lat', 'lon',))
+            value.units = 'm'
+            # set spatial values of grid
+            lats[:] = np.flip(latitude_grid[:,0])
+            lons[:] = longitude_grid[0,:]
+            value[0, :, :] = np.flip(elevation_grid, axis=0)
+            # close the netCDF file
+            ds.close()
 
     return None
 
