@@ -494,9 +494,13 @@ def process_nll_hypocenters(file_path):
     return None
 
 
-def process_autopicked_events(file_name):
+def process_autopicked_events(file_path):
     """ Reads snuffler format file containing autopicked & associated events
-    then # TODO:
+    then assigns uncertainties to the events based on the SNR, derived from
+    manual uncertainty assignments. Returns a sorted dict?  # TODO:
+
+    Example:
+        file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-06_25_2018.mrkr"
 
     """
 
