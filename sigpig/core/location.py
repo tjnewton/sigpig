@@ -4,6 +4,7 @@ Functions to constrain the origin location of signals.
 # stop numpy using all available threads (these environment variables must be
 # set before numpy is imported for the first time).
 import os
+import utm
 os.environ.update(OMP_NUM_THREADS="1",
                   OPENBLAS_NUM_THREADS="1",
                   NUMEXPR_NUM_THREADS="1",
@@ -407,12 +408,78 @@ def picks_to_nonlinloc(marker_file_path):
     return None
 
 
-def process_nll_hypocenters(filename):
+def process_nll_hypocenters(file_path):
     """ Reads a NonLinLoc .hyp file and writes the hypocenter locations to a
     file for plotting via GMT.
 
     Example:
-
+        file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75/loc/RR.sum.grid0.loc.hyp"
+        process_nll_hypocenters(file_path)
     """
+    hypocenters = []
+    # read the hypocenter file line by line
+    with open(file_path, 'r') as file:
+        SAVE_FLAG = False
+
+        # process contents of each line
+        for index, line_contents in enumerate(file):
+            # only consider lines with accepted locations
+            if line_contents[:5] == "NLLOC" and line_contents[
+                                       -21:-3] == "Location completed":
+                SAVE_FLAG = True
+
+            # if line contains an accepted hypocenter: save it
+            elif line_contents[:10] == "HYPOCENTER" and SAVE_FLAG:
+                line = line_contents.split()
+                hypocenter = [float(line[2]), float(line[4]),
+                              round(float(line[6]) * 1000, 4)]
+
+            # add uncertainty information
+            elif line_contents[:21] == "QML_OriginUncertainty" and SAVE_FLAG:
+                line = line_contents.split()
+                hypocenter.append(round(float(line[6]) * 1000, 4))
+
+                # set the save flag to False after each event
+            elif line_contents[:9] == "END_NLLOC":
+                if SAVE_FLAG:
+                    hypocenters.append(hypocenter)
+                SAVE_FLAG = False
+
+    # generate files for plotting hypocenters via gmt
+    with open("x_y_horizUncert_0.6-0.75.csv", "w") as write_file:
+        # write header
+        write_file.write("LON LAT Z\n")
+
+        uncertys = np.asarray([hypocenter[3] for hypocenter in hypocenters])
+        uncerty_min = uncertys.min()
+        uncerty_max = uncertys.max()
+        uncerty_range = uncerty_max - uncerty_min
+        new_min = 1.3
+        new_max = 9.0
+        new_range = new_max - new_min
+
+        # write each hypocenter to file
+        for hypocenter in hypocenters:
+            lat, lon = utm.to_latlon(hypocenter[0] * 1000,
+                                      hypocenter[1] * 1000, 10, 'N')
+
+            # scale horizontal uncertainty for plotting
+            transformed_uncerty = ((hypocenter[3] - uncerty_min) * new_range \
+                                  / uncerty_range) + new_min
+            line = f"{lon} {lat} {transformed_uncerty}\n"
+            write_file.write(line)
+
+    with open("x_z_0.6-0.75.csv", "w") as write_file:
+        # write header
+        write_file.write("LON Z\n")
+
+        # write each hypocenter to file
+        for hypocenter in hypocenters:
+            lat, lon = utm.to_latlon(hypocenter[0] * 1000,
+                                      hypocenter[1] * 1000, 10, 'N')
+
+            line = f"{lon} {hypocenter[2] * -1}\n"
+            write_file.write(line)
+
 
     return None
