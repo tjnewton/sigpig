@@ -494,3 +494,10 @@ def process_nll_hypocenters(file_path):
     return None
 
 
+def process_autopicked_events(file_name):
+    """ Reads snuffler format file containing autopicked & associated events
+    then # TODO:
+
+    """
+
+    return None
