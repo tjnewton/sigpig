@@ -419,6 +419,8 @@ def process_nll_hypocenters(file_path):
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75/loc/RR.sum.grid0.loc.hyp"
         process_nll_hypocenters(file_path)
     """
+    velocity_range = file_path[57:65]
+
     hypocenters = []
     # read the hypocenter file line by line
     with open(file_path, 'r') as file:
@@ -449,7 +451,7 @@ def process_nll_hypocenters(file_path):
                 SAVE_FLAG = False
 
     # generate files for plotting hypocenters via gmt
-    with open("x_y_horizUncert_0.6-0.75.csv", "w") as write_file:
+    with open(f"x_y_horizUncert_{velocity_range}.csv", "w") as write_file:
         # write header
         write_file.write("LON LAT Z\n")
 
@@ -472,7 +474,7 @@ def process_nll_hypocenters(file_path):
             line = f"{lon} {lat} {transformed_uncerty}\n"
             write_file.write(line)
 
-    with open("x_z_0.6-0.75.csv", "w") as write_file:
+    with open(f"x_z_{velocity_range}.csv", "w") as write_file:
         # write header
         write_file.write("LON Z\n")
 
