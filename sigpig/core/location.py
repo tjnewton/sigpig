@@ -488,3 +488,7 @@ def process_nll_hypocenters(file_path):
 
 
     return None
+
+# a=np.asarray([hypocenter[2] for hypocenter in hypocenters])
+# a.min()
+# a.max()
