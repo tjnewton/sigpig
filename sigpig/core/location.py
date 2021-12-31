@@ -486,9 +486,11 @@ def process_nll_hypocenters(file_path):
             line = f"{lon} {hypocenter[2] * -1}\n"
             write_file.write(line)
 
+    # inspect max and min elevations
+    # a=np.asarray([hypocenter[2] for hypocenter in hypocenters])
+    # a.min()
+    # a.max()
 
     return None
 
-# a=np.asarray([hypocenter[2] for hypocenter in hypocenters])
-# a.min()
-# a.max()
+
