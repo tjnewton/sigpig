@@ -2464,7 +2464,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # MAD detections return anamolous detections for WASW
         templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n"]
-        template_length = 12.0 # was 7.0
+        template_length = 7.0
         template_prepick = 0.5
 
         # st = sta_chan_stream[195].copy()
