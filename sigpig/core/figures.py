@@ -886,7 +886,7 @@ def plot_template_and_stack(party, stack_lin, stack_pw,
                 template_start = UTCDateTime("2016-09-26T09:25:34.5Z")
 
             # make sure sampling is 40 Hz
-            template_trace.interpolate(sampling_rate=40.0)
+            template_trace.interpolate(sampling_rate=100.0)
 
             template_trace.trim(template_start, template_start +
                                 stack_len, pad=True, fill_value=0,
