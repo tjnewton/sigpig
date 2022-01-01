@@ -2529,9 +2529,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'self'
-    load_party = False
-    save_detections = True
+    shift_method = 'zero'
+    load_party = True
+    save_detections = False
 
     top_n = True
     n = 50
@@ -2540,7 +2540,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_stack_detects = False
     load_second_stack = False
     cull = True
-    plot = True
+    plot = False
 
     # get main station template detections
     if load_party:
