@@ -2809,7 +2809,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream[:100],
+        plot_stack(detection_stream[:50],
                    title=f"top_{n}_WASW_t5_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted", save=True)
