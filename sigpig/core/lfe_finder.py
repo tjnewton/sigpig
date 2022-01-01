@@ -1629,7 +1629,7 @@ def stack_template_detections(party, streams_path, main_trace,
     independent of EQcorrscan routines, allowing more customization of the
     workflow.
 
-    'self' xcorr shift uses definered template on each station to determine
+    'self' xcorr shift uses defined template on each station to determine
     shifts.
 
     Example:
