@@ -2890,7 +2890,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                           f'{snr_threshold[1]}_'
                                           f'{shift_method}Shift_'
                                           f'{thresh_type}'
-                                          f'{detect_thresh}_7s_BHN')
+                                          f'{detect_thresh}_7s_100Hz_prepick')
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
