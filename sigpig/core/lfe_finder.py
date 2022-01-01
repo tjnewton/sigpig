@@ -2502,7 +2502,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set detection threshold and type
         # detect_thresh = 15.0
         # thresh_type = "MAD"
-        detect_thresh = 0.5
+        detect_thresh = 0.65
         thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
@@ -2534,7 +2534,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = True
 
     top_n = True
-    n = 100
+    n = 50
 
     load_stack = False
     load_stack_detects = False
@@ -2684,7 +2684,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz'
         #               '.pkl', 'rb')
 
-        # 100 Hz party w/ 0.5s prepick for testing,  detections
+        # 100 Hz party w/ 0.5s prepick for testing, 3129 detections
         infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
 
         # # Culled 100 Hz party w/ 0.5s prepick for testing
