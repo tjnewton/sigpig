@@ -76,8 +76,18 @@ def max_amplitude(timeSeries):
     # for Trace objects
     elif isinstance(timeSeries, obspy.core.trace.Trace):
         if len(timeSeries.data) > 0:
-            traceMax = np.nanmax(np.abs(timeSeries.data))
-            max_index = np.nanargmax(np.abs(timeSeries.data))
+            # guard against all NaN arrays
+            if not np.all(np.isnan(timeSeries.data)):
+                try:
+                    traceMax = np.nanmax(np.abs(timeSeries.data))
+                    max_index = np.nanargmax(np.abs(timeSeries.data))
+                except Exception:
+                    traceMax = None
+                    max_index = None
+                    pass
+            else:
+                traceMax = None
+                max_index = None
         else:
             traceMax = None
             max_index = None
