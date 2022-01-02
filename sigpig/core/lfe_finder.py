@@ -1987,9 +1987,8 @@ def stack_template_detections(party, streams_path, main_trace,
         # get the main trace detections in a stream
         print(f"Assembling main stream {pick_network}.{pick_station}"
               f".{pick_channel}")
-        main_stream, _ = build_main_stream(main_trace,
-                                                          streams_path,
-                                                          pick_times)
+        main_stream, _ = build_main_stream(main_trace, streams_path,
+                                           pick_times)
         # get the fixed location time shifts from the main trace
         shifts, indices = xcorr_time_shifts(main_stream, 'self',
                                             template_times)
