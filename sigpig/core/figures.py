@@ -804,6 +804,10 @@ def plot_stack(stack, filter=False, bandpass=[], title=False, save=False):
     # set common time axis
     time = stack[0].times("matplotlib")
     for index, trace in enumerate(stack):
+        # guard against all NaN's
+        if np.all(np.isnan(trace.data)):
+            trace.data[0] = 0
+
         # find max trace value for normalization
         maxTraceValue, _ = max_amplitude(trace)
 
