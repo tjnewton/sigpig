@@ -2083,10 +2083,28 @@ def stack_template_detections(party, streams_path, main_trace,
                         lin, pws = generate_stacks(sta_chan_stream,
                                                    normalize=True,
                                                    animate=animate_stacks)
+
                         # add phase-weighted stack to stream
                         stack_pw += pws
                         # and add linear stack to stream
                         stack_lin += lin
+
+                        # fill nan's with zeros so plot_stack doesn't go boom
+                        sta_chan_stream.trim(sta_chan_stream[0].stats.starttime,
+                                             sta_chan_stream[0].stats.endtime,
+                                             pad=True, fill_value=0,
+                                             nearest_sample=True)
+                        # get rid of short traces for plotting
+                        trace_pop_list = []
+                        for tr in sta_chan_stream:
+                            if tr.stats.npts < 4001:
+                                trace_pop_list.append(tr)
+                        for tr in trace_pop_list:
+                            sta_chan_stream.remove(tr)
+                        # inspect the stack contents
+                        plot_stack(sta_chan_stream, title=f'top_{n}_{station}'
+                                   f't5_stack_contents_7s_100Hz_0.5prepick',
+                                   save=True)
 
                     except Exception:
                         pass
