@@ -2028,10 +2028,10 @@ def stack_template_detections(party, streams_path, main_trace,
                     file = day_file_list[0]
                     # load day file into stream
                     day_st = read(file)
-                    # bandpass filter
-                    day_st.filter('bandpass', freqmin=1, freqmax=15)
                     # interpolate to 100 Hz
                     day_st.interpolate(sampling_rate=100.0)
+                    # bandpass filter
+                    day_st.filter('bandpass', freqmin=1, freqmax=15)
                     # trim trace to 60 seconds surrounding pick time
                     day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                                 fill_value=np.nan, nearest_sample=True)
