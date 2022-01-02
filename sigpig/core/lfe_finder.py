@@ -2816,9 +2816,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # free up some memory
         del detection_stream
 
-    # TODO: inspect detections here
-
-
     # generate or load a stack
     if load_stack:
         # load stack list from file
