@@ -1621,7 +1621,8 @@ def get_detections(party, streams_path, main_trace):
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine)
 def stack_template_detections(party, streams_path, main_trace,
-                              template_times, align_type):
+                              template_times, align_type,
+                              animate_stacks=False):
     """
     # FIXME: change to non-memory-limited implementation
 
@@ -2081,7 +2082,7 @@ def stack_template_detections(party, streams_path, main_trace,
                         # generate linear and phase-weighted stack
                         lin, pws = generate_stacks(sta_chan_stream,
                                                    normalize=True,
-                                                   animate=False)
+                                                   animate=animate_stacks)
                         # add phase-weighted stack to stream
                         stack_pw += pws
                         # and add linear stack to stream
@@ -2844,7 +2845,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # stack the culled party detections
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
-                                               align_type=shift_method)
+                                               align_type=shift_method,
+                                               animate_stacks=True)
         # save stacks as pickle file
         outfile = open(f'top_{n}_inner_stack_t5_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
