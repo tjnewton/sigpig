@@ -1078,9 +1078,25 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     file = open(autopicked_file_path, "r")
     file.close()
 
+    # event tags and phase tags can be out of order so the autopicked .mrkr
+    # file is looped over two times to collect events then phases.
+
     # read the marker file line by line
     with open(autopicked_file_path, 'r') as file:
-        for index, line_Contents in enumerate(file):
+        for index, line_contents in enumerate(file):
+            # only consider lines containing events
+            if (line_contents[0:5] == 'event'):
+                # store the hash ID for the event
+                hash_id = line_contents.strip()[36:64]
+                # generate an event entry in the dict
+                events[hash_id] = []
+
+
+
+
+
+
+
             # process contents of line
             if len(line_Contents) > 52:  # avoid irrelevant short lines
 
