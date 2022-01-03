@@ -1057,30 +1057,21 @@ def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
 
     return None
 
-def process_autopicked_events(file_path):
+def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     """ Reads snuffler format file containing autopicked & associated events
     then assigns uncertainties to the events based on the SNR, derived from
     manual uncertainty assignments. Returns a sorted dict?  # TODO:
 
     Example:
-        file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-06_25_2018.mrkr"
-
+        # Define the file paths containing the autopicked .mrkr file and the
+        # .mrkr file containing manually assigned uncertainties.
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-06_25_2018.mrkr"
+        uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
+        process_autopicked_events(autopicked_file_path, uncertainty_file_path)
     """
-
-    """ Reads the specified snuffler format marker file and converts it to
-        NonLinLoc phase file format (written to present working directory):
-        http://alomax.free.fr/nlloc/soft7.00/formats.html#_phase_nlloc_
-
-        Returns: None
-        Side effects: writes .obs file to current path
-
-        Example:
-            marker_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
-            picks_to_nonlinloc(marker_file_path)
-        """
     # read the marker file line by line
     with open("nll_picks.obs", "w") as write_file:
-        with open(marker_file_path, 'r') as file:
+        with open(autopicked_file_path, 'r') as file:
             for index, line_Contents in enumerate(file):
                 # process contents of line
                 if len(line_Contents) > 52:  # avoid irrelevant short lines
