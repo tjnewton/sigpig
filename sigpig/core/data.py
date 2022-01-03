@@ -1159,11 +1159,13 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     snrs.append(trace_snr)
                     print(trace_snr)
 
+    # TODO:
     # plot uncertainties and snrs to visualize fit
-    plot(uncertainties, )
+    plot(uncertainties, snrs)
     # fit a line
 
     # use the fit to calculate uncertainties for all autopicked events
-
+    for event in events:
+        ...
 
     return None
