@@ -1069,51 +1069,61 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
         uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
         process_autopicked_events(autopicked_file_path, uncertainty_file_path)
     """
+    # store the events and uncertainties in a structure
+    events = {}
+
+    # FOR TESTING : FIXME: delete after testing
+    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_06_12-06_18_2018.mrkr"
+    uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
+    file = open(autopicked_file_path, "r")
+    file.close()
+
     # read the marker file line by line
-    with open("nll_picks.obs", "w") as write_file:
-        with open(autopicked_file_path, 'r') as file:
-            for index, line_Contents in enumerate(file):
-                # process contents of line
-                if len(line_Contents) > 52:  # avoid irrelevant short lines
+    with open(autopicked_file_path, 'r') as file:
+        for index, line_Contents in enumerate(file):
+            # process contents of line
+            if len(line_Contents) > 52:  # avoid irrelevant short lines
 
-                    # location picks file contains lines of uncertainties and
-                    # lines of pick times. Pick times are ignored and the pick time
-                    # is chosen as half of uncertainty range for simplicity
-                    if (line_Contents[0:5] == 'phase') and (line_Contents[
-                                                            -20:-19] == 'P') and (
-                            line_Contents[33:35] == '20') \
-                            and (len(line_Contents) > 168):
+                # location picks file contains lines of uncertainties and
+                # lines of pick times. Pick times are ignored and the pick time
+                # is chosen as half of uncertainty range for simplicity
+                if (line_Contents[0:5] == 'phase') and (line_Contents[
+                                                        -20:-19] == 'P') and (
+                        line_Contents[33:35] == '20') \
+                        and (len(line_Contents) > 168):
 
-                        pick_station = line_Contents[79:96].strip().split('.')[
-                            1]
-                        # convert UGAP station names
-                        if pick_station == "UGAP3":
-                            pick_station = "103"
-                        elif pick_station == "UGAP5":
-                            pick_station = "105"
-                        elif pick_station == "UGAP6":
-                            pick_station = "106"
+                    pick_station = line_Contents[79:96].strip().split('.')[
+                        1]
+                    # convert UGAP station names
+                    if pick_station == "UGAP3":
+                        pick_station = "103"
+                    elif pick_station == "UGAP5":
+                        pick_station = "105"
+                    elif pick_station == "UGAP6":
+                        pick_station = "106"
 
-                        pick_channel = line_Contents[79:96].strip().split('.')[
-                            3]
-                        start_time = UTCDateTime(line_Contents[7:32])
-                        end_time = UTCDateTime(line_Contents[33:58])
-                        one_sigma = (end_time - start_time) / 2
-                        pick_time = start_time + one_sigma
-                        first_motion = "?"
+                    pick_channel = line_Contents[79:96].strip().split('.')[
+                        3]
+                    start_time = UTCDateTime(line_Contents[7:32])
+                    end_time = UTCDateTime(line_Contents[33:58])
+                    one_sigma = (end_time - start_time) / 2
+                    pick_time = start_time + one_sigma
+                    first_motion = "?"
 
-                        # write extracted information to nonlinloc phase file
-                        line = f"{pick_station:<6} ?    N    ? P      ? " \
-                               f"{pick_time.year}{pick_time.month:02}" \
-                               f"{pick_time.day:02} {pick_time.hour:02}" \
-                               f"{pick_time.minute:02} " \
-                               f"{pick_time.second:02}." \
-                               f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  0.00e+00  0.00e+00    1.0000\n"
-                        write_file.write(line)
+                    # write extracted information to nonlinloc phase file
+                    line = f"{pick_station:<6} ?    N    ? P      ? " \
+                           f"{pick_time.year}{pick_time.month:02}" \
+                           f"{pick_time.day:02} {pick_time.hour:02}" \
+                           f"{pick_time.minute:02} " \
+                           f"{pick_time.second:02}." \
+                           f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  0.00e+00  0.00e+00    1.0000\n"
 
-                # # add blank lines between events # FIXME:
-                # elif (line_Contents[0:5] == 'event') and (index != 1):
-                #     line = "\n"
-                #     write_file.write(line)
+                    # store the information
+                    events[] = # FIXME
+
+            # # add blank lines between events # FIXME:
+            # elif (line_Contents[0:5] == 'event') and (index != 1):
+            #     line = "\n"
+            #     write_file.write(line)
 
     return None
