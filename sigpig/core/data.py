@@ -1119,7 +1119,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                            f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  0.00e+00  0.00e+00    1.0000\n"
 
                     # store the information
-                    events[] = # FIXME
+                    # events[] = # FIXME
 
             # # add blank lines between events # FIXME:
             # elif (line_Contents[0:5] == 'event') and (index != 1):
