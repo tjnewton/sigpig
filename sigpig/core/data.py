@@ -1075,7 +1075,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # FOR TESTING : FIXME: delete after testing
     autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_06_12-06_18_2018.mrkr"
     uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
-    file = open(autopicked_file_path, "r")
+    file = open(uncertainty_file_path, "r")
     file.close()
 
     # event tags and phase tags can be out of order so the autopicked .mrkr
@@ -1085,7 +1085,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     with open(autopicked_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
             # only consider lines containing events
-            if (line_contents[0:5] == 'event'):
+            if line_contents[0:5] == 'event':
                 # store the hash ID for the event
                 hash_id = line_contents.strip()[36:64]
                 # generate an event entry in the dict
@@ -1094,11 +1094,12 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # store arrival times by reading the marker file line by line
     with open(autopicked_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
-            if (line_contents[0:5] == 'phase'):
+            if line_contents[0:5] == 'phase':
                 # store the hash ID, station, and time for the phase
                 hash_id = line_contents.strip()[52:80]
                 station_components = line_contents.strip()[
                                      36:52].strip().split('.')
+                # station format is constructed to match sta.chan
                 phase_station = f"{station_components[1]}" \
                                 f".{station_components[3]}"
                 phase_time = UTCDateTime(line_contents.strip()[7:32])
@@ -1114,53 +1115,55 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # the trace to automatically assign picking uncertainties for all traces
     # based on their SNR.
 
+    # store arrival time uncertainties by reading the marker file line by line
+    uncertainties = []
+    snrs = []
+    with open(uncertainty_file_path, 'r') as file:
+        for index, line_contents in enumerate(file):
+            # uncertainty lines start with 'phase'
+            if line_contents[0:5] == 'phase':
+                # and the date is in a unique position
+                if line_contents[33:37] == '2018':
+                    # store the hash id of the event
+                    hash_id = line_contents.strip()[-76:-48]
+                    print(line_contents.strip()[-92:-76].strip())
 
-
-
-
-            # process contents of line
-            if len(line_Contents) > 52:  # avoid irrelevant short lines
-
-                # location picks file contains lines of uncertainties and
-                # lines of pick times. Pick times are ignored and the pick time
-                # is chosen as half of uncertainty range for simplicity
-                if (line_Contents[0:5] == 'phase') and (line_Contents[
-                                                        -20:-19] == 'P') and (
-                        line_Contents[33:35] == '20') \
-                        and (len(line_Contents) > 168):
-
-                    pick_station = line_Contents[79:96].strip().split('.')[
-                        1]
-                    # convert UGAP station names
-                    if pick_station == "UGAP3":
-                        pick_station = "103"
-                    elif pick_station == "UGAP5":
-                        pick_station = "105"
-                    elif pick_station == "UGAP6":
-                        pick_station = "106"
-
-                    pick_channel = line_Contents[79:96].strip().split('.')[
-                        3]
-                    start_time = UTCDateTime(line_Contents[7:32])
-                    end_time = UTCDateTime(line_Contents[33:58])
+                    # store the 1 sigma uncertainty of the phase arrival
+                    start_time = UTCDateTime(line_contents[7:32])
+                    end_time = UTCDateTime(line_contents[33:58])
                     one_sigma = (end_time - start_time) / 2
-                    pick_time = start_time + one_sigma
-                    first_motion = "?"
+                    uncertainties.append(one_sigma)
 
-                    # write extracted information to nonlinloc phase file
-                    line = f"{pick_station:<6} ?    N    ? P      ? " \
-                           f"{pick_time.year}{pick_time.month:02}" \
-                           f"{pick_time.day:02} {pick_time.hour:02}" \
-                           f"{pick_time.minute:02} " \
-                           f"{pick_time.second:02}." \
-                           f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  0.00e+00  0.00e+00    1.0000\n"
+                    # build the trace filepath
+                    station_components = line_contents.strip()[
+                                         -92:-76].strip().split('.')
+                    # station format constructed to match filenames sta..chan
+                    phase_station = f"{station_components[1]}" \
+                                    f"..{station_components[3]}"
+                    trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
+                    trace_file_path = f"5A.{phase_station}." \
+                                      f"{phase_time.year}-" \
+                                      f"{phase_time.month:02}-" \
+                                      f"{phase_time.day:02}T00.00.00.ms"
+                    # load the trace to calculate its SNR
+                    st = read(trace_file_prefix + trace_file_path)
+                    st.trim(start_time - 30, start_time + 30, pad=True,
+                            fill_value=0, nearest_sample=True)
+                    st.detrend()
+                    st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+                    # only consider 1 second of data (this is a busy dataset)
+                    st.trim(start_time - 0.5, start_time + 0.5, pad=True,
+                            fill_value=0, nearest_sample=True)
+                    # calculate the SNR of the trace and store it
+                    trace_snr = snr(st[0])
+                    snrs.append(trace_snr)
+                    print(trace_snr)
 
-                    # store the information
-                    # events[] = # FIXME
+    # plot uncertainties and snrs to visualize fit
+    plot(uncertainties, )
+    # fit a line
 
-            # # add blank lines between events # FIXME:
-            # elif (line_Contents[0:5] == 'event') and (index != 1):
-            #     line = "\n"
-            #     write_file.write(line)
+    # use the fit to calculate uncertainties for all autopicked events
+
 
     return None
