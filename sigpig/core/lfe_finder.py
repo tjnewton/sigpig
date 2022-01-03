@@ -2079,9 +2079,9 @@ def stack_template_detections(party, streams_path, main_trace,
 
                     # guard against stacking error:
                     try:
-                        # check if the right animation writers exist
-                        import matplotlib.animation as manimation
-                        manimation.writers.list()
+                        # # check if the right animation writers exist
+                        # import matplotlib.animation as manimation
+                        # manimation.writers.list()
 
                         # generate linear and phase-weighted stack
                         lin, pws = generate_stacks(sta_chan_stream,
