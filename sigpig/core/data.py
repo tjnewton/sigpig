@@ -1094,10 +1094,25 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # store arrival times by reading the marker file line by line
     with open(autopicked_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
+            if (line_contents[0:5] == 'phase'):
+                # store the hash ID, station, and time for the phase
+                hash_id = line_contents.strip()[52:80]
+                station_components = line_contents.strip()[
+                                     36:52].strip().split('.')
+                phase_station = f"{station_components[1]}" \
+                                f".{station_components[3]}"
+                phase_time = UTCDateTime(line_contents.strip()[7:32])
 
-            # store as list of dicts?
-            {station: , time: , uncert}
+                # store the station and time of the phase in a list of dicts
+                events[hash_id].append({'station': phase_station, 'time':
+                                       phase_time})
 
+    # Now we have a dict where each key is a unique hash id for an event, and
+    # each entry is a list of dicts containing time of the phase arrival and
+    # the station it was recorded on. The next step is to build a relationship
+    # between manually assigned first arrival time uncertainties and the SNR of
+    # the trace to automatically assign picking uncertainties for all traces
+    # based on their SNR.
 
 
 
