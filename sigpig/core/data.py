@@ -1081,7 +1081,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # event tags and phase tags can be out of order so the autopicked .mrkr
     # file is looped over two times to collect events then phases.
 
-    # read the marker file line by line
+    # store events by reading the marker file line by line
     with open(autopicked_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
             # only consider lines containing events
@@ -1091,6 +1091,12 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                 # generate an event entry in the dict
                 events[hash_id] = []
 
+    # store arrival times by reading the marker file line by line
+    with open(autopicked_file_path, 'r') as file:
+        for index, line_contents in enumerate(file):
+
+            # store as list of dicts?
+            {station: , time: , uncert}
 
 
 
