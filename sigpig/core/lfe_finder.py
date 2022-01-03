@@ -2552,7 +2552,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 50
+    n = 500
 
     load_stack = False
     load_stack_detects = False
@@ -2703,9 +2703,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #               '.pkl', 'rb')
 
         # 100 Hz party w/ 0.5s prepick for testing, 3129 detections
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
+        infile = open('party_06_15_2016_to_08_12_2018_abs.65_7s_t5_SHN_100Hz_0.5prepick.pkl', 'rb')
         # culled & top 50 version
-        infile = open('top_50_WASW_t5_7.0s_0.5_prepick_abs0.65_culled_sorted_party.pkl','rb')
+        # infile = open('top_50_WASW_t5_7.0s_0.5_prepick_abs0.65_culled_sorted_party.pkl','rb')
 
         # # Culled 100 Hz party w/ 0.5s prepick for testing
         # infile = open('top_3048_WASW_t5_culled_snr1.0-15.0_selfShift_abs0'
