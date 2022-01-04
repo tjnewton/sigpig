@@ -17,6 +17,8 @@ import os
 from lidar import grids_from_raster
 import netCDF4 as nc
 import geopy
+import proplot as pplt
+import matplotlib.pyplot as plt
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -1153,17 +1155,20 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     st.detrend()
                     st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
                     # only consider 1 second of data (this is a busy dataset)
-                    st.trim(start_time - 0.5, start_time + 0.5, pad=True,
+                    st.trim(start_time - 0.25, start_time + 0.25, pad=True,
                             fill_value=0, nearest_sample=True)
                     # calculate the SNR of the trace and store it
-                    trace_snr = snr(st[0])
+                    trace_snr = snr(st[0])[0]
                     snrs.append(trace_snr)
-                    print(trace_snr)
 
-    # TODO:
-    # plot uncertainties and snrs to visualize fit
-    plot(uncertainties, snrs)
-    # fit a line
+    # plot uncertainties and snrs
+    fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
+    ax = fig.subplot(xlabel='SNR', ylabel='Uncertainty (seconds)')
+    ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
+    fig.show()
+
+    # fit a model
+    ...
 
     # use the fit to calculate uncertainties for all autopicked events
     for event in events:
