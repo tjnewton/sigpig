@@ -1194,4 +1194,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     num_phases = num_phases[top_500_phases]
     event_ids = event_ids[top_500_phases]
 
+    # emergence from AIC or curvature - emergent or impulse (what do
+    # regional networks use to classify this?
+    # tf model pick certainty -> uncertainty?
+
     return None
