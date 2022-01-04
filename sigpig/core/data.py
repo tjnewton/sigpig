@@ -1174,6 +1174,10 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
         for pick in events[event_id]:
             # get SNR of pick trace
 
-        ...
+            # assign uncertainty based on SNR
+
+            # add uncertainty to phase dict
+
+            ...
 
     return None
