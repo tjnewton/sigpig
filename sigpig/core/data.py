@@ -1181,4 +1181,17 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
             ...
 
+    # find the top 500ish events with most phases
+    event_ids = []
+    num_phases = []
+    for event_id in events.keys():
+        event_ids.append(event_id)
+        num_phases.append(len(events[event_id]))
+
+    num_phases = np.asarray(num_phases)
+    event_ids = np.asarray(event_ids)
+    top_500_phases = np.where(num_phases > 31) # top 536 phases
+    num_phases = num_phases[top_500_phases]
+    event_ids = event_ids[top_500_phases]
+
     return None
