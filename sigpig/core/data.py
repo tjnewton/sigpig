@@ -1170,7 +1170,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     #  emergent vs. impulse (what do regional networks use to classify this?
     #  0r use tf model gaussian pick certainty -> uncertainty?
 
-    # fit a model
+    # fit a model to map from _ to uncertainty
     ...
 
     # use the fit to calculate uncertainties for all autopicked events
