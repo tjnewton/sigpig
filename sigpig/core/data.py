@@ -1154,7 +1154,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     st.detrend()
                     st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
                     # only consider 0.5 second of data (this is a busy dataset)
-                    st.trim(start_time - 0.1, start_time + 0.2, pad=True,
+                    st.trim(start_time - 0.4, start_time + 0.6, pad=True,
                             fill_value=0, nearest_sample=True)
                     # calculate the SNR of the trace and store it
                     trace_snr = snr(st[0])[0]
@@ -1162,7 +1162,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
     # plot uncertainties and snrs
     fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
-    ax = fig.subplot(xlabel='SNR @ 0.3 s', ylabel='Uncertainty (seconds)')
+    ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
     ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
     fig.show()
 
@@ -1170,7 +1170,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     ...
 
     # use the fit to calculate uncertainties for all autopicked events
-    for event in events:
+    for event_id in events.keys():
         ...
 
     return None
