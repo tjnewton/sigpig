@@ -1111,7 +1111,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                                        phase_time})
 
     # Now we have a dict where each key is a unique hash id for an event, and
-    # each entry is a list of dicts containing time of the phase arrival and
+    # each entry is a list of dicts containing time of the first arrival and
     # the station it was recorded on. The next step is to build a relationship
     # between manually assigned first arrival time uncertainties and the SNR of
     # the trace to automatically assign picking uncertainties for all traces
@@ -1160,11 +1160,15 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     trace_snr = snr(st[0])[0]
                     snrs.append(trace_snr)
 
-    # plot uncertainties and snrs
+    # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
     fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
     ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
     ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
     fig.show()
+
+    # TODO: get measure of emergence from AIC or curvature
+    #  emergent vs. impulse (what do regional networks use to classify this?
+    #  0r use tf model gaussian pick certainty -> uncertainty?
 
     # fit a model
     ...
@@ -1193,9 +1197,5 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     top_500_phases = np.where(num_phases > 31) # top 536 phases
     num_phases = num_phases[top_500_phases]
     event_ids = event_ids[top_500_phases]
-
-    # emergence from AIC or curvature - emergent or impulse (what do
-    # regional networks use to classify this?
-    # tf model pick certainty -> uncertainty?
 
     return None
