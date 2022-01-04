@@ -1171,12 +1171,13 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
     # use the fit to calculate uncertainties for all autopicked events
     for event_id in events.keys():
-        for pick in events[event_id]:
+        for index, pick in enumerate(events[event_id]):
             # get SNR of pick trace
 
             # assign uncertainty based on SNR
 
             # add uncertainty to phase dict
+            events[event_id][index]['uncertainty'] =
 
             ...
 
