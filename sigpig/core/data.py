@@ -1129,7 +1129,6 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     # store the hash id of the event
                     hash_id = line_contents.strip()[-76:-48]
 
-                    print(line_contents[33:58])
                     # store the 1 sigma uncertainty of the phase arrival
                     start_time = UTCDateTime(line_contents[7:32])
                     end_time = UTCDateTime(line_contents[33:58])
@@ -1154,8 +1153,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                             fill_value=0, nearest_sample=True)
                     st.detrend()
                     st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
-                    # only consider 1 second of data (this is a busy dataset)
-                    st.trim(start_time - 0.25, start_time + 0.25, pad=True,
+                    # only consider 0.5 second of data (this is a busy dataset)
+                    st.trim(start_time - 0.1, start_time + 0.2, pad=True,
                             fill_value=0, nearest_sample=True)
                     # calculate the SNR of the trace and store it
                     trace_snr = snr(st[0])[0]
@@ -1163,7 +1162,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
     # plot uncertainties and snrs
     fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
-    ax = fig.subplot(xlabel='SNR', ylabel='Uncertainty (seconds)')
+    ax = fig.subplot(xlabel='SNR @ 0.3 s', ylabel='Uncertainty (seconds)')
     ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
     fig.show()
 
