@@ -1169,11 +1169,12 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # TODO: get measure of emergence from AIC or curvature
     #  emergent vs. impulse (what do regional networks use to classify this?
     #  0r use tf model gaussian pick certainty -> uncertainty?
+    #  Or use a wavelet.
 
-    # fit a model to map from _ to uncertainty
+    # fit a model to map from _something_ to uncertainty
     ...
 
-    # use the fit to calculate uncertainties for all autopicked events
+    # use the model fit to calculate uncertainties for all autopicked events
     for event_id in events.keys():
         for index, pick in enumerate(events[event_id]):
             # get SNR of pick trace
