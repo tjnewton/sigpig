@@ -1126,8 +1126,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                 if line_contents[33:37] == '2018':
                     # store the hash id of the event
                     hash_id = line_contents.strip()[-76:-48]
-                    print(line_contents.strip()[-92:-76].strip())
 
+                    print(line_contents[33:58])
                     # store the 1 sigma uncertainty of the phase arrival
                     start_time = UTCDateTime(line_contents[7:32])
                     end_time = UTCDateTime(line_contents[33:58])
@@ -1140,11 +1140,12 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     # station format constructed to match filenames sta..chan
                     phase_station = f"{station_components[1]}" \
                                     f"..{station_components[3]}"
+                    # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
                     trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
                     trace_file_path = f"5A.{phase_station}." \
-                                      f"{phase_time.year}-" \
-                                      f"{phase_time.month:02}-" \
-                                      f"{phase_time.day:02}T00.00.00.ms"
+                                      f"{start_time.year}-" \
+                                      f"{start_time.month:02}-" \
+                                      f"{start_time.day:02}T00.00.00.ms"
                     # load the trace to calculate its SNR
                     st = read(trace_file_prefix + trace_file_path)
                     st.trim(start_time - 30, start_time + 30, pad=True,
