@@ -1067,6 +1067,15 @@ def plot_distribution(data, bins=False, title=False, save=False):
     return fig
 
 
+def plot_event_picks():
+    """ Plots time series and associated picks from time_miner autopicker.
+
+    """
+
+
+    ...
+
+
 def examine_stack():
     "Animate building of stack"
 
