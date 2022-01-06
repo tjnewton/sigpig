@@ -1078,6 +1078,8 @@ def plot_event_picks(event):
     """
     # loop over each phase in the event
     for phase in event:
+        # get the phase pick time
+        phase_time = phase['time']
         # build the trace filepath
         station_components = phase['station'].split('.')
         # station format constructed to match filenames sta..chan
@@ -1086,10 +1088,10 @@ def plot_event_picks(event):
         # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
         trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
         trace_file_path = f"5A.{phase_station}." \
-                          f"{phase['time'].year}-" \
-                          f"{phase['time'].month:02}-" \
-                          f"{phase['time'].day:02}T00.00.00.ms"
-        # load the trace to calculate its SNR
+                          f"{phase_time.year}-" \
+                          f"{phase_time.month:02}-" \
+                          f"{phase_time.day:02}T00.00.00.ms"
+        # load the trace
         st = read(trace_file_prefix + trace_file_path)
         st.trim(start_time - 30, start_time + 30, pad=True,
                 fill_value=0, nearest_sample=True)
