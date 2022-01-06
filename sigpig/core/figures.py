@@ -1083,9 +1083,6 @@ def plot_event_picks(event):
     amplitude_plot = fig.add_subplot()
     y_labels = []
 
-    # TODO: delete after testing
-    phase = event[0]
-
     # loop over each phase in the event, where event is a list of dicts
     for index, phase in enumerate(event):
         # get the phase pick time
@@ -1137,9 +1134,10 @@ def plot_event_picks(event):
 
         # plot the pick as a dot
         trace_times = trace.times("matplotlib")
-        amplitude_index = np.where(trace_times == phase_time.matplotlib_date)
+        amplitude_index = (np.abs(trace_times -
+                                  phase_time.matplotlib_date)).argmin()
         amplitude_plot.plot_date(phase_time.matplotlib_date, norm_amplitude[
-                                amplitude_index][0], fmt="ro", linewidth=0.7)
+                                amplitude_index], fmt="ro", linewidth=0.7)
 
     # set axes attributes
     amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
@@ -1154,7 +1152,7 @@ def plot_event_picks(event):
     amplitude_plot.set_ylim((0, len(event) + 0.5))
     title = "Event picks"
     amplitude_plot.set_title(title)
-    fig.savefig(f"{title}.png", dpi=100)
+    #fig.savefig(f"{title}.png", dpi=100)
     fig.tight_layout()
     plt.show()
 
