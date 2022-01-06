@@ -1067,10 +1067,16 @@ def plot_distribution(data, bins=False, title=False, save=False):
     return fig
 
 
-def plot_event_picks():
+def plot_event_picks(event):
     """ Plots time series and associated picks from time_miner autopicker.
+    Takes in an event from the events dict from the
+    data.process_autopicked_events function.
+
+    Example:
+        event = events[event_ids[0]]
 
     """
+
 
 
     ...
