@@ -1076,11 +1076,18 @@ def plot_event_picks(event):
         event = events[event_ids[0]]
 
     """
-    # initialize figure
-    # TODO:
+    # initialize figure and set the figure size
+    figureWidth = 20  # 80
+    figureHeight = 2.5 * len(event)
+    fig = plt.figure(figsize=(figureWidth, figureHeight))
+    amplitude_plot = fig.add_subplot()
+    y_labels = []
 
-    # loop over each phase in the event
-    for phase in event:
+    # TODO: delete after testing
+    phase = event[0]
+
+    # loop over each phase in the event, where event is a list of dicts
+    for index, phase in enumerate(event):
         # get the phase pick time
         phase_time = phase['time']
         # build the trace filepath
@@ -1088,8 +1095,8 @@ def plot_event_picks(event):
         # station format constructed to match filenames sta..chan
         phase_station = f"{station_components[0]}" \
                         f"..{station_components[1]}"
-        # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
-        trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
+        trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
+        # trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
         trace_file_path = f"5A.{phase_station}." \
                           f"{phase_time.year}-" \
                           f"{phase_time.month:02}-" \
@@ -1101,17 +1108,57 @@ def plot_event_picks(event):
         # detrend then bandpass
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
-        # only consider 10 seconds of data (this is a busy dataset)
-        st.trim(phase_time - 5, phase_time + 5, pad=True,
+        # only consider 2 seconds of data (this is a busy dataset)
+        st.trim(phase_time - 0.7, phase_time + 1.3, pad=True,
                 fill_value=0, nearest_sample=True)
 
         # add the trace to the figure
-        # TODO:
+        trace = st[0]
+
+        # set common time axis
+        if index == 0:
+            time = trace.times("matplotlib")
+
+        # find max trace value for normalization
+        maxTraceValue, _ = max_amplitude(trace)
+
+        # define data to work with
+        norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
+                                                min(trace.data)) * 1.25 + index
+
+        # add trace to waveform plot
+        amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
+
+        # plot time markers for this trace if they exist
+        network_station = f"{trace.stats.network}.{trace.stats.station}"
+
+        # add station name to list of y labels
+        y_labels.append(f"{network_station}.{trace.stats.channel}.{index}")
 
         # plot the pick as a dot
-        # TODO:
+        trace_times = trace.times("matplotlib")
+        amplitude_index = np.where(trace_times == phase_time.matplotlib_date)
+        amplitude_plot.plot_date(phase_time.matplotlib_date, norm_amplitude[
+                                amplitude_index][0], fmt="ro", linewidth=0.7)
 
-    ...
+    # set axes attributes
+    amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
+    amplitude_plot.set_yticklabels(y_labels)
+    amplitude_plot.set_ylabel('Station.Channel')
+    amplitude_plot.set_xlim([time[0], time[-1]])
+    amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec')
+    myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    amplitude_plot.xaxis.set_major_formatter(myFmt)
+    locator_x = AutoDateLocator(minticks=4, maxticks=8)
+    amplitude_plot.xaxis.set_major_locator(locator_x)
+    amplitude_plot.set_ylim((0, len(event) + 0.5))
+    title = "Event picks"
+    amplitude_plot.set_title(title)
+    fig.savefig(f"{title}.png", dpi=100)
+    fig.tight_layout()
+    plt.show()
+
+    return fig
 
 
 def examine_stack():
