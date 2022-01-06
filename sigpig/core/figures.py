@@ -1076,6 +1076,9 @@ def plot_event_picks(event):
         event = events[event_ids[0]]
 
     """
+    # initialize figure
+    # TODO:
+
     # loop over each phase in the event
     for phase in event:
         # get the phase pick time
@@ -1102,8 +1105,11 @@ def plot_event_picks(event):
         st.trim(phase_time - 5, phase_time + 5, pad=True,
                 fill_value=0, nearest_sample=True)
 
+        # add the trace to the figure
+        # TODO:
 
-
+        # plot the pick as a dot
+        # TODO:
 
     ...
 
