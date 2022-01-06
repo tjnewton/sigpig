@@ -1102,7 +1102,3 @@ def analyze_Noise_Windows(noise_Windows: np.ndarray,
     # plt.show()
 
     return metric_Map
-
-
-
-
