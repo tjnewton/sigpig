@@ -1077,8 +1077,6 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # FOR TESTING : FIXME: delete after testing
     autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_06_12-06_18_2018.mrkr"
     uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
-    file = open(uncertainty_file_path, "r")
-    file.close()
 
     # event tags and phase tags can be out of order so the autopicked .mrkr
     # file is looped over two times to collect events then phases.
