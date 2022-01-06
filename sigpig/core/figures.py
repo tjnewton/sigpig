@@ -1099,7 +1099,7 @@ def plot_event_picks(event):
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
         # only consider 10 seconds of data (this is a busy dataset)
-        st.trim(start_time - 5, start_time + 5, pad=True,
+        st.trim(phase_time - 5, phase_time + 5, pad=True,
                 fill_value=0, nearest_sample=True)
 
 
