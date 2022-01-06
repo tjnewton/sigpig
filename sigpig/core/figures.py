@@ -1078,24 +1078,17 @@ def plot_event_picks(event):
     """
     # loop over each phase in the event
     for phase in event:
-        # store the 1 sigma uncertainty of the phase arrival
-        start_time = UTCDateTime(line_contents[7:32])
-        end_time = UTCDateTime(line_contents[33:58])
-        one_sigma = (end_time - start_time) / 2
-        uncertainties.append(one_sigma)
-
         # build the trace filepath
-        station_components = line_contents.strip()[
-                             -92:-76].strip().split('.')
+        station_components = phase['station'].split('.')
         # station format constructed to match filenames sta..chan
-        phase_station = f"{station_components[1]}" \
-                        f"..{station_components[3]}"
+        phase_station = f"{station_components[0]}" \
+                        f"..{station_components[1]}"
         # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
         trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
         trace_file_path = f"5A.{phase_station}." \
-                          f"{start_time.year}-" \
-                          f"{start_time.month:02}-" \
-                          f"{start_time.day:02}T00.00.00.ms"
+                          f"{phase['time'].year}-" \
+                          f"{phase['time'].month:02}-" \
+                          f"{phase['time'].day:02}T00.00.00.ms"
         # load the trace to calculate its SNR
         st = read(trace_file_prefix + trace_file_path)
         st.trim(start_time - 30, start_time + 30, pad=True,
