@@ -1102,6 +1102,7 @@ def plot_event_picks(event):
         st = read(trace_file_prefix + trace_file_path)
         st.trim(phase_time - 30, phase_time + 30, pad=True,
                 fill_value=0, nearest_sample=True)
+        st.interpolate(sampling_rate=250)
         # detrend then bandpass
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
@@ -1113,8 +1114,7 @@ def plot_event_picks(event):
         trace = st[0]
 
         # set common time axis
-        if index == 0:
-            time = trace.times("matplotlib")
+        time = trace.times("matplotlib")
 
         # find max trace value for normalization
         maxTraceValue, _ = max_amplitude(trace)
@@ -1122,7 +1122,9 @@ def plot_event_picks(event):
         # define data to work with
         norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
                                                 min(trace.data)) * 1.25 + index
-
+        # fix -1 length norm_amplitude
+        if norm_amplitude.size < time.size:
+            norm_amplitude = np.append(norm_amplitude, [0])
         # add trace to waveform plot
         amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
 
