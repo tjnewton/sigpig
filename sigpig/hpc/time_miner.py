@@ -7,6 +7,9 @@ events.
 # FIXME: test association on all 5s windows in 30s, and other subsets
 # FIXME: change camel case to lowercase:::within function
 
+# Run the autopicker?
+RUN = False
+
  # # # # # # # # # #  N O T E S  # # # # # # # # # # #
 # -------------------------------------------------- #
 ###### Counts for 10-min duplicate-removed runs ######
@@ -1979,156 +1982,156 @@ def signal_histogram(event_filename, save_fig=False):
     return None
 
 
+if RUN:
+    # # # #   B E G I N   P R O C E S S I N G   T I M E   W I N D O W S   # # # #
+    start = time.time()
 
-# # # #   B E G I N   P R O C E S S I N G   T I M E   W I N D O W S   # # # #
-start = time.time()
+    # build list of clustering algorithms to run
+    clustering_Algos = []
+    if _DBSCAN: clustering_Algos.append("DBSCAN")
+    if _OPTICS: clustering_Algos.append("OPTICS")
+    # FIXME: add spectral clustering & k-plane
 
-# build list of clustering algorithms to run
-clustering_Algos = []
-if _DBSCAN: clustering_Algos.append("DBSCAN")
-if _OPTICS: clustering_Algos.append("OPTICS")
-# FIXME: add spectral clustering & k-plane
+    ###############################################################################
+    # if clustering algos are specified, run them and generate figures to inspect #
+    ###############################################################################
+    # build tensorflow unet model
+    model = build_unet_model()
 
-###############################################################################
-# if clustering algos are specified, run them and generate figures to inspect #
-###############################################################################
-# build tensorflow unet model
-model = build_unet_model()
+    for clustering_Algo in clustering_Algos:
 
-for clustering_Algo in clustering_Algos:
+        # split into 5 windows for clustering
+        clustering_Windows = int((time_Period[1] - time_Period[0]) / 5)
 
-    # split into 5 windows for clustering
-    clustering_Windows = int((time_Period[1] - time_Period[0]) / 5)
+        #######################################################################
+        ############# Loop through each time period and associate #############
+        #######################################################################
 
-    #######################################################################
-    ############# Loop through each time period and associate #############
-    #######################################################################
+        for period_Index in range(clustering_Windows):
 
-    for period_Index in range(clustering_Windows):
+            # time period for clustering & picking (5 second windows)
+            cluster_Start_Time = time_Period[0] + period_Index * 5
+            cluster_End_Time = cluster_Start_Time + 5
 
-        # time period for clustering & picking (5 second windows)
-        cluster_Start_Time = time_Period[0] + period_Index * 5
-        cluster_End_Time = cluster_Start_Time + 5
+            # get project filepaths for the specified time period
+            filepaths = project_Filepaths("Rattlesnake Ridge",
+                                          cluster_Start_Time, cluster_End_Time)
 
-        # get project filepaths for the specified time period
-        filepaths = project_Filepaths("Rattlesnake Ridge",
-                                      cluster_Start_Time, cluster_End_Time)
+            # load or create picking windows & trace data?
+            if not load:
+                # to save picking windows as files specify save_file=True in func
+                picking_Windows, picking_Windows_Untransformed,\
+                    picking_Windows_Times = find_Picking_Windows(filepaths,
+                                                          detection_Parameters,
+                                      [(cluster_Start_Time, cluster_End_Time)])
 
-        # load or create picking windows & trace data?
-        if not load:
-            # to save picking windows as files specify save_file=True in func
-            picking_Windows, picking_Windows_Untransformed,\
-                picking_Windows_Times = find_Picking_Windows(filepaths,
-                                                      detection_Parameters,
-                                  [(cluster_Start_Time, cluster_End_Time)])
+                # get stream of data for plotting
+                channels = ['DP1', 'EHN']
+                if plot_Association_Results:
+                    waveforms = trim_Daily_Waveforms("Rattlesnake Ridge",
+                                              cluster_Start_Time, cluster_End_Time,
+                                                channels, write_File=False)
 
-            # get stream of data for plotting
-            channels = ['DP1', 'EHN']
+            else:
+                # load picking windows
+                infile = open(f'windows/picking_windows_'
+                              f'{cluster_Start_Time}.pkl', 'rb')
+                picking_Windows = pickle.load(infile)
+                infile.close()
+
+                # load raw data for windows
+                infile = open(f'windows/picking_windows_untransformed'
+                              f'_{cluster_Start_Time}.pkl','rb')
+                picking_Windows_Untransformed = pickle.load(infile)
+                infile.close()
+
+                # load info associated with windows (times, station, channel)
+                infile = open(f'windows/picking_times_'
+                              f'{cluster_Start_Time}.pkl', 'rb')
+                picking_Windows_Times = pickle.load(infile)
+                infile.close()
+
+                # format waveform filename
+                waveformsFilename = str(cluster_Start_Time)[:19].replace(":",
+                                                                       ".")
+                # load 1s stream of data for plotting
+                waveforms = read(f"waveforms/{waveformsFilename}.ms")
+
+            ###################################################################
+            #################### Get unet pick predictions ####################
+            ###################################################################
+
+            # get phase arrival time predictions from pretrained unet model
+            pick_Predictions = get_Unet_Picks(picking_Windows,
+                                              preloaded_model=model)
+
+            # get only picks above specified threshold (determined from F1)
+            picked_Windows, picked_Windows_Times, index_Of_Max_Prediction = \
+                get_Threshold_Picks(pick_Predictions, threshold,
+                                    picking_Windows_Untransformed,
+                                    picking_Windows_Times)
+
+            # find and remove duplicate predictions
+            station_Picks, picked_Windows, picked_Windows_Times, \
+            index_Of_Max_Prediction = remove_Duplicate_Picks(picked_Windows,
+                                                          picked_Windows_Times,
+                                                       index_Of_Max_Prediction)
+
+            # print(f"Threshold: {threshold}\nPicks made: {len(picked_Windows)}")
+
+            ###################################################################
+            ####################### Visualize predictions #####################
+            ###################################################################
+
+            # plot 'em utilizing slicing (breaks when plotting > 172 lines)
+            # plot_Picked_Windows(picked_Windows[0:50], index_Of_Max_Prediction[0:50])
+
+            ###################################################################
+            ############ Associate events with clustering & rules #############
+            ###################################################################
+
+            station_Distance, reverse_station_distance, pick_Station_Order, \
+            pick_Times, labels = associate_Picks(clustering_Algo, station_Picks,
+                                                 scale_Time, PCA, PCA_Components,
+                                                 duplicate_Threshold,
+                                                 temporal_Threshold,
+                                                 spatial_Threshold,
+                                                 min_Quakes_Per_Cluster, model)
+
+            ###################################################################
+            ################# Save the association results ####################
+            ###################################################################
+
+            # only save if there are picks in this window
+            if len(labels) > 0:
+                # define the filename and save the results
+                event_filename = f"{time_Period[0].month:02}{time_Period[0].day:02}_{time_Period[0].hour:02}_{time_Period[1].hour:02}.mrkr"
+                save_associations(event_filename, labels, pick_Times,
+                                  pick_Station_Order, reverse_station_distance)
+
+            ###################################################################
+            ################# Plot the association results ####################
+            ###################################################################
+
             if plot_Association_Results:
-                waveforms = trim_Daily_Waveforms("Rattlesnake Ridge",
-                                          cluster_Start_Time, cluster_End_Time,
-                                            channels, write_File=False)
+                # initialize axis object for first column
+                if period_Index == 0:
+                    ax_DBSCAN0 = []
+                # build the figure for each window and display the figure on the
+                # last iteration
+                ax_DBSCAN0 = build_association_figure(clustering_Windows,
+                                                      period_Index, labels,
+                                                      pick_Station_Order, pick_Times,
+                                                      cluster_Start_Time,
+                                                      cluster_End_Time, waveforms,
+                                                      threshold, duplicate_Threshold,
+                                                      DBSCAN_Distance, ax_DBSCAN0)
 
-        else:
-            # load picking windows
-            infile = open(f'windows/picking_windows_'
-                          f'{cluster_Start_Time}.pkl', 'rb')
-            picking_Windows = pickle.load(infile)
-            infile.close()
+        # if _OPTICS:
+        #     # FIXME: this section needs updated
 
-            # load raw data for windows
-            infile = open(f'windows/picking_windows_untransformed'
-                          f'_{cluster_Start_Time}.pkl','rb')
-            picking_Windows_Untransformed = pickle.load(infile)
-            infile.close()
-
-            # load info associated with windows (times, station, channel)
-            infile = open(f'windows/picking_times_'
-                          f'{cluster_Start_Time}.pkl', 'rb')
-            picking_Windows_Times = pickle.load(infile)
-            infile.close()
-
-            # format waveform filename
-            waveformsFilename = str(cluster_Start_Time)[:19].replace(":",
-                                                                   ".")
-            # load 1s stream of data for plotting
-            waveforms = read(f"waveforms/{waveformsFilename}.ms")
-
-        ###################################################################
-        #################### Get unet pick predictions ####################
-        ###################################################################
-
-        # get phase arrival time predictions from pretrained unet model
-        pick_Predictions = get_Unet_Picks(picking_Windows,
-                                          preloaded_model=model)
-
-        # get only picks above specified threshold (determined from F1)
-        picked_Windows, picked_Windows_Times, index_Of_Max_Prediction = \
-            get_Threshold_Picks(pick_Predictions, threshold,
-                                picking_Windows_Untransformed,
-                                picking_Windows_Times)
-
-        # find and remove duplicate predictions
-        station_Picks, picked_Windows, picked_Windows_Times, \
-        index_Of_Max_Prediction = remove_Duplicate_Picks(picked_Windows,
-                                                      picked_Windows_Times,
-                                                   index_Of_Max_Prediction)
-
-        # print(f"Threshold: {threshold}\nPicks made: {len(picked_Windows)}")
-
-        ###################################################################
-        ####################### Visualize predictions #####################
-        ###################################################################
-
-        # plot 'em utilizing slicing (breaks when plotting > 172 lines)
-        # plot_Picked_Windows(picked_Windows[0:50], index_Of_Max_Prediction[0:50])
-
-        ###################################################################
-        ############ Associate events with clustering & rules #############
-        ###################################################################
-
-        station_Distance, reverse_station_distance, pick_Station_Order, \
-        pick_Times, labels = associate_Picks(clustering_Algo, station_Picks,
-                                             scale_Time, PCA, PCA_Components,
-                                             duplicate_Threshold,
-                                             temporal_Threshold,
-                                             spatial_Threshold,
-                                             min_Quakes_Per_Cluster, model)
-
-        ###################################################################
-        ################# Save the association results ####################
-        ###################################################################
-
-        # only save if there are picks in this window
-        if len(labels) > 0:
-            # define the filename and save the results
-            event_filename = f"{time_Period[0].month:02}{time_Period[0].day:02}_{time_Period[0].hour:02}_{time_Period[1].hour:02}.mrkr"
-            save_associations(event_filename, labels, pick_Times,
-                              pick_Station_Order, reverse_station_distance)
-
-        ###################################################################
-        ################# Plot the association results ####################
-        ###################################################################
-
-        if plot_Association_Results:
-            # initialize axis object for first column
-            if period_Index == 0:
-                ax_DBSCAN0 = []
-            # build the figure for each window and display the figure on the
-            # last iteration
-            ax_DBSCAN0 = build_association_figure(clustering_Windows,
-                                                  period_Index, labels,
-                                                  pick_Station_Order, pick_Times,
-                                                  cluster_Start_Time,
-                                                  cluster_End_Time, waveforms,
-                                                  threshold, duplicate_Threshold,
-                                                  DBSCAN_Distance, ax_DBSCAN0)
-
-    # if _OPTICS:
-    #     # FIXME: this section needs updated
-
-end = time.time()
-hours = int((end - start) / 60 / 60)
-minutes = int(((end - start) / 60) - (hours * 60))
-seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-print(f"Runtime: {hours} h {minutes} m {seconds} s")
+    end = time.time()
+    hours = int((end - start) / 60 / 60)
+    minutes = int(((end - start) / 60) - (hours * 60))
+    seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+    print(f"Runtime: {hours} h {minutes} m {seconds} s")
