@@ -1076,6 +1076,9 @@ def plot_event_picks(event):
         event = events[event_ids[0]]
 
     """
+    # loop over each phase in the event
+    for phase in event:
+
 
 
 
