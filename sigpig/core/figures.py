@@ -1093,16 +1093,15 @@ def plot_event_picks(event):
                           f"{phase_time.day:02}T00.00.00.ms"
         # load the trace
         st = read(trace_file_prefix + trace_file_path)
-        st.trim(start_time - 30, start_time + 30, pad=True,
+        st.trim(phase_time - 30, phase_time + 30, pad=True,
                 fill_value=0, nearest_sample=True)
+        # detrend then bandpass
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
-        # only consider 0.5 second of data (this is a busy dataset)
-        st.trim(start_time - 0.4, start_time + 0.6, pad=True,
+        # only consider 10 seconds of data (this is a busy dataset)
+        st.trim(start_time - 5, start_time + 5, pad=True,
                 fill_value=0, nearest_sample=True)
-        # calculate the SNR of the trace and store it
-        trace_snr = snr(st[0])[0]
-        snrs.append(trace_snr)
+
 
 
 
