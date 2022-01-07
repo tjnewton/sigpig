@@ -1077,7 +1077,7 @@ def plot_event_picks(event):
         plot_event_picks(event)
     """
     # initialize figure and set the figure size
-    figureWidth = 14  # 80
+    figureWidth = 10  # 80
     figureHeight = 0.8 * len(event)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
@@ -1108,7 +1108,7 @@ def plot_event_picks(event):
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
         # only consider 2 seconds of data (this is a busy dataset)
-        st.trim(phase_time - 1, phase_time + 1.5, pad=True,
+        st.trim(phase_time - 0.5, phase_time + 0.6, pad=True,
                 fill_value=0, nearest_sample=True)
 
         # add the trace to the figure
@@ -1119,27 +1119,29 @@ def plot_event_picks(event):
         # find max trace value for normalization
         maxTraceValue, _ = max_amplitude(trace)
 
-        # define data to work with
-        norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
-                                                min(trace.data)) * 1.25 + index
-        # # fix -1 length norm_amplitude
-        # if norm_amplitude.size < trace_times.size:
-        #     norm_amplitude = np.append(norm_amplitude, [0])
-        # add trace to waveform plot
-        amplitude_plot.plot_date(trace_times, norm_amplitude, fmt="k-",
-                                 linewidth=0.7)
+        # disregard NaNs
+        if maxTraceValue != None:
+            # define data to work with
+            norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
+                                                    min(trace.data)) * 1.25 + index
+            # # fix -1 length norm_amplitude
+            # if norm_amplitude.size < trace_times.size:
+            #     norm_amplitude = np.append(norm_amplitude, [0])
+            # add trace to waveform plot
+            amplitude_plot.plot_date(trace_times, norm_amplitude, fmt="k-",
+                                     linewidth=0.7)
 
-        # plot time markers for this trace if they exist
-        network_station = f"{trace.stats.network}.{trace.stats.station}"
+            # plot time markers for this trace if they exist
+            network_station = f"{trace.stats.network}.{trace.stats.station}"
 
-        # add station name to list of y labels
-        y_labels.append(f"{network_station}.{trace.stats.channel}.{index}")
+            # add station name to list of y labels
+            y_labels.append(f"{network_station}.{trace.stats.channel}.{index}")
 
-        # plot the pick as a dot
-        amplitude_index = (np.abs(trace_times -
-                                  phase_time.matplotlib_date)).argmin()
-        amplitude_plot.plot_date(phase_time.matplotlib_date, norm_amplitude[
-                                amplitude_index], fmt="ro", linewidth=0.7)
+            # plot the pick as a dot
+            amplitude_index = (np.abs(trace_times -
+                                      phase_time.matplotlib_date)).argmin()
+            amplitude_plot.plot_date(phase_time.matplotlib_date, norm_amplitude[
+                                    amplitude_index], fmt="ro", linewidth=0.7)
 
     # set axes attributes
     amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
