@@ -1180,7 +1180,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
             # assign uncertainty based on SNR
 
             # add uncertainty to phase dict
-            events[event_id][index]['uncertainty'] =
+            # events[event_id][index]['uncertainty'] =
 
             ...
 
