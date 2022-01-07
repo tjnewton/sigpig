@@ -1085,8 +1085,6 @@ def plot_event_picks(event):
 
     # loop over each phase in the event, where event is a list of dicts
     for index, phase in enumerate(event):
-        # TODO: delete after testing
-        print(index)
         # get the phase pick time
         phase_time = phase['time']
         # build the trace filepath
@@ -1154,13 +1152,15 @@ def plot_event_picks(event):
     amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec')
     myFmt = DateFormatter("%H:%M:%S.%f")  # "%H:%M:%S.%f"
     amplitude_plot.xaxis.set_major_formatter(myFmt)
-    locator_x = AutoDateLocator(minticks=3, maxticks=5)
+    locator_x = AutoDateLocator(minticks=2, maxticks=5)
     amplitude_plot.xaxis.set_major_locator(locator_x)
     amplitude_plot.set_ylim((0, len(event) + 0.5))
     title = "Event picks"
     amplitude_plot.set_title(title)
     fig.savefig(f"{title}.png", dpi=200)
-    fig.tight_layout()
+    # FIXME: this doesn't work, y labels are chopped. Find another fix.
+    plt.gcf().subplots_adjust(left=0.5)
+    # fig.tight_layout()
     # plt.show()
 
     return fig
