@@ -1112,7 +1112,7 @@ def plot_event_picks(event):
                 fill_value=0, nearest_sample=True)
 
         # add the trace to the figure
-        trace = st[0]
+        trace = st[0].copy()
         # set time axis
         trace_times = trace.times("matplotlib")
 
