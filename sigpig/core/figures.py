@@ -1078,7 +1078,7 @@ def plot_event_picks(event):
     """
     # initialize figure and set the figure size
     figureWidth = 20  # 80
-    figureHeight = 0.6 * len(event)
+    figureHeight = 0.8 * len(event)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
     y_labels = []
@@ -1147,7 +1147,7 @@ def plot_event_picks(event):
     amplitude_plot.set_ylabel('Station.Channel')
     amplitude_plot.set_xlim([time[0], time[-1]])
     amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec')
-    myFmt = DateFormatter("%H:%M:%S.%f02")  # "%H:%M:%S.%f"
+    myFmt = DateFormatter("%H:%M:%S.%f")  # "%H:%M:%S.%f"
     amplitude_plot.xaxis.set_major_formatter(myFmt)
     locator_x = AutoDateLocator(minticks=3, maxticks=8)
     amplitude_plot.xaxis.set_major_locator(locator_x)
