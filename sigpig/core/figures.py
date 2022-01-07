@@ -1077,7 +1077,7 @@ def plot_event_picks(event):
 
     """
     # initialize figure and set the figure size
-    figureWidth = 20  # 80
+    figureWidth = 14  # 80
     figureHeight = 0.8 * len(event)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
