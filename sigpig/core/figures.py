@@ -1074,7 +1074,7 @@ def plot_event_picks(event):
 
     Example:
         event = events[event_ids[0]]
-
+        plot_event_picks(event)
     """
     # initialize figure and set the figure size
     figureWidth = 14  # 80
@@ -1085,6 +1085,7 @@ def plot_event_picks(event):
 
     # loop over each phase in the event, where event is a list of dicts
     for index, phase in enumerate(event):
+        print(index)
         # get the phase pick time
         phase_time = phase['time']
         # build the trace filepath
@@ -1092,29 +1093,28 @@ def plot_event_picks(event):
         # station format constructed to match filenames sta..chan
         phase_station = f"{station_components[0]}" \
                         f"..{station_components[1]}"
-        trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
-        # trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
+        # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
+        trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
         trace_file_path = f"5A.{phase_station}." \
                           f"{phase_time.year}-" \
                           f"{phase_time.month:02}-" \
                           f"{phase_time.day:02}T00.00.00.ms"
         # load the trace
         st = read(trace_file_prefix + trace_file_path)
-        st.trim(phase_time - 30, phase_time + 30, pad=True,
+        st.trim(phase_time - 30.7, phase_time + 30.7, pad=True,
                 fill_value=0, nearest_sample=True)
-        st.interpolate(sampling_rate=250)
-        # detrend then bandpass
+        st.interpolate(sampling_rate=250.0)
+        # detrend then bandpass filter
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
         # only consider 2 seconds of data (this is a busy dataset)
-        st.trim(phase_time - 0.7, phase_time + 1.3, pad=True,
+        st.trim(phase_time - 1, phase_time + 1.5, pad=True,
                 fill_value=0, nearest_sample=True)
 
         # add the trace to the figure
         trace = st[0]
-
-        # set common time axis
-        time = trace.times("matplotlib")
+        # set time axis
+        trace_times = trace.times("matplotlib")
 
         # find max trace value for normalization
         maxTraceValue, _ = max_amplitude(trace)
@@ -1122,11 +1122,12 @@ def plot_event_picks(event):
         # define data to work with
         norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
                                                 min(trace.data)) * 1.25 + index
-        # fix -1 length norm_amplitude
-        if norm_amplitude.size < time.size:
-            norm_amplitude = np.append(norm_amplitude, [0])
+        # # fix -1 length norm_amplitude
+        # if norm_amplitude.size < trace_times.size:
+        #     norm_amplitude = np.append(norm_amplitude, [0])
         # add trace to waveform plot
-        amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
+        amplitude_plot.plot_date(trace_times, norm_amplitude, fmt="k-",
+                                 linewidth=0.7)
 
         # plot time markers for this trace if they exist
         network_station = f"{trace.stats.network}.{trace.stats.station}"
@@ -1135,7 +1136,6 @@ def plot_event_picks(event):
         y_labels.append(f"{network_station}.{trace.stats.channel}.{index}")
 
         # plot the pick as a dot
-        trace_times = trace.times("matplotlib")
         amplitude_index = (np.abs(trace_times -
                                   phase_time.matplotlib_date)).argmin()
         amplitude_plot.plot_date(phase_time.matplotlib_date, norm_amplitude[
@@ -1145,7 +1145,7 @@ def plot_event_picks(event):
     amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
     amplitude_plot.set_yticklabels(y_labels)
     amplitude_plot.set_ylabel('Station.Channel')
-    amplitude_plot.set_xlim([time[0], time[-1]])
+    amplitude_plot.set_xlim([trace_times[50], trace_times[-50]])
     amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec')
     myFmt = DateFormatter("%H:%M:%S.%f")  # "%H:%M:%S.%f"
     amplitude_plot.xaxis.set_major_formatter(myFmt)
