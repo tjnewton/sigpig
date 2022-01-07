@@ -1077,7 +1077,7 @@ def plot_event_picks(event):
         plot_event_picks(event)
     """
     # initialize figure and set the figure size
-    figureWidth = 10  # 80
+    figureWidth = 7  # 80
     figureHeight = 0.8 * len(event)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
@@ -1108,7 +1108,7 @@ def plot_event_picks(event):
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
         # only consider 2 seconds of data (this is a busy dataset)
-        st.trim(phase_time - 0.5, phase_time + 0.6, pad=True,
+        st.trim(phase_time - 0.5, phase_time + 0.8, pad=True,
                 fill_value=0, nearest_sample=True)
 
         # add the trace to the figure
