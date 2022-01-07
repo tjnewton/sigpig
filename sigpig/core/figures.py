@@ -1073,7 +1073,7 @@ def plot_event_picks(event):
     data.process_autopicked_events function.
 
     Example:
-        event = events[event_ids[0]]
+        event = events[event_ids[0]].copy()
         plot_event_picks(event)
     """
     # initialize figure and set the figure size
@@ -1085,6 +1085,7 @@ def plot_event_picks(event):
 
     # loop over each phase in the event, where event is a list of dicts
     for index, phase in enumerate(event):
+        # TODO: delete after testing
         print(index)
         # get the phase pick time
         phase_time = phase['time']
@@ -1101,7 +1102,8 @@ def plot_event_picks(event):
                           f"{phase_time.day:02}T00.00.00.ms"
         # load the trace
         st = read(trace_file_prefix + trace_file_path)
-        st.trim(phase_time - 30.7, phase_time + 30.7, pad=True,
+        # get 1 minute of data to interpolate, de-trend, filter, and trim
+        st.trim(phase_time - 30, phase_time + 30, pad=True,
                 fill_value=0, nearest_sample=True)
         st.interpolate(sampling_rate=250.0)
         # detrend then bandpass filter
