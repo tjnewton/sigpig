@@ -1108,7 +1108,7 @@ def plot_event_picks(event):
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
         # only consider 2 seconds of data (this is a busy dataset)
-        st.trim(phase_time - 0.5, phase_time + 0.8, pad=True,
+        st.trim(phase_time - 0.7, phase_time + 1.0, pad=True,
                 fill_value=0, nearest_sample=True)
 
         # add the trace to the figure
@@ -1123,7 +1123,7 @@ def plot_event_picks(event):
         if maxTraceValue != None:
             # define data to work with
             norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
-                                                    min(trace.data)) * 1.25 + index
+                                                    min(trace.data)) * 1.5 + index
             # # fix -1 length norm_amplitude
             # if norm_amplitude.size < trace_times.size:
             #     norm_amplitude = np.append(norm_amplitude, [0])
@@ -1132,7 +1132,7 @@ def plot_event_picks(event):
             network_station = f"{trace.stats.network}.{trace.stats.station}"
 
             # add station name to list of y labels
-            y_labels.append(f"{network_station}.{trace.stats.channel}.{index}")
+            y_labels.append(f"{network_station}.{trace.stats.channel}")
 
             # plot the pick as a dot
             amplitude_index = (np.abs(trace_times -
@@ -1147,20 +1147,20 @@ def plot_event_picks(event):
     # set axes attributes
     amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
     amplitude_plot.set_yticklabels(y_labels)
-    amplitude_plot.set_ylabel('Station.Channel')
+    amplitude_plot.set_ylabel('Network.Station.Channel')
     amplitude_plot.set_xlim([trace_times[50], trace_times[-50]])
-    amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec')
-    myFmt = DateFormatter("%H:%M:%S.%f")  # "%H:%M:%S.%f"
+    amplitude_plot.set_xlabel(f'Time (seconds)')
+    myFmt = DateFormatter("%S.%f")  # "%H:%M:%S.%f"
     amplitude_plot.xaxis.set_major_formatter(myFmt)
     locator_x = AutoDateLocator(minticks=2, maxticks=5)
     amplitude_plot.xaxis.set_major_locator(locator_x)
     amplitude_plot.set_ylim((0, len(event) + 0.5))
     title = "Event picks"
     amplitude_plot.set_title(title)
-    fig.savefig(f"{title}.png", dpi=200)
     # FIXME: this doesn't work, y labels are chopped. Find another fix.
-    plt.gcf().subplots_adjust(left=0.5)
-    # fig.tight_layout()
+    # plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
+    fig.tight_layout()
+    fig.savefig(f"{title}.png", dpi=200)
     # plt.show()
 
     return fig
