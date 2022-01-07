@@ -1158,11 +1158,11 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     trace_snr = snr(st[0])[0]
                     snrs.append(trace_snr)
 
-    # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
-    fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
-    ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
-    ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
-    fig.show()
+    # # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
+    # fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
+    # ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
+    # ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
+    # fig.show()
 
     # TODO: get measure of emergence from AIC or curvature
     #  emergent vs. impulse (what do regional networks use to classify this?
