@@ -1108,7 +1108,7 @@ def plot_event_picks(event):
         st.detrend()
         st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
         # only consider 2 seconds of data (this is a busy dataset)
-        st.trim(phase_time - 0.7, phase_time + 1.0, pad=True,
+        st.trim(phase_time - 0.6, phase_time + 0.9, pad=True,
                 fill_value=0, nearest_sample=True)
 
         # add the trace to the figure
