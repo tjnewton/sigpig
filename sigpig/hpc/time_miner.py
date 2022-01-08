@@ -7,6 +7,8 @@ events.
 # FIXME: test association on all 5s windows in 30s, and other subsets
 # FIXME: change camel case to lowercase:::within function
 
+# FIXME: merge updates from local unet directory
+
 # Run the autopicker?
 RUN = False
 
