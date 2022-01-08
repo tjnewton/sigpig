@@ -1157,8 +1157,6 @@ def plot_event_picks(event):
     amplitude_plot.set_ylim((0, len(event) + 0.5))
     title = "Event picks"
     amplitude_plot.set_title(title)
-    # FIXME: this doesn't work, y labels are chopped. Find another fix.
-    # plt.subplots_adjust(left=0.3, right=0.9, bottom=0.3, top=0.9)
     fig.tight_layout()
     fig.savefig(f"{title}.png", dpi=200)
     # plt.show()
