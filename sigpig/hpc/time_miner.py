@@ -295,9 +295,9 @@ def find_Picking_Windows(filepaths: list, detection_Parameters:
 
             # bandpass filter and detrend data?
             if filter:
+                period_Trace.detrend('linear')
                 period_Trace.filter("bandpass", freqmin=20, freqmax=60,
                                     corners=4)
-                period_Trace.detrend('linear')
             
             times = period_Trace.times("utcdatetime")
             data = period_Trace.data
