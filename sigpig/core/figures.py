@@ -1144,6 +1144,9 @@ def plot_event_picks(event):
             amplitude_plot.plot_date(trace_times, norm_amplitude, fmt="k-",
                                      linewidth=0.7)
 
+            # TODO:
+            #    plot curvature on each trace
+
     # set axes attributes
     amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
     amplitude_plot.set_yticklabels(y_labels)
