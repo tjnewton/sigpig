@@ -963,18 +963,25 @@ def make_Templates(templates, template_files, station_dict, template_length,
             if pick.waveform_id.station_code in station_dict:
                 picks[index].waveform_id.network_code = \
                     station_dict[pick.waveform_id.station_code]["network"]
+                # # for single component templates
+                # picks[index].waveform_id.channel_code = \
+                #     station_dict[pick.waveform_id.station_code]["channel"]
+
+                # for 3 component templates
+                # force Z component first
                 picks[index].waveform_id.channel_code = \
-                    station_dict[pick.waveform_id.station_code]["channel"]
-                # # copy Z entry
-                # pick_copy1 = picks[index].copy()
-                # pick_copy2 = picks[index].copy()
-                # # make N and E entries
-                # pick_copy1.waveform_id.channel_code = \
-                #     pick_copy1.waveform_id.channel_code[:-1] + 'N'
-                # picks.append(pick_copy1)
-                # pick_copy2.waveform_id.channel_code = \
-                #     pick_copy2.waveform_id.channel_code[:-1] + 'E'
-                # picks.append(pick_copy2)
+                    station_dict[pick.waveform_id.station_code]["channel"][
+                    :-1] + "Z"
+                # copy Z entry
+                pick_copy1 = picks[index].copy()
+                pick_copy2 = picks[index].copy()
+                # make N and E entries
+                pick_copy1.waveform_id.channel_code = \
+                    pick_copy1.waveform_id.channel_code[:-1] + 'N'
+                picks.append(pick_copy1)
+                pick_copy2.waveform_id.channel_code = \
+                    pick_copy2.waveform_id.channel_code[:-1] + 'E'
+                picks.append(pick_copy2)
 
         event.picks = picks
 
@@ -1489,9 +1496,14 @@ def stack_waveforms(party, pick_offset, streams_path, template_length,
     for station in station_dict.keys():
         network = station_dict[station]["network"]
         channels = []
-        channels.append(station_dict[station]["channel"]) # append Z component
-        # channels.append(f"{channels[0][:-1]}N") # append N component
-        # channels.append(f"{channels[0][:-1]}E")  # append E component
+        # # for 1 component
+        # channels.append(station_dict[station]["channel"]) # append main compnt
+
+        # for 3 components
+        # force Z component
+        channels.append(station_dict[station]["channel"][:-1] + "Z")
+        channels.append(f"{channels[0][:-1]}N") # append N component
+        channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
             print(f"Assembling streams for {station}.{channel}")
@@ -1979,7 +1991,12 @@ def stack_template_detections(party, streams_path, main_trace,
         file_station = filename.split(".")[1]
         if file_station not in station_dict:
             file_network = filename.split(".")[0]
-            file_channel = filename.split(".")[2][:-1] + "N" # force N
+
+            # # for 1 component
+            # file_channel = filename.split(".")[2][:-1] + "N" # force N
+            # for 3 components
+            file_channel = filename.split(".")[2]
+
             # component
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
@@ -2004,9 +2021,15 @@ def stack_template_detections(party, streams_path, main_trace,
     for station_idx, station in enumerate(stations):
         network = station_dict[station]["network"]
         channels = []
-        channels.append(station_dict[station]["channel"])  # append main component
-        # channels.append(f"{channels[0][:-1]}N")  # append N component
-        # channels.append(f"{channels[0][:-1]}E")  # append E component
+
+        # # for 1 component
+        # channels.append(station_dict[station]["channel"])  # append main component
+
+        # for 3 components
+        # force Z component
+        channels.append(station_dict[station]["channel"][:-1] + "Z")
+        channels.append(f"{channels[0][:-1]}N")  # append N component
+        channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
             print(f"Assembling streams for {station}.{channel} ["
@@ -2522,10 +2545,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 25.0] # [1.0, 8.0]
         # set detection threshold and type
-        # detect_thresh = 15.0
-        # thresh_type = "MAD"
-        detect_thresh = 0.65
-        thresh_type = "abs"
+        detect_thresh = 8.0
+        thresh_type = "MAD"
+        # detect_thresh = 0.65
+        # thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
         main_trace = ("AV", "WASW", "SHN")
