@@ -2896,7 +2896,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
-                                               animate_stacks=True)
+                                               animate_stacks=False)
         # save stacks as pickle file
         outfile = open(f'top_{n}_inner_stack_3comp_t5_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
