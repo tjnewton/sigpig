@@ -1151,23 +1151,30 @@ def plot_event_picks(event, plot_curvature=False):
             # calculate and plot curvature:
             if plot_curvature:
                 # dy/dx first derivative
-                dy = np.gradient(trace.data, trace_times)
+                dy = np.gradient(abs(trace.data), trace_times)
                 # d2y/dx2 second derivative
                 d2y = np.gradient(dy, trace_times)
                 # calculate curvature
                 curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
                 # normalize curvature for plotting
-                norm_curvature = (curvature - min(curvature)) / (
+                norm_curvature = (curvature - curvature.min()) / (
                                  curvature.max() - curvature.min()) * 1.5 + \
-                                 index
+                                 index + 0.5
+                norm_d2y = (d2y - d2y.min()) / (d2y.max() - d2y.min()) * 1.5\
+                           + \
+                          index + 0.5
 
                 # plot the pick as a dot
                 curvature_plot.plot_date(phase_time.matplotlib_date,
-                                         norm_curvature[amplitude_index],
+                                         norm_d2y[amplitude_index],
                                          fmt="ro", linewidth=0.7)
 
-                # add trace curvature to plot
-                curvature_plot.plot_date(trace_times, norm_curvature, fmt="k-",
+                # # add trace curvature to plot
+                # curvature_plot.plot_date(trace_times, norm_curvature, fmt="k-",
+                #                          linewidth=0.7)
+
+                # add trace dy to plot
+                curvature_plot.plot_date(trace_times, norm_d2y, fmt="k-",
                                          linewidth=0.7)
 
     # set axes attributes
@@ -1181,7 +1188,7 @@ def plot_event_picks(event, plot_curvature=False):
     locator_x = AutoDateLocator(minticks=2, maxticks=5)
     amplitude_plot.xaxis.set_major_locator(locator_x)
     amplitude_plot.set_ylim((0, len(event) + 0.5))
-    title = "Event waveforms and picks"
+    title = "Normalized event waveforms and picks"
     amplitude_plot.set_title(title)
     fig.tight_layout()
     fig.savefig(f"event_picks.png", dpi=200)
@@ -1200,7 +1207,7 @@ def plot_event_picks(event, plot_curvature=False):
         locator_x = AutoDateLocator(minticks=2, maxticks=5)
         curvature_plot.xaxis.set_major_locator(locator_x)
         curvature_plot.set_ylim((0, len(event) + 0.5))
-        title = "Waveform curvature and picks"
+        title = "Normalize waveform curvature and picks"
         curvature_plot.set_title(title)
         curv_fig.tight_layout()
         curv_fig.savefig(f"curvature_event_picks.png", dpi=200)
