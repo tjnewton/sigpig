@@ -2576,10 +2576,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'zero'
     load_party = True
-    save_detections = False
+    save_detections = True
 
     top_n = True
-    n = 500
+    n = 5000
 
     load_stack = False
     load_stack_detects = False
@@ -2734,6 +2734,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # culled & top 50 version
         # infile = open('top_50_WASW_t5_7.0s_0.5_prepick_abs0.65_culled_sorted_party.pkl','rb')
 
+        # 100 Hz party, 3 component, w/ 0.5s prepick for testing
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t5_SHZNE_100Hz_0.5prepick.pkl','rb')
+        # culled & top 50 version
+        # infile = open('top_50_WASW_t5_7.0s_0.5_prepick_abs0.65_culled_sorted_party.pkl','rb')
+
         # # Culled 100 Hz party w/ 0.5s prepick for testing
         # infile = open('top_3048_WASW_t5_culled_snr1.0-15.0_selfShift_abs0'
         #               '.65_7s_100Hz_prepick_party.pkl', 'rb')
@@ -2832,13 +2837,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save party detections as text file
-            df.to_csv(f"WASW_t5_{template_length}s_"
+            df.to_csv(f"WASW_3comp_t5_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_detections.csv",
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_WASW_t5_{template_length}s_"
+            outfile = open(f"top_{n}_3comp_WASW_3comp_t5_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_party.pkl", 'wb')
 
@@ -2857,7 +2862,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:50],
-                   title=f"top_{n}_WASW_t5_{template_length}s_"
+                   title=f"top_{n}_WASW_3comp_t5_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted", save=True)
         # free up some memory
@@ -2892,7 +2897,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=True)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_inner_stack_t5_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_inner_stack_3comp_t5_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_7s_100Hz_prepick.pkl', 'wb')
@@ -2905,7 +2910,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'top_{n}_phase_weighted_stack_snr'
+            plot_stack(stack_pw, title=f'top_'
+                                       f'{n}_3comp_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
@@ -2913,7 +2919,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        save=True)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top_{n}_linear_stack_sn'
+            plot_stack(stack_lin, title=f'top_{n}_3comp_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
