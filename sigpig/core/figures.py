@@ -1082,6 +1082,9 @@ def plot_event_picks(event, plot_curvature=False):
     figureHeight = 0.3 * len(event)
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     amplitude_plot = fig.add_subplot()
+    if plot_curvature:
+        curv_fig = plt.figure(figsize=(figureWidth, figureHeight))
+        curvature_plot = curv_fig.add_subplot()
     y_labels = []
 
     # loop over each phase in the event, where event is a list of dicts
@@ -1122,15 +1125,6 @@ def plot_event_picks(event, plot_curvature=False):
 
         # disregard NaNs
         if maxTraceValue != None:
-            # calculate and plot curvature:
-            if plot_curvature:
-                # dy/dx first derivative
-                dy = np.gradient(trace.data, trace_times)
-                # d2y/dx2 second derivative
-                d2y = np.gradient(dy, trace.times)
-                # calculate curvature
-                curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
-
             # normalize data for plotting
             norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
                                                     min(trace.data)) * 1.5 + index
@@ -1154,8 +1148,23 @@ def plot_event_picks(event, plot_curvature=False):
             amplitude_plot.plot_date(trace_times, norm_amplitude, fmt="k-",
                                      linewidth=0.7)
 
-            # TODO:
-            #    plot curvature on each trace
+            # calculate and plot curvature:
+            if plot_curvature:
+                # dy/dx first derivative
+                dy = np.gradient(trace.data, trace_times)
+                # d2y/dx2 second derivative
+                d2y = np.gradient(dy, trace.times)
+                # calculate curvature
+                curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
+
+                # plot the pick as a dot
+                curvature_plot.plot_date(phase_time.matplotlib_date,
+                                         curvature[amplitude_index], fmt="ro",
+                                         linewidth=0.7)
+
+                # add trace curvature to plot
+                curvature_plot.plot_date(trace_times, curvature, fmt="k-",
+                                         linewidth=0.7)
 
     # set axes attributes
     amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
@@ -1168,11 +1177,29 @@ def plot_event_picks(event, plot_curvature=False):
     locator_x = AutoDateLocator(minticks=2, maxticks=5)
     amplitude_plot.xaxis.set_major_locator(locator_x)
     amplitude_plot.set_ylim((0, len(event) + 0.5))
-    title = "Event picks"
+    title = "Event waveforms and picks"
     amplitude_plot.set_title(title)
     fig.tight_layout()
-    fig.savefig(f"{title}.png", dpi=200)
+    fig.savefig(f"event_picks.png", dpi=200)
     # plt.show()
+
+    # set axes attributes for curvature plot
+    if plot_curvature:
+        # set axes attributes
+        curvature_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
+        curvature_plot.set_yticklabels(y_labels)
+        curvature_plot.set_ylabel('Network.Station.Channel')
+        curvature_plot.set_xlim([trace_times[50], trace_times[-50]])
+        curvature_plot.set_xlabel(f'Time (seconds)')
+        myFmt = DateFormatter("%S.%f")  # "%H:%M:%S.%f"
+        curvature_plot.xaxis.set_major_formatter(myFmt)
+        locator_x = AutoDateLocator(minticks=2, maxticks=5)
+        curvature_plot.xaxis.set_major_locator(locator_x)
+        curvature_plot.set_ylim((0, len(event) + 0.5))
+        title = "Waveform curvature and picks"
+        curvature_plot.set_title(title)
+        curv_fig.tight_layout()
+        curv_fig.savefig(f"curvature_event_picks.png", dpi=200)
 
     return fig
 
