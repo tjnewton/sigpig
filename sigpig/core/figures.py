@@ -1067,14 +1067,15 @@ def plot_distribution(data, bins=False, title=False, save=False):
     return fig
 
 
-def plot_event_picks(event):
+def plot_event_picks(event, plot_curvature=False):
     """ Plots time series and associated picks from time_miner autopicker.
     Takes in an event from the events dict from the
     data.process_autopicked_events function.
 
     Example:
         event = events[event_ids[0]].copy()
-        plot_event_picks(event)
+        plot_curvature=True
+        plot_event_picks(event, plot_curvature=plot_curvature)
     """
     # initialize figure and set the figure size
     figureWidth = 5  # 80
@@ -1121,7 +1122,16 @@ def plot_event_picks(event):
 
         # disregard NaNs
         if maxTraceValue != None:
-            # define data to work with
+            # calculate and plot curvature:
+            if plot_curvature:
+                # dy/dx first derivative
+                dy = np.gradient(trace.data, trace_times)
+                # d2y/dx2 second derivative
+                d2y = np.gradient(dy, trace.times)
+                # calculate curvature
+                curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
+
+            # normalize data for plotting
             norm_amplitude = (trace.data - min(trace.data)) / (maxTraceValue -
                                                     min(trace.data)) * 1.5 + index
             # # fix -1 length norm_amplitude
