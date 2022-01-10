@@ -1153,17 +1153,21 @@ def plot_event_picks(event, plot_curvature=False):
                 # dy/dx first derivative
                 dy = np.gradient(trace.data, trace_times)
                 # d2y/dx2 second derivative
-                d2y = np.gradient(dy, trace.times)
+                d2y = np.gradient(dy, trace_times)
                 # calculate curvature
                 curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
+                # normalize curvature for plotting
+                norm_curvature = (curvature - min(curvature)) / (
+                                 curvature.max() - curvature.min()) * 1.5 + \
+                                 index
 
                 # plot the pick as a dot
                 curvature_plot.plot_date(phase_time.matplotlib_date,
-                                         curvature[amplitude_index], fmt="ro",
-                                         linewidth=0.7)
+                                         norm_curvature[amplitude_index],
+                                         fmt="ro", linewidth=0.7)
 
                 # add trace curvature to plot
-                curvature_plot.plot_date(trace_times, curvature, fmt="k-",
+                curvature_plot.plot_date(trace_times, norm_curvature, fmt="k-",
                                          linewidth=0.7)
 
     # set axes attributes
