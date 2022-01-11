@@ -1227,6 +1227,15 @@ def plot_event_picks(event, plot_curvature=False):
         curv_fig.tight_layout()
         curv_fig.savefig(f"curvature_event_picks.png", dpi=200)
 
+    # TODO: make standalone non-normalized plotting function to verify
+    #  curvature
+    fig, ax = plt.subplots()
+    plt.plot_date(x, interp_func(x), fmt="k-", linewidth=0.7)
+    z = np.polyfit(x, interp_func(x), 20)
+    p = np.poly1d(z)
+    plt.plot_date(x, p(x), fmt="r-", linewidth=0.7)
+    plt.show()
+
     return fig
 
 
