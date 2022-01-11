@@ -1234,7 +1234,8 @@ def plot_event_picks(event, plot_curvature=False):
     # FIXME: polyfit of any degree returns a line
     z = np.polyfit(x, interp_func(x), 5)
     p = np.poly1d(z)
-    f2 = interp1d(x, interp_func(x), kind='zero')
+    f2 = interp1d(x, interp_func(x), kind=2)
+    # FIXME: decimate x to see how this behaves
     plt.plot_date(x, f2(x), fmt="r-", linewidth=0.7)
     plt.show()
 
