@@ -1086,6 +1086,8 @@ def plot_event_picks(event, plot_curvature=False):
     if plot_curvature:
         curv_fig = plt.figure(figsize=(figureWidth, figureHeight))
         curvature_plot = curv_fig.add_subplot()
+        # set a reference pick time based on first phase
+        ref_time = event[0]['time']
     y_labels = []
 
     # loop over each phase in the event, where event is a list of dicts
@@ -1151,13 +1153,12 @@ def plot_event_picks(event, plot_curvature=False):
 
             # calculate and plot curvature:
             if plot_curvature:
-                # make a copy of the trace data to work with, take abs value
-                curv_data = abs(trace.data.copy())
-                # get a spline interpolation function
-                interp_func = interp1d(trace_times, curv_data, kind='cubic')
-                # make a finely sampled interpolation
-                x = np.linspace(trace_times[0], trace_times[-1], num=10000,
-                                endpoint=True)
+                # get a spline interpolation function from the abs val of data
+                interp_func = interp1d(trace_times, abs(trace.data.copy()),
+                                       kind='cubic')
+                # make a finely sampled interpolation around the pick
+                x = np.linspace((ref_time - .15).matplotlib_date, (ref_time +
+                                .35).matplotlib_date, num=10000, endpoint=True)
 
                 # dy/dx first derivative
                 dy = np.gradient(interp_func(x), x)
@@ -1213,7 +1214,8 @@ def plot_event_picks(event, plot_curvature=False):
         curvature_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
         curvature_plot.set_yticklabels(y_labels)
         curvature_plot.set_ylabel('Network.Station.Channel')
-        curvature_plot.set_xlim([trace_times[50], trace_times[-50]])
+        curvature_plot.set_xlim([(ref_time - .15).matplotlib_date, (ref_time +
+                                .35).matplotlib_date])
         curvature_plot.set_xlabel(f'Time (seconds)')
         myFmt = DateFormatter("%S.%f")  # "%H:%M:%S.%f"
         curvature_plot.xaxis.set_major_formatter(myFmt)
