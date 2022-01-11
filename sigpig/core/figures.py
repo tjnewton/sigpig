@@ -1157,8 +1157,8 @@ def plot_event_picks(event, plot_curvature=False):
                 interp_func = interp1d(trace_times, abs(trace.data.copy()),
                                        kind='cubic')
                 # make a finely sampled interpolation around the pick
-                x = np.linspace((ref_time - .15).matplotlib_date, (ref_time +
-                                .35).matplotlib_date, num=10000, endpoint=True)
+                x = np.linspace((ref_time - .1).matplotlib_date, (ref_time +
+                                .15).matplotlib_date, num=1000, endpoint=True)
 
                 # dy/dx first derivative
                 dy = np.gradient(interp_func(x), x)
@@ -1173,18 +1173,18 @@ def plot_event_picks(event, plot_curvature=False):
                 # norm_d2y = (d2y - d2y.min()) / (d2y.max() - d2y.min()) * 1.5\
                 #            + \
                 #           index + 0.5
-                norm_abs_data = (abs(trace.data) - abs(trace.data).min()) / (
-                       abs(trace.data).max() - abs(trace.data).min()) * 1.5 + \
+                norm_interp = (interp_func(x) - interp_func(x).min()) / (
+                       interp_func(x).max() - interp_func(x).min()) * 1.5 + \
                                  index + 0.5
 
                 # plot the pick as a dot
                 curvature_index = (np.abs(x - phase_time.matplotlib_date)).argmin()
                 curvature_plot.plot_date(phase_time.matplotlib_date,
-                                         norm_curvature[curvature_index],
+                                         norm_interp[curvature_index],
                                          fmt="ro", linewidth=0.7)
 
                 # add trace curvature to plot
-                curvature_plot.plot_date(x, norm_curvature, fmt="k-",
+                curvature_plot.plot_date(x, norm_interp, fmt="k-",
                                          linewidth=0.7)
 
                 # # add trace dy to plot
@@ -1214,8 +1214,8 @@ def plot_event_picks(event, plot_curvature=False):
         curvature_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
         curvature_plot.set_yticklabels(y_labels)
         curvature_plot.set_ylabel('Network.Station.Channel')
-        curvature_plot.set_xlim([(ref_time - .15).matplotlib_date, (ref_time +
-                                .35).matplotlib_date])
+        curvature_plot.set_xlim([(ref_time - .1).matplotlib_date, (ref_time +
+                                .15).matplotlib_date])
         curvature_plot.set_xlabel(f'Time (seconds)')
         myFmt = DateFormatter("%S.%f")  # "%H:%M:%S.%f"
         curvature_plot.xaxis.set_major_formatter(myFmt)
