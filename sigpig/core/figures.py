@@ -1231,7 +1231,8 @@ def plot_event_picks(event, plot_curvature=False):
     # TODO: try different fits and test their curvature
     fig, ax = plt.subplots()
     plt.plot_date(x, interp_func(x), fmt="k-", linewidth=0.7)
-    z = np.polyfit(x, interp_func(x), 20)
+    # FIXME: polyfit of any degree returns a line
+    z = np.polyfit(x, interp_func(x), 5)
     p = np.poly1d(z)
     plt.plot_date(x, p(x), fmt="r-", linewidth=0.7)
     plt.show()
