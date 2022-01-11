@@ -12,6 +12,7 @@ from matplotlib.dates import DateFormatter, AutoDateLocator
 import glob
 import numpy as np
 import scipy.signal as spsig
+from scipy.interpolate import interp1d
 from data import max_amplitude, snr
 import pickle
 import pandas as pd
@@ -1150,32 +1151,44 @@ def plot_event_picks(event, plot_curvature=False):
 
             # calculate and plot curvature:
             if plot_curvature:
+                # make a copy of the trace data to work with, take abs value
+                curv_data = abs(trace.data.copy())
+                # get a spline interpolation function
+                interp_func = interp1d(trace_times, curv_data, kind='cubic')
+                # make a finely sampled interpolation
+                x = np.linspace(trace_times[0], trace_times[-1], num=10000,
+                                endpoint=True)
+
                 # dy/dx first derivative
-                dy = np.gradient(abs(trace.data), trace_times)
+                dy = np.gradient(interp_func(x), x)
                 # d2y/dx2 second derivative
-                d2y = np.gradient(dy, trace_times)
+                d2y = np.gradient(dy, x)
                 # calculate curvature
                 curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
                 # normalize curvature for plotting
                 norm_curvature = (curvature - curvature.min()) / (
                                  curvature.max() - curvature.min()) * 1.5 + \
                                  index + 0.5
-                norm_d2y = (d2y - d2y.min()) / (d2y.max() - d2y.min()) * 1.5\
-                           + \
-                          index + 0.5
+                # norm_d2y = (d2y - d2y.min()) / (d2y.max() - d2y.min()) * 1.5\
+                #            + \
+                #           index + 0.5
+                norm_abs_data = (abs(trace.data) - abs(trace.data).min()) / (
+                       abs(trace.data).max() - abs(trace.data).min()) * 1.5 + \
+                                 index + 0.5
 
                 # plot the pick as a dot
+                curvature_index = (np.abs(x - phase_time.matplotlib_date)).argmin()
                 curvature_plot.plot_date(phase_time.matplotlib_date,
-                                         norm_d2y[amplitude_index],
+                                         norm_curvature[curvature_index],
                                          fmt="ro", linewidth=0.7)
 
-                # # add trace curvature to plot
-                # curvature_plot.plot_date(trace_times, norm_curvature, fmt="k-",
-                #                          linewidth=0.7)
-
-                # add trace dy to plot
-                curvature_plot.plot_date(trace_times, norm_d2y, fmt="k-",
+                # add trace curvature to plot
+                curvature_plot.plot_date(x, norm_curvature, fmt="k-",
                                          linewidth=0.7)
+
+                # # add trace dy to plot
+                # curvature_plot.plot_date(trace_times, norm_d2y, fmt="k-",
+                #                          linewidth=0.7)
 
     # set axes attributes
     amplitude_plot.set_yticks(np.arange(0.5, len(event) + 0.5))
