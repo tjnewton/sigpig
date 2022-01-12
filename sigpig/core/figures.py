@@ -1222,7 +1222,7 @@ def plot_event_picks(event, plot_curvature=False):
         locator_x = AutoDateLocator(minticks=2, maxticks=5)
         curvature_plot.xaxis.set_major_locator(locator_x)
         curvature_plot.set_ylim((0, len(event) + 0.5))
-        title = "Normalize waveform curvature and picks"
+        title = "Normalized waveform curvature and picks"
         curvature_plot.set_title(title)
         curv_fig.tight_layout()
         curv_fig.savefig(f"curvature_event_picks.png", dpi=200)
@@ -1243,6 +1243,10 @@ def plot_event_picks(event, plot_curvature=False):
 
 
 def examine_stack():
-    "Animate building of stack"
+    """Animate building of stack
+
+    TODO: pull from stacking function in lfe_finder
+
+    """
 
     ...
