@@ -420,7 +420,7 @@ def process_nll_hypocenters(file_path):
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/loc/RR.sum.grid0.loc.hyp"
         process_nll_hypocenters(file_path)
     """
-    velocity_range = file_path[57:65]
+    velocity_range = file_path[-33:-25]
 
     hypocenters = []
     # read the hypocenter file line by line
