@@ -1075,7 +1075,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     events = {}
 
     # FOR TESTING : FIXME: delete after testing
-    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_06_12-06_18_2018.mrkr"
+    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
     uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
 
     # event tags and phase tags can be out of order so the autopicked .mrkr
@@ -1158,11 +1158,11 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     trace_snr = snr(st[0])[0]
                     snrs.append(trace_snr)
 
-    # # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
-    # fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
-    # ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
-    # ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
-    # fig.show()
+    # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
+    fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
+    ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
+    ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
+    fig.show()
 
     # TODO: get measure of emergence from AIC or curvature
     #  emergent vs. impulse (what do regional networks use to classify this?
@@ -1193,7 +1193,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
     num_phases = np.asarray(num_phases)
     event_ids = np.asarray(event_ids)
-    top_500_phases = np.where(num_phases > 31) # top 536 phases
+    top_500_phases = np.where(num_phases > 22) # pick # for top 500ish phases
     num_phases = num_phases[top_500_phases]
     event_ids = event_ids[top_500_phases]
 
