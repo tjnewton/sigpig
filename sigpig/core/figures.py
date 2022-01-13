@@ -16,6 +16,9 @@ from scipy.interpolate import interp1d
 from data import max_amplitude, snr
 import pickle
 import pandas as pd
+from descartes import PolygonPatch
+import alphashape
+from concavehull import concavehull
 
 # FIXME ::: Add elevation functions from Desktop/autopicker/preprocessing/station_locations.py
 # above requires configuring environment with rasterio and dependencies
@@ -1227,19 +1230,38 @@ def plot_event_picks(event, plot_curvature=False):
         curv_fig.tight_layout()
         curv_fig.savefig(f"curvature_event_picks.png", dpi=200)
 
+    return fig
+
+def plot_trace_curvature(trace, pick_time):
+    """ Plots the absolute value of a trace's data and derives a fit to
+    estimate curvature at the pick time.
+    """
+    # get trace times and data
+    trace_times = trace.times("matplotlib").tolist()
+    trace_data = trace.data.copy().tolist()
+
     # TODO: make standalone plot to verify curvature
     # TODO: try different fits and test their curvature
-    fig, ax = plt.subplots()
-    plt.plot_date(x, interp_func(x), fmt="k-", linewidth=0.7)
+
+    fig, ax = plt.subplots(figsize=(7, 3))
+    # plot raw data
+    ax.plot_date(trace_times, trace_data, fmt="ko", markersize=2)
+    # make and plot alpha shape
+    alpha_points = [(p_time, trace_data[index]) for index, p_time in
+                    enumerate(trace_times)]
+    # alpha_shape = alphashape.alphashape(alpha_points, 0.00)
+    # ax.add_patch(PolygonPatch(alpha_shape, alpha=0.2))
+    ch = concavehull(alpha_points, chi_factor=0.0)
+    ax.plot_date(ch[:,0], ch[:,1], fmt="r-", linewidth=0.7)
+
+    # plt.plot_date(x, interp_func(x), fmt="k-", linewidth=0.7)
     # FIXME: polyfit of any degree returns a line
-    z = np.polyfit(x, interp_func(x), 5)
-    p = np.poly1d(z)
-    f2 = interp1d(x, interp_func(x), kind=2)
-    # FIXME: decimate x to see how this behaves
-    plt.plot_date(x, f2(x), fmt="r-", linewidth=0.7)
+    # p = np.poly1d(np.polyfit(trace_times, abs(trace.data), 10))
+    # t = np.linspace(trace_times[0], trace_times[-1], num=1000, endpoint=True)
+    # plt.plot_date(t, p(t), fmt="r-", linewidth=0.7)
     plt.show()
 
-    return fig
+    return None
 
 
 def examine_stack():
