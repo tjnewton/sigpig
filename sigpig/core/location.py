@@ -509,6 +509,7 @@ def extract_nll_locations(file_path):
     """
     hypocenters = []
     pdfs = []
+    velocity_range = file_path[-33:-25]
 
     # read the hypocenter file line by line
     with open(file_path, 'r') as file:
@@ -551,9 +552,16 @@ def extract_nll_locations(file_path):
                 SAVE_FLAG = False
                 SCATTER_FLAG = False
 
-    summed = 0
-    for pdf in pdfs:
-        summed += pdf[3]
+    # generate file with all pdf points
+    with open(f"xyzw_{velocity_range}.csv", "w") as write_file:
+        # write header
+        write_file.write("X Y Z W\n")
 
+        # write each hypocenter to file
+        for pdf in pdfs:
+            lat, lon = utm.to_latlon(pdf[0] * 1000, pdf[1] * 1000, 10, 'N')
+
+            line = f"{lon} {lat} {pdf[2] * -1} {pdf[3]}\n"
+            write_file.write(line)
 
     return None
