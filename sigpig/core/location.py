@@ -508,6 +508,7 @@ def extract_nll_locations(file_path):
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
         extract_nll_locations(file_path)
 
+        # then plot with gmt/RR_pdfs_plot.sh
     """
     hypocenters = []
     pdfs = []
