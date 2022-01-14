@@ -498,21 +498,26 @@ def process_nll_hypocenters(file_path):
 
 
 def extract_nll_locations(file_path):
-    """ TODO: does something
+    """ Processes a .hyp file output from NonLinLoc's LocSum function
+    containing PDF points for each event.
 
     Example:
-        file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/loc/RR.sum.grid0.loc.hyp"
+        # specify the path to the summed location file (containing SCATTER lines)
+        file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
         extract_nll_locations(file_path)
 
     """
-
     hypocenters = []
+    pdfs = []
+
     # read the hypocenter file line by line
     with open(file_path, 'r') as file:
         SAVE_FLAG = False
+        SCATTER_FLAG = False
 
         # process contents of each line
         for index, line_contents in enumerate(file):
+
             # only consider lines with accepted locations
             if line_contents[:5] == "NLLOC" and line_contents[
                                                 -21:-3] == "Location completed":
@@ -524,15 +529,31 @@ def extract_nll_locations(file_path):
                 hypocenter = [float(line[2]), float(line[4]),
                               round(float(line[6]) * 1000, 4)]
 
-            # add uncertainty information
-            elif line_contents[:21] == "QML_OriginUncertainty" and SAVE_FLAG:
+            # if line contains RMS: save it
+            elif line_contents[:7] == "QUALITY" and SAVE_FLAG:
                 line = line_contents.split()
-                hypocenter.append(round(float(line[6]) * 1000, 4))
+                hypocenter.append(float(line[8]))
+
+            # check for pdf flag
+            elif line_contents[:7] == "SCATTER":
+                SCATTER_FLAG = True
+
+            # add pdfs
+            elif line_contents[0] == " " and SCATTER_FLAG and SAVE_FLAG:
+                line = line_contents.split()
+                pdfs.append([float(line[0]), float(line[1]), round(float(line[
+                           2]) * 1000, 4), float(line[3])])
 
                 # set the save flag to False after each event
             elif line_contents[:9] == "END_NLLOC":
-                if SAVE_FLAG:
+                if SAVE_FLAG and SCATTER_FLAG:
                     hypocenters.append(hypocenter)
                 SAVE_FLAG = False
+                SCATTER_FLAG = False
+
+    summed = 0
+    for pdf in pdfs:
+        summed += pdf[3]
+
 
     return None
