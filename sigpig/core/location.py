@@ -496,3 +496,43 @@ def process_nll_hypocenters(file_path):
 
     return None
 
+
+def extract_nll_locations(file_path):
+    """ TODO: does something
+
+    Example:
+        file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/loc/RR.sum.grid0.loc.hyp"
+        extract_nll_locations(file_path)
+
+    """
+
+    hypocenters = []
+    # read the hypocenter file line by line
+    with open(file_path, 'r') as file:
+        SAVE_FLAG = False
+
+        # process contents of each line
+        for index, line_contents in enumerate(file):
+            # only consider lines with accepted locations
+            if line_contents[:5] == "NLLOC" and line_contents[
+                                                -21:-3] == "Location completed":
+                SAVE_FLAG = True
+
+            # if line contains an accepted hypocenter: save it
+            elif line_contents[:10] == "HYPOCENTER" and SAVE_FLAG:
+                line = line_contents.split()
+                hypocenter = [float(line[2]), float(line[4]),
+                              round(float(line[6]) * 1000, 4)]
+
+            # add uncertainty information
+            elif line_contents[:21] == "QML_OriginUncertainty" and SAVE_FLAG:
+                line = line_contents.split()
+                hypocenter.append(round(float(line[6]) * 1000, 4))
+
+                # set the save flag to False after each event
+            elif line_contents[:9] == "END_NLLOC":
+                if SAVE_FLAG:
+                    hypocenters.append(hypocenter)
+                SAVE_FLAG = False
+
+    return None
