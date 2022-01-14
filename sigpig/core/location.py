@@ -422,7 +422,7 @@ def process_nll_hypocenters(file_path):
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.4-0.55/loc/RR.sum.grid0.loc.hyp"
         process_nll_hypocenters(file_path)
 
-        # then plot with gmt/
+        # then plot with gmt/RR_events_plot.sh
     """
     velocity_range = file_path[-33:-25]
 
