@@ -579,4 +579,16 @@ def extract_nll_locations(file_path):
             line = f"{lon} {pdf[2] * -1} {pdf[3]}\n"
             write_file.write(line)
 
+    return pdfs
+
+
+def location_pdfs_to_grid(pdfs):
+    """ Takes in a list of lists, where each list entry contains:
+        [x y z weight], and outputs a grid containing the sum of weights in
+        that node to plot in GMT.
+
+        Example:
+
+    """
+
     return None
