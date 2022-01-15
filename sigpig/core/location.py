@@ -616,20 +616,6 @@ def location_pdfs_to_grid(pdfs, project_name):
         x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
         y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
 
-
-
-
-
-
-        # FIXME: convert to weight sum instead of elevation
-        # query raster on a grid
-        # longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-        #                         raster_file, x_limits, y_limits, plot=False,
-        #                         UTM=UTM)
-
-        # a threshold value below which is assigned to np.nan
-        NAN_THRESHOLD = 0
-
         # initialize grid lists
         longitude_grid = []
         latitude_grid = []
