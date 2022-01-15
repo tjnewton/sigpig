@@ -613,10 +613,91 @@ def location_pdfs_to_grid(pdfs, project_name):
         x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
         y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
 
+
+
+
+
+
+        # FIXME: convert to weight sum instead of elevation
         # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
                                 raster_file, x_limits, y_limits, plot=False,
                                 UTM=UTM)
+
+        # a threshold value below which is assigned to np.nan
+        NAN_THRESHOLD = 0
+
+        # initialize grid lists
+        longitude_grid = []
+        latitude_grid = []
+        elevation_grid = []
+
+        # loop over rows from top to bottom and sample at dataset resolution
+        for row in range(num_y_steps):
+            latitude = y_limits[1] - (row * y_step)
+            row_latitudes = []
+            row_longitudes = []
+            # loop over each column and build grid
+            for column in range(num_x_steps):
+                longitude = x_limits[0] + (column * x_step)
+                row_latitudes.append(latitude)
+                row_longitudes.append(longitude)
+
+            # get elevations for entire row
+            if UTM:
+                lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
+                                          np.asarray(row_latitudes) * 1000, 10,
+                                          'N')
+
+                # convert eastings and northings to lat/lon
+                row_lons = [lon for lon in lats_lons[1]]
+                row_lats = [lat for lat in lats_lons[0]]
+                row_elevations = elevations_from_raster(raster_file,
+                                                        row_lons,
+                                                        row_lats)
+                longitude_grid.append(row_lons)
+                latitude_grid.append(row_lats)
+
+            else:
+                row_elevations = elevations_from_raster(raster_file,
+                                                        row_longitudes,
+                                                        row_latitudes)
+                longitude_grid.append(row_longitudes)
+                latitude_grid.append(row_latitudes)
+
+            elevation_grid.append(row_elevations)
+
+        longitude_grid = np.asarray(longitude_grid)
+        latitude_grid = np.asarray(latitude_grid)
+        elevation_grid = np.asarray(elevation_grid)
+        # replace NaN proxy with np.nan's
+        elevation_grid[np.where(elevation_grid < NAN_THRESHOLD)] = np.nan
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         # save grid to NetCDF file
         filename = 'gridded_rr_pdfs.nc'
