@@ -581,7 +581,7 @@ def extract_nll_locations(file_path):
             line = f"{lon} {pdf[2] * -1} {pdf[3]}\n"
             write_file.write(line)
 
-    return np.asarray(pdfs)
+    return pd.DataFrame(pdfs, columns = ['x', 'y', 'z', 'weight'])
 
 
 def location_pdfs_to_grid(pdfs, project_name):
@@ -620,9 +620,9 @@ def location_pdfs_to_grid(pdfs, project_name):
 
         # FIXME: convert to weight sum instead of elevation
         # query raster on a grid
-        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, plot=False,
-                                UTM=UTM)
+        # longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
+        #                         raster_file, x_limits, y_limits, plot=False,
+        #                         UTM=UTM)
 
         # a threshold value below which is assigned to np.nan
         NAN_THRESHOLD = 0
@@ -643,29 +643,27 @@ def location_pdfs_to_grid(pdfs, project_name):
                 row_latitudes.append(latitude)
                 row_longitudes.append(longitude)
 
-            # get elevations for entire row
-            if UTM:
-                lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
-                                          np.asarray(row_latitudes) * 1000, 10,
-                                          'N')
+                # find entries in pdfs that are in this grid cell
+                grid_indices = np.where(pdfs[:,0] >= longitude and pdfs[:,
+                                        0] < longitude + x_step and pdfs[:,
+                                        1] <= latitude and pdfs[:,
+                                        1] > latitude + y_step)
 
-                # convert eastings and northings to lat/lon
-                row_lons = [lon for lon in lats_lons[1]]
-                row_lats = [lat for lat in lats_lons[0]]
-                row_elevations = elevations_from_raster(raster_file,
-                                                        row_lons,
-                                                        row_lats)
-                longitude_grid.append(row_lons)
-                latitude_grid.append(row_lats)
+            # convert utm to lats/lons for entire row
+            lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
+                                      np.asarray(row_latitudes) * 1000, 10,
+                                      'N')
 
-            else:
-                row_elevations = elevations_from_raster(raster_file,
-                                                        row_longitudes,
-                                                        row_latitudes)
-                longitude_grid.append(row_longitudes)
-                latitude_grid.append(row_latitudes)
+            # convert eastings and northings to lat/lon
+            row_lons = [lon for lon in lats_lons[1]]
+            row_lats = [lat for lat in lats_lons[0]]
+            # row_elevations = elevations_from_raster(raster_file,
+            #                                         row_lons,
+            #                                         row_lats)
+            longitude_grid.append(row_lons)
+            latitude_grid.append(row_lats)
 
-            elevation_grid.append(row_elevations)
+            # elevation_grid.append(row_elevations)
 
         longitude_grid = np.asarray(longitude_grid)
         latitude_grid = np.asarray(latitude_grid)
