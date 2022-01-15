@@ -28,7 +28,7 @@ gmt begin pdfs_$VEL_RANGE png
 	gmt grdimage gridded_rr_dtm.nc -C -Irelief_gradient.nc -t15 # -I+a320+nt0.6+m0 -Cdem4,
 
 	# trim and plot the colorbar
-	gmt colorbar -DJML+w10c/0.3c -B50 -Bx+l"Elevation (m)" -G290/520
+	gmt colorbar -DJMR+o0.8c/-6+w10c/0.3c -B50 -Bx+l"Elevation (m)" -G290/520
 
 	# get sums of pdf weights (-Ss), on 1 m grid in x and y (-I1e/1e)
 	# gmt blockmean xyw_$VEL_RANGE.csv -I10e/10e -Ss >> counts_$VEL_RANGE.xyz
@@ -38,11 +38,11 @@ gmt begin pdfs_$VEL_RANGE png
 	# trim the interpolated grid
 	# gmt grdfilter gridded_pdf_$VEL_RANGE.nc -Gtrim_gridded_pdf_$VEL_RANGE.nc -D0 -Fc1
 	# make a custom colormap from a built-in colormap
-	gmt makecpt -Cabyss -T0/9000 # -H >> pdfs.cpt
+	gmt makecpt -Cabyss -T0/10000  # -H >> pdfs.cpt
 	# plot the grid
-	gmt grdview gridded_rr_pdfs.nc -C -Qsm -t50
+	gmt grdview gridded_rr_pdfs.nc -C -Qs -t40 #m
 	# trim and plot the colorbar
-	gmt colorbar -C -DJMR+o0.8c/0+w10c/0.3c -B1000 -Bx+l"PDF sum" # -G0/50000
+	gmt colorbar -C -DJMR+o0.8c/6+w10c/0.3c -B1000 -Bx+l"PDF sum" # -G0/50000
 
 
 	# plot stations at triangles
