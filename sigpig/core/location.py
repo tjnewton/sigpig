@@ -630,24 +630,35 @@ def location_pdfs_to_grid(pdfs, project_name):
         # initialize grid lists
         longitude_grid = []
         latitude_grid = []
-        elevation_grid = []
+        weights_grid = []
 
         # loop over rows from top to bottom and sample at dataset resolution
         for row in range(num_y_steps):
             latitude = y_limits[1] - (row * y_step)
             row_latitudes = []
             row_longitudes = []
+            row_weights = []
             # loop over each column and build grid
             for column in range(num_x_steps):
+                weight_sum = 0
                 longitude = x_limits[0] + (column * x_step)
                 row_latitudes.append(latitude)
                 row_longitudes.append(longitude)
 
                 # find entries in pdfs that are in this grid cell
-                grid_indices = np.where(pdfs[:,0] >= longitude and pdfs[:,
-                                        0] < longitude + x_step and pdfs[:,
-                                        1] <= latitude and pdfs[:,
-                                        1] > latitude + y_step)
+                grid_indices = np.where((pdfs['x'] >= longitude) & (pdfs['x']
+                                        < longitude + x_step) & (pdfs['y']
+                                        <= latitude) & (pdfs['y'] > latitude
+                                        + y_step))
+                # if there are weights in this cell, sum them
+                if len(grid_indices[0]) > 0:
+                    grid_cell_pdfs = pdfs.loc[grid_indices]
+                    row_weights.append(grid_cell_pdfs['weight'].sum())
+
+                # if no weights are in this cell, return 0
+                else:
+                    row_weights.append(0)
+
 
             # convert utm to lats/lons for entire row
             lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
@@ -657,45 +668,13 @@ def location_pdfs_to_grid(pdfs, project_name):
             # convert eastings and northings to lat/lon
             row_lons = [lon for lon in lats_lons[1]]
             row_lats = [lat for lat in lats_lons[0]]
-            # row_elevations = elevations_from_raster(raster_file,
-            #                                         row_lons,
-            #                                         row_lats)
             longitude_grid.append(row_lons)
             latitude_grid.append(row_lats)
-
-            # elevation_grid.append(row_elevations)
+            weights_grid.append(row_weights)
 
         longitude_grid = np.asarray(longitude_grid)
         latitude_grid = np.asarray(latitude_grid)
-        elevation_grid = np.asarray(elevation_grid)
-        # replace NaN proxy with np.nan's
-        elevation_grid[np.where(elevation_grid < NAN_THRESHOLD)] = np.nan
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        weights_grid = np.asarray(weights_grid)
 
         # save grid to NetCDF file
         filename = 'gridded_rr_pdfs.nc'
@@ -713,7 +692,7 @@ def location_pdfs_to_grid(pdfs, project_name):
         # set spatial values of grid
         lats[:] = np.flip(latitude_grid[:,0])
         lons[:] = longitude_grid[0,:]
-        value[0, :, :] = np.flip(elevation_grid, axis=0)
+        value[0, :, :] = np.flip(weights_grid, axis=0)
         # close the netCDF file
         ds.close()
 
