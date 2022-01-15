@@ -15,14 +15,6 @@ from obspy.clients.fdsn import Client
 import glob
 from obspy.core import AttribDict
 from pyproj import Proj
-from quakemigrate import QuakeScan, Trigger
-from quakemigrate.io import Archive, read_lut, read_stations, read_vmodel, \
-                            read_response_inv
-from quakemigrate.signal.onsets import STALTAOnset
-from quakemigrate.lut import compute_traveltimes
-from quakemigrate.signal.pickers import GaussianPicker
-from quakemigrate.signal.local_mag import LocalMag
-
 import pandas as pd
 from scipy.io import savemat
 import numpy as np
@@ -32,6 +24,13 @@ import datetime
 import matplotlib.pyplot as plt
 import math
 from data import rattlesnake_Ridge_Station_Locations
+from quakemigrate import QuakeScan, Trigger
+from quakemigrate.io import Archive, read_lut, read_stations, read_vmodel, \
+                            read_response_inv
+from quakemigrate.signal.onsets import STALTAOnset
+from quakemigrate.lut import compute_traveltimes
+from quakemigrate.signal.pickers import GaussianPicker
+from quakemigrate.signal.local_mag import LocalMag
 
 def download_date():
     """
@@ -611,8 +610,8 @@ def location_pdfs_to_grid(pdfs, project_name):
         x_dist_m = (x_limits[1] - x_limits[0]) * 1000
         y_dist_m = (y_limits[1] - y_limits[0]) * 1000
         # x and y steps for loops
-        num_x_steps = int(x_dist_m)  # 1 m resolution
-        num_y_steps = int(y_dist_m)
+        num_x_steps = int(x_dist_m / 3)  # 10 m resolution
+        num_y_steps = int(y_dist_m / 3)
         x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
         y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
 
@@ -683,5 +682,7 @@ def location_pdfs_to_grid(pdfs, project_name):
         value[0, :, :] = np.flip(weights_grid, axis=0)
         # close the netCDF file
         ds.close()
+
+        print(f"Max weight sum: {weights_grid.max()}")
 
     return None
