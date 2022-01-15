@@ -511,6 +511,9 @@ def extract_nll_locations(file_path):
         extract_nll_locations(file_path)
 
         # then plot with gmt/RR_pdfs_plot.sh
+        # however note the limitations of gridding in GMT and instead use the
+        # location_pdfs_to_grid function below to plot raw gridded pdf weight
+        # sums.
     """
     hypocenters = []
     pdfs = []
