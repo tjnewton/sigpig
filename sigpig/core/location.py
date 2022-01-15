@@ -27,6 +27,7 @@ import pandas as pd
 from scipy.io import savemat
 import numpy as np
 from lidar import grids_from_raster
+import netCDF4 as nc
 import datetime
 import matplotlib.pyplot as plt
 import math
@@ -618,7 +619,7 @@ def location_pdfs_to_grid(pdfs, project_name):
                                 UTM=UTM)
 
         # save grid to NetCDF file
-        filename = 'gridded_rr_dtm.nc'
+        filename = 'gridded_rr_pdfs.nc'
         ds = nc.Dataset(filename, 'w', format='NETCDF4')
         # add no time dimension, and lat & lon dimensions
         time = ds.createDimension('time', None)
