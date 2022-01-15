@@ -663,7 +663,7 @@ def location_pdfs_to_grid(pdfs, project_name):
         latitude_grid = np.asarray(latitude_grid)
         weights_grid = np.asarray(weights_grid)
 
-        # save grid to NetCDF file
+        # save x_y_weights grid to NetCDF file
         filename = 'gridded_rr_pdfs.nc'
         ds = nc.Dataset(filename, 'w', format='NETCDF4')
         # add no time dimension, and lat & lon dimensions
@@ -682,10 +682,31 @@ def location_pdfs_to_grid(pdfs, project_name):
         value[0, :, :] = np.flip(weights_grid, axis=0)
         # close the netCDF file
         ds.close()
-
         print(f"Max weight sum: {weights_grid.max()}")
 
-        # TODO:
-            # now make x Z weight grid
+
+        # TODO: build x_z_weights grid
+
+        # save x_z_weights grid to NetCDF file
+        filename = 'gridded_rr_pdfs_yz.nc'
+        ds = nc.Dataset(filename, 'w', format='NETCDF4')
+        # add no time dimension, and lat & lon dimensions
+        time = ds.createDimension('time', None)
+        lat = ds.createDimension('lat', num_y_steps)
+        lon = ds.createDimension('lon', num_x_steps)
+        # generate netCDF variables to store data
+        times = ds.createVariable('time', 'f4', ('time',))
+        lats = ds.createVariable('lat', 'f4', ('lat',))
+        lons = ds.createVariable('lon', 'f4', ('lon',))
+        value = ds.createVariable('value', 'f4', ('time', 'lat', 'lon',))
+        value.units = 'm'
+        # set spatial values of grid
+        lats[:] = np.flip(latitude_grid[:, 0])
+        lons[:] = longitude_grid[0, :]
+        value[0, :, :] = np.flip(weights_grid, axis=0)
+        # close the netCDF file
+        ds.close()
+
+        print(f"Max weight sum: {weights_grid.max()}")
 
     return None
