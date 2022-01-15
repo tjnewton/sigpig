@@ -610,7 +610,7 @@ def location_pdfs_to_grid(pdfs, project_name):
         x_dist_m = (x_limits[1] - x_limits[0]) * 1000
         y_dist_m = (y_limits[1] - y_limits[0]) * 1000
         # x and y steps for loops
-        num_x_steps = int(x_dist_m / 3)  # 10 m resolution
+        num_x_steps = int(x_dist_m / 3)  # 3 m resolution
         num_y_steps = int(y_dist_m / 3)
         x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
         y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
@@ -684,5 +684,8 @@ def location_pdfs_to_grid(pdfs, project_name):
         ds.close()
 
         print(f"Max weight sum: {weights_grid.max()}")
+
+        # TODO:
+            # now make x Z weight grid
 
     return None
