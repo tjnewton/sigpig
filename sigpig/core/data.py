@@ -781,9 +781,9 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
         # now write to file
         with open("station.locs", "w") as file:
             for station in station_locations.keys():
-                easting = station_locations[station][0]
-                northing = station_locations[station][1]
-                line = f"{station},{easting},{northing}\n"
+                latitude = station_locations[station][0]
+                longitude = station_locations[station][1]
+                line = f"{longitude} {latitude}\n"
                 file.write(line)
 
     """
