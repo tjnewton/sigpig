@@ -26,6 +26,7 @@ from quakemigrate.signal.local_mag import LocalMag
 import pandas as pd
 from scipy.io import savemat
 import numpy as np
+from lidar import grids_from_raster
 import datetime
 import matplotlib.pyplot as plt
 import math
@@ -579,16 +580,61 @@ def extract_nll_locations(file_path):
             line = f"{lon} {pdf[2] * -1} {pdf[3]}\n"
             write_file.write(line)
 
-    return pdfs
+    return np.asarray(pdfs)
 
 
-def location_pdfs_to_grid(pdfs):
+def location_pdfs_to_grid(pdfs, project_name):
     """ Takes in a list of lists, where each list entry contains:
         [x y z weight], and outputs a grid containing the sum of weights in
         that node to plot in GMT.
 
         Example:
-
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
+            pdfs = extract_nll_locations(file_path)
+            project_name = "Rattlesnake Ridge"
+            location_pdfs_to_grid(pdfs, project_name)
     """
+
+    if project_name == "Rattlesnake Ridge":
+        # load arrays from raster file
+        raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+
+        # expanded spatial limits for plotting NLL results in GMT
+        x_limits = [694.10, 694.50]
+        y_limits = [5155.3, 5155.99]
+
+        # get x and y distance in meters
+        x_dist_m = (x_limits[1] - x_limits[0]) * 1000
+        y_dist_m = (y_limits[1] - y_limits[0]) * 1000
+        # x and y steps for loops
+        num_x_steps = int(x_dist_m)  # 1 m resolution
+        num_y_steps = int(y_dist_m)
+        x_step = round((x_limits[1] - x_limits[0]) / num_x_steps, 3)
+        y_step = round((y_limits[1] - y_limits[0]) / num_y_steps, 3)
+
+        # query raster on a grid
+        longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
+                                raster_file, x_limits, y_limits, plot=False,
+                                UTM=UTM)
+
+        # save grid to NetCDF file
+        filename = 'gridded_rr_dtm.nc'
+        ds = nc.Dataset(filename, 'w', format='NETCDF4')
+        # add no time dimension, and lat & lon dimensions
+        time = ds.createDimension('time', None)
+        lat = ds.createDimension('lat', num_y_steps)
+        lon = ds.createDimension('lon', num_x_steps)
+        # generate netCDF variables to store data
+        times = ds.createVariable('time', 'f4', ('time',))
+        lats = ds.createVariable('lat', 'f4', ('lat',))
+        lons = ds.createVariable('lon', 'f4', ('lon',))
+        value = ds.createVariable('value', 'f4', ('time', 'lat', 'lon',))
+        value.units = 'm'
+        # set spatial values of grid
+        lats[:] = np.flip(latitude_grid[:,0])
+        lons[:] = longitude_grid[0,:]
+        value[0, :, :] = np.flip(elevation_grid, axis=0)
+        # close the netCDF file
+        ds.close()
 
     return None
