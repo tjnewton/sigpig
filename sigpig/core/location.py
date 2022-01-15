@@ -635,13 +635,12 @@ def location_pdfs_to_grid(pdfs, project_name):
                 row_longitudes.append(longitude)
 
                 # find entries in pdfs that are in this grid cell
-                grid_indices = np.where((pdfs['x'] >= longitude) & (pdfs['x']
+                grid_cell_pdfs = pdfs.loc[(pdfs['x'] >= longitude) & (pdfs['x']
                                         < longitude + x_step) & (pdfs['y']
                                         <= latitude) & (pdfs['y'] > latitude
-                                        + y_step))
+                                        - y_step)]
                 # if there are weights in this cell, sum them
-                if len(grid_indices[0]) > 0:
-                    grid_cell_pdfs = pdfs.loc[grid_indices]
+                if len(grid_cell_pdfs) > 0:
                     row_weights.append(grid_cell_pdfs['weight'].sum())
 
                 # if no weights are in this cell, return 0
