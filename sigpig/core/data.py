@@ -775,7 +775,7 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
         # specify the date of interest
         date = UTCDateTime("2018-03-16T00:04:00.0Z")
         # get station locations coordinates in UTM meters easting and northing
-        format = "UTM"
+        format = "lat_lon"
         station_locations = rattlesnake_Ridge_Station_Locations(date, format=format)
 
         # now write to file
@@ -794,7 +794,8 @@ def rattlesnake_Ridge_Station_Locations(date, format=None):
     #      : and equivalent for UGAP
     stations = project_stations("Rattlesnake Ridge", date)
     # get all station info from IRIS GMAP2 text file
-    filepath = "/Users/human/Dropbox/Programs/stingray/projects/rattlesnake_ridge/gmap-stations.txt"
+    filepath = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr" \
+               "/gmap-stations.txt"
     loc_dict = process_gmap_file(filepath)
 
     # initialize location storage
