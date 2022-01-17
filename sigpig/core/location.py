@@ -684,9 +684,6 @@ def location_pdfs_to_grid(pdfs, project_name):
         ds.close()
         print(f"Max weight sum: {weights_grid.max()}")
 
-
-        # TODO: build x_z_weights grid
-
         # save x_z_weights grid to NetCDF file
         filename = 'gridded_rr_pdfs_yz.nc'
         ds = nc.Dataset(filename, 'w', format='NETCDF4')
