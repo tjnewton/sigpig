@@ -49,8 +49,13 @@ gmt begin pdfs_$VEL_RANGE png
 	gmt plot station.locs -Gred -Si0.4 -W0.1,black
 
 	# build subplot with depth & longitude of locations
-	# gmt subplot set 1,0 -Cn-1.3
-	# gmt plot xzw_$VEL_RANGE.csv -Gblack -Sa0.4 -R-120.4683/-120.4646/-150/10 -JX? -Bx+l"Longitude" -By+l"Depth (m)" -BWrtS -W0.1,black # -Baf  
-
+	gmt subplot set 1,0 -Cn-1.3
+		# make a custom colormap from a built-in colormap
+		gmt makecpt -Cabyss -T0/10000  # -H >> pdfs.cpt
+		# plot the grid
+		gmt grdview gridded_rr_pdfs_xz.nc -C -Qs -t40 -R-120.4683/-120.4646/-150/5 -JX? -Bx+l"Longitude" -By+l"Depth (m)" -BWrtS -W0.1,black # -Baf  
+		# trim and plot the colorbar
+		gmt colorbar -C -DJMR+o0.8c/0.5+w5c/0.3c -B1000 -Bx+l"PDF sum" # -G0/50000
 	gmt subplot end
+
 gmt end show
