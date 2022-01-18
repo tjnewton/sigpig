@@ -716,7 +716,7 @@ def location_pdfs_to_grid(pdfs, project_name):
             xz_weights_grid.append(row_weights)
 
         x_grid = np.asarray(x_grid)
-        z_grid = np.asarray(latitude_grid)
+        z_grid = np.asarray(z_grid)
         xz_weights_grid = np.asarray(xz_weights_grid)
 
         # save x_y_weights grid to NetCDF file
