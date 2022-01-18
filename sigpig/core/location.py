@@ -559,29 +559,29 @@ def extract_nll_locations(file_path):
                 SAVE_FLAG = False
                 SCATTER_FLAG = False
 
-    # generate file with all pdf points
-    with open(f"xyw_{velocity_range}.csv", "w") as write_file:
-        # write header
-        write_file.write("X Y W\n")
-
-        # write each hypocenter to file
-        for pdf in pdfs:
-            lat, lon = utm.to_latlon(pdf[0] * 1000, pdf[1] * 1000, 10, 'N')
-
-            line = f"{lon} {lat} {pdf[3]}\n"
-            write_file.write(line)
-
-    # generate file with all pdf points
-    with open(f"xzw_{velocity_range}.csv", "w") as write_file:
-        # write header
-        write_file.write("X Z W\n")
-
-        # write each hypocenter to file
-        for pdf in pdfs:
-            lat, lon = utm.to_latlon(pdf[0] * 1000, pdf[1] * 1000, 10, 'N')
-
-            line = f"{lon} {pdf[2] * -1} {pdf[3]}\n"
-            write_file.write(line)
+    # # generate file with all pdf points
+    # with open(f"xyw_{velocity_range}.csv", "w") as write_file:
+    #     # write header
+    #     write_file.write("X Y W\n")
+    #
+    #     # write each hypocenter to file
+    #     for pdf in pdfs:
+    #         lat, lon = utm.to_latlon(pdf[0] * 1000, pdf[1] * 1000, 10, 'N')
+    #
+    #         line = f"{lon} {lat} {pdf[3]}\n"
+    #         write_file.write(line)
+    #
+    # # generate file with all pdf points
+    # with open(f"xzw_{velocity_range}.csv", "w") as write_file:
+    #     # write header
+    #     write_file.write("X Z W\n")
+    #
+    #     # write each hypocenter to file
+    #     for pdf in pdfs:
+    #         lat, lon = utm.to_latlon(pdf[0] * 1000, pdf[1] * 1000, 10, 'N')
+    #
+    #         line = f"{lon} {pdf[2] * -1} {pdf[3]}\n"
+    #         write_file.write(line)
 
     return pd.DataFrame(pdfs, columns = ['x', 'y', 'z', 'weight'])
 
@@ -592,7 +592,9 @@ def location_pdfs_to_grid(pdfs, project_name):
         weights in grid nodes to plot in GMT.
 
         Example:
-            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
+            # specify the path to the summed location file (containing SCATTER lines)
+            # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75/loc/RR.hyp"
             pdfs = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
