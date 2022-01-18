@@ -595,7 +595,8 @@ def location_pdfs_to_grid(pdfs, project_name):
             # specify the path to the summed location file (containing SCATTER lines)
             # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
             # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75/loc/RR.hyp"
-            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65/loc/RR.hyp"
+            # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65/loc/RR.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.4-0.55/loc/RR.hyp"
             pdfs = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
