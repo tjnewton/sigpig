@@ -672,6 +672,8 @@ def location_pdfs_to_grid(pdfs, project_name):
         x_grid = []
         z_grid = []
         xz_weights_grid = []
+        # changes z values to negative
+        pdfs['z'] *= -1
 
         # build x_z plot grid structures:
         # loop over rows from top to bottom and sample at dataset resolution
