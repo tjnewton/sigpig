@@ -588,14 +588,16 @@ def extract_nll_locations(file_path):
 
 def location_pdfs_to_grid(pdfs, project_name):
     """ Takes in a list of lists, where each list entry contains:
-        [x y z weight], and outputs a grid containing the sum of weights in
-        that node to plot in GMT.
+        [x y z weight], and outputs 3 NetCDF grids containing the sum of
+        weights in grid nodes to plot in GMT.
 
         Example:
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
             pdfs = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
+
+            # then plot with gmt/RR_pdfs_grid.sh
     """
 
     if project_name == "Rattlesnake Ridge":
@@ -721,6 +723,57 @@ def location_pdfs_to_grid(pdfs, project_name):
         z_grid = np.asarray(z_grid)
         xz_weights_grid = np.asarray(xz_weights_grid)
 
+        # initialize grid lists for y_z plot
+        zz_grid = []
+        yy_grid = []
+        yz_weights_grid = []
+
+        # build y_z plot grid structures:
+        # loop over rows from top to bottom and sample at dataset resolution
+        for row in range(num_y_steps):
+            latitude = y_limits[1] - (row * y_step)
+            row_zs = []
+            row_latitudes = []
+            row_longitudes = []
+            row_weights = []
+            # loop over each column and build grid
+            for column in range(num_z_steps):
+                weight_sum = 0
+                z = z_limits[0] + (column * z_step)
+                row_zs.append(z)
+                row_latitudes.append(latitude)
+                # add dummy longitude for conversion
+                row_longitudes.append(((x_limits[1] - x_limits[0]) / 2) +
+                                      x_limits[0])
+
+                # find entries in pdfs that are in this grid cell
+                grid_cell_pdfs = pdfs.loc[(pdfs['y'] >= latitude) & (pdfs['y']
+                                          < latitude + y_step) & (pdfs['z']
+                                          <= z) & (pdfs['z'] > z - z_step)]
+                # if there are weights in this cell, sum them
+                if len(grid_cell_pdfs) > 0:
+                    row_weights.append(grid_cell_pdfs['weight'].sum())
+
+                # if no weights are in this cell, return 0
+                else:
+                    row_weights.append(0)
+
+            # convert utm to lats/lons for entire row
+            lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
+                                      np.asarray(row_latitudes) * 1000, 10,
+                                      'N')
+
+            # convert eastings and northings to lat/lon
+            row_lons = [lon for lon in lats_lons[1]]
+            row_lats = [lat for lat in lats_lons[0]]
+            zz_grid.append(row_zs)
+            yy_grid.append(row_lats)
+            yz_weights_grid.append(row_weights)
+
+        zz_grid = np.asarray(zz_grid)
+        yy_grid = np.asarray(yy_grid)
+        yz_weights_grid = np.asarray(yz_weights_grid)
+
         # save x_y_weights grid to NetCDF file
         filename = 'gridded_rr_pdfs.nc'
         ds = nc.Dataset(filename, 'w', format='NETCDF4')
@@ -762,5 +815,28 @@ def location_pdfs_to_grid(pdfs, project_name):
         # close the netCDF file
         ds.close()
         print(f"Max weight sum: {xz_weights_grid.max()}")
+
+        # save y_z_weights grid to NetCDF file
+        filename = 'gridded_rr_pdfs_yz.nc'
+        ds = nc.Dataset(filename, 'w', format='NETCDF4')
+        # add no time dimension, and lat & lon dimensions
+        time = ds.createDimension('time', None)
+        lat = ds.createDimension('lat', num_y_steps)
+        lon = ds.createDimension('lon', num_z_steps)
+        # generate netCDF variables to store data
+        times = ds.createVariable('time', 'f4', ('time',))
+        lats = ds.createVariable('lat', 'f4', ('lat',))
+        lons = ds.createVariable('lon', 'f4', ('lon',))
+        value = ds.createVariable('value', 'f4', ('time', 'lat', 'lon',))
+        value.units = 'm'
+        # set spatial values of grid
+        lats[:] = np.flip(yy_grid[:, 0])
+        # hack to plot depth reversed in GMT
+        zz_grid = zz_grid * -1
+        lons[:] = np.flip(zz_grid[0, :])
+        value[0, :, :] = np.rot90(np.rot90(yz_weights_grid))
+        # close the netCDF file
+        ds.close()
+        print(f"Max weight sum: {yz_weights_grid.max()}")
 
     return None
