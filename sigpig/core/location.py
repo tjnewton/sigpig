@@ -605,7 +605,7 @@ def location_pdfs_to_grid(pdfs, project_name):
         # expanded spatial limits for plotting NLL results in GMT
         x_limits = [694.10, 694.50]
         y_limits = [5155.3, 5155.99]
-        z_limits = [-150, 10]
+        z_limits = [-150, 9]
 
         # get x and y distance in meters
         x_dist_m = (x_limits[1] - x_limits[0]) * 1000
@@ -717,7 +717,7 @@ def location_pdfs_to_grid(pdfs, project_name):
 
         x_grid = np.asarray(x_grid)
         z_grid = np.asarray(latitude_grid)
-        xz_weights_grid = np.asarray(weights_grid)
+        xz_weights_grid = np.asarray(xz_weights_grid)
 
         # save x_y_weights grid to NetCDF file
         filename = 'gridded_rr_pdfs.nc'
