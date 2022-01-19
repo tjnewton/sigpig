@@ -19,6 +19,7 @@ import netCDF4 as nc
 import geopy
 import proplot as pplt
 import matplotlib.pyplot as plt
+import pickle
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -1197,5 +1198,11 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     top_500_phases = np.where(num_phases > 22) # pick # for top 500ish phases
     num_phases = num_phases[top_500_phases]
     event_ids = event_ids[top_500_phases]
+
+    # save pickle file with top 430 events w/ > 22 phases
+    top_events = {event_id: events[event_id] for event_id in event_ids}
+    outfile = open(f"top_events_dict.pkl", 'wb')
+    pickle.dump(top_events, outfile)
+    outfile.close()
 
     return None
