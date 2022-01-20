@@ -1,13 +1,11 @@
 """
 Picks first arrivals via unet and clusters arrivals to associate them to
-events.
+events utilizing rules in a decision tree.
 """
 # FIXME: address FIXME's and TODO's throughout code
 # FIXME: verify model is only receiving P picks
 # FIXME: test association on all 5s windows in 30s, and other subsets
 # FIXME: change camel case to lowercase:::within function
-
-# FIXME: merge updates from local unet directory
 
 # Run the autopicker?
 RUN = False
@@ -1823,44 +1821,27 @@ def build_association_figure(figure_Columns, period_Index, labels,
 
 # function to ingest snuffler-type mrkr file
 def process_picks(marker_File_Path: str):
-    """take in a snuffler marker file and returns ... #TODO
-
-    Parameters:
-
-    Example:
-        marker_File_Path = "autopicked_events_03-13T21-22_8h35m.mrkr"
-
+    """take in a snuffler marker file and returns the count and dates of
+    detected signals per station, and the dates of detected events
     """
-    # get first time to find relevant stations
-    # read the marker file line by line
-    with open(marker_File_Path, 'r') as file:
-        for line_Contents in file:
-            if len(line_Contents) > 52:  # avoid irrelevant short lines
-                if (line_Contents[0:5] == 'phase') and (line_Contents[
-                                                        -20:-19] == 'P'):  # if the line is a P wave pick
-                    if len(line_Contents[36:52].split('.')) > 1:
-                        pick_time = UTCDateTime(line_Contents[7:32])
-                        break
-
     # build dict of [pick counts per station, [pick dates per station]]
-    stas = project_stations("Rattlesnake Ridge", pick_time)
-    pick_counts_dates = {}
-    for station in stas:
-        pick_counts_dates[str(station)] = [0, []]
-    # pick_counts_dates = {'1': [0, []], '2': [0, []], '3': [0, []],
-    #                      '4': [0, []], '5': [0, []], '6': [0, []],
-    #                      '7': [0, []], '8': [0, []], '9': [0, []],
-    #                      '10': [0, []], '12': [0, []], '13': [0, []],
-    #                      '15': [0, []], '16': [0, []], '17': [0, []],
-    #                      '18': [0, []], '20': [0, []], '21': [0, []],
-    #                      '22': [0, []], '23': [0, []], '25': [0, []],
-    #                      '26': [0, []], '27': [0, []], '28': [0, []],
-    #                      '30': [0, []], '31': [0, []], '32': [0, []],
-    #                      '33': [0, []], '34': [0, []], '35': [0, []],
-    #                      '36': [0, []], '37': [0, []], '38': [0, []],
-    #                      '39': [0, []], '40': [0, []], '41': [0, []],
-    #                      '42': [0, []], 'UGAP3': [0, []], 'UGAP5': [0, []],
-    #                      'UGAP6': [0, []]}
+    pick_counts_dates = {'1': [0, []], '2': [0, []], '3': [0, []],
+                         '4': [0, []], '5': [0, []], '6': [0, []],
+                         '7': [0, []], '8': [0, []], '9': [0, []],
+                         '10': [0, []], '12': [0, []], '13': [0, []],
+                         '14': [0, []],
+                         '15': [0, []], '16': [0, []], '17': [0, []],
+                         '18': [0, []], '20': [0, []], '21': [0, []],
+                         '22': [0, []], '23': [0, []], '24': [0, []],
+                         '25': [0, []],
+                         '26': [0, []], '27': [0, []], '28': [0, []],
+                         '29': [0, []],
+                         '30': [0, []], '31': [0, []], '32': [0, []],
+                         '33': [0, []], '34': [0, []], '35': [0, []],
+                         '36': [0, []], '37': [0, []], '38': [0, []],
+                         '39': [0, []], '40': [0, []], '41': [0, []],
+                         '42': [0, []], 'UGAP3': [0, []], 'UGAP5': [0, []],
+                         'UGAP6': [0, []]}
     event_dates = []
 
     # read the marker file line by line
@@ -1893,8 +1874,8 @@ def event_histogram(event_filename, save_fig=False):
        contents
 
        Example:
-           event_filename = "autopicked_events_03-13T21-22_8h35m.mrkr"
-           event_histogram(event_filename)
+            event_filename = "autopicked_events_03_13-07_09_2018.mrkr"
+            event_histogram(event_filename, save_fig=True)
     """
     # get info from marker file
     _, event_dates = process_picks(event_filename)
@@ -1903,24 +1884,47 @@ def event_histogram(event_filename, save_fig=False):
     event_dates = [event_date.matplotlib_date for event_date in event_dates]
 
     # generate event date histogram
-    plt.figure(figsize=(9, 5))
-    n, bins, patches = plt.hist(event_dates, bins=60, facecolor="darkred",
+    # plt.figure(figsize=(9, 5)) # figsize for 1-2 weeks
+    plt.figure(figsize=(13, 5))  # figsize for many weeks
+    # 168 bins for every hour over 1 week
+    # 336 bins for every 30 minutes over 1 week
+    # 672 bins for every 15 minutes over 1 week
+    # 1344 bins for every 15 minutes over 2 weeks
+    # 2016 bins for every 15 minutes over 3 weeks
+    # 2688 bins for every 15 minutes over 4 weeks
+    # 3360 bins for every 15 minutes over 5 weeks
+    # 4032 bins for every 15 minutes over 6 weeks
+    # 4704 bins for every 15 minutes over 7 weeks
+    # 5376 bins for every 15 minutes over 8 weeks
+    # 6048 bins for every 15 minutes over 9 weeks
+    # 6720 bins for every 15 minutes over 10 weeks
+    # 7392 bins for every 15 minutes over 11 weeks
+    # 8064 bins for every 15 minutes over 12 weeks
+    # 2016 bins for every 1 hour over 12 weeks
+    # 2184 bins for every 1 hour over 13 weeks
+    # 2352 bins for every 1 hour over 14 weeks
+    # 2520 bins for every 1 hour over 15 weeks
+    # 2688 bins for every 1 hour over 16 weeks
+    n, bins, patches = plt.hist(event_dates, bins=2688, facecolor="darkred",
                                 alpha=0.6)
     ax = plt.axes()
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'hour : minute : second of'
-               f' {num2date(bins[0]).strftime("%m/%d/%Y")}')
+    # plt.xlabel(f'hour : minute : second of'
+    #            f' {num2date(bins[0]).strftime("%m/%d/%Y")}')
+    plt.xlabel(f'Day [1 hour bins : 16 weeks starting on'
+               f' {num2date(bins[0]).strftime("%m/%d/%Y")}]')
     plt.ylabel('Events')
     ax.set_title(f'Autodetected Events Histogram (n={len(event_dates)})',
                  y=0.9999)
     # set plot limits
     # plt.ylim(0, 50)
     ax.set_xlim([bins[0], bins[-1]])
-    myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    myFmt = DateFormatter("%m-%d")
+    # myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
     ax.xaxis.set_major_formatter(myFmt)
-    locator_x = AutoDateLocator(minticks=5, maxticks=10)
+    locator_x = AutoDateLocator() # minticks=12, maxticks=18
     ax.xaxis.set_major_locator(locator_x)
 
     plt.tight_layout()
@@ -1938,8 +1942,8 @@ def signal_histogram(event_filename, save_fig=False):
        contents
 
        Example:
-           event_filename = "autopicked_events_03-13T21-22_8h35m.mrkr"
-           event_histogram(event_filename)
+            event_filename = "autopicked_events_03_13-07_09_2018.mrkr"
+            signal_histogram(event_filename, save_fig=True)
     """
     # get info from marker file
     pick_counts_dates, _ = process_picks(event_filename)
@@ -1954,24 +1958,47 @@ def signal_histogram(event_filename, save_fig=False):
     event_dates = [event_date.matplotlib_date for event_date in event_dates]
 
     # generate event date histogram
-    plt.figure(figsize=(9, 5))
-    n, bins, patches = plt.hist(event_dates, bins=60, facecolor="darkred",
+    # plt.figure(figsize=(9, 5)) # figsize for 1-2 weeks
+    plt.figure(figsize=(13, 5))  # figsize for many weeks
+    # 168 bins for every hour over 1 week
+    # 336 bins for every 30 minutes over 1 week
+    # 672 bins for every 15 minutes over 1 week
+    # 1344 bins for every 15 minutes over 2 weeks
+    # 2016 bins for every 15 minutes over 3 weeks
+    # 2688 bins for every 15 minutes over 4 weeks
+    # 3360 bins for every 15 minutes over 5 weeks
+    # 4032 bins for every 15 minutes over 6 weeks
+    # 4704 bins for every 15 minutes over 7 week
+    # 5376 bins for every 15 minutes over 8 weeks
+    # 6048 bins for every 15 minutes over 9 weeks
+    # 6720 bins for every 15 minutes over 10 weeks
+    # 7392 bins for every 15 minutes over 11 weeks
+    # 8064 bins for every 15 minutes over 12 weeks
+    # 2016 bins for every 1 hour over 12 weeks
+    # 2184 bins for every 1 hour over 13 weeks
+    # 2352 bins for every 1 hour over 14 weeks
+    # 2520 bins for every 1 hour over 15 weeks
+    # 2688 bins for every 1 hour over 16 weeks
+    n, bins, patches = plt.hist(event_dates, bins=2688, facecolor="darkred",
                                 alpha=0.6)
     ax = plt.axes()
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'hour : minute : second of'
-               f' {num2date(bins[0]).strftime("%m/%d/%Y")}')
+    # plt.xlabel(f'hour : minute : second of'
+    #            f' {num2date(bins[0]).strftime("%m/%d/%Y")}')
+    plt.xlabel(f'Day [1 hour bins : 16 weeks starting on'
+               f' {num2date(bins[0]).strftime("%m/%d/%Y")}]')
     plt.ylabel("P wave arrivals")
     ax.set_title(f'Autodetected Signals Histogram (n={len(event_dates)})',
                  y=0.9999)
     # set plot limits
     # plt.ylim(0, 50)
     ax.set_xlim([bins[0], bins[-1]])
-    myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    myFmt = DateFormatter("%m-%d")
+    # myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
     ax.xaxis.set_major_formatter(myFmt)
-    locator_x = AutoDateLocator(minticks=5, maxticks=10)
+    locator_x = AutoDateLocator() # minticks=12, maxticks=18
     ax.xaxis.set_major_locator(locator_x)
 
     plt.tight_layout()
