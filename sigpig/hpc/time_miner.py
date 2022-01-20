@@ -1874,7 +1874,7 @@ def event_histogram(event_filename, save_fig=False):
        contents
 
        Example:
-            event_filename = "autopicked_events_03_13-07_09_2018.mrkr"
+            event_filename = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-07_09_2018.mrkr"
             event_histogram(event_filename, save_fig=True)
     """
     # get info from marker file
@@ -1942,7 +1942,7 @@ def signal_histogram(event_filename, save_fig=False):
        contents
 
        Example:
-            event_filename = "autopicked_events_03_13-07_09_2018.mrkr"
+            event_filename = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-07_09_2018.mrkr"
             signal_histogram(event_filename, save_fig=True)
     """
     # get info from marker file
