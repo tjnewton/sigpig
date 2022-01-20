@@ -1156,6 +1156,7 @@ def plot_event_picks(event, plot_curvature=False):
 
             # calculate and plot curvature:
             if plot_curvature:
+                # FIXME: need to use index values instead of dates
                 # get a spline interpolation function from the abs val of data
                 interp_func = interp1d(trace_times, abs(trace.data.copy()),
                                        kind='cubic')
