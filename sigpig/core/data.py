@@ -1061,6 +1061,103 @@ def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
 
     return None
 
+# TODO: working here and below
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+def get_trace_properties(trace, pick_time, period):
+    """ Takes in a Obspy trace object, then calculates and returns arrays
+    containing the first derivative, second derivative, and curvature of the
+    trace for the specified period (in seconds) centered on the specified
+    phase pick time (pick_time).
+
+        Example:
+            trace =
+            pick_time =
+            period = 0.4 # in seconds
+            get_trace_properties(trace, pick_time, period)
+    """
+    # only considering data + and - 0.2 seconds from pick time
+    pick_time_index = (np.abs([data_time_DT - pick_time_DT for data_time_DT in
+                               trace_times_DT])).argmin()  # get pick time index in data array
+    duration = 0.4  # s
+    sampling_rate = 250  # Hz
+
+    # initialize lists to store transformed data
+    max_pool_amplitude = []
+    max_pool_times = []
+    max_pool_indices = []  # this is used later for polynomial fitting
+
+    # make indices to loop over all data within 0.2s of pick time
+    starting_array_index = pick_time_index - int(duration / 2 * sampling_rate)
+    ending_array_index = pick_time_index + int(duration / 2 * sampling_rate)
+
+    # append all values before pick time
+    for index in range(starting_array_index, pick_time_index + 1):
+        max_pool_amplitude.append(abs(trace_data[index]))
+        max_pool_times.append(trace_times[index])
+        max_pool_indices.append(index)
+
+    # after pick time, perform 2/4 max pooling on abs(data), so loop over remaining array in chunks of 4
+    for index in range(pick_time_index + 1, ending_array_index + 1, 4):
+        # store a chunk of 4, data and times
+        temp_data = abs(trace_data[index:index + 4])
+        temp_times = trace_times[index:index + 4]
+        # get indices of 2 max amplitude values from abs(data)
+        top_2_indices = np.argpartition(temp_data, -2)[-2:]
+        # append top 2 to the max_pool data lists
+        for top_2_index in top_2_indices:
+            max_pool_amplitude.append(abs(trace_data[top_2_index + index]))
+            max_pool_times.append(trace_times[top_2_index + index])
+            max_pool_indices.append(top_2_index + index)
+
+    # convert max_pool_amplitude to numpy array for plotting calls
+    max_pool_amplitude = np.asarray(max_pool_amplitude)
+
+    # fit a polynomial to the max pooled data using the indices as x values since polyfit hates mpl dates (small ranges)
+    polynomial_degree = 4
+    p = np.poly1d(
+        np.polyfit(max_pool_indices, max_pool_amplitude, polynomial_degree))
+    t = np.linspace(max_pool_indices[0], max_pool_indices[-1], num=1000,
+                    endpoint=True)
+
+
+    return dy, d2y, curvature,
+
+# TODO: working here and below
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+def top_n_autopicked_events():
+    """
+
+    """
+
+    # return events
+    pass
+
+# TODO: working here and below
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
 def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     """ Reads snuffler format file containing autopicked & associated events
     then assigns uncertainties to the events based on the SNR, derived from
