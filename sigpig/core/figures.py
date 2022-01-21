@@ -1077,6 +1077,7 @@ def plot_event_picks(event, plot_curvature=False):
     data.process_autopicked_events function.
 
     Example:
+        # use *events* as returned by data.top_n_autopicked_events
         event = events[event_ids[0]].copy()
         plot_curvature=True
         plot_event_picks(event, plot_curvature=plot_curvature)
