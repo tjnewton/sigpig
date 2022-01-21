@@ -1140,7 +1140,7 @@ def get_trace_properties(trace, pick_time, period):
 #   =
 #   =
 #   =
-def top_n_autopicked_events(autopicked_file_path, n=):
+def top_n_autopicked_events(autopicked_file_path, n):
     """ Returns a dictionary containing the top n events from the specified
     mrkr file (snuffler format), ranked by the number of phases. Also writes
     the dictionary of events to a file called top_events_dict.pkl.
@@ -1148,10 +1148,11 @@ def top_n_autopicked_events(autopicked_file_path, n=):
     Example:
         # define the file paths containing the autopicked .mrkr file
         autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
-
-
+        # define the desire number of events to get
+        n = 500
+        events = top_n_autopicked_events(autopicked_file_path, n)
     """
-    # store the events and uncertainties in a structure
+    # store the events in a structure
     events = {}
 
     # event tags and phase tags can be out of order so the autopicked .mrkr
@@ -1186,10 +1187,7 @@ def top_n_autopicked_events(autopicked_file_path, n=):
 
     # Now we have a dict where each key is a unique hash id for an event, and
     # each entry is a list of dicts containing time of the first arrival and
-    # the station it was recorded on. The next step is to build a relationship
-    # between manually assigned first arrival time uncertainties and the SNR of
-    # the trace to automatically assign picking uncertainties for all traces
-    # based on their SNR.
+    # the station it was recorded on.
 
     # make lists of event ids and the number of phases for each event
     event_ids = []
@@ -1198,21 +1196,24 @@ def top_n_autopicked_events(autopicked_file_path, n=):
         event_ids.append(event_id)
         num_phases.append(len(events[event_id]))
 
-    # find the top n events with most phases
+    # get indices for sorted num_phases array
+    sort_indices = np.argsort(num_phases)
 
+    # find the top n events with most phases
+    top_n_sort_indices = [sort_indices[index] for index in range(-1, (n + 1)
+                                                                 * -1, -1)]
     num_phases = np.asarray(num_phases)
     event_ids = np.asarray(event_ids)
-    top_500_phases = np.where(num_phases > 22)  # pick # for top 500ish phases
-    num_phases = num_phases[top_500_phases]
-    event_ids = event_ids[top_500_phases]
+    num_phases = num_phases[top_n_sort_indices]
+    event_ids = event_ids[top_n_sort_indices]
 
-    # save pickle file with top 430 events w/ > 22 phases
+    # save pickle file with top n events
     top_events = {event_id: events[event_id] for event_id in event_ids}
     outfile = open(f"top_events_dict.pkl", 'wb')
     pickle.dump(top_events, outfile)
     outfile.close()
 
-    return events
+    return top_events
 
 # TODO: working here and below
 #   =
