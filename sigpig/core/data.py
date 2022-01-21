@@ -1078,6 +1078,9 @@ def get_trace_properties(trace, pick_time, period):
     phase pick time (pick_time).
 
         Example:
+            # use *events* as returned by data.top_n_autopicked_events
+            event = events[event_ids[0]].copy()
+            # TODO: pull trace from events or function?
             trace =
             pick_time =
             period = 0.4 # in seconds
@@ -1130,16 +1133,7 @@ def get_trace_properties(trace, pick_time, period):
 
     return dy, d2y, curvature,
 
-# TODO: working here and below
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
+
 def top_n_autopicked_events(autopicked_file_path, n):
     """ Returns a dictionary containing the top n events from the specified
     mrkr file (snuffler format), ranked by the number of phases. Also writes
