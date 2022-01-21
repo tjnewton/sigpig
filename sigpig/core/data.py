@@ -1140,13 +1140,79 @@ def get_trace_properties(trace, pick_time, period):
 #   =
 #   =
 #   =
-def top_n_autopicked_events():
-    """
+def top_n_autopicked_events(autopicked_file_path, n=):
+    """ Returns a dictionary containing the top n events from the specified
+    mrkr file (snuffler format), ranked by the number of phases. Also writes
+    the dictionary of events to a file called top_events_dict.pkl.
+
+    Example:
+        # define the file paths containing the autopicked .mrkr file
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+
 
     """
+    # store the events and uncertainties in a structure
+    events = {}
 
-    # return events
-    pass
+    # event tags and phase tags can be out of order so the autopicked .mrkr
+    # file is looped over two times to collect events then phases.
+
+    # store events by reading the marker file line by line
+    with open(autopicked_file_path, 'r') as file:
+        for index, line_contents in enumerate(file):
+            # only consider lines containing events
+            if line_contents[0:5] == 'event':
+                # store the hash ID for the event
+                hash_id = line_contents.strip()[36:64]
+                # generate an event entry in the dict
+                events[hash_id] = []
+
+    # store arrival times by reading the marker file line by line
+    with open(autopicked_file_path, 'r') as file:
+        for index, line_contents in enumerate(file):
+            if line_contents[0:5] == 'phase':
+                # store the hash ID, station, and time for the phase
+                hash_id = line_contents.strip()[52:80]
+                station_components = line_contents.strip()[
+                                     36:52].strip().split('.')
+                # station format is constructed to match sta.chan
+                phase_station = f"{station_components[1]}" \
+                                f".{station_components[3]}"
+                phase_time = UTCDateTime(line_contents.strip()[7:32])
+
+                # store the station and time of the phase in a list of dicts
+                events[hash_id].append({'station': phase_station, 'time':
+                    phase_time})
+
+    # Now we have a dict where each key is a unique hash id for an event, and
+    # each entry is a list of dicts containing time of the first arrival and
+    # the station it was recorded on. The next step is to build a relationship
+    # between manually assigned first arrival time uncertainties and the SNR of
+    # the trace to automatically assign picking uncertainties for all traces
+    # based on their SNR.
+
+    # make lists of event ids and the number of phases for each event
+    event_ids = []
+    num_phases = []
+    for event_id in events.keys():
+        event_ids.append(event_id)
+        num_phases.append(len(events[event_id]))
+
+    # find the top n events with most phases
+
+    num_phases = np.asarray(num_phases)
+    event_ids = np.asarray(event_ids)
+    top_500_phases = np.where(num_phases > 22)  # pick # for top 500ish phases
+    num_phases = num_phases[top_500_phases]
+    event_ids = event_ids[top_500_phases]
+
+    # save pickle file with top 430 events w/ > 22 phases
+    top_events = {event_id: events[event_id] for event_id in event_ids}
+    outfile = open(f"top_events_dict.pkl", 'wb')
+    pickle.dump(top_events, outfile)
+    outfile.close()
+
+    return events
 
 # TODO: working here and below
 #   =
@@ -1172,10 +1238,6 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     """
     # store the events and uncertainties in a structure
     events = {}
-
-    # FOR TESTING : FIXME: delete after testing
-    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
-    uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
 
     # event tags and phase tags can be out of order so the autopicked .mrkr
     # file is looped over two times to collect events then phases.
