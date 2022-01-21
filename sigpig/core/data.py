@@ -1219,6 +1219,24 @@ def top_n_autopicked_events(autopicked_file_path, n):
 #   =
 #   =
 #   =
+def get_event_stream(event):
+    """ Takes in an event from an events dict and returns a stream
+    containing traces corresponding to the phases of the event.
+
+    """
+
+    pass
+
+# TODO: working here and below
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
+#   =
 def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     """ Reads snuffler format file containing autopicked & associated events
     then assigns uncertainties to the events based on the SNR, derived from
