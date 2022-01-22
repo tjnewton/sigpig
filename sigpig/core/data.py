@@ -1239,9 +1239,45 @@ def get_event_stream(event):
         stream = get_event_stream(event)
     """
     # initialize a stream to store traces
-    st = Stream()
+    event_stream = Stream()
 
-    return st
+    # loop over each phase in the event, where event is a list of dicts
+    for index, phase in enumerate(event):
+        # get the phase pick time
+        phase_time = phase['time']
+        # build the trace filepath
+        station_components = phase['station'].split('.')
+        # station format constructed to match filenames sta..chan
+        phase_station = f"{station_components[0]}" \
+                        f"..{station_components[1]}"
+
+        # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
+        trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
+        trace_file_path = f"5A.{phase_station}." \
+                          f"{phase_time.year}-" \
+                          f"{phase_time.month:02}-" \
+                          f"{phase_time.day:02}T00.00.00.ms"
+        # load the trace
+        st = read(trace_file_prefix + trace_file_path)
+
+        # get 1 minute of data to interpolate, de-trend, filter, and trim
+        st.trim(phase_time - 30, phase_time + 30, pad=True,
+                fill_value=0, nearest_sample=True)
+        st.interpolate(sampling_rate=250.0)
+        # detrend then bandpass filter
+        st.detrend()
+        st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+
+        # only consider 1.5 seconds of data (this is a busy dataset)
+        st.trim(phase_time - 0.6, phase_time + 0.9, pad=True,
+                fill_value=0, nearest_sample=True)
+
+        # add the trace to the figure
+        trace = st[0].copy()
+        # save the trace to the main stream for future work
+        event_stream += trace
+
+    return event_stream
 
 # TODO: working here and below
 #   =
