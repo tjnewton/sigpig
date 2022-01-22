@@ -2518,14 +2518,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_prepick = 0.5
 
         # T6 - Aaron's WASW template + TA.N25K + YG.MCR2 + YG.MCR1
-        "AV.WASW": [UTCDateTime("2016-09-26T09:25:48.0Z"),
-                                UTCDateTime("2016-09-26T09:25:55.0Z")],
-                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
-                                UTCDateTime("2016-09-26T09:25:56.5Z")],
-                    "YG.MCR1": [UTCDateTime("2016-09-26T09:25:51.0Z"),
-                                UTCDateTime("2016-09-26T09:25:58.0Z")],
-                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:48.5Z"),
-                                UTCDateTime("2016-09-26T09:25:55.5Z")],
         templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n",
                      "N25K    1.500  1       P\n",
@@ -2553,9 +2545,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
 
         # build stream of all station files for templates
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/WASW"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/WASW"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09, AV.WASW
@@ -2602,7 +2595,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     """
     # # FIXME: delete after testing
     shift_method = 'zero'
-    load_party = True
+    load_party = False
     save_detections = False
 
     top_n = False
