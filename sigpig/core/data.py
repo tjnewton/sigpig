@@ -1130,7 +1130,6 @@ def get_trace_properties(trace, pick_time, period):
     t = np.linspace(max_pool_indices[0], max_pool_indices[-1], num=1000,
                     endpoint=True)
 
-
     return dy, d2y, curvature,
 
 
@@ -1297,38 +1296,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
         uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
         process_autopicked_events(autopicked_file_path, uncertainty_file_path)
     """
-    # store the events and uncertainties in a structure
-    events = {}
-
-    # event tags and phase tags can be out of order so the autopicked .mrkr
-    # file is looped over two times to collect events then phases.
-
-    # store events by reading the marker file line by line
-    with open(autopicked_file_path, 'r') as file:
-        for index, line_contents in enumerate(file):
-            # only consider lines containing events
-            if line_contents[0:5] == 'event':
-                # store the hash ID for the event
-                hash_id = line_contents.strip()[36:64]
-                # generate an event entry in the dict
-                events[hash_id] = []
-
-    # store arrival times by reading the marker file line by line
-    with open(autopicked_file_path, 'r') as file:
-        for index, line_contents in enumerate(file):
-            if line_contents[0:5] == 'phase':
-                # store the hash ID, station, and time for the phase
-                hash_id = line_contents.strip()[52:80]
-                station_components = line_contents.strip()[
-                                     36:52].strip().split('.')
-                # station format is constructed to match sta.chan
-                phase_station = f"{station_components[1]}" \
-                                f".{station_components[3]}"
-                phase_time = UTCDateTime(line_contents.strip()[7:32])
-
-                # store the station and time of the phase in a list of dicts
-                events[hash_id].append({'station': phase_station, 'time':
-                                       phase_time})
+    # get all events (n=-1) from autopicked file
+    events = top_n_autopicked_events(autopicked_file_path, -1)
 
     # Now we have a dict where each key is a unique hash id for an event, and
     # each entry is a list of dicts containing time of the first arrival and
