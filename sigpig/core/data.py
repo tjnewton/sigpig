@@ -1071,7 +1071,7 @@ def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
 #   =
 #   =
 #   =
-def get_trace_properties(trace, pick_time, period):
+def get_trace_properties(trace, pick_time, duration):
     """ Takes in a Obspy trace object, then calculates and returns arrays
     containing the first derivative, second derivative, and curvature of the
     trace for the specified period (in seconds) centered on the specified
@@ -1085,6 +1085,8 @@ def get_trace_properties(trace, pick_time, period):
             # define the desire number of events to get
             n = 500
             events = top_n_autopicked_events(autopicked_file_path, n)
+            # save the dict keys (hashed event ids) into a list for easy access
+            event_ids = list(events.keys())
 
             # select the event of interest
             event = events[event_ids[0]].copy()
@@ -1095,13 +1097,19 @@ def get_trace_properties(trace, pick_time, period):
             index = 0
             trace = stream[index]
             pick_time = event[index]['time']
-            period = 0.4 # in seconds
+            duration = 0.4 # in seconds
             get_trace_properties(trace, pick_time, period)
     """
+    # get trace data and times
+    trace_data = trace.data.copy()
+    trace_times_DT = np.asarray(
+                  [trace.stats.starttime + offset for offset in trace.times()])
+    trace_times = trace.times("matplotlib")
+
+
     # only considering data + and - 0.2 seconds from pick time
-    pick_time_index = (np.abs([data_time_DT - pick_time_DT for data_time_DT in
+    pick_time_index = (np.abs([data_time_DT - pick_time for data_time_DT in
                                trace_times_DT])).argmin()  # get pick time index in data array
-    duration = 0.4  # s
     sampling_rate = 250  # Hz
 
     # initialize lists to store transformed data
@@ -1142,7 +1150,14 @@ def get_trace_properties(trace, pick_time, period):
     t = np.linspace(max_pool_indices[0], max_pool_indices[-1], num=1000,
                     endpoint=True)
 
-    return dy, d2y, curvature,
+    # dy/dx first derivative
+    dy = np.gradient(p(t), t)
+    # d2y/dx2 second derivative
+    d2y = np.gradient(dy, t)
+    # calculate curvature
+    curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
+
+    return dy, d2y, curvature
 
 
 def top_n_autopicked_events(autopicked_file_path, n):
@@ -1206,7 +1221,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
     sort_indices = np.argsort(num_phases)
 
     # if n=-1, reset n to number of events
-    if n = -1:
+    if n == -1:
         n = sort_indices.size
 
     # find the top n events with most phases
