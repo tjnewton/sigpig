@@ -2326,7 +2326,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         # template_date = UTCDateTime("2016-09-27T06:31:15.00000Z")
         # template_date = UTCDateTime("2016-09-27T06:31:32.00000Z")
         # template_date = UTCDateTime("2017-12-01T11:51:00.00000Z")
-        template_date = UTCDateTime("2016-09-26T09:25:50.00000Z")
+        template_date = UTCDateTime("2016-09-26T09:25:48.50000Z")
 
         # define the main trace to use for template
         main_trace = ("AV", "WASW", "SHN")
@@ -2377,21 +2377,27 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     # st.plot()
     # st_min.plot()
 
+    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:48.0Z"),
+                                UTCDateTime("2016-09-26T09:25:55.0Z")],
+                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+                                UTCDateTime("2016-09-26T09:25:56.5Z")],
+                    "YG.MCR1": [UTCDateTime("2016-09-26T09:25:51.0Z"),
+                                UTCDateTime("2016-09-26T09:25:58.0Z")],
+                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:48.5Z"),
+                                UTCDateTime("2016-09-26T09:25:55.5Z")],
+                    }
+
     # plot spectrograms and time series together
     fig_max = plot_Time_Series_And_Spectrogram(template_date - max_offset,
                                                template_date + max_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
-                                               time_markers={"AV.WASW":
-                                        [UTCDateTime("2016-09-26T09:25:48.5Z"),
-                                       UTCDateTime("2016-09-26T09:25:55.5Z")]})
+                                               time_markers=time_markers)
     fig_min = plot_Time_Series_And_Spectrogram(template_date - min_offset,
                                                template_date + min_offset,
                                                streams_path, filter=filter,
                                                bandpass=[1, 15],
-                                               time_markers={"AV.WASW":
-                                        [UTCDateTime("2016-09-26T09:25:48.5Z"),
-                                       UTCDateTime("2016-09-26T09:25:55.5Z")]})
+                                               time_markers=time_markers)
 
     # save template stream to file
     write = False
@@ -2421,7 +2427,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
 # function to calculate snrs of traces that correspond to party detections
 def party_snrs(party, streams_path, main_trace):
-    """
+    """ TODO:
 
     """
     # first extract pick times for each event from party object
@@ -2505,12 +2511,29 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_length = 7.0
         # template_prepick = 0.0
 
-        # T5 - Aaron's template on WASW
-        # MAD detections return anamolous detections for WASW
-        templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "WASW    0.000  1       P\n"]
+        # # T5 - Aaron's template on WASW
+        # templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "WASW    0.000  1       P\n"]
+        # template_length = 7.0
+        # template_prepick = 0.5
+
+        # T6 - Aaron's WASW template + TA.N25K + YG.MCR2 + YG.MCR1
+        "AV.WASW": [UTCDateTime("2016-09-26T09:25:48.0Z"),
+                                UTCDateTime("2016-09-26T09:25:55.0Z")],
+                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+                                UTCDateTime("2016-09-26T09:25:56.5Z")],
+                    "YG.MCR1": [UTCDateTime("2016-09-26T09:25:51.0Z"),
+                                UTCDateTime("2016-09-26T09:25:58.0Z")],
+                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:48.5Z"),
+                                UTCDateTime("2016-09-26T09:25:55.5Z")],
+        templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "WASW    0.000  1       P\n",
+                     "N25K    1.500  1       P\n",
+                     "MCR1    3.000  1       P\n",
+                     "MCR2    0.500  1       P\n"]
         template_length = 7.0
         template_prepick = 0.5
+
 
         # st = sta_chan_stream[195].copy()
         # st.filter('bandpass', freqmin=1, freqmax=15)
@@ -2520,9 +2543,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # st.plot()
 
         # and define a station dict to add data needed by EQcorrscan
-        station_dict = {"WASW": {"network": "AV", "channel": "SHN"}}
+        # station_dict = {"WASW": {"network": "AV", "channel": "SHN"}}
         # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
         # station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
+        station_dict = {"WASW": {"network": "AV", "channel": "SHN"},
+                        "N25K": {"network": "TA", "channel": "BHZ"},
+                        "MCR1": {"network": "YG", "channel": "BHN"},
+                        "MCR2": {"network": "YG", "channel": "BHN"}}
 
 
         # build stream of all station files for templates
@@ -2576,7 +2603,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'zero'
     load_party = True
-    save_detections = True
+    save_detections = False
 
     top_n = False
     n = 1000
@@ -2584,7 +2611,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
-    cull = True
+    cull = False
     plot = False
 
     # get main station template detections
@@ -2737,7 +2764,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # 100 Hz party, 3 component, w/ 0.5s prepick for testing
         # infile = open(
         # 'party_06_15_2016_to_08_12_2018_MAD8_7s_t5_SHZNE_100Hz_0.5prepick.pkl','rb')
-        # culled & top 5000 version
+        # culled & top 1000 version
         infile = open('top_1000_3comp_WASW_3comp_t5_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # # Culled 100 Hz party w/ 0.5s prepick for testing
