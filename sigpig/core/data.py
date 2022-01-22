@@ -1220,12 +1220,28 @@ def top_n_autopicked_events(autopicked_file_path, n):
 #   =
 #   =
 def get_event_stream(event):
-    """ Takes in an event from an events dict and returns a stream
+    """ Takes in an event from an events dict (as returned by
+    top_n_autopicked_events function) and returns a stream
     containing traces corresponding to the phases of the event.
 
-    """
+    Example:
+        # define the file paths containing the autopicked .mrkr file
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+        # define the desire number of events to get
+        n = 500
+        events = top_n_autopicked_events(autopicked_file_path, n)
 
-    pass
+        # specify the event of interest from *events* as returned by
+        # top_n_autopicked_events function
+        event = events[event_ids[0]].copy()
+
+        # get stream containing all phased in the event
+        stream = get_event_stream(event)
+    """
+    # initialize a stream to store traces
+    st = Stream()
+
+    return st
 
 # TODO: working here and below
 #   =
