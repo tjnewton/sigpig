@@ -1079,10 +1079,22 @@ def get_trace_properties(trace, pick_time, period):
 
         Example:
             # use *events* as returned by data.top_n_autopicked_events
+
+            # define the file paths containing the autopicked .mrkr file
+            autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+            # define the desire number of events to get
+            n = 500
+            events = top_n_autopicked_events(autopicked_file_path, n)
+
+            # select the event of interest
             event = events[event_ids[0]].copy()
-            # TODO: pull trace from events or function?
-            trace =
-            pick_time =
+
+            # get stream containing all phases in the event
+            stream = get_event_stream(event)
+            # select the trace of interest
+            index = 0
+            trace = stream[index]
+            pick_time = event[index]['time']
             period = 0.4 # in seconds
             get_trace_properties(trace, pick_time, period)
     """
@@ -1230,7 +1242,7 @@ def get_event_stream(event):
         # top_n_autopicked_events function
         event = events[event_ids[0]].copy()
 
-        # get stream containing all phased in the event
+        # get stream containing all phases in the event
         stream = get_event_stream(event)
     """
     # initialize a stream to store traces
