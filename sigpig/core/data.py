@@ -1137,7 +1137,8 @@ def get_trace_properties(trace, pick_time, period):
 def top_n_autopicked_events(autopicked_file_path, n):
     """ Returns a dictionary containing the top n events from the specified
     mrkr file (snuffler format), ranked by the number of phases. Also writes
-    the dictionary of events to a file called top_events_dict.pkl.
+    the dictionary of events to a file called top_events_dict.pkl. Specify
+    n = -1 to select all events.
 
     Example:
         # define the file paths containing the autopicked .mrkr file
@@ -1193,6 +1194,10 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # get indices for sorted num_phases array
     sort_indices = np.argsort(num_phases)
 
+    # if n=-1, reset n to number of events
+    if n = -1:
+        n = sort_indices.size
+
     # find the top n events with most phases
     top_n_sort_indices = [sort_indices[index] for index in range(-1, (n + 1)
                                                                  * -1, -1)]
@@ -1209,16 +1214,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
 
     return top_events
 
-# TODO: working here and below
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
+
 def get_event_stream(event):
     """ Takes in an event from an events dict (as returned by
     top_n_autopicked_events function) and returns a stream
