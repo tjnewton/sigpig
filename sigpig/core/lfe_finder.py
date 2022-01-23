@@ -2555,12 +2555,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         detection_files_path = "/Users/human/ak_data/inner"
 
         # define dates of interest
-        start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
         end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
-        # start_date = UTCDateTime("2016-09-26T00:00:00.0Z")
-        # end_date = UTCDateTime("2016-10-01T23:59:59.9999999999999Z")
-        # start_date = UTCDateTime("2018-05-01T00:00:00.0Z")
-        # end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
+        # when using WASW, start date is 07-18
+        start_date = UTCDateTime("2016-07-18T00:00:00.0Z")
 
         # set snr threshold to cull the party detections
         snr_threshold = [1.0, 25.0] # [1.0, 8.0]
