@@ -1061,16 +1061,7 @@ def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
 
     return None
 
-# TODO: working here and below
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
-#   =
+
 def get_trace_properties(trace, pick_time, duration):
     """ Takes in a Obspy trace object, then calculates and returns arrays
     containing the first derivative, second derivative, and curvature of the
@@ -1159,6 +1150,13 @@ def get_trace_properties(trace, pick_time, duration):
 
     return dy, d2y, curvature
 
+
+def plot_trace_properties():
+    """
+
+
+    """
+    pass
 
 def top_n_autopicked_events(autopicked_file_path, n):
     """ Returns a dictionary containing the top n events from the specified
