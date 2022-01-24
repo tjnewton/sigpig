@@ -2766,10 +2766,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('WASW_t5_culled_snr1.0-15.0_selfShift_abs0'
         #               '.65_7s_100Hz_1.5prepick_party.pkl', 'rb')
 
-        # 4 stations 100 Hz party, 3 component, w/ 0.5s prepick for testing
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t6_100Hz_0.5prepick.pkl','rb')
+        # 4 stations 100 Hz party, 3 component, w/ 0.5s prepick for testing,
+        # 5176 detections
+        infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t6_100Hz_0.5prepick.pkl','rb')
         # culled & top 1000 version
-        infile = open('top_500_party_06_15_2016_to_08_12_2018_MAD8_7s_t6_100Hz_0.5prepick.pkl.pkl','rb')
+        infile = open('top_1000_party_07_18_2016_to_08_12_2018_MAD8_7s_t6_100Hz_0.5prepick.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2820,7 +2821,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # into memory at a time
     snrs = party_snrs(party, detection_files_path, main_trace)
 
-    if plot:
+    if plot and not cull:
         plot_distribution(snrs, title=f"SNR_distribution_WASW_t5"
                           f"_{template_length}s_{template_prepick}_prepick"
                           f"_{thresh_type}{detect_thresh}", save=True)
