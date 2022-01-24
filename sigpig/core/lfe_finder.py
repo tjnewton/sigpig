@@ -2436,12 +2436,18 @@ def party_snrs(party, streams_path, main_trace):
     pick_times = []
     pick_network, pick_station, pick_channel = main_trace
     for event in party.families[0].catalog.events:
+        PICK_APPENDED = False
         for pick in event.picks:
             # trace with highest amplitude signal
             if pick.waveform_id.station_code == pick_station and \
                     pick.waveform_id.network_code == pick_network and \
                     pick.waveform_id.channel_code == pick_channel:
                 pick_times.append(pick.time)
+                PICK_APPENDED = True
+
+        # if no pick time has been assigned, assign a duplicate to avoid error
+        if not PICK_APPENDED:
+            pick_times.append(pick.time)
 
     snrs = []
     for index in range(len(pick_times)):
