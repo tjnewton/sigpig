@@ -2427,8 +2427,9 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
 # function to calculate snrs of traces that correspond to party detections
 def party_snrs(party, streams_path, main_trace):
-    """ TODO:
-
+    """ Takes in a party object containing detections and calculates the SNR
+    (signal to noise ratio) of the trace associated with the detection station
+    at the detection time.
     """
     # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the main trace
