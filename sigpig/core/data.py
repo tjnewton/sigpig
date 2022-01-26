@@ -1134,7 +1134,7 @@ def get_trace_properties(trace, pick_time, duration):
     max_pool_amplitude = np.asarray(max_pool_amplitude)
 
     # fit a polynomial to the max pooled data using the indices as x values since polyfit hates mpl dates (small ranges)
-    polynomial_degree = 4
+    polynomial_degree = 6
     p = np.poly1d(
         np.polyfit(max_pool_indices, max_pool_amplitude, polynomial_degree))
     t = np.linspace(max_pool_indices[0], max_pool_indices[-1], num=1000,
@@ -1182,6 +1182,16 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
         dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
         fig = plot_trace_properties(trace, pick_time, duration, dy, d2y,
                                     curvature, fits)
+        fig.savefig(f"event0_index{index}", dpi=200)
+
+        # then plot another trace's properties to compare
+        index = 20
+        trace = stream[index]
+        pick_time = event[index]['time']
+        dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
+        fig = plot_trace_properties(trace, pick_time, duration, dy, d2y,
+                                    curvature, fits)
+        fig.savefig(f"event0_index{index}", dpi=200)
     """
     # get trace data and times
     trace_data = trace.data.copy()
