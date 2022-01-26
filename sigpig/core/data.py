@@ -1065,7 +1065,7 @@ def eqTransformer_Formatter(project_Name: str, start_Time, end_Time):
 def get_trace_properties(trace, pick_time, duration):
     """ Takes in a Obspy trace object, then calculates and returns arrays
     containing the first derivative, second derivative, and curvature of the
-    trace for the specified period (in seconds) centered on the specified
+    trace for the specified duration (in seconds) centered on the specified
     phase pick time (pick_time).
 
         Example:
@@ -1089,14 +1089,13 @@ def get_trace_properties(trace, pick_time, duration):
             trace = stream[index]
             pick_time = event[index]['time']
             duration = 0.4 # in seconds
-            get_trace_properties(trace, pick_time, period)
+            dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
     """
     # get trace data and times
     trace_data = trace.data.copy()
     trace_times_DT = np.asarray(
                   [trace.stats.starttime + offset for offset in trace.times()])
     trace_times = trace.times("matplotlib")
-
 
     # only considering data + and - 0.2 seconds from pick time
     pick_time_index = (np.abs([data_time_DT - pick_time for data_time_DT in
@@ -1148,15 +1147,114 @@ def get_trace_properties(trace, pick_time, duration):
     # calculate curvature
     curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
 
-    return dy, d2y, curvature
+    # store fitting parameters in a list
+    fits = [max_pool_indices, max_pool_amplitude, p, t, polynomial_degree]
+
+    return dy, d2y, curvature, fits
 
 
-def plot_trace_properties():
+def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
+                          fits):
+    """ Plots the trace and its properties (as returned by
+    get_trace_properties) to visualize.
+
+    Example:
+        # use *events* as returned by data.top_n_autopicked_events
+
+        # define the file paths containing the autopicked .mrkr file
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+        # define the desire number of events to get
+        n = 500
+        events = top_n_autopicked_events(autopicked_file_path, n)
+        # save the dict keys (hashed event ids) into a list for easy access
+        event_ids = list(events.keys())
+
+        # select the event of interest
+        event = events[event_ids[0]].copy()
+
+        # get stream containing all phases in the event
+        stream = get_event_stream(event)
+        # select the trace of interest
+        index = 0
+        trace = stream[index]
+        pick_time = event[index]['time']
+        duration = 0.4 # in seconds
+        dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
+        fig = plot_trace_properties(trace, pick_time, duration, dy, d2y,
+                                    curvature, fits)
     """
+    # get trace data and times
+    trace_data = trace.data.copy()
+    trace_times_DT = np.asarray(
+        [trace.stats.starttime + offset for offset in trace.times()])
+    trace_times = trace.times("matplotlib")
 
+    # only considering data + and - 0.2 seconds from pick time
+    pick_time_index = (np.abs([data_time_DT - pick_time for data_time_DT in
+                               trace_times_DT])).argmin()  # get pick time index in data array
+    sampling_rate = 250  # Hz
 
-    """
-    pass
+    # make indices to loop over all data within 0.2s of pick time
+    starting_array_index = pick_time_index - int(duration / 2 * sampling_rate)
+    ending_array_index = pick_time_index + int(duration / 2 * sampling_rate)
+
+    # get time series data for plotting
+    temp_xs = np.linspace(starting_array_index, ending_array_index, num=100)
+    temp_data = trace_data[starting_array_index:ending_array_index]
+
+    # extract info from fits list
+    max_pool_indices, max_pool_amplitude, p, t, polynomial_degree = fits
+
+    # plot max pooling, fit, and trace data as above for reference
+    fig, ax = plt.subplots(4, figsize=(12, 12))
+
+    # plot the time series for reference
+    ax[0].plot(temp_xs, temp_data, c='gray', linewidth=0.7)
+    # plot the pick time
+    ax[0].plot([pick_time_index, pick_time_index],
+               [temp_data.min(), temp_data.max()], c="r")
+    # plot max_pool transformed data
+    ax[0].scatter(max_pool_indices, max_pool_amplitude, s=3, c="k")
+    # plot the fit to the max_pool amplitude data
+    ax[0].plot(t, p(t), c="b", linewidth=0.7)
+    # sex x_lim to + and - 0.2 seconds surrounding pick time
+    ax[0].set_xlim([starting_array_index, ending_array_index])
+    ax[0].set_title(f"max pooling polyfit d={polynomial_degree}")
+
+    # plot first derivative
+    ax[1].plot(t, dy, c='blue', linewidth=0.7, label='dy/dx')
+    # plot the pick time
+    ax[1].plot([pick_time_index, pick_time_index],
+               [dy.min() - 1, dy.max() + 1], c="r")
+    ax[1].legend()
+    ax[1].set_title("1st derivative of max pooling polyfit")
+    ax[1].set_ylim([dy.min() - 1, dy.max() + 1])
+    ax[1].set_xlim([starting_array_index, ending_array_index])
+
+    # plot zero line
+    ax[2].plot([t[0], t[-1]], [0, 0], c='black', linewidth=0.7, label='zero')
+    # plot second derivative
+    ax[2].plot(t, d2y, c='orange', linewidth=0.7, label='d2y/dx2')
+    # plot the pick time
+    ax[2].plot([pick_time_index, pick_time_index],
+               [d2y.min() - 1, d2y.max() + 1], c="r")
+    ax[2].legend()
+    ax[2].set_title("2nd derivative of max pooling polyfit")
+    ax[2].set_ylim([d2y.min() - 1, d2y.max() + 1])
+    ax[2].set_xlim([starting_array_index, ending_array_index])
+
+    # plot the curvature
+    ax[3].plot(t, curvature, c='green', linewidth=0.7, label='curvature')
+    # plot the pick time
+    ax[3].plot([pick_time_index, pick_time_index],
+               [curvature.min(), curvature.max()], c="r")
+    ax[3].legend()
+    ax[3].set_title("curvature of max pooling polyfit")
+    ax[3].set_xlim([starting_array_index, ending_array_index])
+
+    plt.show()
+
+    return fig
 
 def top_n_autopicked_events(autopicked_file_path, n):
     """ Returns a dictionary containing the top n events from the specified
