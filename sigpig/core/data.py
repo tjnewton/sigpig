@@ -20,6 +20,7 @@ import geopy
 import proplot as pplt
 import matplotlib.pyplot as plt
 import pickle
+from sklearn import preprocessing
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -1091,8 +1092,14 @@ def get_trace_properties(trace, pick_time, duration):
             duration = 0.4 # in seconds
             dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
     """
-    # get trace data and times
+    # get trace data
     trace_data = trace.data.copy()
+    # # scale the trace data to compare shape properties across traces
+    # scaler = preprocessing.StandardScaler().fit(trace_data.reshape(-1, 1))
+    # trace_data = scaler.transform(trace_data.reshape(-1, 1)).reshape(1, -1)[0]
+    # # shift the mean to 10
+    # trace_data = trace_data + 10
+    # get the trace times
     trace_times_DT = np.asarray(
                   [trace.stats.starttime + offset for offset in trace.times()])
     trace_times = trace.times("matplotlib")
@@ -1193,8 +1200,14 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
                                     curvature, fits)
         fig.savefig(f"event0_index{index}", dpi=200)
     """
-    # get trace data and times
+    # get trace data
     trace_data = trace.data.copy()
+    # # scale the trace data to compare shape properties across traces
+    # scaler = preprocessing.StandardScaler().fit(trace_data.reshape(-1, 1))
+    # trace_data = scaler.transform(trace_data.reshape(-1, 1)).reshape(1, -1)[0]
+    # # shift the mean to 10
+    # trace_data = trace_data + 10
+    # get trace times
     trace_times_DT = np.asarray(
         [trace.stats.starttime + offset for offset in trace.times()])
     trace_times = trace.times("matplotlib")
@@ -1231,6 +1244,8 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     ax[0].set_xlim([starting_array_index, ending_array_index])
     ax[0].set_title(f"max pooling polyfit d={polynomial_degree}")
 
+    # plot zero line
+    ax[1].plot([t[0], t[-1]], [0, 0], c='black', linewidth=0.7, label='zero')
     # plot first derivative
     ax[1].plot(t, dy, c='blue', linewidth=0.7, label='dy/dx')
     # plot the pick time
