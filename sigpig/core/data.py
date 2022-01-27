@@ -1154,6 +1154,16 @@ def get_trace_properties(trace, pick_time, duration):
     # calculate curvature
     curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
 
+    # TODO: implement wavelet transforms
+    # TODO:
+    # TODO:
+    # TODO:
+    # TODO:
+    # TODO:
+    # TODO:
+    # TODO:
+    # TODO:
+
     # store fitting parameters in a list
     fits = [max_pool_indices, max_pool_amplitude, p, t, polynomial_degree]
 
