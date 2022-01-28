@@ -1091,7 +1091,7 @@ def get_trace_properties(trace, pick_time, duration):
             trace = stream[index]
             pick_time = event[index]['time']
             duration = 0.4 # in seconds
-            dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
+            dy, d2y, curvature, fits, MADs = get_trace_properties(trace, pick_time, duration)
     """
     # get trace data
     trace_data = trace.data.copy()
@@ -1155,6 +1155,23 @@ def get_trace_properties(trace, pick_time, duration):
     # calculate curvature
     curvature = np.abs(d2y) / (np.sqrt(1 + dy ** 2)) ** 1.5
 
+    # get index into max_pool amplitude corresponding to pick_time_index
+    max_pool_pick_time_index = np.where(max_pool_indices ==
+                                        pick_time_index)[0][0]
+    # calculate median absolute deviation of three windows
+    w1_median = np.median(max_pool_amplitude[:max_pool_pick_time_index - 10])
+    w1_MAD = stats.median_abs_deviation(
+        max_pool_amplitude[:max_pool_pick_time_index - 10])
+    w2_median = np.median(max_pool_amplitude[max_pool_pick_time_index -
+                                             10:max_pool_pick_time_index + 6])
+    w2_MAD = stats.median_abs_deviation(max_pool_amplitude[
+                                        max_pool_pick_time_index -
+                                        10:max_pool_pick_time_index + 6])
+    w3_median = np.median(max_pool_amplitude[max_pool_pick_time_index + 6:])
+    w3_MAD = stats.median_abs_deviation(max_pool_amplitude[
+                                        max_pool_pick_time_index + 6:])
+    MADs = [w1_median, w1_MAD, w2_median, w2_MAD, w3_median, w3_MAD]
+
     # TODO: implement wavelet transforms
     # TODO:
     # TODO:
@@ -1168,11 +1185,11 @@ def get_trace_properties(trace, pick_time, duration):
     # store fitting parameters in a list
     fits = [max_pool_indices, max_pool_amplitude, p, t, polynomial_degree]
 
-    return dy, d2y, curvature, fits
+    return dy, d2y, curvature, fits, MADs
 
 
 def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
-                          fits):
+                          fits, MADs):
     """ Plots the trace and its properties (as returned by
     get_trace_properties) to visualize.
 
@@ -1197,9 +1214,9 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
         trace = stream[index]
         pick_time = event[index]['time']
         duration = 0.4 # in seconds
-        dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
+        dy, d2y, curvature, fits, MADs = get_trace_properties(trace, pick_time, duration)
         fig = plot_trace_properties(trace, pick_time, duration, dy, d2y,
-                                    curvature, fits)
+                                    curvature, fits, MADs)
         fig.savefig(f"event0_index{index}", dpi=200)
 
         # then plot another trace's properties to compare: 0, 2, 16, 20
@@ -1207,9 +1224,10 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
         for index in indices:
             trace = stream[index]
             pick_time = event[index]['time']
-            dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
+            dy, d2y, curvature, fits, MADs = get_trace_properties(trace,
+                                                           pick_time, duration)
             fig = plot_trace_properties(trace, pick_time, duration, dy, d2y,
-                                        curvature, fits)
+                                        curvature, fits, MADs)
             fig.savefig(f"event0_index{index}", dpi=200)
     """
     # get trace data
@@ -1299,19 +1317,10 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
                [temp_data.min(), temp_data.max()], c="r")
     # plot max_pool transformed data
     ax[4].scatter(max_pool_indices, max_pool_amplitude, s=3, c="k")
-    # calculate median absolute deviation of three windows
-    w1_median = np.median(max_pool_amplitude[:max_pool_pick_time_index - 10])
-    w1_MAD = stats.median_abs_deviation(max_pool_amplitude[:max_pool_pick_time_index - 10])
-    w2_median = np.median(max_pool_amplitude[max_pool_pick_time_index -
-                                             10:max_pool_pick_time_index + 6])
-    w2_MAD = stats.median_abs_deviation(max_pool_amplitude[
-                           max_pool_pick_time_index -
-                           10:max_pool_pick_time_index + 6])
-    w3_median = np.median(max_pool_amplitude[max_pool_pick_time_index + 6:])
-    w3_MAD = stats.median_abs_deviation(max_pool_amplitude[
-                                                max_pool_pick_time_index + 6:])
+
     # plot +- 2 MAD of three windows
     # first window
+    w1_median, w1_MAD, w2_median, w2_MAD, w3_median, w3_MAD = MADs
     ax[4].plot([max_pool_indices[0], max_pool_indices[
                 max_pool_pick_time_index - 9]], [w1_median + (2*w1_MAD),
                 w1_median + (2*w1_MAD)], c="c", label="w1 +-2MAD")
