@@ -1357,12 +1357,10 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
                 max_pool_indices[-1]], [w3_median - (8 * w3_MAD),
                 w3_median - (8 * w3_MAD)], c="m", label=None)
 
-
     # set x_lim to + and - 0.2 seconds surrounding pick time
     ax[4].set_xlim([starting_array_index + 5, ending_array_index - 10])
-    ax[4].set_title(f"max pooling +- 2 MAD")
+    ax[4].set_title(f"max pooling +- 2 & 8 MAD")
     ax[4].legend()
-    # make box and whisker plots for three windows
 
     plt.show()
 
