@@ -1141,7 +1141,7 @@ def get_trace_properties(trace, pick_time, duration):
     max_pool_amplitude = np.asarray(max_pool_amplitude)
 
     # fit a polynomial to the max pooled data using the indices as x values since polyfit hates mpl dates (small ranges)
-    polynomial_degree = 15
+    polynomial_degree = 12
     p = np.poly1d(
         np.polyfit(max_pool_indices, max_pool_amplitude, polynomial_degree))
     t = np.linspace(max_pool_indices[0], max_pool_indices[-1], num=1000,
@@ -1201,14 +1201,15 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
                                     curvature, fits)
         fig.savefig(f"event0_index{index}", dpi=200)
 
-        # then plot another trace's properties to compare
-        index = 20
-        trace = stream[index]
-        pick_time = event[index]['time']
-        dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
-        fig = plot_trace_properties(trace, pick_time, duration, dy, d2y,
-                                    curvature, fits)
-        fig.savefig(f"event0_index{index}", dpi=200)
+        # then plot another trace's properties to compare: 0, 2, 16, 20
+        indices = [2, 16, 20]
+        for index in indices:
+            trace = stream[index]
+            pick_time = event[index]['time']
+            dy, d2y, curvature, fits = get_trace_properties(trace, pick_time, duration)
+            fig = plot_trace_properties(trace, pick_time, duration, dy, d2y,
+                                        curvature, fits)
+            fig.savefig(f"event0_index{index}", dpi=200)
     """
     # get trace data
     trace_data = trace.data.copy()
@@ -1239,7 +1240,7 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     max_pool_indices, max_pool_amplitude, p, t, polynomial_degree = fits
 
     # plot max pooling, fit, and trace data as above for reference
-    fig, ax = plt.subplots(4, figsize=(12, 12))
+    fig, ax = plt.subplots(4, figsize=(12, 11))
 
     # plot the time series for reference
     ax[0].plot(temp_xs, temp_data, c='gray', linewidth=0.7)
@@ -1251,41 +1252,41 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     # plot the fit to the max_pool amplitude data
     ax[0].plot(t, p(t), c="b", linewidth=0.7)
     # sex x_lim to + and - 0.2 seconds surrounding pick time
-    ax[0].set_xlim([starting_array_index, ending_array_index])
+    ax[0].set_xlim([starting_array_index+5, ending_array_index-10])
     ax[0].set_title(f"max pooling polyfit d={polynomial_degree}")
 
     # plot zero line
     ax[1].plot([t[0], t[-1]], [0, 0], c='black', linewidth=0.7, label='zero')
     # plot first derivative
-    ax[1].plot(t, dy, c='blue', linewidth=0.7, label='dy/dx')
+    ax[1].plot(t[50:-100], dy[50:-100], c='blue', linewidth=0.7, label='dy/dx')
     # plot the pick time
     ax[1].plot([pick_time_index, pick_time_index],
-               [dy.min() - 1, dy.max() + 1], c="r")
+               [dy[50:-100].min() - 1, dy[50:-100].max() + 1], c="r")
     ax[1].legend()
     ax[1].set_title("1st derivative of max pooling polyfit")
-    ax[1].set_ylim([dy.min() - 1, dy.max() + 1])
-    ax[1].set_xlim([starting_array_index, ending_array_index])
+    # ax[1].set_ylim([dy[5:-10].min() - 1, dy[5:-10].max() + 1])
+    ax[1].set_xlim([starting_array_index+5, ending_array_index-10])
 
     # plot zero line
     ax[2].plot([t[0], t[-1]], [0, 0], c='black', linewidth=0.7, label='zero')
     # plot second derivative
-    ax[2].plot(t, d2y, c='orange', linewidth=0.7, label='d2y/dx2')
+    ax[2].plot(t[50:-100], d2y[50:-100], c='orange', linewidth=0.7, label='d2y/dx2')
     # plot the pick time
     ax[2].plot([pick_time_index, pick_time_index],
-               [d2y.min() - 1, d2y.max() + 1], c="r")
+               [d2y[50:-100].min() - 1, d2y[50:-100].max() + 1], c="r")
     ax[2].legend()
     ax[2].set_title("2nd derivative of max pooling polyfit")
-    ax[2].set_ylim([d2y.min() - 1, d2y.max() + 1])
-    ax[2].set_xlim([starting_array_index, ending_array_index])
+    # ax[2].set_ylim([d2y.min() - 1, d2y.max() + 1])
+    ax[2].set_xlim([starting_array_index+5, ending_array_index-10])
 
     # plot the curvature
-    ax[3].plot(t, curvature, c='green', linewidth=0.7, label='curvature')
+    ax[3].plot(t[50:-100], curvature[50:-100], c='green', linewidth=0.7, label='curvature')
     # plot the pick time
     ax[3].plot([pick_time_index, pick_time_index],
-               [curvature.min(), curvature.max()], c="r")
+               [curvature[50:-100].min(), curvature[50:-100].max()], c="r")
     ax[3].legend()
     ax[3].set_title("curvature of max pooling polyfit")
-    ax[3].set_xlim([starting_array_index, ending_array_index])
+    ax[3].set_xlim([starting_array_index+5, ending_array_index-10])
 
     plt.show()
 
