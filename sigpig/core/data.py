@@ -21,6 +21,7 @@ import proplot as pplt
 import matplotlib.pyplot as plt
 import pickle
 from sklearn import preprocessing
+from scipy import stats
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -1238,9 +1239,12 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
 
     # extract info from fits list
     max_pool_indices, max_pool_amplitude, p, t, polynomial_degree = fits
+    # get index into max_pool amplitude corresponding to pick_time_index
+    max_pool_pick_time_index = np.where(max_pool_indices ==
+                                        pick_time_index)[0][0]
 
     # plot max pooling, fit, and trace data as above for reference
-    fig, ax = plt.subplots(4, figsize=(8, 12))
+    fig, ax = plt.subplots(5, figsize=(8, 15))
 
     # plot the time series for reference
     ax[0].plot(temp_xs, temp_data, c='gray', linewidth=0.7)
@@ -1251,7 +1255,7 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     ax[0].scatter(max_pool_indices, max_pool_amplitude, s=3, c="k")
     # plot the fit to the max_pool amplitude data
     ax[0].plot(t, p(t), c="b", linewidth=0.7)
-    # sex x_lim to + and - 0.2 seconds surrounding pick time
+    # set x_lim to + and - 0.2 seconds surrounding pick time
     ax[0].set_xlim([starting_array_index+5, ending_array_index-10])
     ax[0].set_title(f"max pooling polyfit d={polynomial_degree}")
 
@@ -1287,6 +1291,47 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     ax[3].legend()
     ax[3].set_title("curvature of max pooling polyfit")
     ax[3].set_xlim([starting_array_index+5, ending_array_index-10])
+
+    # plot the time series for reference, then MAD
+    ax[4].plot(temp_xs, temp_data, c='gray', linewidth=0.7)
+    # plot the pick time
+    ax[4].plot([pick_time_index, pick_time_index],
+               [temp_data.min(), temp_data.max()], c="r")
+    # plot max_pool transformed data
+    ax[4].scatter(max_pool_indices, max_pool_amplitude, s=3, c="k")
+    # calculate median absolute deviation of three windows
+    w1_median = np.median(max_pool_amplitude[:max_pool_pick_time_index - 10])
+    w1_MAD = stats.median_abs_deviation(max_pool_amplitude[:max_pool_pick_time_index - 10])
+    w2_median = np.median(max_pool_amplitude[max_pool_pick_time_index -
+                                             10:max_pool_pick_time_index + 6])
+    w2_MAD = stats.median_abs_deviation(max_pool_amplitude[
+                           max_pool_pick_time_index -
+                           10:max_pool_pick_time_index + 6])
+    w3_median = np.median(max_pool_amplitude[max_pool_pick_time_index + 6:])
+    w3_MAD = stats.median_abs_deviation(max_pool_amplitude[
+                                                max_pool_pick_time_index + 6:])
+    # plot +- 2 MAD of three windows
+    ax[4].plot([max_pool_indices[0], max_pool_indices[
+                max_pool_pick_time_index - 9]], [w1_median + (2*w1_MAD),
+                w1_median + (2*w1_MAD)], c="b", label="w1 +2MAD")
+    ax[4].plot([max_pool_indices[0], max_pool_indices[
+                max_pool_pick_time_index - 9]], [w1_median - (2*w1_MAD),
+                w1_median - (2*w1_MAD)], c="b", label="w1 -2MAD")
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
+                max_pool_indices[max_pool_pick_time_index + 5]],
+               [w2_median + (2 * w2_MAD), w2_median + (2 * w2_MAD)], c="b",
+               label="w2 +2MAD")
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
+                max_pool_indices[max_pool_pick_time_index + 5]],
+               [w2_median - (2 * w2_MAD), w2_median - (2 * w2_MAD)], c="b",
+               label="w2 -2MAD")
+
+    # set x_lim to + and - 0.2 seconds surrounding pick time
+    ax[4].set_xlim([starting_array_index + 5, ending_array_index - 10])
+    ax[4].set_title(f"max pooling MAD d={polynomial_degree}")
+
+    # make box and whisker plots for three windows
+
 
     plt.show()
 
