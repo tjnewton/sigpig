@@ -1311,26 +1311,52 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     w3_MAD = stats.median_abs_deviation(max_pool_amplitude[
                                                 max_pool_pick_time_index + 6:])
     # plot +- 2 MAD of three windows
+    # first window
     ax[4].plot([max_pool_indices[0], max_pool_indices[
                 max_pool_pick_time_index - 9]], [w1_median + (2*w1_MAD),
-                w1_median + (2*w1_MAD)], c="c", label="w1 +2MAD")
+                w1_median + (2*w1_MAD)], c="c", label="w1 +-2MAD")
     ax[4].plot([max_pool_indices[0], max_pool_indices[
                 max_pool_pick_time_index - 9]], [w1_median - (2*w1_MAD),
-                w1_median - (2*w1_MAD)], c="c", label="w1 -2MAD")
+                w1_median - (2*w1_MAD)], c="c", label=None)
+    ax[4].plot([max_pool_indices[0], max_pool_indices[
+                max_pool_pick_time_index - 9]], [w1_median + (8*w1_MAD),
+                w1_median + (8*w1_MAD)], c="c", label="w1 +-8MAD")
+    ax[4].plot([max_pool_indices[0], max_pool_indices[
+                max_pool_pick_time_index - 9]], [w1_median - (8*w1_MAD),
+                w1_median - (8*w1_MAD)], c="c", label=None)
+
+    # second window
     ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
                 max_pool_indices[max_pool_pick_time_index + 5]],
                [w2_median + (2 * w2_MAD), w2_median + (2 * w2_MAD)], c="g",
-               label="w2 +2MAD")
+               label="w2 +-2MAD")
     ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
                 max_pool_indices[max_pool_pick_time_index + 5]],
                [w2_median - (2 * w2_MAD), w2_median - (2 * w2_MAD)], c="g",
-               label="w2 -2MAD")
+               label=None)
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
+                max_pool_indices[max_pool_pick_time_index + 5]],
+               [w2_median + (8 * w2_MAD), w2_median + (8 * w2_MAD)], c="g",
+               label="w2 +-8MAD")
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
+                max_pool_indices[max_pool_pick_time_index + 5]],
+               [w2_median - (8 * w2_MAD), w2_median - (8 * w2_MAD)], c="g",
+               label=None)
+
+    # third window
     ax[4].plot([max_pool_indices[max_pool_pick_time_index + 6],
                 max_pool_indices[-1]], [w3_median + (2 * w3_MAD),
-                w3_median + (2 * w3_MAD)], c="m", label="w3 +2MAD")
+                w3_median + (2 * w3_MAD)], c="m", label="w3 +-2MAD")
     ax[4].plot([max_pool_indices[max_pool_pick_time_index + 6],
-                max_pool_indices[-1]], [w3_median + (2 * w3_MAD),
-                w3_median - (2 * w3_MAD)], c="m", label="w3 -2MAD")
+                max_pool_indices[-1]], [w3_median - (2 * w3_MAD),
+                w3_median - (2 * w3_MAD)], c="m", label=None)
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index + 6],
+                max_pool_indices[-1]], [w3_median + (8 * w3_MAD),
+                w3_median + (8 * w3_MAD)], c="m", label="w3 +-8MAD")
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index + 6],
+                max_pool_indices[-1]], [w3_median - (8 * w3_MAD),
+                w3_median - (8 * w3_MAD)], c="m", label=None)
+
 
     # set x_lim to + and - 0.2 seconds surrounding pick time
     ax[4].set_xlim([starting_array_index + 5, ending_array_index - 10])
