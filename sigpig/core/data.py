@@ -1240,7 +1240,7 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     max_pool_indices, max_pool_amplitude, p, t, polynomial_degree = fits
 
     # plot max pooling, fit, and trace data as above for reference
-    fig, ax = plt.subplots(4, figsize=(12, 11))
+    fig, ax = plt.subplots(4, figsize=(8, 12))
 
     # plot the time series for reference
     ax[0].plot(temp_xs, temp_data, c='gray', linewidth=0.7)
