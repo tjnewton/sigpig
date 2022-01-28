@@ -1313,25 +1313,30 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
     # plot +- 2 MAD of three windows
     ax[4].plot([max_pool_indices[0], max_pool_indices[
                 max_pool_pick_time_index - 9]], [w1_median + (2*w1_MAD),
-                w1_median + (2*w1_MAD)], c="b", label="w1 +2MAD")
+                w1_median + (2*w1_MAD)], c="c", label="w1 +2MAD")
     ax[4].plot([max_pool_indices[0], max_pool_indices[
                 max_pool_pick_time_index - 9]], [w1_median - (2*w1_MAD),
-                w1_median - (2*w1_MAD)], c="b", label="w1 -2MAD")
+                w1_median - (2*w1_MAD)], c="c", label="w1 -2MAD")
     ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
                 max_pool_indices[max_pool_pick_time_index + 5]],
-               [w2_median + (2 * w2_MAD), w2_median + (2 * w2_MAD)], c="b",
+               [w2_median + (2 * w2_MAD), w2_median + (2 * w2_MAD)], c="g",
                label="w2 +2MAD")
     ax[4].plot([max_pool_indices[max_pool_pick_time_index - 10],
                 max_pool_indices[max_pool_pick_time_index + 5]],
-               [w2_median - (2 * w2_MAD), w2_median - (2 * w2_MAD)], c="b",
+               [w2_median - (2 * w2_MAD), w2_median - (2 * w2_MAD)], c="g",
                label="w2 -2MAD")
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index + 6],
+                max_pool_indices[-1]], [w3_median + (2 * w3_MAD),
+                w3_median + (2 * w3_MAD)], c="m", label="w3 +2MAD")
+    ax[4].plot([max_pool_indices[max_pool_pick_time_index + 6],
+                max_pool_indices[-1]], [w3_median + (2 * w3_MAD),
+                w3_median - (2 * w3_MAD)], c="m", label="w3 -2MAD")
 
     # set x_lim to + and - 0.2 seconds surrounding pick time
     ax[4].set_xlim([starting_array_index + 5, ending_array_index - 10])
-    ax[4].set_title(f"max pooling MAD d={polynomial_degree}")
-
+    ax[4].set_title(f"max pooling +- 2 MAD")
+    ax[4].legend()
     # make box and whisker plots for three windows
-
 
     plt.show()
 
