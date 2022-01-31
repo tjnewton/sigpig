@@ -2533,10 +2533,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_prepick = 0.5
 
         # T6 - Aaron's WASW template + TA.N25K + YG.MCR2
+        # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "WASW    0.000  1       P\n",
+        #              "N25K    1.500  1       P\n",
+        #              "MCR2    0.500  1       P\n"]
         templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "WASW    0.000  1       P\n",
-                     "N25K    1.500  1       P\n",
-                     "MCR2    0.500  1       P\n"]
+                             "N25K    1.500  1       P\n"]
         template_length = 7.0
         template_prepick = 0.5
 
@@ -2550,18 +2552,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # and define a station dict to add data needed by EQcorrscan
         # station_dict = {"WASW": {"network": "AV", "channel": "SHN"}}
-        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
-        # station_dict = {"MCR1": {"network": "YG", "channel": "BHN"}}
-        station_dict = {"WASW": {"network": "AV", "channel": "SHN"},
-                        "N25K": {"network": "TA", "channel": "BHZ"},
-                        "MCR2": {"network": "YG", "channel": "BHN"}}
+        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+        # station_dict = {"MCR2": {"network": "YG", "channel": "BHN"}}
+        # station_dict = {"WASW": {"network": "AV", "channel": "SHN"},
+        #                 "N25K": {"network": "TA", "channel": "BHZ"},
+        #                 "MCR2": {"network": "YG", "channel": "BHN"}}
 
 
         # build stream of all station files for templates
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/WASW"
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR1"
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR2"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09, AV.WASW
@@ -2582,9 +2584,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
-        main_trace = ("AV", "WASW", "SHN")
-        # main_trace = ("TA", "N25K", "BHN")
-        # main_trace = ("YG", "MCR1", "BHN")
+        # main_trace = ("AV", "WASW", "SHN")
+        main_trace = ("TA", "N25K", "BHN")
+        # main_trace = ("YG", "MCR2", "BHN")
 
         # run detection and time it
         start = time.time()
@@ -2783,7 +2785,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # 12380 detections
         # infile = open('party_07_18_2016_to_08_12_2018_t6_3sta_MAD8_7s_t6_100Hz_0.5prepick.pkl','rb')
         # culled & top 1000 version
-        infile = open('top_1000_3sta_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # infile = open('top_1000_3sta_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+
+        # MCR2, 1 station, 100 Hz party, 3 component, w/ 0.5s prepick
+        # 125254 detections
+        # infile = open('t6_MCR2_3comp_party_07_18_2016_to_08_12_2018.pkl','rb')
+        # top 1000 culled and sorted version
+        # infile = open('top_1000_MCR2_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+
+        # N25K, 1 station, 100 Hz party, 3 component, w/ 0.5s prepick
+        # infile = open('t6_N25K_3comp_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        # top 1000 culled and sorted version
+        infile = open('top_1000_N25K_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2875,13 +2888,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save party detections as text file
-            df.to_csv(f"top_{n}_3sta_3comp_t6_{template_length}s_"
+            df.to_csv(f"top_{n}_N25K_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_detections.csv",
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_3sta_3comp_t6_{template_length}s_"
+            outfile = open(f"top_{n}_N25K_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_party.pkl", 'wb')
 
@@ -2900,7 +2913,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_3sta_t6_{template_length}s_"
+                   title=f"top_{n}_N25K_t6_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted", save=True)
         # free up some memory
@@ -2935,7 +2948,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_inner_stack_3sta_t6_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_inner_stack_N25K_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_7s_100Hz_prepick.pkl', 'wb')
@@ -2949,7 +2962,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'top_'
-                                       f'{n}_3sta_phase_weighted_stack_snr'
+                                       f'{n}_N25K_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
@@ -2957,7 +2970,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        save=True)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top_{n}_3sta_linear_stack_sn'
+            plot_stack(stack_lin, title=f'top_{n}_N25K_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
