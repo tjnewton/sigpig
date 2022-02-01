@@ -1550,6 +1550,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     uncertainties = []
     snrs = []
     shapes = []
+    max_values = []
     with open(uncertainty_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
             # uncertainty lines start with 'phase'
@@ -1599,10 +1600,16 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     # store the shape properties at the pick time
                     shapes.append([dy[500], d2y[500], curvature[500]])
 
+                    # get a subset of the trace +- 4 samples from the pick time
+                    st.trim(start_time - (4/250), start_time + (4/250),
+                            pad=True, fill_value=0, nearest_sample=True)
+                    max_values.append(max_amplitude(st[0])[0])
+
     # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
     fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
     ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
-    ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
+    ax.scatter(snrs, uncertainties, c=np.log(max_values), markersize=2) #,
+    # markercolor="red")
     fig.show()
 
     # plot uncertainties and 1st derivatives of traces @ pick time
@@ -1611,8 +1618,9 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                                f'={len(snrs)})')
     ax = fig.subplot(xlabel='dy/dx of traces at pick time',
                      ylabel='Uncertainty (seconds)')
-    ax.scatter(abs(shapes[:, 0]), uncertainties, markersize=2,
-                   markercolor="red")
+    ax.scatter(abs(shapes[:, 0]), uncertainties, c=snrs, markersize=2)
+                   # markercolor="red")
+    #ax.set_xlim([0, 100])
     fig.show()
 
     # plot uncertainties and 2nd derivatives of traces @ pick time
@@ -1620,8 +1628,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                                f'={len(snrs)})')
     ax = fig.subplot(xlabel='d2y/dx2 of traces at pick time',
                      ylabel='Uncertainty (seconds)')
-    ax.scatter(abs(shapes[:, 1]), uncertainties, markersize=2,
-               markercolor="red")
+    ax.scatter(abs(shapes[:, 1]), uncertainties, c=snrs, markersize=2)
+               # markercolor="red")
     fig.show()
 
     # plot uncertainties and curvature of traces @ pick time
@@ -1629,8 +1637,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                                f'={len(snrs)})')
     ax = fig.subplot(xlabel='curvature of traces at pick time',
                      ylabel='Uncertainty (seconds)')
-    ax.scatter(abs(shapes[:, 2]), uncertainties, markersize=2,
-               markercolor="red")
+    ax.scatter(abs(shapes[:, 2]), uncertainties, c=snrs, markersize=2)
+               # markercolor="red")
     fig.show()
 
     # TODO: get measure of emergence from AIC or curvature
