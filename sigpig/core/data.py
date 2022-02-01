@@ -1534,7 +1534,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     Example:
         # Define the file paths containing the autopicked .mrkr file and the
         # .mrkr file containing manually assigned uncertainties.
-        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-06_25_2018.mrkr"
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-07_09_2018.mrkr"
         uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
         process_autopicked_events(autopicked_file_path, uncertainty_file_path)
     """
