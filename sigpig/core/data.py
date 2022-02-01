@@ -1095,19 +1095,21 @@ def get_trace_properties(trace, pick_time, duration):
     """
     # get trace data
     trace_data = trace.data.copy()
+
     # # scale the trace data to compare shape properties across traces
     # scaler = preprocessing.StandardScaler().fit(trace_data.reshape(-1, 1))
     # trace_data = scaler.transform(trace_data.reshape(-1, 1)).reshape(1, -1)[0]
     # # shift the mean to 10
     # trace_data = trace_data + 10
+
     # get the trace times
     trace_times_DT = np.asarray(
                   [trace.stats.starttime + offset for offset in trace.times()])
     trace_times = trace.times("matplotlib")
 
-    # only considering data + and - 0.2 seconds from pick time
+    # get index into trace associated with pick time
     pick_time_index = (np.abs([data_time_DT - pick_time for data_time_DT in
-                               trace_times_DT])).argmin()  # get pick time index in data array
+                               trace_times_DT])).argmin()
     sampling_rate = 250  # Hz
 
     # initialize lists to store transformed data
@@ -1115,7 +1117,8 @@ def get_trace_properties(trace, pick_time, duration):
     max_pool_times = []
     max_pool_indices = []  # this is used later for polynomial fitting
 
-    # make indices to loop over all data within 0.2s of pick time
+    # make indices to loop over all data in specified duration, centered on
+    # the pick time
     starting_array_index = pick_time_index - int(duration / 2 * sampling_rate)
     ending_array_index = pick_time_index + int(duration / 2 * sampling_rate)
 
@@ -1125,7 +1128,8 @@ def get_trace_properties(trace, pick_time, duration):
         max_pool_times.append(trace_times[index])
         max_pool_indices.append(index)
 
-    # after pick time, perform 2/4 max pooling on abs(data), so loop over remaining array in chunks of 4
+    # after pick time, perform 2/4 max pooling on abs(data), so loop over
+    # remaining array in chunks of 4
     for index in range(pick_time_index + 1, ending_array_index + 1, 4):
         # store a chunk of 4, data and times
         temp_data = abs(trace_data[index:index + 4])
@@ -1141,7 +1145,8 @@ def get_trace_properties(trace, pick_time, duration):
     # convert max_pool_amplitude to numpy array for plotting calls
     max_pool_amplitude = np.asarray(max_pool_amplitude)
 
-    # fit a polynomial to the max pooled data using the indices as x values since polyfit hates mpl dates (small ranges)
+    # fit a polynomial to the max pooled data using the indices as x values
+    # since polyfit hates mpl dates (small ranges)
     polynomial_degree = 12
     p = np.poly1d(
         np.polyfit(max_pool_indices, max_pool_amplitude, polynomial_degree))
@@ -1172,15 +1177,7 @@ def get_trace_properties(trace, pick_time, duration):
                                         max_pool_pick_time_index + 6:])
     MADs = [w1_median, w1_MAD, w2_median, w2_MAD, w3_median, w3_MAD]
 
-    # TODO: implement wavelet transforms
-    # TODO:
-    # TODO:
-    # TODO:
-    # TODO:
-    # TODO:
-    # TODO:
-    # TODO:
-    # TODO:
+    # TODO: implement wavelet transforms or something else if this isn't robust
 
     # store fitting parameters in a list
     fits = [max_pool_indices, max_pool_amplitude, p, t, polynomial_degree]
@@ -1375,6 +1372,7 @@ def plot_trace_properties(trace, pick_time, duration, dy, d2y, curvature,
 
     return fig
 
+
 def top_n_autopicked_events(autopicked_file_path, n):
     """ Returns a dictionary containing the top n events from the specified
     mrkr file (snuffler format), ranked by the number of phases. Also writes
@@ -1551,6 +1549,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # store arrival time uncertainties by reading the marker file line by line
     uncertainties = []
     snrs = []
+    shapes = []
     with open(uncertainty_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
             # uncertainty lines start with 'phase'
@@ -1582,19 +1581,56 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     st = read(trace_file_prefix + trace_file_path)
                     st.trim(start_time - 30, start_time + 30, pad=True,
                             fill_value=0, nearest_sample=True)
+                    st.interpolate(sampling_rate=250.0)
                     st.detrend()
                     st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
                     # only consider 0.5 second of data (this is a busy dataset)
                     st.trim(start_time - 0.4, start_time + 0.6, pad=True,
                             fill_value=0, nearest_sample=True)
+
                     # calculate the SNR of the trace and store it
                     trace_snr = snr(st[0])[0]
                     snrs.append(trace_snr)
+                    # get properties of the trace using 0.4 s duration
+                    pick_time = (end_time - start_time) / 2
+                    duration = 0.4
+                    dy, d2y, curvature, fits, MADs = get_trace_properties(
+                                                   st[0], pick_time, duration)
+                    # store the shape properties at the pick time
+                    shapes.append([dy[500], d2y[500], curvature[500]])
 
     # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
     fig = pplt.figure(suptitle=f'1σ Uncertainty vs. SNR (n={len(snrs)})')
     ax = fig.subplot(xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
     ax.scatter(snrs, uncertainties, markersize=2, markercolor="red")
+    fig.show()
+
+    # plot uncertainties and 1st derivatives of traces @ pick time
+    shapes = np.asarray(shapes)
+    fig = pplt.figure(suptitle=f'1σ Uncertainty vs. abs(1st derivative) (n'
+                               f'={len(snrs)})')
+    ax = fig.subplot(xlabel='dy/dx of traces at pick time',
+                     ylabel='Uncertainty (seconds)')
+    ax.scatter(abs(shapes[:, 0]), uncertainties, markersize=2,
+                   markercolor="red")
+    fig.show()
+
+    # plot uncertainties and 2nd derivatives of traces @ pick time
+    fig = pplt.figure(suptitle=f'1σ Uncertainty vs. abs(2nd derivative) (n'
+                               f'={len(snrs)})')
+    ax = fig.subplot(xlabel='d2y/dx2 of traces at pick time',
+                     ylabel='Uncertainty (seconds)')
+    ax.scatter(abs(shapes[:, 1]), uncertainties, markersize=2,
+               markercolor="red")
+    fig.show()
+
+    # plot uncertainties and curvature of traces @ pick time
+    fig = pplt.figure(suptitle=f'1σ Uncertainty vs. curvature (n'
+                               f'={len(snrs)})')
+    ax = fig.subplot(xlabel='curvature of traces at pick time',
+                     ylabel='Uncertainty (seconds)')
+    ax.scatter(abs(shapes[:, 2]), uncertainties, markersize=2,
+               markercolor="red")
     fig.show()
 
     # TODO: get measure of emergence from AIC or curvature
