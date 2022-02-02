@@ -190,10 +190,11 @@ def project_Filepaths(project_Name: str, start_Time: UTCDateTime, end_Time: UTCD
 
     return filepaths
 
-def trace_arrival_prediction(trace, center_time):
+def trace_arrival_prediction(trace, center_time, model):
     """ Takes in an Obspu trace and a time, then transforms the data to get
     the u-net arrival time prediction for a 120 sample window centered on
-    the specified UTCDateTime, then returns the corresponding prediction array.
+    the specified UTCDateTime, then returns the corresponding prediction
+    array from the specified tensorflow model.
 
     """
     # for log calculation below
@@ -217,9 +218,7 @@ def trace_arrival_prediction(trace, center_time):
     # expand dimension of single picking window array so it is compatible
     # with the model
     reshaped_picking_window = np.expand_dims(reshaped_picking_window, axis=0)
-
-    # build tensorflow unet model & get predictions
-    model = build_unet_model()
+    # get unet predictions from specified model
     pick_prediction = get_Unet_Picks(reshaped_picking_window,
                                       preloaded_model=model)
 
