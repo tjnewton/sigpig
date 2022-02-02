@@ -199,53 +199,31 @@ def trace_arrival_prediction(trace, center_time, ):
 
 
     """
+    # for log calculation below
+    epsilon = 1e-6
+
     # build picking windows from trace
-    trace.trim(center_time - (60/250), center_time + (60/250))
+    trace.trim(center_time - (59/250), center_time + (60/250))
     times = trace.times("utcdatetime")
     data = trace.data
 
-    # append picking window and metadata to lists
-    station_Picking_Windows.append(data[index: (
-            index + window_Length)])  # append data within window
-    station_Picking_Windows_Times.append((window_Start,
-                                          window_End, station, channel))
+    # first create a n x 2 array of zeros
+    reshaped_picking_window = np.zeros(len(data), 2)
 
-    # append picking windows one at a time to major list
-    # print(f"{start_Time}----{end_Time}      Found"
-    #       f" {len(station_Picking_Windows)} picking windows.")
+    # then loop through each row and fill it out
+    for row_Index in range(0, len(reshaped_picking_window)):
+        # store the sign
+        reshaped_picking_window[row_Index][1] = np.sign(data[row_Index])
 
-    for window_index in range(len(station_Picking_Windows)):
-        # reshape array to (n, 2), where first dimension is
-        # amplitude, and second dimension is sign
-
-        # first create a n x 2 array of zeros
-        reshaped_Picking_Window = np.zeros((len(
-            station_Picking_Windows[window_index]), 2))
-
-        # store the original data
-        picking_Windows_Untransformed.append(
-            station_Picking_Windows[window_index])
-
-        # then loop through each row and fill it out
-        for row_Index in range(0, len(reshaped_Picking_Window)):
-            # store the sign
-            reshaped_Picking_Window[row_Index][1] = np.sign(
-                station_Picking_Windows[window_index][row_Index])
-
-            # store the amplitude
-            reshaped_Picking_Window[row_Index][0] = np.log(np.abs(
-                station_Picking_Windows[window_index][row_Index]) +
-                                                           epsilon)  # epsilon avoids log(0) error
-
-        picking_Windows.append(reshaped_Picking_Window)
-        picking_Windows_Times.append(
-            station_Picking_Windows_Times[window_index])
+        # store the amplitude
+        reshaped_picking_window[row_Index][0] = np.log(np.abs(data[row_Index])\
+                                       + epsilon) # epsilon avoids log(0) error
 
     # convert to np.ndarray
-    picking_Windows = np.array(picking_Windows)
+    picking_Windows = np.array(reshaped_picking_window)
 
 
-    # build tensorflow unet model
+    # build tensorflow unet model & get predictions
     model = build_unet_model()
     pick_Predictions = get_Unet_Picks(picking_Windows, preloaded_model=model)
 
