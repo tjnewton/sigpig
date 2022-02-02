@@ -1636,10 +1636,11 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
     # make a figure showing trace properties
     gs = pplt.GridSpec(nrows=3, ncols=2)
-    fig = pplt.figure(refwidth=2.2, span=False, share=False)
+    fig = pplt.figure(refwidth=2.2, span=False, share=False, tight=False)
     # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
     ax = fig.subplot(gs[0], title=f'1σ Uncertainty vs. SNR (n={len(snrs)})',
                      xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
+    # ax.format(suptitle='Properties of trace at arrival time')
     ax.scatter(snrs, uncertainties, c=unet_predictions, colorbar='ur',
                colorbar_kw={'label': 'unet prediction'}, markersize=2)
 
