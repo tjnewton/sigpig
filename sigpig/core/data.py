@@ -1630,18 +1630,21 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                      f'={len(snrs)})', xlabel='dy/dx of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     ax.scatter(shapes[:, 0], uncertainties, c=snrs, markersize=2)
+    ax.set_xlim([-10, 80])
 
     # plot uncertainties and 2nd derivatives of traces @ pick time
     ax = fig.subplot(gs[2], title=f'1σ Uncertainty vs. 2nd derivative (n'
                      f'={len(snrs)})', xlabel='d2y/dx2 of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     ax.scatter(shapes[:, 1], uncertainties, c=snrs, markersize=2)
+    ax.set_xlim([-10, 80])
 
     # plot uncertainties and curvature of traces @ pick time
     ax = fig.subplot(gs[3], title=f'1σ Uncertainty vs. curvature (n'
                      f'={len(snrs)})', xlabel='curvature of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     m = ax.scatter(shapes[:, 2], uncertainties, c=snrs, markersize=2)
+    ax.set_xlim([-0.1, 1.5])
     ax.colorbar(m, loc='b', locator=1, label='SNR')
     fig.show()
 
