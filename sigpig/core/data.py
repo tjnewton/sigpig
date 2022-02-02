@@ -1616,7 +1616,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     max_values.append(max_amplitude(st[0])[0])
 
     # make a figure showing trace properties
-    gs = pplt.GridSpec(nrows=2, ncols=2)
+    gs = pplt.GridSpec(nrows=3, ncols=2)
     fig = pplt.figure(refwidth=2.2, span=False, share=False)
     # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
     ax = fig.subplot(gs[0], title=f'1σ Uncertainty vs. SNR (n={len(snrs)})',
@@ -1630,7 +1630,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                      f'={len(snrs)})', xlabel='dy/dx of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     ax.scatter(shapes[:, 0], uncertainties, c=snrs, markersize=2)
-    ax.set_xlim([-10, 80])
+    ax.set_xlim([-10, 120])
 
     # plot uncertainties and 2nd derivatives of traces @ pick time
     ax = fig.subplot(gs[2], title=f'1σ Uncertainty vs. 2nd derivative (n'
@@ -1644,8 +1644,16 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                      f'={len(snrs)})', xlabel='curvature of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     m = ax.scatter(shapes[:, 2], uncertainties, c=snrs, markersize=2)
-    ax.set_xlim([-0.1, 1.5])
+    ax.set_xlim([-0.1, 1.0])
     ax.colorbar(m, loc='b', locator=1, label='SNR')
+
+    # plot uncertainties and 2nd derivatives of traces @ pick time
+    ax = fig.subplot(gs[4], title=f'1σ Uncertainty vs. 2nd derivative '
+                                  f'* SNRs',
+                     xlabel='SNRs * d2y/dx2 of traces at pick time',
+                     ylabel='Uncertainty (seconds)')
+    ax.scatter(shapes[:, 1] * snrs, uncertainties, c=snrs, markersize=2)
+    ax.set_xlim([-10, 400])
     fig.show()
 
     # TODO:
