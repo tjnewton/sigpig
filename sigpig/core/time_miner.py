@@ -204,10 +204,6 @@ def trace_arrival_prediction(trace, center_time, ):
     times = trace.times("utcdatetime")
     data = trace.data
 
-    # extract start and end time for window
-    window_Start = times[index]
-    window_End = times[index + window_Length]
-
     # append picking window and metadata to lists
     station_Picking_Windows.append(data[index: (
             index + window_Length)])  # append data within window
