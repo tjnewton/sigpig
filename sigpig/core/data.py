@@ -1565,6 +1565,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     snrs = []
     shapes = []
     max_values = []
+    unet_predictions = []
 
     # load a tensorflow model to get pick time predictions
     # build tensorflow unet model & get predictions
@@ -1612,7 +1613,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
                     # the pick time corresponds with the middle entry in the
                     # unet predictions array
-
+                    unet_predictions.append(unet_prediction[0][60])
 
                     # only consider 0.5 second of data (this is a busy dataset)
                     st.trim(start_time - 0.4, start_time + 0.6, pad=True,
@@ -1663,7 +1664,6 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                      ylabel='Uncertainty (seconds)')
     m = ax.scatter(shapes[:, 2], uncertainties, c=snrs, markersize=2)
     ax.set_xlim([-0.1, 1.0])
-    ax.colorbar(m, loc='b', locator=1, label='SNR')
 
     # plot uncertainties and 2nd derivatives of traces @ pick time
     ax = fig.subplot(gs[4], title=f'1σ Uncertainty vs. 2nd derivative '
@@ -1672,6 +1672,16 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                      ylabel='Uncertainty (seconds)')
     ax.scatter(shapes[:, 1] * snrs, uncertainties, c=snrs, markersize=2)
     ax.set_xlim([-10, 400])
+    ax.colorbar(m, loc='b', locator=1, label='SNR')
+
+    # plot uncertainties and curvature of traces @ pick time
+    ax = fig.subplot(gs[5], title=f'1σ Uncertainty vs. unet prediction (n'
+                                  f'={len(snrs)})',
+                     xlabel='unet prediction of traces at pick time',
+                     ylabel='Uncertainty (seconds)')
+    m = ax.scatter(unet_predictions, uncertainties, c=snrs, markersize=2)
+    # ax.set_xlim([-0.1, 1.0])
+
     fig.show()
 
     # TODO:
