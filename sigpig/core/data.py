@@ -1163,8 +1163,8 @@ def get_trace_properties(trace, pick_time, duration):
                     starting_array_index-10:ending_array_index+10]
     f = interpolate.interp1d(temp_xs, temp_envelope, kind="cubic")
 
-    # dy/dx first derivative, use p(t) or f(t)
-    dy = np.gradient(f(t), t)
+    # dy/dx first derivative, use p(t) or f(t) to choose your own adventure
+    dy = np.gradient(p(t), t)
     # d2y/dx2 second derivative
     d2y = np.gradient(dy, t)
     # calculate curvature
@@ -1621,7 +1621,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
     ax = fig.subplot(gs[0], title=f'1σ Uncertainty vs. SNR (n={len(snrs)})',
                      xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
-    ax.scatter(snrs, uncertainties, c=np.log(max_values), markersize=2)
+    ax.scatter(snrs, uncertainties, c=np.log(max_values), colorbar='ur',
+               colorbar_kw={'label': 'log(max_amplitude)'}, markersize=2)
 
     # plot uncertainties and 1st derivatives of traces @ pick time
     shapes = np.asarray(shapes)
@@ -1640,15 +1641,12 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     ax = fig.subplot(gs[3], title=f'1σ Uncertainty vs. curvature (n'
                      f'={len(snrs)})', xlabel='curvature of traces at pick time',
                      ylabel='Uncertainty (seconds)')
-    ax.scatter(shapes[:, 2], uncertainties, c=snrs, markersize=2)
+    m = ax.scatter(shapes[:, 2], uncertainties, c=snrs, markersize=2)
+    ax.colorbar(m, loc='b', locator=1, label='SNR')
     fig.show()
 
-    # TODO: get measure of emergence from AIC or curvature
-    #  emergent vs. impulse (what do regional networks use to classify this?
-    #  0r use tf model gaussian pick certainty -> uncertainty?
-    #  Or use a wavelet.
-
-    # fit a model to map from _something_ to uncertainty
+    # TODO:
+    #      fit a model to map from _something_ to uncertainty
     ...
 
     # use the model fit to calculate uncertainties for all autopicked events
