@@ -21,7 +21,7 @@ import proplot as pplt
 import matplotlib.pyplot as plt
 import pickle
 from sklearn import preprocessing
-from scipy import stats
+from scipy import stats, interpolate
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -1157,9 +1157,10 @@ def get_trace_properties(trace, pick_time, duration):
                     endpoint=True)
 
     # transform trace envelope in same way to check its shape
-    temp_xs = np.linspace(starting_array_index, ending_array_index, num=100)
-    temp_envelope = data_envelope[starting_array_index:ending_array_index]
-    from scipy import interpolate
+    temp_xs = np.linspace(starting_array_index-10, ending_array_index+10,
+                          num=120)
+    temp_envelope = data_envelope[
+                    starting_array_index-10:ending_array_index+10]
     f = interpolate.interp1d(temp_xs, temp_envelope, kind="cubic")
 
     # dy/dx first derivative, use p(t) or f(t)
@@ -1602,7 +1603,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     trace_snr = snr(st[0])[0]
                     snrs.append(trace_snr)
                     # get properties of the trace using 0.4 s duration
-                    pick_time = (end_time - start_time) / 2
+                    pick_time = start_time + ((end_time - start_time) / 2)
                     duration = 0.4
                     dy, d2y, curvature, fits, MADs = get_trace_properties(
                                                    st[0], pick_time, duration)
