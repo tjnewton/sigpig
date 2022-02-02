@@ -190,13 +190,10 @@ def project_Filepaths(project_Name: str, start_Time: UTCDateTime, end_Time: UTCD
 
     return filepaths
 
-def trace_arrival_prediction(trace, center_time, ):
+def trace_arrival_prediction(trace, center_time):
     """ Takes in an Obspu trace and a time, then transforms the data to get
     the u-net arrival time prediction for a 120 sample window centered on
     the specified UTCDateTime, then returns the corresponding prediction array.
-
-    Example:
-
 
     """
     # for log calculation below
