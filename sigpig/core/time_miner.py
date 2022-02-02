@@ -191,9 +191,9 @@ def project_Filepaths(project_Name: str, start_Time: UTCDateTime, end_Time: UTCD
     return filepaths
 
 def trace_arrival_prediction(trace, center_time, ):
-    """ Takes in an Obspu trace and a time, then gets the u-net arrival time
-    prediction for a 120 sample window centered on the specified
-    UTCDateTime, then returns the corresponding prediction array.
+    """ Takes in an Obspu trace and a time, then transforms the data to get
+    the u-net arrival time prediction for a 120 sample window centered on
+    the specified UTCDateTime, then returns the corresponding prediction array.
 
     Example:
 
@@ -204,29 +204,25 @@ def trace_arrival_prediction(trace, center_time, ):
 
     # build picking windows from trace
     trace.trim(center_time - (59/250), center_time + (60/250))
-    times = trace.times("utcdatetime")
     data = trace.data
 
     # first create a n x 2 array of zeros
-    reshaped_picking_window = np.zeros(len(data), 2)
+    reshaped_picking_window = np.zeros((len(data), 2))
 
     # then loop through each row and fill it out
-    for row_Index in range(0, len(reshaped_picking_window)):
+    for row_index in range(0, len(reshaped_picking_window)):
         # store the sign
-        reshaped_picking_window[row_Index][1] = np.sign(data[row_Index])
-
+        reshaped_picking_window[row_index][1] = np.sign(data[row_index])
         # store the amplitude
-        reshaped_picking_window[row_Index][0] = np.log(np.abs(data[row_Index])\
+        reshaped_picking_window[row_index][0] = np.log(np.abs(data[row_index])\
                                        + epsilon) # epsilon avoids log(0) error
-
-    # convert to np.ndarray
-    picking_Windows = np.array(reshaped_picking_window)
-
 
     # build tensorflow unet model & get predictions
     model = build_unet_model()
-    pick_Predictions = get_Unet_Picks(picking_Windows, preloaded_model=model)
+    pick_prediction = get_Unet_Picks(reshaped_picking_window,
+                                      preloaded_model=model)
 
+    return pick_prediction
 
     
 # function to generate numpy array of log modulus transformed data for unet
