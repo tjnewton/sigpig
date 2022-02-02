@@ -1096,6 +1096,9 @@ def get_trace_properties(trace, pick_time, duration):
     # get trace data
     trace_data = trace.data.copy()
 
+    # get the data evnelope (a curve outlining extremes of abs(trace.data))
+    data_envelope = obspy.signal.filter.envelope(trace.data)
+
     # # scale the trace data to compare shape properties across traces
     # scaler = preprocessing.StandardScaler().fit(trace_data.reshape(-1, 1))
     # trace_data = scaler.transform(trace_data.reshape(-1, 1)).reshape(1, -1)[0]
@@ -1153,8 +1156,14 @@ def get_trace_properties(trace, pick_time, duration):
     t = np.linspace(max_pool_indices[0], max_pool_indices[-1], num=1000,
                     endpoint=True)
 
-    # dy/dx first derivative
-    dy = np.gradient(p(t), t)
+    # transform trace envelope in same way to check its shape
+    temp_xs = np.linspace(starting_array_index, ending_array_index, num=100)
+    temp_envelope = data_envelope[starting_array_index:ending_array_index]
+    from scipy import interpolate
+    f = interpolate.interp1d(temp_xs, temp_envelope, kind="cubic")
+
+    # dy/dx first derivative, use p(t) or f(t)
+    dy = np.gradient(f(t), t)
     # d2y/dx2 second derivative
     d2y = np.gradient(dy, t)
     # calculate curvature
