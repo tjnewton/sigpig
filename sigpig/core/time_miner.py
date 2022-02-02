@@ -59,13 +59,6 @@ plot_Association_Results = False # see warning above
 load = False # load windows from a previous run?
 detection_Parameters = (120, 60) # window size and offset
 
-# identify time period(s) of interest from input
-# 2018-05-08T00:01:10.0Z - 2018-05-08T12:00:00.0Z
-# 2018-05-08T12:00:00.0Z - 2018-05-08T23:59:00.0Z
-start_date = UTCDateTime(sys.argv[1])
-end_date = UTCDateTime(sys.argv[2])
-time_Period = (start_date, end_date)
-
 # Parameters for unet detection
 threshold = 0.23 # was 0.40
 sampling_Rate = 250 # samples per second
@@ -196,9 +189,79 @@ def project_Filepaths(project_Name: str, start_Time: UTCDateTime, end_Time: UTCD
                 filepaths.append(filepath)
 
     return filepaths
+
+def trace_arrival_prediction(trace, center_time, ):
+    """ Takes in an Obspu trace and a time, then gets the u-net arrival time
+    prediction for a 120 sample window centered on the specified
+    UTCDateTime, then returns the corresponding prediction array.
+
+    Example:
+
+
+    """
+    # build picking windows from trace
+    trace.trim(center_time - (60/250), center_time + (60/250))
+    times = trace.times("utcdatetime")
+    data = trace.data
+
+    # loop through each time step and grab windows of the specified length in samples
+    for index in range(0, len(data) - window_Length, window_Offset):
+        # print(f"Station: {station}  Channel: {channel}  : : :"
+        #       f" {index} of {len(data)}")
+
+        # extract start and end time for window
+        window_Start = times[index]
+        window_End = times[index + window_Length]
+
+        # append picking window and metadata to lists
+        station_Picking_Windows.append(data[index: (
+                index + window_Length)])  # append data within window
+        station_Picking_Windows_Times.append((window_Start,
+                                              window_End, station, channel))
+
+    # append picking windows one at a time to major list
+    # print(f"{start_Time}----{end_Time}      Found"
+    #       f" {len(station_Picking_Windows)} picking windows.")
+
+    for window_index in range(len(station_Picking_Windows)):
+        # reshape array to (n, 2), where first dimension is
+        # amplitude, and second dimension is sign
+
+        # first create a n x 2 array of zeros
+        reshaped_Picking_Window = np.zeros((len(
+            station_Picking_Windows[window_index]), 2))
+
+        # store the original data
+        picking_Windows_Untransformed.append(
+            station_Picking_Windows[window_index])
+
+        # then loop through each row and fill it out
+        for row_Index in range(0, len(reshaped_Picking_Window)):
+            # store the sign
+            reshaped_Picking_Window[row_Index][1] = np.sign(
+                station_Picking_Windows[window_index][row_Index])
+
+            # store the amplitude
+            reshaped_Picking_Window[row_Index][0] = np.log(np.abs(
+                station_Picking_Windows[window_index][row_Index]) +
+                                                           epsilon)  # epsilon avoids log(0) error
+
+        picking_Windows.append(reshaped_Picking_Window)
+        picking_Windows_Times.append(
+            station_Picking_Windows_Times[window_index])
+
+    # convert to np.ndarray
+    picking_Windows = np.array(picking_Windows)
+
+
+    # build tensorflow unet model
+    model = build_unet_model()
+    pick_Predictions = get_Unet_Picks(picking_Windows, preloaded_model=model)
+
+
     
 # function to generate numpy array of log modulus transformed data for unet
-# input (for first-arrival picking)
+# input (for first-arrival picking) for all stations. See
 def find_Picking_Windows(filepaths: list, detection_Parameters:
                        tuple, time_Periods: list, filter=False, 
                        response=False, save_file=False) -> np.ndarray:
@@ -226,7 +289,7 @@ def find_Picking_Windows(filepaths: list, detection_Parameters:
     Example:
         detection_Parameters = (120, 60)                   
         start_Time = UTCDateTime("2018-03-13T01:33:00.0Z")
-        end_Time =   UTCDateTime("2018-03-13T01:43:00.0Z")
+        end_Time =   UTCDateTime("2018-03-13T01:33:00.48Z")
         filepaths = project_Filepaths("Rattlesnake Ridge", start_Time, end_Time)
         time_Periods = [(start_Time, end_Time)]
         picking_Windows, picking_Windows_Times = find_Picking_Windows(
@@ -487,11 +550,12 @@ def get_Unet_Picks(picking_Windows, preloaded_model=False):
     Example:
         detection_Parameters = (120, 60)
         start_Time = UTCDateTime("2018-03-13T01:33:00.0Z")
-        end_Time =   UTCDateTime("2018-03-13T01:43:00.0Z")
+        end_Time =   UTCDateTime("2018-03-13T01:33:00.48Z")
         filepaths = project_Filepaths("Rattlesnake Ridge", start_Time, end_Time)
         time_Periods = [(start_Time, end_Time)]
-        picking_Windows, picking_Windows_Times = find_Picking_Windows(
-        filepaths, detection_Parameters, time_Periods)
+        picking_Windows, picking_Windows_Untransformed,
+                         picking_Windows_Times = find_Picking_Windows(
+                                 filepaths, detection_Parameters, time_Periods)
 
         # build tensorflow unet model
         model = build_unet_model()
@@ -2027,6 +2091,13 @@ def signal_histogram(event_filename, save_fig=False):
 if RUN:
     # # # #   B E G I N   P R O C E S S I N G   T I M E   W I N D O W S   # # # #
     start = time.time()
+
+    # identify time period(s) of interest from input
+    # 2018-05-08T00:01:10.0Z - 2018-05-08T12:00:00.0Z
+    # 2018-05-08T12:00:00.0Z - 2018-05-08T23:59:00.0Z
+    start_date = UTCDateTime(sys.argv[1])
+    end_date = UTCDateTime(sys.argv[2])
+    time_Period = (start_date, end_date)
 
     # build list of clustering algorithms to run
     clustering_Algos = []
