@@ -1640,47 +1640,47 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     # plot uncertainties and snrs. There is not a linear relationship w/ SNR.
     ax = fig.subplot(gs[0], title=f'1σ Uncertainty vs. SNR (n={len(snrs)})',
                      xlabel='SNR @ 1.0 s', ylabel='Uncertainty (seconds)')
-    ax.scatter(snrs, uncertainties, c=np.log(max_values), colorbar='ur',
-               colorbar_kw={'label': 'log(max_amplitude)'}, markersize=2)
+    ax.scatter(snrs, uncertainties, c=unet_predictions, colorbar='ur',
+               colorbar_kw={'label': 'unet prediction'}, markersize=2)
 
     # plot uncertainties and 1st derivatives of traces @ pick time
     shapes = np.asarray(shapes)
-    ax = fig.subplot(gs[1], title=f'1σ Uncertainty vs. 1st derivative (n'
-                     f'={len(snrs)})', xlabel='dy/dx of traces at pick time',
+    ax = fig.subplot(gs[1], title=f'1σ Uncertainty vs. 1st derivative',
+                     xlabel='dy/dx of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     ax.scatter(shapes[:, 0], uncertainties, c=snrs, markersize=2)
     ax.set_xlim([-10, 120])
 
     # plot uncertainties and 2nd derivatives of traces @ pick time
-    ax = fig.subplot(gs[2], title=f'1σ Uncertainty vs. 2nd derivative (n'
-                     f'={len(snrs)})', xlabel='d2y/dx2 of traces at pick time',
+    ax = fig.subplot(gs[2], title=f'1σ Uncertainty vs. 2nd derivative',
+                     xlabel='d2y/dx2 of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     ax.scatter(shapes[:, 1], uncertainties, c=snrs, markersize=2)
     ax.set_xlim([-10, 80])
 
     # plot uncertainties and curvature of traces @ pick time
-    ax = fig.subplot(gs[3], title=f'1σ Uncertainty vs. curvature (n'
-                     f'={len(snrs)})', xlabel='curvature of traces at pick time',
+    ax = fig.subplot(gs[3], title=f'1σ Uncertainty vs. curvature',
+                     xlabel='curvature of traces at pick time',
                      ylabel='Uncertainty (seconds)')
     m = ax.scatter(shapes[:, 2], uncertainties, c=snrs, markersize=2)
     ax.set_xlim([-0.1, 1.0])
 
-    # plot uncertainties and 2nd derivatives of traces @ pick time
-    ax = fig.subplot(gs[4], title=f'1σ Uncertainty vs. 2nd derivative '
-                                  f'* SNRs',
-                     xlabel='SNRs * d2y/dx2 of traces at pick time',
+    # plot uncertainties and unet prediction of traces @ pick time
+    ax = fig.subplot(gs[4], title=f'1σ Uncertainty vs. unet prediction',
+                     xlabel='unet prediction of traces at pick time',
                      ylabel='Uncertainty (seconds)')
-    ax.scatter(shapes[:, 1] * snrs, uncertainties, c=snrs, markersize=2)
-    ax.set_xlim([-10, 400])
+    m = ax.scatter(unet_predictions, uncertainties,
+                   c=snrs, markersize=2)
+    # ax.set_xlim([-0.1, 1.0])
     ax.colorbar(m, loc='b', locator=1, label='SNR')
 
     # plot uncertainties and curvature of traces @ pick time
-    ax = fig.subplot(gs[5], title=f'1σ Uncertainty vs. unet prediction (n'
-                                  f'={len(snrs)})',
-                     xlabel='unet prediction of traces at pick time',
+    ax = fig.subplot(gs[5], title=f'1σ Uncertainty vs. unet predictions * '
+                                  f'SNR',
+                     xlabel='unet prediction * SNR',
                      ylabel='Uncertainty (seconds)')
-    m = ax.scatter(unet_predictions, uncertainties, c=snrs, markersize=2)
-    # ax.set_xlim([-0.1, 1.0])
+    ax.scatter(np.array(snrs) * np.array(unet_predictions),
+               uncertainties, c=snrs, markersize=2)
 
     fig.show()
 
