@@ -217,6 +217,10 @@ def trace_arrival_prediction(trace, center_time, ):
         reshaped_picking_window[row_index][0] = np.log(np.abs(data[row_index])\
                                        + epsilon) # epsilon avoids log(0) error
 
+    # expand dimension of single picking window array so it is compatible
+    # with the model
+    reshaped_picking_window = np.expand_dims(reshaped_picking_window, axis=0)
+
     # build tensorflow unet model & get predictions
     model = build_unet_model()
     pick_prediction = get_Unet_Picks(reshaped_picking_window,
@@ -257,8 +261,8 @@ def find_Picking_Windows(filepaths: list, detection_Parameters:
         end_Time =   UTCDateTime("2018-03-13T01:33:00.48Z")
         filepaths = project_Filepaths("Rattlesnake Ridge", start_Time, end_Time)
         time_Periods = [(start_Time, end_Time)]
-        picking_Windows, picking_Windows_Times = find_Picking_Windows(
-        filepaths, detection_Parameters, time_Periods)
+        picking_Windows, picking_Windows_Untransformed, picking_Windows_Times = find_Picking_Windows(filepaths, detection_Parameters, time_Periods)
+    
     """
 
     # set window parameters based on unpacked input
