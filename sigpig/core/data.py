@@ -22,6 +22,10 @@ import matplotlib.pyplot as plt
 import pickle
 from sklearn import preprocessing
 from scipy import stats, interpolate
+from time_miner import build_unet_model, trace_arrival_prediction
+import tensorflow as tf
+# turn off verbose tensorflow logging
+tf.get_logger().setLevel('INFO')
 
 # helper function to get signal to noise ratio of time series
 def snr(obspyObject: Stream or Trace) -> float:
@@ -1561,6 +1565,11 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     snrs = []
     shapes = []
     max_values = []
+
+    # load a tensorflow model to get pick time predictions
+    # build tensorflow unet model & get predictions
+    model = build_unet_model()
+
     with open(uncertainty_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
             # uncertainty lines start with 'phase'
@@ -1595,6 +1604,16 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     st.interpolate(sampling_rate=250.0)
                     st.detrend()
                     st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+
+                    # get unet prediction from trace and pick time
+                    pick_time = start_time + ((end_time - start_time) / 2)
+                    unet_prediction = trace_arrival_prediction(st[0].copy(),
+                                                              pick_time, model)
+
+                    # the pick time corresponds with the middle entry in the
+                    # unet predictions array
+
+
                     # only consider 0.5 second of data (this is a busy dataset)
                     st.trim(start_time - 0.4, start_time + 0.6, pad=True,
                             fill_value=0, nearest_sample=True)
@@ -1603,7 +1622,6 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                     trace_snr = snr(st[0])[0]
                     snrs.append(trace_snr)
                     # get properties of the trace using 0.4 s duration
-                    pick_time = start_time + ((end_time - start_time) / 2)
                     duration = 0.4
                     dy, d2y, curvature, fits, MADs = get_trace_properties(
                                                    st[0], pick_time, duration)
