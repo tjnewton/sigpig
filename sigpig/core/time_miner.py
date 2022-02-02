@@ -204,20 +204,15 @@ def trace_arrival_prediction(trace, center_time, ):
     times = trace.times("utcdatetime")
     data = trace.data
 
-    # loop through each time step and grab windows of the specified length in samples
-    for index in range(0, len(data) - window_Length, window_Offset):
-        # print(f"Station: {station}  Channel: {channel}  : : :"
-        #       f" {index} of {len(data)}")
+    # extract start and end time for window
+    window_Start = times[index]
+    window_End = times[index + window_Length]
 
-        # extract start and end time for window
-        window_Start = times[index]
-        window_End = times[index + window_Length]
-
-        # append picking window and metadata to lists
-        station_Picking_Windows.append(data[index: (
-                index + window_Length)])  # append data within window
-        station_Picking_Windows_Times.append((window_Start,
-                                              window_End, station, channel))
+    # append picking window and metadata to lists
+    station_Picking_Windows.append(data[index: (
+            index + window_Length)])  # append data within window
+    station_Picking_Windows_Times.append((window_Start,
+                                          window_End, station, channel))
 
     # append picking windows one at a time to major list
     # print(f"{start_Time}----{end_Time}      Found"
