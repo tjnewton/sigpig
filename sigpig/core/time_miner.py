@@ -483,6 +483,19 @@ def get_Unet_Picks(picking_Windows, preloaded_model=False):
     Takes in picking_Windows as returned by find_Picking_Windows function,
     and returns arrival time predictions from unet with specified parameters
     (from model file).
+
+    Example:
+        detection_Parameters = (120, 60)
+        start_Time = UTCDateTime("2018-03-13T01:33:00.0Z")
+        end_Time =   UTCDateTime("2018-03-13T01:43:00.0Z")
+        filepaths = project_Filepaths("Rattlesnake Ridge", start_Time, end_Time)
+        time_Periods = [(start_Time, end_Time)]
+        picking_Windows, picking_Windows_Times = find_Picking_Windows(
+        filepaths, detection_Parameters, time_Periods)
+
+        # build tensorflow unet model
+        model = build_unet_model()
+        pick_Predictions = get_Unet_Picks(picking_Windows,preloaded_model=model)
     """
     # check if model has been loaded
     if preloaded_model != False:
