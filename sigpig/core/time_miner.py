@@ -189,7 +189,7 @@ def project_Filepaths(project_Name: str, start_Time: UTCDateTime, end_Time: UTCD
         filepaths = []
         for station in stations_channels:
             for channel in stations_channels[station]:
-                filepath = f"../shared/Rattlesnake_2018/5A.{station}.." \
+                filepath = f"/Users/human/Desktop/RR_MSEED/5A.{station}.." \
                            f"{channel}.{start_Time.year}-" \
                            f"{start_Time.month:02}-{start_Time.day:02}T00.00.00.ms"
                 # save filepath to list
