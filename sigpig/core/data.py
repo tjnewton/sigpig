@@ -1625,7 +1625,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
                     # the pick time corresponds with the middle entry in the
                     # unet predictions array @ index 60, sum over 5 samples
-                    unet_predictions.append(np.sum(unet_prediction[0][57:63]))
+                    unet_predictions.append(np.sum(unet_prediction[0][30:90]))
 
                     # only consider 0.5 second of data (this is a busy dataset)
                     st.trim(start_time - 0.4, start_time + 0.6, pad=True,
