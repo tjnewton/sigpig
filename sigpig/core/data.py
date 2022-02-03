@@ -1528,6 +1528,18 @@ def get_event_stream(event):
 
     return event_stream
 
+
+def get_picked_uncertainties():
+    """ Reads in a snuffler format file containing event uncertainties and
+    returns the uncertainties and the waveform properties [from refactoring
+    of function below]
+
+    Example:
+
+
+    """
+    ...
+
 # TODO: working here and below
 #   =
 #   =
@@ -1612,8 +1624,8 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                                                               pick_time, model)
 
                     # the pick time corresponds with the middle entry in the
-                    # unet predictions array
-                    unet_predictions.append(unet_prediction[0][60])
+                    # unet predictions array @ index 60, sum over 5 samples
+                    unet_predictions.append(np.sum(unet_prediction[0][57:63]))
 
                     # only consider 0.5 second of data (this is a busy dataset)
                     st.trim(start_time - 0.4, start_time + 0.6, pad=True,
@@ -1634,6 +1646,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
                             pad=True, fill_value=0, nearest_sample=True)
                     max_values.append(max_amplitude(st[0])[0])
 
+    # plot waveform properties in a function -> TODO
     # make a figure showing trace properties
     gs = pplt.GridSpec(nrows=3, ncols=2)
     fig = pplt.figure(refwidth=2.2, span=False, share=False, tight=False)
@@ -1676,13 +1689,14 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     ax.colorbar(m, loc='b', locator=1, label='SNR')
 
     # plot uncertainties and curvature of traces @ pick time
-    ax = fig.subplot(gs[5], title=f'1σ Uncertainty vs. unet predictions * '
+    ax = fig.subplot(gs[5], title=f'1σ uncert. vs. unet predictions * '
                                   f'SNR',
                      xlabel='unet prediction * SNR',
                      ylabel='Uncertainty (seconds)')
     ax.scatter(np.array(snrs) * np.array(unet_predictions),
                uncertainties, c=snrs, markersize=2)
 
+    fig.savefig(f"waveform_properties.png", dpi=200)
     fig.show()
 
     # TODO:
