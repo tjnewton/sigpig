@@ -2340,14 +2340,15 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         main_trace = ("AV", "WASW", "SHN")
 
         # define path of files for template and detections
-        streams_path = "/Users/human/ak_data/inner"
+        # streams_path = "/Users/human/ak_data/inner"
+        streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
         # generate the figures and time series file
         inspect_template(template_date, main_trace, streams_path, filter=True)
     """
 
     # time offsets
-    max_offset = 60*10  # 43200
+    max_offset = 60*2  # 43200
     min_offset = 30
 
     # find the local file corresponding to the main trace station:channel pair
@@ -2385,13 +2386,11 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     # st.plot()
     # st_min.plot()
 
-    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:48.0Z"),
+    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:47.5Z"),
                                 UTCDateTime("2016-09-26T09:25:55.0Z")],
-                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:49.5Z"),
+                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:49.0Z"),
                                 UTCDateTime("2016-09-26T09:25:56.5Z")],
-                    "YG.MCR1": [UTCDateTime("2016-09-26T09:25:51.0Z"),
-                                UTCDateTime("2016-09-26T09:25:58.0Z")],
-                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:48.5Z"),
+                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:48.0Z"),
                                 UTCDateTime("2016-09-26T09:25:55.5Z")],
                     }
 
@@ -2533,12 +2532,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_prepick = 0.5
 
         # T6 - Aaron's WASW template + TA.N25K + YG.MCR2
-        # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-        #              "WASW    0.000  1       P\n",
-        #              "N25K    1.500  1       P\n",
-        #              "MCR2    0.500  1       P\n"]
         templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                             "N25K    1.500  1       P\n"]
+                     "WASW    0.000  1       P\n",
+                     "N25K    4.500  1       P\n",
+                     "MCR2    0.500  1       P\n"]
+        # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #                      "N25K    1.500  1       P\n"]
         template_length = 7.0
         template_prepick = 0.5
 
@@ -2552,18 +2551,18 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # and define a station dict to add data needed by EQcorrscan
         # station_dict = {"WASW": {"network": "AV", "channel": "SHN"}}
-        station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
+        # station_dict = {"N25K": {"network": "TA", "channel": "BHZ"}}
         # station_dict = {"MCR2": {"network": "YG", "channel": "BHN"}}
-        # station_dict = {"WASW": {"network": "AV", "channel": "SHN"},
-        #                 "N25K": {"network": "TA", "channel": "BHZ"},
-        #                 "MCR2": {"network": "YG", "channel": "BHN"}}
+        station_dict = {"WASW": {"network": "AV", "channel": "SHN"},
+                        "N25K": {"network": "TA", "channel": "BHZ"},
+                        "MCR2": {"network": "YG", "channel": "BHN"}}
 
 
         # build stream of all station files for templates
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/WASW"
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR2"
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09, AV.WASW
@@ -2584,8 +2583,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
-        # main_trace = ("AV", "WASW", "SHN")
-        main_trace = ("TA", "N25K", "BHN")
+        main_trace = ("AV", "WASW", "SHN")
+        # main_trace = ("TA", "N25K", "BHN")
         # main_trace = ("YG", "MCR2", "BHN")
 
         # run detection and time it
