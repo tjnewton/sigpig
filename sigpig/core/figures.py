@@ -320,7 +320,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
     """
 
     # find all files for specified day
-    day_file_list = sorted(glob.glob(f"{files_path}/*N.{doi.year}"
+    day_file_list = sorted(glob.glob(f"{files_path}/*.{doi.year}"
                                      f"-{doi.month:02}-{doi.day:02}.ms"))
     # load files into stream
     st = Stream()
@@ -334,6 +334,10 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
 
         # take the specified time period + and - 30 seconds for edge effects
         st.trim(doi - 30, doi_end + 30)
+        # st.interpolate(sampling_rate=100.0)
+        # st.trim(doi, doi_end)
+
+    # st.write("WASW_MCR2_N25K_templates.mseed", format="MSEED")
 
     # initialize figure and set the figure size
     figureWidth = 50
