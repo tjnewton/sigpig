@@ -2784,7 +2784,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open(
         # 'party_06_15_2016_to_08_12_2018_MAD8_7s_t5_SHZNE_100Hz_0.5prepick.pkl','rb')
         # culled & top 1000 version
-        infile = open('top_1000_3comp_WASW_3comp_t5_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # infile = open('top_1000_3comp_WASW_3comp_t5_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # # Culled 100 Hz party w/ 0.5s prepick for testing
         # infile = open('top_3048_WASW_t5_culled_snr1.0-15.0_selfShift_abs0'
@@ -2809,16 +2809,17 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # N25K, 1 station, 100 Hz party, 3 component, w/ 0.5s prepick
         # infile = open('t6_N25K_3comp_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
-        infile = open('top_1000_N25K_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # infile = open('top_1000_N25K_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 3 station, 3 component, 14 second template
-        infile = open('t6_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
-
+        # infile = open('t6_3sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
-        infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl',
-            'rb')
+        # infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 5 station, 3 component, 14 second template
+        infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        # top 1000 culled and sorted version
+        infile = open('top_1000_5sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
