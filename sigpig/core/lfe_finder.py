@@ -2337,7 +2337,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         template_date = UTCDateTime("2016-09-26T09:25:48.50000Z")
 
         # define the main trace to use for template
-        main_trace = ("AV", "WASW", "SHN")
+        main_trace = ("AV", "WASW", "SHZ")
 
         # define path of files for template and detections
         # streams_path = "/Users/human/ak_data/inner"
@@ -2386,12 +2386,16 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     # st.plot()
     # st_min.plot()
 
-    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:47.5Z"),
-                                UTCDateTime("2016-09-26T09:25:55.0Z")],
-                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:49.0Z"),
-                                UTCDateTime("2016-09-26T09:25:56.5Z")],
-                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:48.0Z"),
-                                UTCDateTime("2016-09-26T09:25:55.5Z")],
+    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:46.0Z"),
+                                UTCDateTime("2016-09-26T09:25:58.0Z")],
+                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:47.5Z"),
+                                UTCDateTime("2016-09-26T09:25:59.5Z")],
+                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:46.5Z"),
+                                UTCDateTime("2016-09-26T09:25:58.5Z")],
+                    "YG.MCR1": [UTCDateTime("2016-09-26T09:25:48.5Z"),
+                                UTCDateTime("2016-09-26T09:26:00.5Z")],
+                    "YG.RH09": [UTCDateTime("2016-09-26T09:25:54.5Z"),
+                                UTCDateTime("2016-09-26T09:26:06.5Z")],
                     }
 
     # plot spectrograms and time series together
@@ -2532,14 +2536,20 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_prepick = 0.5
 
         # T6 - Aaron's WASW template + TA.N25K + YG.MCR2
-        templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "WASW    0.000  1       P\n",
-                     "N25K    4.500  1       P\n",
-                     "MCR2    0.500  1       P\n"]
+        # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "WASW    0.000  1       P\n",
+        #              "N25K    4.500  1       P\n",
+        #              "MCR2    0.500  1       P\n"]
         # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #                      "WASW    0.500  1       P\n"]
         # template_length = 7.0
         # template_prepick = 0.5
+        templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "WASW    0.000  1       P\n",
+                     "N25K    4.500  1       P\n",
+                     "MCR2    0.500  1       P\n",
+                     "MCR1    2.500  1       P\n",
+                     "RH09    8.500  1       P\n"]
         template_length = 12.0
         template_prepick = 2.0
 
@@ -2557,7 +2567,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # station_dict = {"MCR2": {"network": "YG", "channel": "BHZ"}}
         station_dict = {"WASW": {"network": "AV", "channel": "SHN"},
                         "N25K": {"network": "TA", "channel": "BHN"},
-                        "MCR2": {"network": "YG", "channel": "BHN"}}
+                        "MCR2": {"network": "YG", "channel": "BHN"},
+                        "MCR1": {"network": "YG", "channel": "BHN"},
+                        "RH09": {"network": "YG", "channel": "BHN"}}
 
 
         # build stream of all station files for templates
@@ -2805,6 +2817,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # top 1000 culled and sorted version
         infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl',
             'rb')
+
+        # 5 station, 3 component, 14 second template
 
         party = pickle.load(infile)
         infile.close()
