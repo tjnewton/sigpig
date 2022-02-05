@@ -2910,13 +2910,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save party detections as text file
-            df.to_csv(f"top_{n}_3sta_3comp_t6_{template_length}s_"
+            df.to_csv(f"top_{n}_5sta_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_detections.csv",
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_3sta_3comp_t6_{template_length}s_"
+            outfile = open(f"top_{n}_5sta_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_party.pkl", 'wb')
 
@@ -2935,7 +2935,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_3sta_3comp_t6_{template_length}s_"
+                   title=f"top_{n}_5sta_3comp_t6_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted", save=True)
         # free up some memory
@@ -2970,7 +2970,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_inner_stack_3sta_t6_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_inner_stack_5sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_7s_100Hz_prepick.pkl', 'wb')
@@ -2984,7 +2984,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'top_'
-                                       f'{n}_3sta_phase_weighted_stack_snr'
+                                       f'{n}_5sta_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
@@ -2992,7 +2992,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        save=True)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top_{n}_3sta_linear_stack_sn'
+            plot_stack(stack_lin, title=f'top_{n}_5sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
