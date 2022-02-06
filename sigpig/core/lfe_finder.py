@@ -2817,7 +2817,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 5 station, 3 component, 14 second template
-        infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        # infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
         infile = open('top_1000_5sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
