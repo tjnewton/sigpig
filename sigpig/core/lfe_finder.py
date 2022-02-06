@@ -2622,10 +2622,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'zero'
     load_party = True
-    save_detections = True
+    save_detections = False
 
     top_n = True
-    n = 1000
+    n = 50
 
     load_stack = False
     load_stack_detects = False
@@ -2814,7 +2814,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # 3 station, 3 component, 14 second template
         # infile = open('t6_3sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
-        # infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 5 station, 3 component, 14 second template
         # infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
@@ -2956,7 +2956,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # TEMPLATE 4
         infile = open(f'inner_stack_t6_snr{snr_threshold[0]}-'
                       f'{snr_threshold[1]}_'
-                      f'{shift_method}Shift_{thresh_type}{detect_thresh}_7s.pkl', 'rb')
+                      f'{shift_method}Shift_{thresh_type}'
+                      f'{detect_thresh}_14s.pkl', 'rb')
 
         stack_list = pickle.load(infile)
         infile.close()
@@ -2974,7 +2975,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile = open(f'top_{n}_inner_stack_5sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_7s_100Hz_prepick.pkl', 'wb')
+                       f'{detect_thresh}_14s_100Hz_prepick.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -2989,7 +2990,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_7s_100Hz_prepick',
+                                       f'{detect_thresh}_14s_100Hz_prepick',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -2997,7 +2998,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_7s_100Hz_prepick',
+                                        f'{detect_thresh}_14s_100Hz_prepick',
                        save=True)
 
             # now plot template with the linear stack from same station for
