@@ -2589,7 +2589,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         start_date = UTCDateTime("2016-07-18T00:00:00.0Z")
 
         # set snr threshold to cull the party detections
-        snr_threshold = [1.0, 25.0] # [1.0, 8.0]
+        # snr_threshold = [1.0, 25.0] # [1.0, 8.0]
+        snr_threshold = [1.0, 9.0]
         # set detection threshold and type
         detect_thresh = 8.0
         thresh_type = "MAD"
@@ -2625,7 +2626,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 50
+    n = 500
 
     load_stack = False
     load_stack_detects = False
@@ -2812,12 +2813,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('top_1000_N25K_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 3 station, 3 component, 14 second template
-        # infile = open('t6_3sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        infile = open('t6_3sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
         infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 5 station, 3 component, 14 second template
-        # infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
         infile = open('top_1000_5sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
@@ -2936,9 +2937,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_5sta_3comp_t6_{template_length}s_"
+                   title=f"top_{n}_3sta_3comp_t6_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
-                         f"{detect_thresh}_culled_sorted", save=True)
+                         f"{detect_thresh}_culled_sorted_1-9SNR", save=True)
         # free up some memory
         del detection_stream
 
@@ -2972,10 +2973,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_inner_stack_5sta_t6_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_inner_stack_3sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s_100Hz_prepick.pkl', 'wb')
+                       f'{detect_thresh}_14s_1-9SNR.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -2990,7 +2991,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_100Hz_prepick',
+                                       f'{detect_thresh}_14s_1-9SNR',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -2998,7 +2999,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_100Hz_prepick',
+                                        f'{detect_thresh}_14s_1-9SNR',
                        save=True)
 
             # now plot template with the linear stack from same station for
