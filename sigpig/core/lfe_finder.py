@@ -1650,8 +1650,20 @@ def stack_template_detections(party, streams_path, main_trace,
     independent of EQcorrscan routines, allowing more customization of the
     workflow.
 
-    'self' xcorr shift uses defined template on each station to determine
-    shifts.
+    Types of trace shifting for stacking:
+    'zero'  : no time shift for stacking.
+    'self'  : cross-correlation of each detection trace with the template
+              signal on each station to determine time shifts for stacking.
+    'fixed' : time shifts for all stations are determined from the cross-
+              correlation of each detection on the main trace with the template
+              signal. This is equivalent to the 'self' method on the main
+              trace, then applying those same shift times to each station.
+    'med'   : cross-correlation of each detection trace with the detection
+              trace with the median SNR signal on each station to determine
+              time shifts for stacking.
+    'max'   : cross-correlation of each detection trace with the detection
+              trace with the maximum SNR signal on each station to determine
+              time shifts for stacking.
 
     Example:
         # time the run
