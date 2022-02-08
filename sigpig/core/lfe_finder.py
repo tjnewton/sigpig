@@ -2642,13 +2642,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_party = True
     save_detections = False
 
-    top_n = True
-    n = 100
+    top_n = False
+    n = 500
 
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
-    cull = True
+    cull = False
     plot = False
 
     # get main station template detections
@@ -2830,21 +2830,23 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('top_1000_N25K_3comp_t6_7.0s_0.5_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 3 station, 3 component, 14 second template
-        infile = open('t6_3sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        # infile = open('t6_3sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
-        infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # infile = open('top_1000_3sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 5 station, 3 component, 14 second template
-        infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        # infile = open('t6_5sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 1000 culled and sorted version
-        infile = open('top_1000_5sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # infile = open('top_1000_5sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 9 station, 3 component, 14 second template
-        infile = open('t6_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        # infile = open('t6_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 808 culled and sorted version
-        infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 100 culled and sorted version
-        infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
+        # infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
+        # top 500 culled and sorted version
+        infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
