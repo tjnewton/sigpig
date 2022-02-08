@@ -1395,10 +1395,10 @@ def cull_detections(party, detection_files_path, snr_threshold, main_trace):
     #                                   index].copy())
     #     del new_party.families[0].detections[index]
 
-    plot_distribution(old_snrs, title="SNR distribution of all detections",
-                      save=False)
-    plot_distribution(new_snrs, title="SNR distribution of culled detections",
-                      save=False)
+    # plot_distribution(old_snrs, title="SNR distribution of all detections",
+    #                   save=False)
+    # plot_distribution(new_snrs, title="SNR distribution of culled detections",
+    #                   save=False)
 
     return new_party
 
@@ -2643,7 +2643,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 1000
+    n = 100
 
     load_stack = False
     load_stack_detects = False
@@ -2841,8 +2841,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # 9 station, 3 component, 14 second template
         infile = open('t6_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
-        # top 1000 culled and sorted version
-        infile = open('','rb')
+        # top 808 culled and sorted version
+        infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # top 100 culled and sorted version
+        infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2940,7 +2942,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_5sta_3comp_t6_{template_length}s_"
+            outfile = open(f"top_{n}_9sta_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_party.pkl", 'wb')
 
@@ -2959,7 +2961,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_3sta_3comp_t6_{template_length}s_"
+                   title=f"top_{n}_9sta_3comp_t6_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted_1-9SNR", save=True)
         # free up some memory
@@ -2995,10 +2997,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_stack_5sta_t6_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_stack_9sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s_10sta.pkl', 'wb')
+                       f'{detect_thresh}_14s.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -3009,19 +3011,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'top_'
-                                       f'{n}_5sta_phase_weighted_stack_snr'
+                                       f'{n}_9sta_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_10sta',
+                                       f'{detect_thresh}_14s',
                        save=True)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top_{n}_5sta_linear_stack_sn'
+            plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_10sta',
+                                        f'{detect_thresh}_14s',
                        save=True)
 
             # now plot template with the linear stack from same station for
