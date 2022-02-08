@@ -2340,8 +2340,8 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         main_trace = ("AV", "WASW", "SHZ")
 
         # define path of files for template and detections
-        # streams_path = "/Users/human/ak_data/inner"
-        streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        streams_path = "/Users/human/ak_data/inner"
+        # streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
         # generate the figures and time series file
         inspect_template(template_date, main_trace, streams_path, filter=True)
