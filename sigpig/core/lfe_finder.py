@@ -1650,7 +1650,7 @@ def stack_template_detections(party, streams_path, main_trace,
     independent of EQcorrscan routines, allowing more customization of the
     workflow.
 
-    Types of trace shifting for stacking:
+    Types of trace shifting for stacking (align_type):
     'zero'  : no time shift for stacking.
     'self'  : cross-correlation of each detection trace with the template
               signal on each station to determine time shifts for stacking.
