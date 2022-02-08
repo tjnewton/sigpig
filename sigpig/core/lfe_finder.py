@@ -2584,6 +2584,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # define dates of interest
         # start_date = UTCDateTime("2016-06-15T00:00:00.0Z")
+        # RH08 2018-06-04
         end_date = UTCDateTime("2018-08-11T23:59:59.9999999999999Z")
         # when using WASW, start date is 07-18
         start_date = UTCDateTime("2016-07-18T00:00:00.0Z")
@@ -2626,7 +2627,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 500
+    n = 100
 
     load_stack = False
     load_stack_detects = False
@@ -2973,10 +2974,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_inner_stack_3sta_t6_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_inner_stack_5sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s_1-9SNR.pkl', 'wb')
+                       f'{detect_thresh}_14s_10sta.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -2991,7 +2992,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_1-9SNR',
+                                       f'{detect_thresh}_14s_10sta',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -2999,7 +3000,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_1-9SNR',
+                                        f'{detect_thresh}_14s_10sta',
                        save=True)
 
             # now plot template with the linear stack from same station for
