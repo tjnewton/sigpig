@@ -2663,7 +2663,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_stack_detects = False
     load_second_stack = False
     cull = False
-    plot = False
+    plot = True
 
     # get main station template detections
     if load_party:
