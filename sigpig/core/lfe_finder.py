@@ -1868,6 +1868,8 @@ def stack_template_detections(party, streams_path, main_trace,
                         trace.stats.endtime > template_times[1]:
                     reference_idx = tr_idx
                     break
+            # if template event time wasn't found, use index 0
+            reference_idx = 0
 
         trace = stream[reference_idx]
         ref_snr = snrs[reference_idx]
