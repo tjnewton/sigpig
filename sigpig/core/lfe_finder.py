@@ -2652,7 +2652,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'fixed'
+    shift_method = 'self'
     load_party = True
     save_detections = False
 
