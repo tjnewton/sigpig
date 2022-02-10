@@ -1854,7 +1854,7 @@ def stack_template_detections(party, streams_path, main_trace,
             else:
                 snrs.append(np.nan)
 
-        # define target signal as max or median
+        # define target signal as max, median, or self
         if reference_signal == "max":
             reference_idx = np.nanargmax(snrs)
         elif reference_signal == "med":
@@ -1953,8 +1953,8 @@ def stack_template_detections(party, streams_path, main_trace,
                 tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z") - \
                                      shifts[tr_idx]
 
-            # consider 60 seconds total for stacks
-            new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 20
+            # consider 40 seconds total for stacks
+            new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 10
             new_end_time = new_start_time + 40
             # all traces need to be same length for further processing
             stream.trim(new_start_time, new_end_time, pad=True,
@@ -1986,7 +1986,7 @@ def stack_template_detections(party, streams_path, main_trace,
             # create false starttime to shift around
             tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z")
 
-        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 10
+        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
         new_end_time = new_start_time + 40
         stream.trim(new_start_time, new_end_time, pad=True, fill_value=np.nan,
                     nearest_sample=True)
@@ -3011,7 +3011,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
-                                               animate_stacks=False)
+                                               animate_stacks=True)
         # save stacks as pickle file
         outfile = open(f'top_{n}_stack_9sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
