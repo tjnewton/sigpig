@@ -1877,8 +1877,10 @@ def stack_template_detections(party, streams_path, main_trace,
         # guard against empty trace
         if len(trace) > 0:
             # trim the reference trace to the template length
-            reference_trace = trace.copy().trim(template_times[0],
-                                                template_times[1])
+            # reference_trace = trace.copy().trim(template_times[0],
+            #                                     template_times[1])
+            reference_trace = trace.copy().trim(template_times[0] + 4,
+                                                template_times[0] + 9)
 
             # print a warning if SNR is bad
             if ref_snr == 0:
@@ -2858,9 +2860,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # top 808 culled and sorted version
         # infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 100 culled and sorted version
-        infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
+        # infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 500 culled and sorted version
-        # infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -3011,7 +3013,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
-                                               animate_stacks=True)
+                                               animate_stacks=False)
         # save stacks as pickle file
         outfile = open(f'top_{n}_stack_9sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
