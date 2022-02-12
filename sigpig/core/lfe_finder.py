@@ -1802,7 +1802,7 @@ def stack_template_detections(party, streams_path, main_trace,
         # generate an animation of the stack if specified
         if animate:
             # initialize figure and camera to show trace and stack animation
-            fig, axes = plt.subplots(2)
+            fig, axes = plt.subplots(2, figsize=(18,10))
             camera = Camera(fig)
 
             data_len = len(data)
@@ -1815,11 +1815,11 @@ def stack_template_detections(party, streams_path, main_trace,
             y_min = -1 if normalize else np.mean(data.min(axis=1))
             y_max = 1 if normalize else np.mean(data.max(axis=1))
             for trace_idx, stack_trace in enumerate(data):
-                axes[0].plot(x_vals, stack_trace, color='blue')
+                axes[0].plot(x_vals, stack_trace, color='blue', linewidth=1)
                 axes[0].set_ylim(bottom=y_min, top=y_max)
                 axes[0].set_xlim(0, ceil(x_vals.max()))
                 axes[1].plot(x_vals, data[:trace_idx+1].mean(axis=0),
-                                     color='blue')
+                                     color='blue', linewidth=1)
                 axes[1].text(1, lin.data.max(), f"{trace_idx+1}/{data_len}")
                 axes[1].set_ylim(bottom=lin.data.min() * 1.25,
                                  top=lin.data.max() * 1.25)
