@@ -1878,10 +1878,10 @@ def stack_template_detections(party, streams_path, main_trace,
         # guard against empty trace
         if len(trace) > 0:
             # trim the reference trace to the template length
-            reference_trace = trace.copy().trim(template_times[0],
-                                                template_times[1])
-            # reference_trace = trace.copy().trim(template_times[0] + 4,
-            #                                     template_times[0] + 9)
+            # reference_trace = trace.copy().trim(template_times[0],
+            #                                     template_times[1])
+            reference_trace = trace.copy().trim(template_times[0] + 4,
+                                                template_times[0] + 9)
 
             # print a warning if SNR is bad
             if ref_snr == 0:
@@ -1922,7 +1922,7 @@ def stack_template_detections(party, streams_path, main_trace,
                     # stt.plot()
 
                     # correlate the reference trace through the trace
-                    max_shift = 100
+                    max_shift = 100 # maximum xcorr shift in samples
                     cc = correlate(trace, reference_trace, max_shift,
                                    demean=True, normalize='naive',
                                    method='auto')
