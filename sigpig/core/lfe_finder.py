@@ -1802,7 +1802,7 @@ def stack_template_detections(party, streams_path, main_trace,
         # generate an animation of the stack if specified
         if animate:
             # initialize figure and camera to show trace and stack animation
-            fig, axes = plt.subplots(2, figsize=(18,10))
+            fig, axes = plt.subplots(2, figsize=(7,4))
             camera = Camera(fig)
 
             data_len = len(data)
@@ -2670,7 +2670,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = False
-    n = 500
+    n = 100
 
     load_stack = False
     load_stack_detects = False
@@ -3021,10 +3021,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         template_times = [family.template.st[0].stats.starttime,
                           family.template.st[0].stats.endtime]
         # stack the culled party detections
+        import matplotlib.animation as manimation
+        manimation.writers.list()
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
-                                               animate_stacks=False)
+                                               animate_stacks=True)
         # save stacks as pickle file
         outfile = open(f'top_{n}_stack_9sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
