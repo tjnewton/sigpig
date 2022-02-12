@@ -1877,10 +1877,10 @@ def stack_template_detections(party, streams_path, main_trace,
         # guard against empty trace
         if len(trace) > 0:
             # trim the reference trace to the template length
-            # reference_trace = trace.copy().trim(template_times[0],
-            #                                     template_times[1])
-            reference_trace = trace.copy().trim(template_times[0] + 4,
-                                                template_times[0] + 9)
+            reference_trace = trace.copy().trim(template_times[0],
+                                                template_times[1])
+            # reference_trace = trace.copy().trim(template_times[0] + 4,
+            #                                     template_times[0] + 9)
 
             # print a warning if SNR is bad
             if ref_snr == 0:
@@ -1941,7 +1941,7 @@ def stack_template_detections(party, streams_path, main_trace,
 
     # helper function to align all traces in a stream based on xcorr shifts
     # from the main_trace for each pick time. Stream is altered in place and
-    # each trace is trimmed to be ## seconds long.
+    # each trace is trimmed to be 40 seconds long.
     def align_stream(stream, shifts, indices):
         # first check if data are bad, if so zero shift instead
         if shifts == None:
@@ -2860,9 +2860,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # top 808 culled and sorted version
         # infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 100 culled and sorted version
-        # infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
+        infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 500 culled and sorted version
-        infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -3010,6 +3010,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         template_times = [family.template.st[0].stats.starttime,
                           family.template.st[0].stats.endtime]
         # stack the culled party detections
+        streams_path = detection_files_path
+        align_type = shift_method
+        animate_stacks = False
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
