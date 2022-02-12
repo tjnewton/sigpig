@@ -7,7 +7,8 @@ import logging
 import obspy
 from obspy import UTCDateTime, Stream, Trace, read, read_events, Inventory
 from obspy.clients.fdsn import Client
-from obspy.signal.cross_correlation import xcorr, correlate_template
+from obspy.signal.cross_correlation import correlate, correlate_template, \
+    xcorr_max, xcorr
 from obspy.core.event import Catalog, Comment, CreationInfo
 from obspy.core.event.event import Event
 from obspy.core.event.magnitude import Magnitude
@@ -1899,12 +1900,14 @@ def stack_template_detections(party, streams_path, main_trace,
 
                 # length of trace must be greater than template for xcorr
                 if len(trace.data) > len(reference_trace.data):
-                    # correlate the reference trace through the trace
-                    cc = correlate_template(trace, reference_trace, mode='valid',
-                                            normalize='naive', demean=True,
-                                            method='auto')
-                    # find the index with the max correlation coefficient
-                    max_idx = np.argmax(cc)
+                    # # FIXME: is the lack of max_shift causing issues?
+                    # #  - why isn't cc same len as trace.data?
+                    # # correlate the reference trace through the trace
+                    # cc = correlate_template(trace, reference_trace, mode='valid',
+                    #                         normalize='naive', demean=True,
+                    #                         method='auto')
+                    # # find the index with the max correlation coefficient
+                    # max_idx = np.argmax(cc)
 
                     # # to visualize a trace, the template, and the max correlation
                     # stt = Stream()
@@ -1917,6 +1920,14 @@ def stack_template_detections(party, streams_path, main_trace,
                     # stt += reference_trace.copy()
                     # stt[2].stats.starttime = stt[1].stats.starttime
                     # stt.plot()
+
+                    # correlate the reference trace through the trace
+                    max_shift = 100
+                    cc = correlate(trace, reference_trace, max_shift,
+                                   demean=True, normalize='naive',
+                                   method='auto')
+                    # find the index with the max correlation coefficient
+                    max_idx = np.argmax(cc) - max_shift
 
                     # keep track of negative correlation coefficients
                     if cc.max() < 0:
