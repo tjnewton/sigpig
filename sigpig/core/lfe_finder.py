@@ -1927,7 +1927,7 @@ def stack_template_detections(party, streams_path, main_trace,
                                    demean=True, normalize='naive',
                                    method='auto')
                     # find the index with the max correlation coefficient
-                    max_idx = np.argmax(cc) - max_shift
+                    max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
 
                     # keep track of negative correlation coefficients
                     if cc.max() < 0:
@@ -1935,7 +1935,7 @@ def stack_template_detections(party, streams_path, main_trace,
 
                     # append the cross correlation time shift for this trace
                     # referenced from trace.stats.starttime
-                    shifts.append(max_idx / trace.stats.sampling_rate)
+                    shifts.append((max_idx / trace.stats.sampling_rate)+20)
 
                 else:
                     # keep track of bad traces
