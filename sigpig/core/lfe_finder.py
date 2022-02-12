@@ -3021,9 +3021,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         template_times = [family.template.st[0].stats.starttime,
                           family.template.st[0].stats.endtime]
         # stack the culled party detections
-        streams_path = detection_files_path
-        align_type = shift_method
-        animate_stacks = False
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
