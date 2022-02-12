@@ -1801,6 +1801,10 @@ def stack_template_detections(party, streams_path, main_trace,
 
         # generate an animation of the stack if specified
         if animate:
+            # # check animation writers
+            # import matplotlib.animation as manimation
+            # manimation.writers.list()
+
             # initialize figure and camera to show trace and stack animation
             fig, axes = plt.subplots(2, figsize=(7,4))
             camera = Camera(fig)
@@ -1928,6 +1932,7 @@ def stack_template_detections(party, streams_path, main_trace,
                                    method='auto')
                     # find the index with the max correlation coefficient
                     max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
+                    print(cc.max())
 
                     # keep track of negative correlation coefficients
                     if cc.max() < 0:
@@ -3021,8 +3026,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         template_times = [family.template.st[0].stats.starttime,
                           family.template.st[0].stats.endtime]
         # stack the culled party detections
-        import matplotlib.animation as manimation
-        manimation.writers.list()
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
