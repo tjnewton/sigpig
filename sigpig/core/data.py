@@ -1485,15 +1485,19 @@ def get_event_stream(event):
         # define the file paths containing the autopicked .mrkr file
         autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
         # define the desire number of events to get
-        n = 500
+        n = 100
         events = top_n_autopicked_events(autopicked_file_path, n)
 
         # specify the event of interest from *events* as returned by
         # top_n_autopicked_events function
-        for i in range(0, n):
-            event = events[event_ids[i]].copy()
+
+        # loop over events and write miniseed file of all traces for each pick
+        for i in events.keys():
+            event = events[i].copy()
             start_Time = event[0]['time'] - 0.5
             end_Time = start_Time + 1
+            project_Name = "Rattlesnake Ridge"
+            channels = ['DP1', 'EHN']
             trim_Daily_Waveforms(project_Name, start_Time, end_Time, channels, write_File=True)
 
         event = events['FA1UKxKJjSEZ-fpEj5IiLWMZd2I='].copy()
