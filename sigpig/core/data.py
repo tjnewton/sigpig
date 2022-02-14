@@ -1490,7 +1490,7 @@ def get_event_stream(event):
 
         # specify the event of interest from *events* as returned by
         # top_n_autopicked_events function
-        for i in range(11, 501):
+        for i in range(0, n):
             event = events[event_ids[i]].copy()
             start_Time = event[0]['time'] - 0.5
             end_Time = start_Time + 1
