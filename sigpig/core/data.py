@@ -525,8 +525,8 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
     start_Time and end_Time are UTCDateTime objects
 
     Example: for all stations in one stream with distance hack, for picking
-    start_Time = UTCDateTime("2018-03-13T00:12:50.0Z")
-    end_Time =   UTCDateTime("2018-03-13T00:16:00.0Z")
+    start_Time = UTCDateTime("2018-03-13T07:56:20.768000Z")
+    end_Time =   UTCDateTime("2018-03-13T07:56:21.768000Z")
     project_Name = "Rattlesnake Ridge"
     channels = ['DP1', 'EHN']
     trim_Daily_Waveforms(project_Name, start_Time, end_Time, channels, write_File=True)
@@ -1429,9 +1429,17 @@ def top_n_autopicked_events(autopicked_file_path, n):
                                 f".{station_components[3]}"
                 phase_time = UTCDateTime(line_contents.strip()[7:32])
 
+                # check for duplicates
+                duplicate = False
+                for entry in events[hash_id]:
+                    if entry['station'] == phase_station:
+                        duplicate = True
+                        break
+
                 # store the station and time of the phase in a list of dicts
-                events[hash_id].append({'station': phase_station, 'time':
-                    phase_time})
+                if not duplicate:
+                    events[hash_id].append({'station': phase_station, 'time':
+                        phase_time})
 
     # Now we have a dict where each key is a unique hash id for an event, and
     # each entry is a list of dicts containing time of the first arrival and
@@ -1482,10 +1490,22 @@ def get_event_stream(event):
 
         # specify the event of interest from *events* as returned by
         # top_n_autopicked_events function
-        event = events[event_ids[0]].copy()
+        for i in range(11, 501):
+            event = events[event_ids[i]].copy()
+            start_Time = event[0]['time'] - 0.5
+            end_Time = start_Time + 1
+            trim_Daily_Waveforms(project_Name, start_Time, end_Time, channels, write_File=True)
+
+        event = events['FA1UKxKJjSEZ-fpEj5IiLWMZd2I='].copy()
+        event = events['LHRcBsa7u2QKVQ0BmOJksKt2DSA='].copy()
+        event = events['FOAjuz85HUiGqBliIQrLAw7HpPc='].copy()
 
         # get stream containing all phases in the event
         stream = get_event_stream(event)
+        # plot them
+        from figures import plot_event_picks
+        plot_event_picks(event, plot_curvature=False)
+        plt.show()
     """
     # initialize a stream to store traces
     event_stream = Stream()
