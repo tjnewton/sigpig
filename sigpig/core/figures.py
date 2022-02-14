@@ -18,7 +18,7 @@ import pickle
 import pandas as pd
 from descartes import PolygonPatch
 import alphashape
-from concavehull import concavehull
+# from concavehull import concavehull
 
 # FIXME ::: Add elevation functions from Desktop/autopicker/preprocessing/station_locations.py
 # above requires configuring environment with rasterio and dependencies
@@ -1257,7 +1257,7 @@ def plot_trace_curvature(trace, pick_time):
                     enumerate(trace_times)]
     # alpha_shape = alphashape.alphashape(alpha_points, 0.00)
     # ax.add_patch(PolygonPatch(alpha_shape, alpha=0.2))
-    ch = concavehull(alpha_points, chi_factor=0.0)
+    # ch = concavehull(alpha_points, chi_factor=0.0)
     ax.plot_date(ch[:,0], ch[:,1], fmt="r-", linewidth=0.7)
 
     # plt.plot_date(x, interp_func(x), fmt="k-", linewidth=0.7)
