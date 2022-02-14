@@ -23,6 +23,8 @@ import pickle
 from sklearn import preprocessing
 from scipy import stats, interpolate
 from time_miner import build_unet_model, trace_arrival_prediction
+import base64
+import hashlib
 import tensorflow as tf
 # turn off verbose tensorflow logging
 tf.get_logger().setLevel('INFO')
@@ -1551,6 +1553,75 @@ def get_event_stream(event):
         event_stream += trace
 
     return event_stream
+
+
+def events_dict_to_snuffler(events: dict):
+    """ Takes in a dict of events as returned by the top_n_autopicked_events
+    function and writes each event and its phase picks to a snuffler-type
+    marker file, e.g.:
+    https://github.com/pyrocko/pyrocko/blob/4971d5e5ac3c4ac4b75992452a934e01a784ea8d/src/gui/marker.py
+
+    Example:
+
+    """
+    # initialize list to store content to write to file
+    content_list = []
+
+    # get RR stations for station-distance hack (for snuffler plotting/picking)
+    stas = project_stations("Rattlesnake Ridge", events[list(events.keys())[
+                            0]][0]['time'])
+    stations = {}
+    for station in stas:
+        stations[str(station)] = []
+    # station "distance" along scarp (it's actually station order along scarp)
+    station_distance = {station: index for index, station in
+                        enumerate(stations)}
+
+    # loop through each cluster label except noise cluster
+    for event in events.keys():
+        # define the event time based on first phase time (arbitrary)
+        event_time = events[event][0]['time'].datetime.strftime('%Y-%m-%d '
+                                                                '%H:%M:%S.%f')
+        # chop microseconds to five digits per snuffler format
+        event_time = event_time[:-1]
+        # generate event hash
+        event_hash = str(base64.urlsafe_b64encode(hashlib.sha1(
+            event_time.encode('utf8')).digest()).decode('ascii'))
+
+        # build the event line for the file
+        event_line = f"event: {event_time}  0 {event_hash}          0.0          0.0 None         None None  Event None\n"
+        # append event line to content list
+        content_list.append(event_line)
+
+        # loop through each pick in the event
+        for index, pick in enumerate(events[event]):
+            # get pick station and station distance order hack
+            pick_station = pick['station'].split('.')[0]
+            pick_station_hack = station_distance[pick_station]
+            # get pick channel
+            pick_channel = pick['station'].split('.')[1]
+
+            # get pick time
+            pick_time = pick['time'].datetime.strftime('%Y-%m-%d %H:%M:%S.%f')
+            # chop microseconds to five digits per snuffler format
+            pick_time = pick_time[:-1]
+
+            # build station/channel line
+            pick_station_channel = f"{pick_station_hack}.{pick_station}.." \
+                                   f"{pick_channel}"
+            # build the pick line for the file. P picks only, no polarity.
+            pick_line = f"phase: {pick_time}  0 {pick_station_channel: <16}" \
+                        f"{event_hash} {event_time[:10]}  {event_time[10:]} " \
+                        f"P        None False\n"
+            # append pick line to content list
+            content_list.append(pick_line)
+
+    # append contents to file
+    f = open('event_picks.mrkr', "a")
+    f.writelines(content_list)
+    f.close()
+
+    return None
 
 
 def get_picked_uncertainties():
