@@ -1083,7 +1083,7 @@ def plot_event_picks(event, plot_curvature=False):
     Example:
         # use *events* as returned by data.top_n_autopicked_events
         event = events[event_ids[0]].copy()
-        plot_curvature=True
+        plot_curvature=False
         plot_event_picks(event, plot_curvature=plot_curvature)
     """
     # initialize figure and set the figure size
