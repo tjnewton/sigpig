@@ -1845,6 +1845,7 @@ def stack_template_detections(party, streams_path, main_trace,
         # TODO: rename "maxs" to targets
         shifts = []
         indices = []
+        ccs = []
 
         # find reference index with strongest signal or median snr, this serves
         # as a template
@@ -1932,7 +1933,7 @@ def stack_template_detections(party, streams_path, main_trace,
                                    method='auto')
                     # find the index with the max correlation coefficient
                     max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
-                    print(cc.max())
+                    ccs.append(cc.max())
 
                     # keep track of negative correlation coefficients
                     if cc.max() < 0:
@@ -1953,7 +1954,7 @@ def stack_template_detections(party, streams_path, main_trace,
             shifts = None
             indices = None
 
-        return shifts, indices
+        return shifts, indices, ccs
 
     # helper function to align all traces in a stream based on xcorr shifts
     # from the main_trace for each pick time. Stream is altered in place and
@@ -2058,6 +2059,7 @@ def stack_template_detections(party, streams_path, main_trace,
     stack_pw = Stream()
     stack_lin = Stream()
     stations = list(station_dict.keys())
+    stack_ccs = []
     for station_idx, station in enumerate(stations):
         network = station_dict[station]["network"]
         channels = []
@@ -2126,9 +2128,12 @@ def stack_template_detections(party, streams_path, main_trace,
                     elif align_type == 'med' or align_type == 'max' or \
                             align_type == 'self':
                         # get xcorr time shift from reference signal
-                        shifts, indices = xcorr_time_shifts(sta_chan_stream,
+                        shifts, indices, ccs = xcorr_time_shifts(
+                                                            sta_chan_stream,
                                                             align_type,
                                                             template_times)
+                        # append cross-correlation coefficients to list
+                        stack_ccs.append(ccs)
 
                         # align stream traces from time shifts
                         align_stream(sta_chan_stream, shifts, indices)
@@ -2183,7 +2188,7 @@ def stack_template_detections(party, streams_path, main_trace,
     # if len(stack_lin) > 0:
     #     plot_stack(stack_lin, title='linear_stack', save=True)
 
-    return [stack_pw, stack_lin]
+    return [stack_pw, stack_lin, stack_ccs]
 
 
 def detections_from_stacks(stack, detection_files_path, start_date,
@@ -3040,7 +3045,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile.close()
 
     # plot stacks
-    stack_pw, stack_lin = stack_list
+    stack_pw, stack_lin, stack_ccs = stack_list
+    for item in stack_ccs:
+        print(len(item))
+    stack_ccs = np.array(stack_ccs)
 
     if plot:
         if len(stack_pw) > 0:
@@ -3143,7 +3151,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile.close()
 
     # plot second stacks
-    stack_pw, stack_lin = stack_list
+    stack_pw, stack_lin, stack_ccs = stack_list
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'phase_weighted_stack_t4_snr'
