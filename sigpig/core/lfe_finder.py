@@ -1886,8 +1886,10 @@ def stack_template_detections(party, streams_path, main_trace,
             # trim the reference trace to the template length
             # reference_trace = trace.copy().trim(template_times[0],
             #                                     template_times[1])
-            reference_trace = trace.copy().trim(template_times[0] + 4,
-                                                template_times[0] + 9)
+            # reference_trace = trace.copy().trim(template_times[0] + 4,
+            #                                     template_times[0] + 9)
+            reference_trace = trace.copy().trim(template_times[0]-2,
+                                                template_times[1])
 
             # print a warning if SNR is bad
             if ref_snr == 0:
@@ -1945,7 +1947,8 @@ def stack_template_detections(party, streams_path, main_trace,
 
                     # FIXME:
                         # add random shift for tesing
-                    random_shift = random.uniform(0.010, 0.200)
+                    # random_shift = random.uniform(0.010, 0.500)
+                    random_shift = 0
                     shifts.append((max_idx / trace.stats.sampling_rate) + 20
                                   + random_shift)
 
@@ -2067,7 +2070,7 @@ def stack_template_detections(party, streams_path, main_trace,
     stations = list(station_dict.keys())
     stack_ccs = []
     # keep track of missing files
-    missing_files = open("missing_files", "w")
+    # missing_files = open("missing_files", "w")
     for station_idx, station in enumerate(stations):
         network = station_dict[station]["network"]
         channels = []
@@ -2116,10 +2119,10 @@ def stack_template_detections(party, streams_path, main_trace,
                 # equality with pick_times
                 else:
                     sta_chan_stream += Trace()
-                    missing_files.write(f"No file for {network}.{station}."
-                                        f"{channel}.{pick_time.year}-"
-                                        f"{pick_time.month:02}-"
-                                        f" {pick_time.day:02}\n")
+                    # missing_files.write(f"No file for {network}.{station}."
+                    #                     f"{channel}.{pick_time.year}-"
+                    #                     f"{pick_time.month:02}-"
+                    #                     f" {pick_time.day:02}\n")
 
             # guard against empty stream
             if len(sta_chan_stream) > 0:
