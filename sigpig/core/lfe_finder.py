@@ -36,6 +36,7 @@ import os
 from celluloid import Camera
 from math import ceil
 import pandas as pd
+import random
 
 Logger = logging.getLogger(__name__)
 
@@ -1941,7 +1942,12 @@ def stack_template_detections(party, streams_path, main_trace,
 
                     # append the cross correlation time shift for this trace
                     # referenced from trace.stats.starttime
-                    shifts.append((max_idx / trace.stats.sampling_rate)+20)
+
+                    # FIXME:
+                        # add random shift for tesing
+                    random_shift = random.uniform(0.010, 0.200)
+                    shifts.append((max_idx / trace.stats.sampling_rate) + 20
+                                  + random_shift)
 
                 else:
                     # keep track of bad traces
@@ -2060,6 +2066,8 @@ def stack_template_detections(party, streams_path, main_trace,
     stack_lin = Stream()
     stations = list(station_dict.keys())
     stack_ccs = []
+    # keep track of missing files
+    missing_files = open("missing_files", "w")
     for station_idx, station in enumerate(stations):
         network = station_dict[station]["network"]
         channels = []
@@ -2108,6 +2116,10 @@ def stack_template_detections(party, streams_path, main_trace,
                 # equality with pick_times
                 else:
                     sta_chan_stream += Trace()
+                    missing_files.write(f"No file for {network}.{station}."
+                                        f"{channel}.{pick_time.year}-"
+                                        f"{pick_time.month:02}-"
+                                        f" {pick_time.day:02}\n")
 
             # guard against empty stream
             if len(sta_chan_stream) > 0:
@@ -2180,6 +2192,8 @@ def stack_template_detections(party, streams_path, main_trace,
 
                     except Exception:
                         pass
+
+    missing_files.close()
 
     # # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
     # if len(stack_pw) > 0:
@@ -3034,7 +3048,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
-                                               animate_stacks=True)
+                                               animate_stacks=False)
         # save stacks as pickle file
         outfile = open(f'top_{n}_stack_9sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
