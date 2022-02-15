@@ -2816,12 +2816,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'self'
+    shift_method = 'zero'
     load_party = True
     save_detections = False
 
     top_n = False
-    n = 100
+    n = 500
 
     load_stack = False
     load_stack_detects = False
@@ -3024,7 +3024,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # top 100 culled and sorted version
         infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 500 culled and sorted version
-        # infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
