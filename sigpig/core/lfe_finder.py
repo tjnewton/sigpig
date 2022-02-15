@@ -2196,7 +2196,7 @@ def stack_template_detections(party, streams_path, main_trace,
                     except Exception:
                         pass
 
-    missing_files.close()
+    # missing_files.close()
 
     # # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
     # if len(stack_pw) > 0:
