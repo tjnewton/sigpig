@@ -3045,8 +3045,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     else:
         # get the template start and end times
         family = sorted(party.families, key=lambda f: len(f))[-1]
-        template_times = [family.template.st[0].stats.starttime,
-                          family.template.st[0].stats.endtime]
+        # build a dict of template times that are used for determining cross-
+        # correlation time shifts for stacking (if align_type != 'zero')
+        template_times = {}
+        for trace in family.template.st:
+            ID = f"{trace.stats.network}.{trace.stats.station}." \
+                 f"{trace.stats.channel}"
+            # this selects the entire template including prepick as ref. signal
+            template_times[ID] = [trace.stats.starttime - template_prepick,
+                                  trace.stats.endtime]
+
         # stack the culled party detections
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
