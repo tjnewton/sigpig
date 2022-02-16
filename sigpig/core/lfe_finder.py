@@ -2072,8 +2072,8 @@ def stack_template_detections(party, streams_path, main_trace,
                         # add random shift for tesing
                     # random_shift = random.uniform(0.010, 0.500)
                     random_shift = 0
-                    shifts.append((max_idx / trace.stats.sampling_rate) + 20
-                                  + random_shift)
+                    shifts.append((max_idx / trace.stats.sampling_rate))# + 20
+                                  #+ random_shift)
 
                 else:
                     # keep track of bad traces
