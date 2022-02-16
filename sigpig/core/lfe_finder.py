@@ -1732,7 +1732,7 @@ def stack_template_detections(party, streams_path, main_trace,
                 # interpolate to 100 Hz
                 day_st.interpolate(sampling_rate=100)
                 # trim trace to 60 seconds surrounding pick time
-                day_st.trim(pick_time - 20, pick_time + 40, pad=True,
+                day_st.trim(pick_time - 27, pick_time + 33, pad=True,
                             fill_value=np.nan, nearest_sample=True)
                 # append snr
                 main_stream_snrs.append(snr(day_st)[0])
@@ -2013,6 +2013,18 @@ def stack_template_detections(party, streams_path, main_trace,
             reference_trace = trace.copy().trim(template_times[ID][0],
                                                 template_times[ID][1])
 
+            # check centering of signals
+            st = Stream()
+            st += stream[0]
+            st += reference_trace
+            st0_middle = st[0].stats.starttime + ((st[0].stats.npts / 2) / st[
+                                                        0].stats.sampling_rate)
+            st1_middle = st[1].stats.starttime + ((st[1].stats.npts / 2) / st[
+                1].stats.sampling_rate)
+            difference = st1_middle - st0_middle
+
+
+
             # print a warning if SNR is bad
             if ref_snr == 0:
                 print("- ! - ! - ! - ! - ! - ! -")
@@ -2033,12 +2045,12 @@ def stack_template_detections(party, streams_path, main_trace,
 
                 # length of trace must be greater than template for xcorr
                 if len(trace.data) > len(reference_trace.data):
-                    # correlate the reference trace through the trace
-                    cc = correlate_template(trace, reference_trace, mode='valid',
-                                            normalize='naive', demean=True,
-                                            method='auto')
-                    # find the index with the max correlation coefficient
-                    max_idx = np.argmax(cc)
+                    # # correlate the reference trace through the trace
+                    # cc = correlate_template(trace, reference_trace, mode='valid',
+                    #                         normalize='naive', demean=True,
+                    #                         method='auto')
+                    # # find the index with the max correlation coefficient
+                    # max_idx = np.argmax(cc)
 
                     # # to visualize a trace, the template, and the max correlation
                     # stt = Stream()
@@ -2052,13 +2064,14 @@ def stack_template_detections(party, streams_path, main_trace,
                     # stt[2].stats.starttime = stt[1].stats.starttime
                     # stt.plot()
 
-                    # # correlate the reference trace through the trace
-                    # max_shift = 100 # maximum xcorr shift in samples
-                    # cc = correlate(trace, reference_trace, max_shift,
-                    #                demean=True, normalize='naive',
-                    #                method='auto')
-                    # # find the index with the max correlation coefficient
-                    # max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
+                    # correlate the reference trace through the trace
+                    # FIXME: check centering
+                    max_shift = 50 # maximum xcorr shift in samples
+                    cc = correlate(trace, reference_trace, max_shift,
+                                   demean=True, normalize='naive',
+                                   method='auto')
+                    # find the index with the max correlation coefficient
+                    max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
                     ccs.append(cc.max())
 
                     # keep track of negative correlation coefficients
@@ -2181,7 +2194,7 @@ def stack_template_detections(party, streams_path, main_trace,
         main_stream, _ = build_main_stream(main_trace, streams_path,
                                            pick_times)
         # get the fixed location time shifts from the main trace
-        shifts, indices = xcorr_time_shifts(main_stream, 'self',
+        shifts, indices, ccs = xcorr_time_shifts(main_stream, 'self',
                                             template_times, streams_path)
 
         # free up memory
@@ -2279,6 +2292,8 @@ def stack_template_detections(party, streams_path, main_trace,
                     else:
                         # align stream traces from fixed location time shifts
                         align_stream(sta_chan_stream, shifts, indices)
+                        # append cross-correlation coefficients to list
+                        stack_ccs.append(ccs)
 
                     # plot aligned stream to verify align function works
                     # plot_stream_absolute(sta_chan_stream[:100])
@@ -2816,12 +2831,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'self'
+    shift_method = 'fixed'
     load_party = True
     save_detections = False
 
     top_n = False
-    n = 500
+    n = 100
 
     load_stack = False
     load_stack_detects = False
@@ -3210,6 +3225,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                 pass
         padded_stack_ccs.append(row_ccs)
     stack_ccs = np.array(padded_stack_ccs)
+    plt.hist(stack_ccs[9])
+    plt.show()
 
     if plot:
         if len(stack_pw) > 0:
