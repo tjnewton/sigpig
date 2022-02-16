@@ -2033,12 +2033,12 @@ def stack_template_detections(party, streams_path, main_trace,
 
                 # length of trace must be greater than template for xcorr
                 if len(trace.data) > len(reference_trace.data):
-                    # # correlate the reference trace through the trace
-                    # cc = correlate_template(trace, reference_trace, mode='valid',
-                    #                         normalize='naive', demean=True,
-                    #                         method='auto')
-                    # # find the index with the max correlation coefficient
-                    # max_idx = np.argmax(cc)
+                    # correlate the reference trace through the trace
+                    cc = correlate_template(trace, reference_trace, mode='valid',
+                                            normalize='naive', demean=True,
+                                            method='auto')
+                    # find the index with the max correlation coefficient
+                    max_idx = np.argmax(cc)
 
                     # # to visualize a trace, the template, and the max correlation
                     # stt = Stream()
@@ -2052,13 +2052,13 @@ def stack_template_detections(party, streams_path, main_trace,
                     # stt[2].stats.starttime = stt[1].stats.starttime
                     # stt.plot()
 
-                    # correlate the reference trace through the trace
-                    max_shift = 100 # maximum xcorr shift in samples
-                    cc = correlate(trace, reference_trace, max_shift,
-                                   demean=True, normalize='naive',
-                                   method='auto')
-                    # find the index with the max correlation coefficient
-                    max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
+                    # # correlate the reference trace through the trace
+                    # max_shift = 100 # maximum xcorr shift in samples
+                    # cc = correlate(trace, reference_trace, max_shift,
+                    #                demean=True, normalize='naive',
+                    #                method='auto')
+                    # # find the index with the max correlation coefficient
+                    # max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
                     ccs.append(cc.max())
 
                     # keep track of negative correlation coefficients
@@ -2816,7 +2816,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'zero'
+    shift_method = 'self'
     load_party = True
     save_detections = False
 
