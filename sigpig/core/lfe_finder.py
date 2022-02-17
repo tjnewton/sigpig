@@ -2832,12 +2832,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'fixed'
+    shift_method = 'zero'
     load_party = True
     save_detections = True
 
     top_n = True
-    n = 100
+    n = 500
 
     load_stack = False
     load_stack_detects = False
@@ -3033,15 +3033,23 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # top 1000 culled and sorted version
         # infile = open('top_1000_5sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
-        # 9 station, 3 component, 14 second template
+
+        # 9 station, 3 component, 14 second template, raw detections
         infile = open('t6_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+
+        # SNR 1-9
         # top 808 culled and sorted version
         infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 100 culled and sorted version SNR 1-9
         infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
         # top 500 culled and sorted version SNR 1-9
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
-        # top 500 culled and sorted version SNR 1-15
+
+        # SNR 1-15
+        # top N culled and sorted version SNR 1-15
+        infile = open('top_50_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        infile = open('top_250_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
         party = pickle.load(infile)
@@ -3213,25 +3221,26 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     # plot stacks
     stack_pw, stack_lin, stack_ccs = stack_list
-    # stack_ccs has uneven lengths of rows
-    for item in stack_ccs:
-        print(len(item))
-    # pad stack_ccs rows to view as np.array
-    padded_stack_ccs = []
-    for row in range(len(stack_ccs)):
-        row_ccs = []
-        for column in range(0, n):
-            try:
-                row_ccs.append(stack_ccs[row][column])
-            except Exception:
-                row_ccs.append(0)
-                pass
-        padded_stack_ccs.append(row_ccs)
-    stack_ccs = np.array(padded_stack_ccs)
-    plt.hist(stack_ccs[0])
-    plt.show()
-    for trace in stack_pw:
-        print(trace.stats.npts)
+
+    # # stack_ccs has uneven lengths of rows
+    # for item in stack_ccs:
+    #     print(len(item))
+    # # pad stack_ccs rows to view as np.array
+    # padded_stack_ccs = []
+    # for row in range(len(stack_ccs)):
+    #     row_ccs = []
+    #     for column in range(0, n):
+    #         try:
+    #             row_ccs.append(stack_ccs[row][column])
+    #         except Exception:
+    #             row_ccs.append(0)
+    #             pass
+    #     padded_stack_ccs.append(row_ccs)
+    # stack_ccs = np.array(padded_stack_ccs)
+    # plt.hist(stack_ccs[0])
+    # plt.show()
+    # for trace in stack_pw:
+    #     print(trace.stats.npts)
 
     if plot:
         if len(stack_pw) > 0:
@@ -3260,7 +3269,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             #                         f'{shift_method}Shift_abs.24_16s')
 
             plot_template_and_stack(party, stack_lin, stack_pw,
-                                    detection_files_path, 5, save=True,
+                                    detection_files_path, 6, save=True,
                                     title=f'top_{n}_9sta_stacks_templates_sn'
                                           f'r{snr_threshold[0]}-'
                                           f'{snr_threshold[1]}_'
