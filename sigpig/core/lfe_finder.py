@@ -2085,8 +2085,8 @@ def stack_template_detections(party, streams_path, main_trace,
                         # add random shift for tesing
                     # random_shift = random.uniform(0.010, 0.500)
                     random_shift = 0
-                    shifts.append((max_idx / trace.stats.sampling_rate))# + 20
-                                  #+ random_shift)
+                    shifts.append((max_idx / trace.stats.sampling_rate) + 20
+                                  + random_shift)
 
                 else:
                     # keep track of bad traces
@@ -2800,7 +2800,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # set snr threshold to cull the party detections
         # snr_threshold = [1.0, 25.0] # [1.0, 8.0]
-        snr_threshold = [1.0, 9.0]
+        # snr_threshold = [1.0, 9.0]
+        snr_threshold = [1.0, 15.0]
         # set detection threshold and type
         detect_thresh = 8.0
         thresh_type = "MAD"
@@ -2833,16 +2834,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'fixed'
     load_party = True
-    save_detections = False
+    save_detections = True
 
-    top_n = False
+    top_n = True
     n = 100
 
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
     cull = False
-    plot = True
+    plot = False
 
     # get main station template detections
     if load_party:
@@ -3033,13 +3034,15 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # infile = open('top_1000_5sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
 
         # 9 station, 3 component, 14 second template
-        # infile = open('t6_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
+        infile = open('t6_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl', 'rb')
         # top 808 culled and sorted version
-        # infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
-        # top 100 culled and sorted version
+        infile = open('top_808_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
+        # top 100 culled and sorted version SNR 1-9
         infile = open('top_100_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl', 'rb')
-        # top 500 culled and sorted version
+        # top 500 culled and sorted version SNR 1-9
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party.pkl','rb')
+        # top 500 culled and sorted version SNR 1-15
+        infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -3133,13 +3136,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             # save party detections as text file
             df.to_csv(f"top_{n}_5sta_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
-                      f"{detect_thresh}_culled_sorted_detections.csv",
+                      f"{detect_thresh}_culled_sorted_detections_1-15.csv",
                       index=False)
 
             # save party to pickle file
             outfile = open(f"top_{n}_9sta_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
-                      f"{detect_thresh}_culled_sorted_party.pkl", 'wb')
+                      f"{detect_thresh}_culled_sorted_party_1-15.pkl", 'wb')
 
             pickle.dump(party, outfile)
             outfile.close()
@@ -3158,7 +3161,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         plot_stack(detection_stream[:100],
                    title=f"top_{n}_9sta_3comp_t6_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
-                         f"{detect_thresh}_culled_sorted_1-9SNR", save=True)
+                         f"{detect_thresh}_culled_sorted_1-15SNR", save=True)
         # free up some memory
         del detection_stream
 
@@ -3225,8 +3228,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                 pass
         padded_stack_ccs.append(row_ccs)
     stack_ccs = np.array(padded_stack_ccs)
-    plt.hist(stack_ccs[9])
+    plt.hist(stack_ccs[0])
     plt.show()
+    for trace in stack_pw:
+        print(trace.stats.npts)
 
     if plot:
         if len(stack_pw) > 0:
@@ -3256,12 +3261,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
             plot_template_and_stack(party, stack_lin, stack_pw,
                                     detection_files_path, 5, save=True,
-                                    title=f'top_{n}_stacks_templates_sn'
+                                    title=f'top_{n}_9sta_stacks_templates_sn'
                                           f'r{snr_threshold[0]}-'
                                           f'{snr_threshold[1]}_'
                                           f'{shift_method}Shift_'
                                           f'{thresh_type}'
-                                          f'{detect_thresh}_7s_100Hz_prepick')
+                                          f'{detect_thresh}_14s')
 
         # # plot zoomed in
         # if len(stack_pw) > 0:
