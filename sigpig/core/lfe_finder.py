@@ -2080,13 +2080,7 @@ def stack_template_detections(party, streams_path, main_trace,
 
                     # append the cross correlation time shift for this trace
                     # referenced from trace.stats.starttime
-
-                    # FIXME:
-                        # add random shift for tesing
-                    # random_shift = random.uniform(0.010, 0.500)
-                    random_shift = 0
-                    shifts.append((max_idx / trace.stats.sampling_rate) + 20
-                                  + random_shift)
+                    shifts.append((max_idx / trace.stats.sampling_rate))
 
                 else:
                     # keep track of bad traces
@@ -2262,6 +2256,23 @@ def stack_template_detections(party, streams_path, main_trace,
 
             # guard against empty stream
             if len(sta_chan_stream) > 0:
+
+                # FIXME: delete after testing
+                # Temp to plot traces and their shifts
+                st = Stream()
+                for tr_idx in range(0, 10):
+                    tr = sta_chan_stream[tr_idx].copy()
+                    tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z")
+                    st += tr
+                    tr2 = sta_chan_stream[tr_idx].copy()
+                    tr2.stats.starttime = UTCDateTime(
+                        "2016-01-01T12:00:00.0Z") - shifts[tr_idx]
+                    tr2.trim(UTCDateTime("2016-01-01T12:00:00.0Z"),
+                            UTCDateTime("2016-01-01T12:01:00.0Z"), pad=True,
+                                fill_value=0, nearest_sample=True)
+                    st += tr2
+                plot_stack(st)
+                # FIXME: delete above after testing
 
                 # guard against stream of empty traces
                 EMPTY_FLAG = True
@@ -2832,12 +2843,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'zero'
+    shift_method = 'fixed'
     load_party = True
     save_detections = True
 
     top_n = True
-    n = 500
+    n = 100
 
     load_stack = False
     load_stack_detects = False
