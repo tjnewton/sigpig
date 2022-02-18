@@ -2080,7 +2080,7 @@ def stack_template_detections(party, streams_path, main_trace,
 
                     # append the cross correlation time shift for this trace
                     # referenced from trace.stats.starttime
-                    shifts.append((max_idx / trace.stats.sampling_rate))
+                    shifts.append((max_idx / trace.stats.sampling_rate) + 20)
 
                 else:
                     # keep track of bad traces
@@ -2257,22 +2257,22 @@ def stack_template_detections(party, streams_path, main_trace,
             # guard against empty stream
             if len(sta_chan_stream) > 0:
 
-                # FIXME: delete after testing
-                # Temp to plot traces and their shifts
-                st = Stream()
-                for tr_idx in range(0, 10):
-                    tr = sta_chan_stream[tr_idx].copy()
-                    tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z")
-                    st += tr
-                    tr2 = sta_chan_stream[tr_idx].copy()
-                    tr2.stats.starttime = UTCDateTime(
-                        "2016-01-01T12:00:00.0Z") - shifts[tr_idx]
-                    tr2.trim(UTCDateTime("2016-01-01T12:00:00.0Z"),
-                            UTCDateTime("2016-01-01T12:01:00.0Z"), pad=True,
-                                fill_value=0, nearest_sample=True)
-                    st += tr2
-                plot_stack(st)
-                # FIXME: delete above after testing
+                # # FIXME: delete after testing
+                # # Temp to plot traces and their shifts
+                # st = Stream()
+                # for tr_idx in range(0, 10):
+                #     tr = sta_chan_stream[tr_idx].copy()
+                #     tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z")
+                #     st += tr
+                #     tr2 = sta_chan_stream[tr_idx].copy()
+                #     tr2.stats.starttime = UTCDateTime(
+                #         "2016-01-01T12:00:00.0Z") - shifts[tr_idx]
+                #     tr2.trim(UTCDateTime("2016-01-01T12:00:00.0Z"),
+                #             UTCDateTime("2016-01-01T12:01:00.0Z"), pad=True,
+                #                 fill_value=0, nearest_sample=True)
+                #     st += tr2
+                # plot_stack(st)
+                # # FIXME: delete above after testing
 
                 # guard against stream of empty traces
                 EMPTY_FLAG = True
@@ -2848,13 +2848,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = True
 
     top_n = True
-    n = 100
+    n = 50
 
     load_stack = False
     load_stack_detects = False
     load_second_stack = False
     cull = False
-    plot = False
+    plot = True
 
     # get main station template detections
     if load_party:
@@ -3260,7 +3260,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s',
+                                       f'{detect_thresh}_14sX',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -3268,7 +3268,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s',
+                                        f'{detect_thresh}_14sX',
                        save=True)
 
             # now plot template with the linear stack from same station for
