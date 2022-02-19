@@ -897,7 +897,10 @@ def plot_template_and_stack(party, stack_lin, stack_pw,
             elif template == 5:
                 template_start = UTCDateTime("2016-09-26T09:25:28.0Z")
             elif template == 6:
-                template_start = UTCDateTime("2016-09-26T09:25:38.0Z")
+                # for 'fixed' shift
+                # template_start = UTCDateTime("2016-09-26T09:25:38.0Z")
+                # for 'zero' shift
+                template_start = UTCDateTime("2016-09-26T09:25:43.0Z")
 
             # make sure sampling is 40 Hz
             template_trace.interpolate(sampling_rate=100.0)
