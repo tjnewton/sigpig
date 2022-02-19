@@ -612,14 +612,25 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
 
     elif project_Name == "Alaska":
         # build stream of all station files for templates
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates" \
-                     "/2016-09-26"
-        filepaths = glob.glob(f"{files_path}/*.ms")
+        files_path = "/Users/human/ak_data/inner"
+        filepaths = []
+        for channel in channels:
+            filepaths += glob.glob(f"{files_path}/*.{channel}"
+                                   f".{start_Time.year}-{start_Time.month:02}-"
+                                   f"{start_Time.day:02}.ms")
 
         obspyStream = Stream()
         for filepath_idx in range(len(filepaths)):
-            obspyStream += read(filepaths[filepath_idx]).merge(method=1,
-                                                               fill_value=None)
+            st = read(filepaths[filepath_idx]).merge(method=1, fill_value=None)
+            st.trim(start_Time - 30, end_Time + 30, pad=True,
+                        fill_value=np.nan, nearest_sample=True)
+            st.detrend()
+            # interpolate to 100 Hz
+            st.interpolate(sampling_rate=100.0)
+            # bandpass filter
+            st.filter('bandpass', freqmin=1, freqmax=15)
+
+            obspyStream += st
 
     # make sure all traces have the same sampling rate (and thus number of
     # samples and length) to avoid bugs in other programs, e.g. Snuffler
@@ -646,7 +657,8 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
         # obspy.signal.interpolation.plot_lanczos_windows(a=30)
     else:
         # trim to specified time period
-        obspyStream = obspyStream.trim(start_Time, end_Time)
+        obspyStream.trim(start_Time, end_Time, pad=True, fill_value=np.nan,
+                         nearest_sample=True)
 
     if write_File:
         # format filename and save Stream as miniseed file
