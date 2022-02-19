@@ -2256,8 +2256,8 @@ def stack_template_detections(party, streams_path, main_trace,
 
             # guard against empty stream
             if len(sta_chan_stream) > 0:
-                sta_chan_stream.write(f"{network}.{station}.{channel}.ms",
-                                     format="MSEED")
+                # sta_chan_stream.write(f"{network}.{station}.{channel}.ms",
+                #                      format="MSEED")
 
                 # # FIXME: delete after testing
                 # # Temp to plot traces and their shifts
@@ -2416,11 +2416,25 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         # st2.plot()
 
         # t4: 2016  9 27  6 31 15.00
-        picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 22, 0),
-                          phase_hint="P", waveform_id=WaveformStreamID(
-                          network_code=trace.stats.network,
-                          station_code=trace.stats.station,
-                          channel_code=trace.stats.channel)))
+        if trace.stats.station == "RH08":
+            picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 27, 0),
+                              phase_hint="P", waveform_id=WaveformStreamID(
+                    network_code=trace.stats.network,
+                    station_code=trace.stats.station,
+                    channel_code=trace.stats.channel)))
+        elif trace.stats.station == "RH10" or trace.stats.station == "MCR1" \
+                or trace.stats.station == "RH09":
+            picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 26, 0),
+                              phase_hint="P", waveform_id=WaveformStreamID(
+                    network_code=trace.stats.network,
+                    station_code=trace.stats.station,
+                    channel_code=trace.stats.channel)))
+        else:
+            picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 22, 0),
+                              phase_hint="P", waveform_id=WaveformStreamID(
+                              network_code=trace.stats.network,
+                              station_code=trace.stats.station,
+                              channel_code=trace.stats.channel)))
 
     # build catalog object from picks list with made up origin and magnitude
     event = Event(origins=[Origin(latitude=61.9833, longitude=-144.0437,
@@ -3158,7 +3172,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_9sta_3comp_t6_{template_length}s_"
+            outfile = open(f"top_{n}_stacksDetects_9sta_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_party_1-15.pkl", 'wb')
 
@@ -3177,7 +3191,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_9sta_3comp_t6_{template_length}s_"
+                   title=f"top_{n}_stacksDetects_9sta_3comp_t6"
+                         f"_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted_1-15SNR", save=True)
         # free up some memory
@@ -3221,7 +3236,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_stack_9sta_t6_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_stackDS_9sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_14s_UN.pkl', 'wb')
@@ -3256,7 +3271,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'top_'
-                                       f'{n}_9sta_phase_weighted_stack_snr'
+                                       f'{n}_9sta_phase_weighted_stackDS_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
@@ -3264,7 +3279,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        save=False)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stack_sn'
+            plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stackDS_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
@@ -3307,14 +3322,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # use stacks as templates in matched-filter search to build catalog of
     # detections
     if load_stack_detects:
-        # MAD 8 template: 39,176 detections
-        # MAD 9 template: 39,185 detections
+        # MAD 8 template: 1728 detections
+        # culled MAD 8 detections: 1581
         # load stack list from file
         infile = open(f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
                    f'{end_date.year}_{thresh_type}'
-                      f'{detect_thresh}_7s_t4_stackDetects_MAD8.pkl', 'rb')
+                      f'{detect_thresh}_14s_stackDetects.pkl', 'rb')
         party = pickle.load(infile)
         infile.close()
     else:
@@ -3331,6 +3346,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             family = sorted(party.families, key=lambda f: len(f))[-1]
             fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
+    # TODO: Call to cull
+
+    # TODO: Call to top_n
+
     # make another stack from the new detections
     if load_second_stack:
         # load stack list from file
@@ -3339,7 +3358,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = pickle.load(infile)
         infile.close()
     else:
-        # FIXME: check if this stacking routine is still compatible
+        # TODO: add changed stack call
+
         # stack the culled party detections
         stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace,
