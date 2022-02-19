@@ -2256,6 +2256,8 @@ def stack_template_detections(party, streams_path, main_trace,
 
             # guard against empty stream
             if len(sta_chan_stream) > 0:
+                sta_chan_stream.write(f"{network}.{station}.{channel}.ms",
+                                     format="MSEED")
 
                 # # FIXME: delete after testing
                 # # Temp to plot traces and their shifts
