@@ -2319,9 +2319,8 @@ def stack_template_detections(party, streams_path, main_trace,
                         # manimation.writers.list()
 
                         # generate linear and phase-weighted stack
-                        # FIXME: toggle normalization back on
                         lin, pws = generate_stacks(sta_chan_stream,
-                                                   normalize=False,
+                                                   normalize=True,
                                                    animate=animate_stacks)
 
                         # add phase-weighted stack to stream
@@ -2846,7 +2845,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'fixed'
+    shift_method = 'zero'
     load_party = True
     save_detections = True
 
@@ -3125,7 +3124,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # FIXME: move this to a sort function, too complex for inline
         data = []
         for index, detection in enumerate(party.families[0].detections):
-            data.append(detection.detect_time)
             data.append(
                 [index, detection.detect_time, abs(detection.detect_val),
                  detection.threshold, detection.threshold_type,
