@@ -2380,34 +2380,31 @@ def detections_from_stacks(stack, detection_files_path, start_date,
     picks = []
     add_noise = False
     for index, trace in enumerate(stack):
-        # only use the main trace
-        if trace.stats.network == main_trace[0] and trace.stats.station == \
-                main_trace[1] and trace.stats.channel == main_trace[2]:
-            if add_noise:
-                # take first 10 seconds of trace data as noise
-                tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
-                # generate a gaussian distribution and extract values from12 it to
-                # generate synthetic noise to fill day-long stream
-                tr_mean = tr_data.mean()
-                tr_stdev = tr_data.std()
-                # extend the stack to be a day long
-                st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
-                                 "2016-01-01T23:59:59.99999999999Z"), pad=True,
-                                 fill_value=0, nearest_sample=True)
+        if add_noise:
+            # take first 10 seconds of trace data as noise
+            tr_data = trace.data[:int(10 * trace.stats.sampling_rate)]
+            # generate a gaussian distribution and extract values from12 it to
+            # generate synthetic noise to fill day-long stream
+            tr_mean = tr_data.mean()
+            tr_stdev = tr_data.std()
+            # extend the stack to be a day long
+            st += trace.trim(UTCDateTime("2016-01-01T00:00:00.0Z"), UTCDateTime(
+                             "2016-01-01T23:59:59.99999999999Z"), pad=True,
+                             fill_value=0, nearest_sample=True)
 
-                # fill the data before the stack
-                samples = int(43180 * trace.stats.sampling_rate)
-                tr_data = np.random.normal(tr_mean, tr_stdev, samples)
-                st[index].data[:samples] = tr_data
-                # then fill the data after the stack
-                tr_data = np.random.normal(tr_mean, tr_stdev, samples)
-                st[index].data[-1 * samples:] = tr_data
+            # fill the data before the stack
+            samples = int(43180 * trace.stats.sampling_rate)
+            tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+            st[index].data[:samples] = tr_data
+            # then fill the data after the stack
+            tr_data = np.random.normal(tr_mean, tr_stdev, samples)
+            st[index].data[-1 * samples:] = tr_data
 
-                # set process length for EQcorrscan
-                process_len = 86400
-            else:
-                st += trace
-                process_len = 40
+            # set process length for EQcorrscan
+            process_len = 86400
+        else:
+            st += trace
+            process_len = 40
 
         # # for testing
         # new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 5
@@ -2419,7 +2416,7 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         # st2.plot()
 
         # t4: 2016  9 27  6 31 15.00
-        picks.append(Pick(time=UTCDateTime(2016, 1, 1, 11, 59, 57, 400000),
+        picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 22, 0),
                           phase_hint="P", waveform_id=WaveformStreamID(
                           network_code=trace.stats.network,
                           station_code=trace.stats.station,
@@ -2427,7 +2424,7 @@ def detections_from_stacks(stack, detection_files_path, start_date,
 
     # build catalog object from picks list with made up origin and magnitude
     event = Event(origins=[Origin(latitude=61.9833, longitude=-144.0437,
-                        depth=1700, time=UTCDateTime(2016, 1, 1, 11, 59, 58))],
+                        depth=1700, time=UTCDateTime(2016, 1, 1, 0, 0, 22))],
                   magnitudes=[Magnitude(mag=1.1)], picks=picks)
     catalog = Catalog([event])
 
@@ -2435,7 +2432,7 @@ def detections_from_stacks(stack, detection_files_path, start_date,
     stack_template = Tribe().construct(method="from_meta_file",
                                        meta_file=catalog, st=st, lowcut=1.0,
                                        highcut=15.0, samp_rate=100.0,
-                                       length=11.6, filt_order=4, prepick=0.0,
+                                       length=12.0, filt_order=4, prepick=2.0,
                                        swin='all', process_len=process_len,
                                        parallel=True, skip_short_chans=False)
 
@@ -2512,7 +2509,7 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
-                   f'{end_date.year}_MAD8_7s_stackDetects.pkl'
+                   f'{end_date.year}_MAD8_14s_stackDetects.pkl'
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
@@ -2833,7 +2830,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                           template_length, template_prepick,
                           detection_files_path, start_date, end_date,
                           snr_threshold, main_trace,
-                          detect_thresh, thresh_type, shift_method='self',
+                          detect_thresh, thresh_type, shift_method='zero',
                           load_party=True, save_detections=False, cull=False,
                           load_stack=True, load_stack_detects=True,
                           load_second_stack=True, plot=True)
@@ -3232,7 +3229,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         pickle.dump(stack_list, outfile)
         outfile.close()
 
-    # plot stacks
+    # expand list into items
     stack_pw, stack_lin, stack_ccs = stack_list
 
     # # stack_ccs has uneven lengths of rows
@@ -3255,6 +3252,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # for trace in stack_pw:
     #     print(trace.stats.npts)
 
+    # plot stacks
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'top_'
@@ -3262,16 +3260,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_UN',
-                       save=True)
+                                       f'{detect_thresh}_14s',
+                       save=False)
 
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_UN',
-                       save=True)
+                                        f'{detect_thresh}_14s',
+                       save=False)
 
             # now plot template with the linear stack from same station for
             # comparison
