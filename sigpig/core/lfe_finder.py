@@ -3076,6 +3076,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_250_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
+        # StacksDetects SNR 1-15 from top_250 linear stack
+        infile = open('stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        infile = open('top_1000_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+
         party = pickle.load(infile)
         infile.close()
     else:
@@ -3239,7 +3243,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile = open(f'top_{n}_stackDS_9sta_t6_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s_UN.pkl', 'wb')
+                       f'{detect_thresh}_14s.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -3276,7 +3280,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
                                        f'{detect_thresh}_14s',
-                       save=False)
+                       save=True)
 
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stackDS_sn'
@@ -3284,7 +3288,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
                                         f'{detect_thresh}_14s',
-                       save=False)
+                       save=True)
 
             # now plot template with the linear stack from same station for
             # comparison
