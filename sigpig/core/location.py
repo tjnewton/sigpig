@@ -362,6 +362,9 @@ def picks_to_nonlinloc(marker_file_path):
         marker_file_path = "event_picks.mrkr"
         picks_to_nonlinloc(marker_file_path)
     """
+    # keep track of event ID's
+    event_ids = []
+    first_event = True
     # read the marker file line by line
     with open("nll_picks.obs", "w") as write_file:
         with open(marker_file_path, 'r') as file:
@@ -375,6 +378,21 @@ def picks_to_nonlinloc(marker_file_path):
                     if (line_Contents[0:5] == 'phase') and (line_Contents[
                         -20:-19] == 'P') and (line_Contents[33:35] == '20') \
                             and (len(line_Contents) > 168):
+                        # get the event id (snuffler time hash)
+                        event_id = line_Contents[-77:-49]
+                        # check if event has been found yet
+                        if event_id not in event_ids:
+                            event_ids.append(event_id)
+                            # the first event header has location information
+                            if first_event:
+                                write_file.write("# EQEVENT:  Label: EQ001  "
+                                                 "Loc:  X 10.0  Y 100.0  Z "
+                                                 "0.07  OT 0.00\n")
+                                first_event = False
+                            else:
+                                # subsequent event headers are generic
+                                event_header = "#\n# EQEVENT:\n"
+                                write_file.write(event_header)
 
                         pick_station = line_Contents[-95:-78].strip().split('.')[1]
                         # convert UGAP station names
@@ -597,7 +615,8 @@ def location_pdfs_to_grid(pdfs, project_name):
             # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75/loc/RR.hyp"
             # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65/loc/RR.hyp"
             # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.4-0.55/loc/RR.hyp"
-            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.3-0.45/loc/RR.hyp"
+            # file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.3-0.45/loc/RR.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_newPicks/relocated/RR.hyp"
             pdfs = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
