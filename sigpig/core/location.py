@@ -359,7 +359,7 @@ def picks_to_nonlinloc(marker_file_path):
     Side effects: writes .obs file to current path
 
     Example:
-        marker_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
+        marker_file_path = "event_picks.mrkr"
         picks_to_nonlinloc(marker_file_path)
     """
     # read the marker file line by line
@@ -376,7 +376,7 @@ def picks_to_nonlinloc(marker_file_path):
                         -20:-19] == 'P') and (line_Contents[33:35] == '20') \
                             and (len(line_Contents) > 168):
 
-                        pick_station = line_Contents[79:96].strip().split('.')[1]
+                        pick_station = line_Contents[-95:-78].strip().split('.')[1]
                         # convert UGAP station names
                         if pick_station == "UGAP3":
                             pick_station = "103"
@@ -385,7 +385,7 @@ def picks_to_nonlinloc(marker_file_path):
                         elif pick_station == "UGAP6":
                             pick_station = "106"
 
-                        pick_channel = line_Contents[79:96].strip().split('.')[3]
+                        pick_channel = line_Contents[-95:-78].strip().split('.')[3]
                         start_time = UTCDateTime(line_Contents[7:32])
                         end_time = UTCDateTime(line_Contents[33:58])
                         one_sigma = (end_time - start_time) / 2
