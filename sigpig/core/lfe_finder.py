@@ -2142,7 +2142,8 @@ def stack_template_detections(party, streams_path, main_trace,
         # shift each trace of stream in place to avoid memory issues
         for tr_idx, tr in enumerate(stream):
             # create false starttime to shift around
-            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z")
+            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + 3
+                                            # add 4 seconds for second stack
 
         new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
         new_end_time = new_start_time + 40
@@ -2523,7 +2524,7 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
-                   f'{end_date.year}_MAD8_14s_stackDetects.pkl'
+                   f'{end_date.year}_MAD8_14s_stackDetects2.pkl'
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
@@ -2861,7 +2862,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = True
 
     top_n = True
-    n = 100
+    n = 250
 
     load_stack = False
     load_stack_detects = False
@@ -3078,8 +3079,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_978_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
         # StacksDetects SNR 1-15 from top_250 linear stack
-        infile = open('stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        infile = open('top_250_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_1000_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        infile = open('stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -3358,8 +3360,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # make another stack from the new detections
     if load_second_stack:
         # load stack list from file
-        infile = open(f'inner_stack_2_snr{snr_threshold}_'
-                      f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
+        infile = open(f'top_{n}_stackDS_9sta_t6_snr{snr_threshold[0]}-'
+                      f'{snr_threshold[1]}_'
+                      f'{shift_method}Shift_MAD8.0_14s.pkl', 'rb')
         stack_list = pickle.load(infile)
         infile.close()
     else:
