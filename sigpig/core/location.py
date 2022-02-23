@@ -525,15 +525,13 @@ def extract_nll_locations(file_path):
     Example:
         # specify the path to the summed location file (containing SCATTER lines)
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75/relocated/RR.hyp"
-        extract_nll_locations(file_path)
-
-        # then plot with gmt/RR_pdfs_plot.sh
-        # however note the limitations of gridding in GMT and instead use the
-        # location_pdfs_to_grid function below to plot raw gridded pdf weight
-        # sums.
+        # get event pdfs and hypocenters via this function
+        pdfs, hypocenters = extract_nll_locations(file_path)
     """
+    # define containers to hold results
     hypocenters = []
     pdfs = []
+    rms = []
     velocity_range = file_path[-25:-17]
 
     # read the hypocenter file line by line
@@ -556,9 +554,11 @@ def extract_nll_locations(file_path):
                               round(float(line[6]) * 1000, 4)]
 
             # if line contains RMS: save it
-            elif line_contents[:7] == "QUALITY" and SAVE_FLAG:
+            elif line_contents[:7] == "QUALITY":
                 line = line_contents.split()
-                hypocenter.append(float(line[8]))
+
+                if SAVE_FLAG:
+                    hypocenter.append(float(line[8]))
 
             # check for pdf flag
             elif line_contents[:7] == "SCATTER":
@@ -601,7 +601,9 @@ def extract_nll_locations(file_path):
     #         line = f"{lon} {pdf[2] * -1} {pdf[3]}\n"
     #         write_file.write(line)
 
-    return pd.DataFrame(pdfs, columns = ['x', 'y', 'z', 'weight'])
+    pdfs = pd.DataFrame(pdfs, columns = ['x', 'y', 'z', 'weight'])
+
+    return pdfs, hypocenters
 
 
 def location_pdfs_to_grid(pdfs, project_name):
