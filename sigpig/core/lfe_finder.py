@@ -2142,7 +2142,7 @@ def stack_template_detections(party, streams_path, main_trace,
         # shift each trace of stream in place to avoid memory issues
         for tr_idx, tr in enumerate(stream):
             # create false starttime to shift around
-            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + 3
+            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + 2#3
                                             # add 4 seconds for second stack
 
         new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
@@ -3083,6 +3083,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_1000_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
+        # StacksDetects SNR 1-15 from top_250 linear stack of top_250 linear
+        # stack, with 2 second shift from zero, 1423 detections
+        infile = open('top_250_stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        infile = open('stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+
+
         party = pickle.load(infile)
         infile.close()
     else:
@@ -3179,7 +3185,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_stacksDetects_9sta_3comp_t6_{template_length}s_"
+            outfile = open(f"top_{n}_stacksDetects2_9sta_3comp_t6"
+                           f"_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_party_1-15.pkl", 'wb')
 
