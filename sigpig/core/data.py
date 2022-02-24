@@ -1666,7 +1666,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
         # Define the file paths containing the autopicked .mrkr file and the
         # .mrkr file containing manually assigned uncertainties.
         autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-07_09_2018.mrkr"
-        uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/loc_picks.mrkr"
+        uncertainty_file_path = "/Users/human/Dropbox/Programs/snuffler/214_loc_picks.mrkr"
         process_autopicked_events(autopicked_file_path, uncertainty_file_path)
     """
     # get all events (n=-1) from autopicked file
@@ -1732,7 +1732,7 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
 
                     # the pick time corresponds with the middle entry in the
                     # unet predictions array @ index 60, sum over 5 samples
-                    unet_predictions.append(np.sum(unet_prediction[0][30:90]))
+                    unet_predictions.append(np.sum(unet_prediction[0][58:63]))
 
                     # only consider 0.5 second of data (this is a busy dataset)
                     st.trim(start_time - 0.4, start_time + 0.6, pad=True,
