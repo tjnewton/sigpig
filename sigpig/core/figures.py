@@ -1275,6 +1275,15 @@ def plot_trace_curvature(trace, pick_time):
     return None
 
 
+def spectrogram(stream):
+    """ Generates a spectrogram from an Obspy stream.
+
+    Example:
+        fig = spectrogram(stream)
+    """
+
+    return fig
+
 def examine_stack():
     """Animate building of stack
 
