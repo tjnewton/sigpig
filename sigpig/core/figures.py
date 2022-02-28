@@ -1281,7 +1281,68 @@ def spectrogram(stream):
     Example:
         fig = spectrogram(stream)
     """
+    # initialize figure and set the figure size
+    figureWidth = 30
+    figureHeight = 5 * len(stream)  # 0.6 for all stations # 3.5
+    fig = plt.figure(figsize=(figureWidth, figureHeight))
+    gs = fig.add_gridspec(1, 1)
+    frequency_plot = fig.add_subplot(gs[0:, :])
+    # make a subplot of subplots for spectrograms
+    frequency_plots = gridspec.GridSpecFromSubplotSpec(len(stream), 1,
+                                                   subplot_spec=frequency_plot)
 
+    # loop through stream and generate plots
+    y_labels = []
+    for index, trace in enumerate(stream):
+        # find max trace value for normalization
+        maxTraceValue, _ = max_amplitude(trace)
+
+        # add station name to list of y labels
+        network_station = f"{trace.stats.network}.{trace.stats.station}"
+        y_labels.append(f"{network_station}.{trace.stats.channel}")
+
+        # build information for spectrogram
+        duration = trace.stats.endtime - trace.stats.starttime
+        num_windows = (duration / 60) * 40 - 2
+        window_duration = duration / num_windows
+        window_length = int(window_duration * trace.stats.sampling_rate)
+        nfftSTFT = window_length * 2  # nyquist
+        overlap = int(
+            window_length / 2)  # overlap between spec. windows in samples
+        [fSTFT, tSTFT, STFT] = spsig.spectrogram(trace.data,
+                                                 trace.stats.sampling_rate,
+                                                 nperseg=window_length,
+                                                 noverlap=overlap,
+                                                 nfft=nfftSTFT)
+        # plot the spectrogram
+        spec = fig.add_subplot(frequency_plots[(index + 1) * -1, 0])
+
+        # dB = 20*log() convention
+        spec.pcolormesh(tSTFT, fSTFT, 20 * np.log10(np.absolute(STFT)),
+                        cmap='magma')
+
+        # spec.set_xlim([30, duration - 30])
+        spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
+                        f"{trace.stats.channel}",
+                        rotation=0, labelpad=40)
+        spec.tick_params(axis='x', which='both', bottom=False, top=False,
+                         labelbottom=False)
+        spec.set_ylim([0, 30])
+
+    # set axes attributes
+    myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    locator_x = AutoDateLocator(minticks=10, maxticks=35)
+    frequency_plot.set_ylabel('Frequency (Hz)')
+    frequency_plot.set_xlabel('Time (s)')
+    # frequency_plot.set_yticks([])
+    # frequency_plot.set_xticks([])
+    # fig.tight_layout()
+    frequency_plot.set_xticks([0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875,
+                               1.0])
+    frequency_plot.set_xticklabels([0, 5, 10, 15, 20, 25, 30, 25, 40])
+    fig.savefig(f"stack1_spectrogram.png", dpi=100)
+
+    plt.show()
     return fig
 
 def examine_stack():
