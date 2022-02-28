@@ -1276,7 +1276,7 @@ def plot_trace_curvature(trace, pick_time):
 
 
 def spectrogram(stream):
-    """ Generates a spectrogram from an Obspy stream.
+    """ Generates a spectrogram for each trace in an Obspy stream.
 
     Example:
         fig = spectrogram(stream)
@@ -1340,9 +1340,18 @@ def spectrogram(stream):
     frequency_plot.set_xticks([0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875,
                                1.0])
     frequency_plot.set_xticklabels([0, 5, 10, 15, 20, 25, 30, 25, 40])
-    fig.savefig(f"stack1_spectrogram.png", dpi=100)
+    fig.savefig(f"stack_spectrogram.png", dpi=100)
 
     plt.show()
+    return fig
+
+def spectra(stream):
+    """ Generates a spectra plot for each trace in an Obspy stream.
+
+    Example:
+        fig = spectra(stream)
+    """
+
     return fig
 
 def examine_stack():
