@@ -41,7 +41,7 @@ station_locations = rattlesnake_Ridge_Station_Locations(date, format=format)
 ```
 
 ### sigpig.core.figures generates various figures:  
-Figures are either generated from objects, like NumPy arrays and ObsPy streams, or from files via a list of file paths.  
+Figures are either generated from objects, like NumPy arrays and ObsPy streams, or from files via a list of file paths. Functions: plot_stalta, plot_stream, plot_Time_Series_And_Spectrogram, plot_Time_Series, plot_party_detections, plot_stack, plot_template_and_stack, plot_stream_absolute, plot_distribution, plot_event_picks, plot_trace_curvature, spectrogram, spectra. 
 
 Time series and spectrogram plotting from files:  
 ```
