@@ -77,6 +77,16 @@ fig = plot_Time_Series(doi, doi_end, files_path, filter=filter,
 ```
 ![](doc/images/ts.png?raw=true)
 
+Spectrogram plotting from an Obspy stream object:  
+```
+fig = spectrogram(stream)
+```
+
+Spectra plotting from an Obspy stream object: 
+```
+fig = spectra(stream)
+```
+
 ### sigpig.core.lidar processes lidar data:  
 3D point cloud plotting  
 ```
