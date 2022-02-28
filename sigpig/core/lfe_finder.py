@@ -2886,25 +2886,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 27  6 31 15.00 #########################
         #######################################################################
 
-        #########################  TEMPLATE 4 MCR1  ###########################
-        ###################### 2016  9 27  6 31 15.00 #########################
-        #######################################################################
-
-        # if thresh_type == "MAD":
-        #
-        #     if detect_thresh == 9.0:
-        #         # MAD 9.0 = 306 detections, 7.0 seconds, BHN only
-        #         infile = open('party_06_15_2016_to_08_12_2018_MAD9_7s_t4_BHN.pkl',
-        #                       'rb')
-        #     elif detect_thresh == 8.5:
-        #         # MAD 8.5 = 1127 detections, 7.0 seconds, BHN only
-        #         infile = open('party_06_15_2016_to_08_12_2018_MAD8.5_7s_t4_BHN.pkl',
-        #                       'rb')
-        #     elif detect_thresh == 8.0:
-        #         # MAD 8.0 = 3467 detections, 7.0 seconds, BHN only
-        #         infile = open('party_06_15_2016_to_08_12_2018_MAD8_7s_t4_BHN.pkl',
-        #                       'rb')
-
         #########################  TEMPLATE 6 many-sta, 3 chan  ###############
         ###################### 2016  9 26  9 25 49.50 #########################
         #######################################################################
