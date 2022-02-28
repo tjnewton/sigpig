@@ -41,7 +41,9 @@ station_locations = rattlesnake_Ridge_Station_Locations(date, format=format)
 ```
 
 ### sigpig.core.figures generates various figures:  
-Time series and spectrogram plotting  
+Figures are either generated from objects, like numpy arrays and Obspy Streams, or from files via a list of file paths.  
+
+Time series and spectrogram plotting from files:  
 ```
 # define dates of interest
 doi = UTCDateTime("2016-09-26T09:28:00.0Z") # period start
