@@ -2877,29 +2877,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###########################  TEMPLATE 1  ##############################
         ###################### 2016  9 26  9 28 41.34 #########################
         #######################################################################
-        # results in bad detections
-
-        # abs 0.27 = 368 detections
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.27_16s.pkl', 'rb')
-
-        # abs 0.25 = 1218 detections, 16 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_16s.pkl', 'rb')
-        # abs 0.25 = 1218 detections, 8 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.25_8s.pkl', 'rb')
-
-        # abs 0.24 = 2248 detections
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.24_16s.pkl', 'rb')
-
-        # abs 0.23 = 4381 detections, require more memory than MBP has
-        # infile = open('party_06_15_2016_to_08_12_2018_abs.23.pkl', 'rb')
-
-        # MAD 9.0 = 1435 detections, fits in MBP memory
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD9.pkl', 'rb')
-
-        # MAD 8.0 = 3857 detections, doesn't fit in MBP memory
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_16s.pkl', 'rb')
-        # MAD 8.0 =  detections, 8 seconds
-        # infile = open('party_06_15_2016_to_08_12_2018_MAD8_8s.pkl', 'rb')
 
         ###########################  TEMPLATE 2  ##############################
         ###################### 2016  9 27  7 37 49.00 #########################
