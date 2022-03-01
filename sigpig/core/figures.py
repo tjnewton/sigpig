@@ -16,6 +16,7 @@ from scipy.interpolate import interp1d
 from data import max_amplitude, snr
 import pickle
 import pandas as pd
+from scipy import fftpack as spfft
 from descartes import PolygonPatch
 import alphashape
 # from concavehull import concavehull
@@ -1351,8 +1352,60 @@ def spectra(stream):
     Example:
         fig = spectra(stream)
     """
+    # initialize figure and set the figure size
+    figureWidth = 30
+    figureHeight = 5 * len(stream)  # 0.6 for all stations # 3.5
+    plt.figure(figsize=(figureWidth, figureHeight))
+    # plt.suptitle("Stack spectra")
 
-    return fig
+    # loop through stream and generate plots
+    y_labels = []
+    for index, trace in enumerate(stream):
+        # add station name to list of y labels
+        network_station = f"{trace.stats.network}.{trace.stats.station}"
+        y_labels.append(f"{network_station}.{trace.stats.channel}")
+
+        fs = trace.stats.sampling_rate
+        # the number of frequencies to calculate
+        Nfft = len(trace.data)
+        f = np.arange(0, fs / 2, fs / Nfft)  # to get the actual frequency
+        f=f[:-1]
+        # values
+        S = spfft.fft(trace.data, Nfft)
+        # remove anything above Nyquist
+        S = S[:int(Nfft / 2)]
+
+        # plot the spectra
+        spec = plt.subplot(len(stream), 1, len(stream) - index)
+        spec.plot(f, np.absolute(S), 'k')
+
+        # spec.set_xlim([30, duration - 30])
+        spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
+                        f"{trace.stats.channel}",
+                        rotation=0, labelpad=40)
+        spec.tick_params(axis='x', which='both', bottom=True, top=False,
+                         labelbottom=True)
+        spec.set_xlim([0, 25])
+        spec.grid(which='minor', axis='x')
+
+        if index == 0:
+            spec.set_xlabel('Frequency (Hz)')
+
+    # set axes attributes
+
+    spec.set_ylabel('Amplitude')
+    # frequency_plot.set_yticks([])
+    # frequency_plot.set_xticks([])
+    # fig.tight_layout()
+    # frequency_plot.set_xticks([0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875,
+    #                            1.0])
+    # frequency_plot.set_xticklabels([0, 5, 10, 15, 20, 25, 30, 25, 40])
+    plt.tight_layout()
+    plt.savefig(f"stack_spectra.png", dpi=100)
+
+    plt.show()
+
+    return None
 
 def examine_stack():
     """Animate building of stack
