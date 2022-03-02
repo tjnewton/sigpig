@@ -28,7 +28,8 @@ import calendar
 from tqdm import tqdm
 from figures import plot_stack, plot_stream_absolute, plot_stream_relative, \
                     plot_party_detections, plot_distribution, \
-                    plot_template_and_stack, plot_Time_Series_And_Spectrogram
+                    plot_template_and_stack, plot_Time_Series_And_Spectrogram,\
+                    spectra
 from scipy.signal import hilbert
 import time
 from data import max_amplitude, snr
@@ -3120,7 +3121,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s',
+                                       f'{detect_thresh}_14s_NO_FILTER_BP',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -3128,7 +3129,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s',
+                                        f'{detect_thresh}_14s_NO_FILTER_BP',
                        save=True)
 
             # now plot template with the linear stack from same station for
@@ -3175,6 +3176,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                    f'_{end_date.day:02}_' \
                    f'{end_date.year}_{thresh_type}'
                       f'{detect_thresh}_14s_stackDetects.pkl', 'rb')
+
         party = pickle.load(infile)
         infile.close()
     else:
@@ -3198,7 +3200,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # make another stack from the new detections
     if load_second_stack:
         # load stack list from file
-        infile = open(f'top_{n}_stackDS_9sta_t6_snr{snr_threshold[0]}-'
+        infile = open(f'top_{n}_stackDS2_9sta_t6_snr{snr_threshold[0]}-'
                       f'{snr_threshold[1]}_'
                       f'{shift_method}Shift_MAD8.0_14s.pkl', 'rb')
         stack_list = pickle.load(infile)
