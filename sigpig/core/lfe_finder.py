@@ -2240,7 +2240,8 @@ def stack_template_detections(party, streams_path, main_trace,
                     # interpolate to 100 Hz
                     day_st.interpolate(sampling_rate=100.0)
                     # bandpass filter
-                    day_st.filter('bandpass', freqmin=1, freqmax=15)
+                    day_st.filter('highpass', freqmin=1)
+                    # day_st.filter('bandpass', freqmin=1, freqmax=15)
                     # trim trace to 60 seconds surrounding pick time
                     day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                                 fill_value=np.nan, nearest_sample=True)
