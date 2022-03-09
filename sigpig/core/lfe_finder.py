@@ -2608,22 +2608,22 @@ def inspect_template(template_date, main_trace, streams_path, filter):
 
     time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T15:45:15.0Z"),
                                 UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "TA.N25K": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "TA.N25K": [UTCDateTime("2016-09-26T15:45:16.0Z"),
+                                UTCDateTime("2016-09-26T15:45:28.0Z")],
                     "YG.MCR2": [UTCDateTime("2016-09-26T15:45:15.0Z"),
                                 UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "YG.MCR1": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "YG.RH09": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "YG.RH10": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "YG.RH08": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "YG.MCR1": [UTCDateTime("2016-09-26T15:45:19.0Z"),
+                                UTCDateTime("2016-09-26T15:45:31.0Z")],
+                    "YG.RH09": [UTCDateTime("2016-09-26T15:45:21.0Z"),
+                                UTCDateTime("2016-09-26T15:45:33.0Z")],
+                    "YG.RH10": [UTCDateTime("2016-09-26T15:45:22.0Z"),
+                                UTCDateTime("2016-09-26T15:45:34.0Z")],
+                    "YG.RH08": [UTCDateTime("2016-09-26T15:45:16.0Z"),
+                                UTCDateTime("2016-09-26T15:45:28.0Z")],
                     "AV.WACK": [UTCDateTime("2016-09-26T15:45:15.0Z"),
                                 UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "AK.GLB": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "AK.GLB": [UTCDateTime("2016-09-26T15:45:17.0Z"),
+                                UTCDateTime("2016-09-26T15:45:29.0Z")],
                     }
 
     # plot spectrograms and time series together
@@ -2782,12 +2782,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                      "WASW    0.000  1       P\n",
                      "N25K    0.000  1       P\n",
                      "MCR2    0.000  1       P\n",
-                     "MCR1    0.000  1       P\n",
-                     "RH09    0.000  1       P\n",
-                     "RH10    0.000  1       P\n",
-                     "RH08    0.000  1       P\n",
+                     "MCR1    4.000  1       P\n",
+                     "RH09    6.000  1       P\n",
+                     "RH10    7.000  1       P\n",
+                     "RH08    1.000  1       P\n",
                      "WACK    0.000  1       P\n",
-                     "GLB     0.000  1       P\n"]
+                     "GLB     2.000  1       P\n"]
         template_length = 12.0
         template_prepick = 2.0
 
@@ -2932,9 +2932,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 26 15 45 15.00 #########################
         #######################################################################
 
-        # 9 station, 3 component, 14 second template, raw detections
-        infile = open('t2_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl',
+        # TEMPLATES WITH SAME START TIME
+        # 9 station, 3 component, 14 second template, 1526 detections
+        infile = open('top_1526_detects_9sta_3comp_t1_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15Hz.pkl',
                       'rb')
+
+        # TEMPLATES WITH VERYING START TIMES
+
 
         party = pickle.load(infile)
         infile.close()
@@ -3026,16 +3030,16 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save party detections as text file
-            df.to_csv(f"top_{n}_5sta_3comp_t6_{template_length}s_"
+            df.to_csv(f"top_{n}_detects_9sta_3comp_t6_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
-                      f"{detect_thresh}_culled_sorted_detections_1-15.csv",
+                      f"{detect_thresh}_culled_sorted_1-15SNR.csv",
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_stacksDetects2_9sta_3comp_t6"
+            outfile = open(f"top_{n}_detects_9sta_3comp_t1"
                            f"_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
-                      f"{detect_thresh}_culled_sorted_party_1-15.pkl", 'wb')
+                      f"{detect_thresh}_culled_sorted_party_1-15SNR.pkl", 'wb')
 
             pickle.dump(party, outfile)
             outfile.close()
@@ -3052,7 +3056,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_stacksDetects_9sta_3comp_t6"
+                   title=f"top_{n}_detects_9sta_3comp_t1"
                          f"_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted_1-15SNR", save=True)
@@ -3097,10 +3101,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_stackDS_9sta_t6_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_stack_9sta_t1_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s.pkl', 'wb')
+                       f'{detect_thresh}_14s_fixedTemplate.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -3136,7 +3140,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_1Hz',
+                                       f'{detect_thresh}_14s_fixedTemplate',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -3144,7 +3148,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_1Hz',
+                                        f'{detect_thresh}_14s_fixedTemplate',
                        save=True)
 
             # now plot template with the linear stack from same station for
