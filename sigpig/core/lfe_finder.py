@@ -2240,8 +2240,8 @@ def stack_template_detections(party, streams_path, main_trace,
                     # interpolate to 100 Hz
                     day_st.interpolate(sampling_rate=100.0)
                     # bandpass filter
-                    day_st.filter('highpass', freqmin=1)
-                    # day_st.filter('bandpass', freqmin=1, freqmax=15)
+                    # day_st.filter('highpass', freq=1)
+                    day_st.filter('bandpass', freqmin=1, freqmax=15)
                     # trim trace to 60 seconds surrounding pick time
                     day_st.trim(pick_time - 20, pick_time + 40, pad=True,
                                 fill_value=np.nan, nearest_sample=True)
@@ -3122,7 +3122,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_NO_FILTER_BP',
+                                       f'{detect_thresh}_14s_1Hz',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -3130,7 +3130,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_NO_FILTER_BP',
+                                        f'{detect_thresh}_14s_1Hz',
                        save=True)
 
             # now plot template with the linear stack from same station for
