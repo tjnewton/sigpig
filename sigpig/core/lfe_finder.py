@@ -2554,7 +2554,7 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         # template_date = UTCDateTime("2016-09-27T06:31:15.00000Z")
         # template_date = UTCDateTime("2016-09-27T06:31:32.00000Z")
         # template_date = UTCDateTime("2017-12-01T11:51:00.00000Z")
-        template_date = UTCDateTime("2016-09-26T09:25:48.50000Z")
+        template_date = UTCDateTime("2016-09-26T15:45:15.00000Z")
 
         # define the main trace to use for template
         main_trace = ("AV", "WASW", "SHZ")
@@ -2606,24 +2606,24 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     # st.plot()
     # st_min.plot()
 
-    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T09:25:46.0Z"),
-                                UTCDateTime("2016-09-26T09:25:58.0Z")],
-                    "TA.N25K": [UTCDateTime("2016-09-26T09:25:47.5Z"),
-                                UTCDateTime("2016-09-26T09:25:59.5Z")],
-                    "YG.MCR2": [UTCDateTime("2016-09-26T09:25:46.5Z"),
-                                UTCDateTime("2016-09-26T09:25:58.5Z")],
-                    "YG.MCR1": [UTCDateTime("2016-09-26T09:25:48.5Z"),
-                                UTCDateTime("2016-09-26T09:26:00.5Z")],
-                    "YG.RH09": [UTCDateTime("2016-09-26T09:25:55.0Z"),
-                                UTCDateTime("2016-09-26T09:26:07.0Z")],
-                    "YG.RH10": [UTCDateTime("2016-09-26T09:25:55.0Z"),
-                                UTCDateTime("2016-09-26T09:26:07.0Z")],
-                    "YG.RH08": [UTCDateTime("2016-09-26T09:25:55.0Z"),
-                                UTCDateTime("2016-09-26T09:26:07.0Z")],
-                    "AV.WACK": [UTCDateTime("2016-09-26T09:25:47.5Z"),
-                                UTCDateTime("2016-09-26T09:25:59.5Z")],
-                    "AK.GLB": [UTCDateTime("2016-09-26T09:25:48.5Z"),
-                                UTCDateTime("2016-09-26T09:26:00.5Z")],
+    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "TA.N25K": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "YG.MCR2": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "YG.MCR1": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "YG.RH09": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "YG.RH10": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "YG.RH08": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "AV.WACK": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
+                    "AK.GLB": [UTCDateTime("2016-09-26T15:45:15.0Z"),
+                                UTCDateTime("2016-09-26T15:45:27.0Z")],
                     }
 
     # plot spectrograms and time series together
@@ -2763,25 +2763,31 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_length = 7.0
         # template_prepick = 0.5
 
-        # T6 - Aaron's WASW template + TA.N25K + YG.MCR2
+        # # T1 (old 6) - Aaron's template 1
         # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "WASW    0.000  1       P\n",
-        #              "N25K    4.500  1       P\n",
-        #              "MCR2    0.500  1       P\n"]
-        # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-        #                      "WASW    0.500  1       P\n"]
-        # template_length = 7.0
-        # template_prepick = 0.5
-        templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "N25K    1.500  1       P\n",
+        #              "MCR2    0.500  1       P\n",
+        #              "MCR1    2.500  1       P\n",
+        #              "RH09    9.000  1       P\n",
+        #              "RH10    9.000  1       P\n",
+        #              "RH08    9.000  1       P\n",
+        #              "WACK    1.500  1       P\n",
+        #              "GLB     2.500  1       P\n"]
+        # template_length = 12.0
+        # template_prepick = 2.0
+
+        # T2 (old 6) - Aaron's template 2
+        templates = ["# 2016  9 26 15 45 16.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
                      "WASW    0.000  1       P\n",
-                     "N25K    1.500  1       P\n",
-                     "MCR2    0.500  1       P\n",
-                     "MCR1    2.500  1       P\n",
-                     "RH09    9.000  1       P\n",
-                     "RH10    9.000  1       P\n",
-                     "RH08    9.000  1       P\n",
-                     "WACK    1.500  1       P\n",
-                     "GLB     2.500  1       P\n"]
+                     "N25K    0.000  1       P\n",
+                     "MCR2    0.000  1       P\n",
+                     "MCR1    0.000  1       P\n",
+                     "RH09    0.000  1       P\n",
+                     "RH10    0.000  1       P\n",
+                     "RH08    0.000  1       P\n",
+                     "WACK    0.000  1       P\n",
+                     "GLB     0.000  1       P\n"]
         template_length = 12.0
         template_prepick = 2.0
 
@@ -2876,19 +2882,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if load_party:
         # load party object from file
 
-        ###########################  TEMPLATE 1  ##############################
+        ###########################  TEMPLATE x  ##############################
         ###################### 2016  9 26  9 28 41.34 #########################
         #######################################################################
 
-        ###########################  TEMPLATE 2  ##############################
+        ###########################  TEMPLATE x  ##############################
         ###################### 2016  9 27  7 37 49.00 #########################
         #######################################################################
 
-        ############################  TEMPLATE 3  #############################
+        ############################  TEMPLATE x  #############################
         ###################### 2016  9 27  6 31 15.00 #########################
         #######################################################################
 
-        #########################  TEMPLATE 6 many-sta, 3 chan  ###############
+        #########################  TEMPLATE 1 many-sta, 3 chan  ###############
         ###################### 2016  9 26  9 25 49.50 #########################
         #######################################################################
 
@@ -2921,6 +2927,14 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_250_stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
+
+        #########################  TEMPLATE 2 many-sta, 3 chan  ###############
+        ###################### 2016  9 26 15 45 15.00 #########################
+        #######################################################################
+
+        # 9 station, 3 component, 14 second template, raw detections
+        infile = open('t2_9sta_3comp_14s_party_07_18_2016_to_08_12_2018.pkl',
+                      'rb')
 
         party = pickle.load(infile)
         infile.close()
