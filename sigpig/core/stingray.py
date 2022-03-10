@@ -222,17 +222,17 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             # load the velocity model
             # velmod = pd.read_csv("/Users/human/git/sigpig/sigpig/stingray/m-files/vels.txt", delim_whitespace=True)
 
-            # # original velocity model from Doug
-            # velocity_model = [[0.00, 0.60],
-            #                   [0.05, 0.65],
-            #                   [0.10, 0.70],
-            #                   [0.15, 0.75]]
+            # original velocity model from Doug
+            velocity_model = [[0.00, 0.60],
+                              [0.05, 0.65],
+                              [0.10, 0.70],
+                              [0.15, 0.75]]
 
-            # 0.5-0.65 velocity model
-            velocity_model = [[0.00, 0.50],
-                              [0.05, 0.55],
-                              [0.10, 0.60],
-                              [0.15, 0.65]]
+            # # 0.5-0.65 velocity model
+            # velocity_model = [[0.00, 0.50],
+            #                   [0.05, 0.55],
+            #                   [0.10, 0.60],
+            #                   [0.15, 0.65]]
 
             # # 0.4-0.55 velocity model
             # velocity_model = [[0.00, 0.40],
@@ -278,6 +278,14 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 # Smod[:, :, ii] = 1 / ((ii * dz) * sz[0] + sz[1]) * np.ones(
                 #     (nx, ny))  # s slowness
 
+            # mask slowness grid: scale onslide / offslide slowness by
+            # specified slowness factor
+            # make a function to plot cross-sections of 3D numpy array
+
+            a = Pmod[:, :, 0] # a layer of constant depth
+            slowness_factor = ...
+            # TODO: how to do this inplace with 3D numpy mask?
+
             # make dict of P wave slowness
             modeldict = {}
             modeldict['ghead'] = [xoffset, yoffset, nx, ny, nz, dx, dy, dz]
@@ -301,7 +309,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
     return None
 
 
-def elevation_map_from_arrays(project_name, UTM=False):
+def elevation_map_from_arrays(project_name, UTM=False, write=True):
     """
     Generates an elevation map for Stingray as srElevation mat file
     containing topography.
@@ -360,14 +368,15 @@ def elevation_map_from_arrays(project_name, UTM=False):
         elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
                        x_step, y_step, num_x_steps, num_y_steps]
 
-        # build dict to make .mat file
-        elev_dict = {}
-        elev_dict['header'] = elev_header
-        elev_dict['data'] = np.rot90(elevation_grid, k=3)
+        if write:
+            # build dict to make .mat file
+            elev_dict = {}
+            elev_dict['header'] = elev_header
+            elev_dict['data'] = np.rot90(elevation_grid, k=3)
 
-        savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
-                "/srElevation_TN.mat",
-                {'srElevation': elev_dict})
+            savemat("/Users/human/git/sigpig/sigpig/stingray/srInput"
+                    "/srElevation_TN.mat",
+                    {'srElevation': elev_dict})
 
     return None
 
