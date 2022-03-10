@@ -3110,7 +3110,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile = open(f'top_{n}_stack_9sta_t2_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s_fixedTemplate.pkl', 'wb')
+                       f'{detect_thresh}_14s.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -3142,19 +3142,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if plot:
         if len(stack_pw) > 0:
             plot_stack(stack_pw, title=f'top_'
-                                       f'{n}_9sta_phase_weighted_stackDS_snr'
+                                       f'{n}_9sta_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_fixedTemplate',
+                                       f'{detect_thresh}_14s_t2',
                        save=True)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stackDS_sn'
+            plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_fixedTemplate',
+                                        f'{detect_thresh}_14s_t2',
                        save=True)
 
             # now plot template with the linear stack from same station for
