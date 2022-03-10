@@ -2932,13 +2932,19 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 26 15 45 15.00 #########################
         #######################################################################
 
-        # TEMPLATES WITH SAME START TIME
+        # TEMPLATES WITH SAME START TIME, aka trash
         # 9 station, 3 component, 14 second template, 1526 detections
-        infile = open('top_1526_detects_9sta_3comp_t1_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15Hz.pkl',
+        infile = open('top_1526_detects_9sta_3comp_t2_12.0s_2.0_prepick_MAD8'
+                      '.0_culled_sorted_party_1-15Hz.pkl',
                       'rb')
 
-        # TEMPLATES WITH VERYING START TIMES
-
+        # TEMPLATES WITH VARYING START TIMES
+        # 9 station, 3 component, 14 second template, 1737 detections
+        infile = open('top_1737_detects_9sta_3comp_t2_12.0s_2.0_prepick_MAD8'
+                      '.0_culled_sorted_party_1-15SNR.pkl', 'rb')
+        # top 250
+        infile = open('top_250_detects_9sta_3comp_t2_12.0s_2.0_prepick_MAD8'
+                      '.0_culled_sorted_party_1-15SNR.pkl', 'rb')
 
         party = pickle.load(infile)
         infile.close()
@@ -2973,7 +2979,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             detection_stream = get_detections(party, detection_files_path,
                                               main_trace)
             plot_stack(detection_stream[:100],
-                       title=f"t6_{template_length}s_"
+                       title=f"t2_{template_length}s_"
                              f"{template_prepick}_prepick_{thresh_type}"
                              f"{detect_thresh}_culled_unsorted", save=True)
             # free up some memory
@@ -3030,13 +3036,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save party detections as text file
-            df.to_csv(f"top_{n}_detects_9sta_3comp_t6_{template_length}s_"
+            df.to_csv(f"top_{n}_detects_9sta_3comp_t2_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_1-15SNR.csv",
                       index=False)
 
             # save party to pickle file
-            outfile = open(f"top_{n}_detects_9sta_3comp_t1"
+            outfile = open(f"top_{n}_detects_9sta_3comp_t2"
                            f"_{template_length}s_"
                       f"{template_prepick}_prepick_{thresh_type}"
                       f"{detect_thresh}_culled_sorted_party_1-15SNR.pkl", 'wb')
@@ -3056,7 +3062,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_detects_9sta_3comp_t1"
+                   title=f"top_{n}_detects_9sta_3comp_t2"
                          f"_{template_length}s_"
                          f"{template_prepick}_prepick_{thresh_type}"
                          f"{detect_thresh}_culled_sorted_1-15SNR", save=True)
@@ -3101,7 +3107,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_stack_9sta_t1_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_stack_9sta_t2_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_14s_fixedTemplate.pkl', 'wb')
