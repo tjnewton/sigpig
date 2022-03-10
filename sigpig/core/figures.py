@@ -1408,6 +1408,16 @@ def spectra(stream):
     return None
 
 
+def examine_stack():
+    """Animate building of stack
+
+    TODO: pull from stacking function in lfe_finder
+
+    """
+
+    ...
+
+
 def plot_3d_array(array: np.ndarray):
     """ Takes in a 3D numpy array and plots cross-sections of the array to
     visualize its contents. This function is used in examples in stingray.py to
@@ -1448,12 +1458,3 @@ def plot_3d_array(array: np.ndarray):
 
     return fig
 
-
-def examine_stack():
-    """Animate building of stack
-
-    TODO: pull from stacking function in lfe_finder
-
-    """
-
-    ...
