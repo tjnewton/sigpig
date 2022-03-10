@@ -2554,13 +2554,15 @@ def inspect_template(template_date, main_trace, streams_path, filter):
         # template_date = UTCDateTime("2016-09-27T06:31:15.00000Z")
         # template_date = UTCDateTime("2016-09-27T06:31:32.00000Z")
         # template_date = UTCDateTime("2017-12-01T11:51:00.00000Z")
-        template_date = UTCDateTime("2016-09-26T15:45:15.00000Z")
+        # template_date = UTCDateTime("2016-09-26T15:45:15.00000Z")
+        template_date = UTCDateTime("2017-11-27T22:57:50.00000Z")
 
         # define the main trace to use for template
         main_trace = ("AV", "WASW", "SHZ")
 
         # define path of files for template and detections
         streams_path = "/Users/human/ak_data/inner"
+        streams_path = "/Users/human/Desktop/2017-11-27"
         # streams_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
 
         # generate the figures and time series file
@@ -2606,24 +2608,24 @@ def inspect_template(template_date, main_trace, streams_path, filter):
     # st.plot()
     # st_min.plot()
 
-    time_markers = {"AV.WASW": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "TA.N25K": [UTCDateTime("2016-09-26T15:45:16.0Z"),
-                                UTCDateTime("2016-09-26T15:45:28.0Z")],
-                    "YG.MCR2": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "YG.MCR1": [UTCDateTime("2016-09-26T15:45:19.0Z"),
-                                UTCDateTime("2016-09-26T15:45:31.0Z")],
-                    "YG.RH09": [UTCDateTime("2016-09-26T15:45:21.0Z"),
-                                UTCDateTime("2016-09-26T15:45:33.0Z")],
-                    "YG.RH10": [UTCDateTime("2016-09-26T15:45:22.0Z"),
-                                UTCDateTime("2016-09-26T15:45:34.0Z")],
-                    "YG.RH08": [UTCDateTime("2016-09-26T15:45:16.0Z"),
-                                UTCDateTime("2016-09-26T15:45:28.0Z")],
-                    "AV.WACK": [UTCDateTime("2016-09-26T15:45:15.0Z"),
-                                UTCDateTime("2016-09-26T15:45:27.0Z")],
-                    "AK.GLB": [UTCDateTime("2016-09-26T15:45:17.0Z"),
-                                UTCDateTime("2016-09-26T15:45:29.0Z")],
+    time_markers = {"AV.WASW": [UTCDateTime("2017-11-27T22:57:55.0Z"),
+                                UTCDateTime("2017-11-27T22:58:07.0Z")],
+                    "TA.N25K": [UTCDateTime("2017-11-27T22:57:52.0Z"),
+                                UTCDateTime("2017-11-27T22:58:04.0Z")],
+                    "YG.MCR2": [UTCDateTime("2017-11-27T22:57:52.0Z"),
+                                UTCDateTime("2017-11-27T22:58:04.0Z")],
+                    "YG.MCR1": [UTCDateTime("2017-11-27T22:57:52.0Z"),
+                                UTCDateTime("2017-11-27T22:58:04.0Z")],
+                    "YG.RH09": [UTCDateTime("2017-11-27T22:57:55.0Z"),
+                                UTCDateTime("2017-11-27T22:58:07.0Z")],
+                    "YG.RH10": [UTCDateTime("2017-11-27T22:57:51.0Z"),
+                                UTCDateTime("2017-11-27T22:58:03.0Z")],
+                    "YG.RH08": [UTCDateTime("2017-11-27T22:57:52.0Z"),
+                                UTCDateTime("2017-11-27T22:58:04.0Z")],
+                    "AV.WACK": [UTCDateTime("2017-11-27T22:57:55.0Z"),
+                                UTCDateTime("2017-11-27T22:58:07.0Z")],
+                    "AK.GLB": [UTCDateTime("2017-11-27T22:57:53.0Z"),
+                                UTCDateTime("2017-11-27T22:58:05.0Z")],
                     }
 
     # plot spectrograms and time series together
@@ -2777,16 +2779,30 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # template_length = 12.0
         # template_prepick = 2.0
 
-        # T2 (old 6) - Aaron's template 2
-        templates = ["# 2016  9 26 15 45 16.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "WASW    0.000  1       P\n",
-                     "N25K    0.000  1       P\n",
-                     "MCR2    0.000  1       P\n",
-                     "MCR1    4.000  1       P\n",
-                     "RH09    6.000  1       P\n",
-                     "RH10    7.000  1       P\n",
+        # # T2 - Aaron's template 2
+        # templates = ["# 2016  9 26 15 45 16.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "WASW    0.000  1       P\n",
+        #              "N25K    0.000  1       P\n",
+        #              "MCR2    0.000  1       P\n",
+        #              "MCR1    4.000  1       P\n",
+        #              "RH09    6.000  1       P\n",
+        #              "RH10    7.000  1       P\n",
+        #              "RH08    1.000  1       P\n",
+        #              "WACK    0.000  1       P\n",
+        #              "GLB     2.000  1       P\n"]
+        # template_length = 12.0
+        # template_prepick = 2.0
+
+        # T3 - My template following M5.3
+        templates = ["# 2017 11 27 22 57 51.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "WASW    4.000  1       P\n",
+                     "N25K    1.000  1       P\n",
+                     "MCR2    1.000  1       P\n",
+                     "MCR1    1.000  1       P\n",
+                     "RH09    4.000  1       P\n",
+                     "RH10    0.000  1       P\n",
                      "RH08    1.000  1       P\n",
-                     "WACK    0.000  1       P\n",
+                     "WACK    4.000  1       P\n",
                      "GLB     2.000  1       P\n"]
         template_length = 12.0
         template_prepick = 2.0
@@ -2818,7 +2834,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/WASW"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR2"
-        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        files_path = "/Users/human/Desktop/2017-11-27"
         template_files = glob.glob(f"{files_path}/*.ms")
 
         # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09, AV.WASW
@@ -2894,7 +2911,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ###################### 2016  9 27  6 31 15.00 #########################
         #######################################################################
 
-        #########################  TEMPLATE 1 many-sta, 3 chan  ###############
+        ####################### TEMPLATE 1 -  9 sta, 3 chan ###################
         ###################### 2016  9 26  9 25 49.50 #########################
         #######################################################################
 
@@ -2928,7 +2945,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
 
-        #########################  TEMPLATE 2 many-sta, 3 chan  ###############
+        ####################### TEMPLATE 2 -  9 sta, 3 chan ###################
         ###################### 2016  9 26 15 45 15.00 #########################
         #######################################################################
 
@@ -2945,6 +2962,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # top 250
         infile = open('top_250_detects_9sta_3comp_t2_12.0s_2.0_prepick_MAD8'
                       '.0_culled_sorted_party_1-15SNR.pkl', 'rb')
+
+        ####################### TEMPLATE 3 -  9 sta, 3 chan  ##################
+        ###################### 2017 11 27 22 57 51.00 #########################
+        #######################################################################
 
         party = pickle.load(infile)
         infile.close()
