@@ -1407,6 +1407,48 @@ def spectra(stream):
 
     return None
 
+
+def plot_3d_array(array: np.ndarray):
+    """ Takes in a 3D numpy array and plots cross-sections of the array to
+    visualize its contents. This function is used in examples in stingray.py to
+    visualize a velocity model.
+
+    Example:
+        # TODO:
+
+    """
+    # get a slice in the x-z plane
+    y_size = array.shape[1]
+    array_xz = array[:, int(y_size / 2), :]
+    array_xz = np.flipud(np.rot90(array_xz))
+    # get a slice in the y-z plane
+    x_size = array.shape[0]
+    array_yz = array[int(x_size / 2), :, :]
+
+    fig = plt.figure(figsize=(5, 8))
+    G = gridspec.GridSpec(6, 4)
+    ax = plt.subplot(G[-1, :])
+    ax.imshow(1000*(1/array_xz), interpolation='none')
+    ax.set_ylabel("Depth grid (1 z-step = 2 m)")
+    ax.set_xlabel("X grid (1 x-step = 2 m)")
+    ax.set_title("X-Z plane")
+
+    ax2 = plt.subplot(G[:-2, :-1])
+    yz = ax2.imshow(1000*(1 / array_yz), interpolation='none')
+    # yz.set_cmap("coolwarm")
+    ax2.set_xlabel("Depth grid (1 z-step = 2 m)")
+    ax2.set_ylabel("Y grid (1 y-step = 2 m)")
+    ax2.set_title("Y-Z plane")
+    cbar = plt.colorbar(yz)
+    cbar.set_label("Velocity (m/s)")
+    plt.subplots_adjust(left=0.05, bottom=0.05, right=0.99, top=0.9)
+    plt.suptitle("Velocity model slices")
+    plt.show()
+    fig.savefig("velocity_model_slices.png")
+
+    return fig
+
+
 def examine_stack():
     """Animate building of stack
 
