@@ -319,7 +319,8 @@ def elevation_map_from_arrays(project_name, UTM=False, write=True):
     Example:
         project_name = "Rattlesnake Ridge"
         # get elevation map in UTM coordinates
-        elevation_map_from_arrays(project_name, UTM=True)
+        elevation_array = elevation_map_from_arrays(project_name, UTM=True,
+                                                    write=False)
 
     """
     if project_name == "Rattlesnake Ridge":
