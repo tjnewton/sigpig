@@ -44,8 +44,8 @@ def stingray_setup(project_name: str, date: UTCDateTime):
         srGeometry = False
         srStation = False
         srEvent = False
+        srElevation = True
         srModel = True
-        srElevation = False
 
         if srControl:
             # generate srControl file
@@ -205,6 +205,13 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                 ".mat",
                 {'srEvent': eqdict})
 
+        if srElevation:
+            # generates stingray elevation .mat file from raster
+            project_name = "Rattlesnake Ridge"
+            elevation_array = elevation_map_from_arrays(project_name,
+                                                        UTM=UTM_COOR,
+                                                        write=False)
+
         if srModel:
             # generates srModel structure containing the slowness model
 
@@ -298,11 +305,6 @@ def stingray_setup(project_name: str, date: UTCDateTime):
                     int(1000 * dz)) + "m_0.5-0.65_TN.mat",
                 {'srModel':modeldict})
 
-        if srElevation:
-            # generates stingray elevation .mat file from raster
-            project_name = "Rattlesnake Ridge"
-            elevation_map_from_arrays(project_name, UTM=UTM_COOR)
-
     else:
         pass
 
@@ -378,7 +380,7 @@ def elevation_map_from_arrays(project_name, UTM=False, write=True):
                     "/srElevation_TN.mat",
                     {'srElevation': elev_dict})
 
-    return None
+    return elevation_grid
 
 def stingray_ttg_to_nonlinloc(project_name):
     """
