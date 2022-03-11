@@ -364,14 +364,14 @@ def elevation_map_from_arrays(project_name, UTM=False, write=True):
 
         # query raster on a grid
         longitude_grid, latitude_grid, elevation_grid = grids_from_raster(
-                                raster_file, x_limits, y_limits, plot=True,
+                                raster_file, x_limits, y_limits, plot=False,
                                 UTM=True)
 
-        # define header
-        elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
-                       x_step, y_step, num_x_steps, num_y_steps]
-
         if write:
+            # define header
+            elev_header = [x_limits[0], x_limits[1], y_limits[0], y_limits[1],
+                           x_step, y_step, num_x_steps, num_y_steps]
+
             # build dict to make .mat file
             elev_dict = {}
             elev_dict['header'] = elev_header
