@@ -408,21 +408,25 @@ def grids_from_raster(raster_file, x_limits, y_limits, plot=False, UTM=False):
             row_latitudes.append(latitude)
             row_longitudes.append(longitude)
 
-        # get elevations for entire row
+        # get elevations
         if UTM:
+            # convert eastings and northings to lat/lon
             lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
                                      np.asarray(row_latitudes) * 1000, 10, 'N')
 
-            # convert eastings and northings to lat/lon
+            # get elevations for entire row
             row_lons = [lon for lon in lats_lons[1]]
             row_lats = [lat for lat in lats_lons[0]]
             row_elevations = elevations_from_raster(raster_file,
                                                     row_lons,
                                                     row_lats)
-            longitude_grid.append(row_lons)
-            latitude_grid.append(row_lats)
+            # longitude_grid.append(row_lons)
+            # latitude_grid.append(row_lats)
+            longitude_grid.append(row_longitudes)
+            latitude_grid.append(row_latitudes)
 
         else:
+            # get elevations for entire row
             row_elevations = elevations_from_raster(raster_file,
                                                     row_longitudes,
                                                     row_latitudes)
