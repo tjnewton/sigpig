@@ -14,10 +14,12 @@ import datetime
 import matplotlib.pyplot as plt
 from data import rattlesnake_Ridge_Station_Locations
 from lidar import grids_from_raster, elevations_from_raster
+from figures import plot_3d_array
 import utm
 import geopy.distance
 import matlab.engine
-
+import pickle
+from skimage.util.shape import view_as_blocks
 
 # function to generate the necessary files for Stingray local earthquake tomography
 def stingray_setup(project_name: str, date: UTCDateTime):
@@ -229,7 +231,10 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             # load the velocity model
             # velmod = pd.read_csv("/Users/human/git/sigpig/sigpig/stingray/m-files/vels.txt", delim_whitespace=True)
 
-            # original velocity model from Doug
+            # define a slowness factor to multipy onslide slowness by
+            slowness_factor = 2
+
+            # original velocity model based on Vs30
             velocity_model = [[0.00, 0.60],
                               [0.05, 0.65],
                               [0.10, 0.70],
@@ -287,11 +292,25 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
             # mask slowness grid: scale onslide / offslide slowness by
             # specified slowness factor
-            # make a function to plot cross-sections of 3D numpy array
+            infile = open('RR_landslide_mask.pkl', 'rb')
+            mask = pickle.load(infile)
+            infile.close()
+            # reduce mask to elevation_array size
+            mask = view_as_blocks(mask, (2,2)).sum((-1,2))
+            values = np.where(mask <= 2)
+            mask[values] = 0
+            values = np.where(mask > 2)
+            mask[values] = 1
+            # rotate to operate on Stingray-format data
+            mask = np.ma.make_mask(np.rot90(mask, k=3))
 
-            a = Pmod[:, :, 0] # a layer of constant depth
-            slowness_factor = ...
-            # TODO: how to do this inplace with 3D numpy mask?
+            # mask each layer of Pmod
+            for layer in range(Pmod.shape[2]):
+                Pmod[:,:,layer][mask] *= slowness_factor
+
+
+            # plot cross-sections of velocity model
+            fig = plot_3d_array(Pmod)
 
             # make dict of P wave slowness
             modeldict = {}
@@ -302,7 +321,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             modeldict['S']['u'] = [] # modeldict['S']['u'] = Smod
             savemat(
                 "/Users/human/git/sigpig/sigpig/stingray/srInput/srModel_" + str(
-                    int(1000 * dz)) + "m_0.5-0.65_TN.mat",
+                    int(1000 * dz)) + "m_OSOS.mat",
                 {'srModel':modeldict})
 
     else:
