@@ -1454,7 +1454,6 @@ def plot_3d_array(array: np.ndarray):
     plt.subplots_adjust(left=0.05, bottom=0.05, right=0.99, top=0.9)
     plt.suptitle("Velocity model slices")
     plt.show()
-    fig.savefig("velocity_model_slices.png")
+    fig.savefig("velocity_model_slices_2.png")
 
     return fig
-
