@@ -2966,6 +2966,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         ####################### TEMPLATE 3 -  9 sta, 3 chan  ##################
         ###################### 2017 11 27 22 57 51.00 #########################
         #######################################################################
+        # 9 station, 3 component, 14 second template, 2302 detections
+        infile = open('top_2302_detects_9sta_3comp_t3_12.0s_2.0_prepick_MAD8'
+                      '.0_culled_sorted_party_1-15SNR.pkl', 'rb')
+        # top 250
+        infile = open('top_250_detects_9sta_3comp_t3_12.0s_2.0_prepick_MAD8'
+                      '.0_culled_sorted_party_1-15SNR.pkl', 'rb')
 
         party = pickle.load(infile)
         infile.close()
