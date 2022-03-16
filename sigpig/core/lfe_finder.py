@@ -2727,21 +2727,23 @@ def party_snrs(party, streams_path, main_trace):
 # driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              snr_threshold, main_trace, detect_thresh,
-              thresh_type, shift_method='self', load_party=False,
-              cull=False, load_stack=False, load_stack_detects=False,
-              load_second_stack=False, plot=False):
+              main_trace, detect_thresh, thresh_type, shift_method='self',
+              load_party=False, cull=False, snr_threshold=[], load_stack=False,
+              load_stack_detects=False, load_second_stack=False, plot=False):
     """
-    Driver function to detect signals (LFEs in this case) in time series via
-    matched-filtering with specified template(s), then stacking of signals
-    found from that template, and finally template matching of the stacked
-    waveform template.
+    Driver function to detect signals, low frequency earthquakes (LFEs) in
+    this case, in time series via template matching (matched-filter) with the
+    specified template(s), then stacking of signals detected from that
+    template, and finally template matching of the stacked signals to
+    iterate the stacked time series.
 
     Inputs:
 
         shift_method: string identifying the cross-correlation time shift
                       method to use. 'zero', 'med', 'max', and 'fixed' are
                       options.
+
+        # TODO: add all params
 
     Example:
         # manually define templates from station (location is made up)
@@ -2974,8 +2976,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # trace.stats.npts NaNs.
         culled_party = cull_detections(party, detection_files_path,
                                        snr_threshold, main_trace)
-        # cull based on spectral energy in a specific band?
-        # TODO: add spectral function above?
+
+        # TODO: cull based on spectral energy in a specific band?
 
         if plot:
             # inspect the culled party growth over time
