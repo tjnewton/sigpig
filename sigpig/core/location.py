@@ -616,8 +616,8 @@ def extract_nll_locations(file_path):
 
 def location_pdfs_to_grid(pdfs, project_name):
     """ Takes in a list of lists, where each list entry contains:
-        [x y z weight], and outputs 3 NetCDF grids containing the sum of
-        weights in grid nodes to plot in GMT.
+        [x y z weight], and outputs 3 NetCDF grids (x-z, x-y, and y-z planes)
+        containing the sum of weights in grid nodes to plot via GMT.
 
         Example:
             # specify the path to the summed location file (containing SCATTER lines)
