@@ -2749,21 +2749,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #              "N25K    0.000  1       P\n"]
         # templates = ["# 2016  9 26  9 28 41.34  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "MCR1    0.000  1       P\n"]
-
-        # T4
         # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "N25K    0.000  1       P\n"]
         # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "MCR1    0.000  1       P\n"]
-        # # define template length and prepick length (both in seconds)
-        # template_length = 7.0
-        # template_prepick = 0.0
-
-        # # T5 - Aaron's template on WASW
-        # templates = ["# 2016  9 26  9 25 48.50  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-        #              "WASW    0.000  1       P\n"]
-        # template_length = 7.0
-        # template_prepick = 0.5
 
         # # T1 (old 6) - Aaron's template 1
         # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
@@ -2776,8 +2765,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #              "RH08    9.000  1       P\n",
         #              "WACK    1.500  1       P\n",
         #              "GLB     2.500  1       P\n"]
-        # template_length = 12.0
-        # template_prepick = 2.0
 
         # # T2 - Aaron's template 2
         # templates = ["# 2016  9 26 15 45 16.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
@@ -2790,8 +2777,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #              "RH08    1.000  1       P\n",
         #              "WACK    0.000  1       P\n",
         #              "GLB     2.000  1       P\n"]
-        # template_length = 12.0
-        # template_prepick = 2.0
 
         # T3 - My template following M5.3
         templates = ["# 2017 11 27 22 57 51.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
@@ -2804,16 +2789,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                      "RH08    1.000  1       P\n",
                      "WACK    4.000  1       P\n",
                      "GLB     2.000  1       P\n"]
+
+        # specify the length of the template in seconds, starting from the
+        # time defined in the `templates` variable
         template_length = 12.0
+        # specify the amount of time in seconds to add to the front of the
+        # template
         template_prepick = 2.0
-
-
-        # st = sta_chan_stream[195].copy()
-        # st.filter('bandpass', freqmin=1, freqmax=15)
-        # st.trim(UTCDateTime("2016-09-27T07:37:49.0Z"), UTCDateTime(
-        #                      "2016-09-27T07:38:05.0Z"), pad=True,
-        #                      fill_value=0, nearest_sample=True)
-        # st.plot()
 
         # and define a station dict to add data needed by EQcorrscan
         # station_dict = {"WASW": {"network": "AV", "channel": "SHZ"}}
@@ -2836,9 +2818,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR2"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
         files_path = "/Users/human/Desktop/2017-11-27"
-        template_files = glob.glob(f"{files_path}/*.ms")
 
-        # define path of files for detection: TA.N25K, YG.MCR2, YG.MCR1, YG.RH09, AV.WASW
+        # get all relevant files that contain the template time series
+        template_files = glob.glob(f"{files_path}/*.ms")
+        # define path of files for detection
         detection_files_path = "/Users/human/ak_data/inner"
 
         # define dates of interest
@@ -2849,9 +2832,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         start_date = UTCDateTime("2016-07-18T00:00:00.0Z")
 
         # set snr threshold to cull the party detections
-        # snr_threshold = [1.0, 25.0] # [1.0, 8.0]
+        # snr_threshold = [1.0, 25.0]
         # snr_threshold = [1.0, 9.0]
         snr_threshold = [1.0, 15.0]
+
         # set detection threshold and type
         detect_thresh = 8.0
         thresh_type = "MAD"
@@ -2894,6 +2878,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     load_second_stack = False
     cull = False
     plot = True
+
+    # TODO: define template number and optional number of detections then
+    #  logic for selecting corresponding party in the conditional below
 
     # get main station template detections
     if load_party:
