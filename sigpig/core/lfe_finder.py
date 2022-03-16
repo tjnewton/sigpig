@@ -2787,9 +2787,10 @@ def sort_party(party, n, detection_files_path, main_trace, plot=False,
 # driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
-              main_trace, detect_thresh, thresh_type, shift_method='self',
-              load_party=False, cull=False, snr_threshold=[], load_stack=False,
-              load_stack_detects=False, load_second_stack=False, plot=False):
+              main_trace, detect_thresh, thresh_type, template_number=0,
+              shift_method='self', load_party=False, cull=False,
+              snr_threshold=[], load_stack=False, load_stack_detects=False,
+              load_second_stack=False, plot=False):
     """
     Driver function to detect signals, low frequency earthquakes (LFEs) in
     this case, in time series via template matching (matched-filter) with the
@@ -3049,9 +3050,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if top_n:
         party = sort_party(party, n, detection_files_path, main_trace,
                            plot=plot, save_detections=save_detections,
-                           title=f"top_{n}_detections_t3_{template_length}s_"
-                         f"{template_prepick}_prepick_{thresh_type}"
-                         f"{detect_thresh}_{snr_threshold}_SNR")
+                           title=f"top_{n}_detections_t{template_number}_party"
+                                 f"_{template_length}s_{template_prepick}_"
+                                 f"prepick_{thresh_type}{detect_thresh}_"
+                                 f"{snr_threshold}_SNR")
 
     if plot:
         # inspect the party growth over time
@@ -3065,10 +3067,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_detects_9sta_3comp_t3"
-                         f"_{template_length}s_"
-                         f"{template_prepick}_prepick_{thresh_type}"
-                         f"{detect_thresh}_culled_sorted_1-15SNR", save=True)
+                   title=f"top_{n}_detections_t{template_number}_waveforms_"
+                                 f"{template_length}s_{template_prepick}_"
+                                 f"prepick_{thresh_type}{detect_thresh}_"
+                                 f"{snr_threshold}_SNR", save=True)
         # free up some memory
         del detection_stream
 
