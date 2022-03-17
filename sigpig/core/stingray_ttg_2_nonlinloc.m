@@ -31,15 +31,17 @@ for n =[10 12 13 1 15 16 17 18 2 20 21 22 23 25 26 27 28 3 30 31 32 33 34 35 36 
 
     % build .hdr file
     file_id = fopen(['/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr/nll_conversion/OSOS_0/RR.P.' num2str(n) '.time.hdr'],'w');
+    
     % zero z offset. Is this right? 
 %     fprintf(file_id,'%d %d %d %f %f %f %f %f %f %s\n', srRays.nx, srRays.ny, srRays.nz, ...
 %         srRays.srGeometry.easting, srRays.srGeometry.northing, 0, srRays.gx, srRays.gy, srRays.gz, 'TIME');
-    % z offset based on highest elevation station in km (in up as negative NLL convention)
+
+    % z offset based on station elevation in km (in up as negative NLL convention)
     fprintf(file_id,'%d %d %d %f %f %f %f %f %f %s\n', srRays.nx, srRays.ny, srRays.nz, ...
-        srRays.srGeometry.easting, srRays.srGeometry.northing, -0.4727874764648438, srRays.gx, srRays.gy, srRays.gz, 'TIME');
+        srRays.srGeometry.easting, srRays.srGeometry.northing, -1 * station_locations(ind,4), srRays.gx, srRays.gy, srRays.gz, 'TIME');
     
     % use station elevations from DTM
-    fprintf(file_id,'%s %f %f %f\n', num2str(n), station_locations(ind,2), station_locations(ind,3), -1*station_locations(ind,4));
+    fprintf(file_id,'%s %f %f %f\n', num2str(n), station_locations(ind,2), station_locations(ind,3), -1 * station_locations(ind,4));
 %     % or set station elevation to zero
 %     fprintf(file_id,'%s %f %f %f\n', num2str(n), station_locations(ind,2), station_locations(ind,3), 0);
    
