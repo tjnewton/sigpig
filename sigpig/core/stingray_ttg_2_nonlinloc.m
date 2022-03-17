@@ -11,7 +11,7 @@ for n =[10 12 13 1 15 16 17 18 2 20 21 22 23 25 26 27 28 3 30 31 32 33 34 35 36 
     load(file);
 
     % travel time grid format for NLLOC: label.PHASE.STATIONCODE.time.buf, where label can be any characters
-    output_name = ['/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr/nll_conversion/OSOS/RR.P.' num2str(n) '.time.buf'];
+    output_name = ['/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr/nll_conversion/OSOS_0/RR.P.' num2str(n) '.time.buf'];
 
     % transform the travel time grid, save as nlloc .buf file
     file_id = fopen(output_name, 'w');
@@ -30,9 +30,14 @@ for n =[10 12 13 1 15 16 17 18 2 20 21 22 23 25 26 27 28 3 30 31 32 33 34 35 36 
     ind=find(station_locations(:,1)==n)
 
     % build .hdr file
-    file_id = fopen(['/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr/nll_conversion/OSOS/RR.P.' num2str(n) '.time.hdr'],'w');
+    file_id = fopen(['/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr/nll_conversion/OSOS_0/RR.P.' num2str(n) '.time.hdr'],'w');
     fprintf(file_id,'%d %d %d %f %f %f %f %f %f %s\n', srRays.nx, srRays.ny, srRays.nz, ...
         srRays.srGeometry.easting, srRays.srGeometry.northing, 0, srRays.gx, srRays.gy, srRays.gz, 'TIME');
-    fprintf(file_id,'%s %f %f %f\n', num2str(n), station_locations(ind,2), station_locations(ind,3), -1*station_locations(ind,4)); % or 0);
+    
+    % use station elevation
+    % fprintf(file_id,'%s %f %f %f\n', num2str(n), station_locations(ind,2), station_locations(ind,3), -1*station_locations(ind,4));
+    % or set station elevation to zero
+    fprintf(file_id,'%s %f %f %f\n', num2str(n), station_locations(ind,2), station_locations(ind,3), 0);
+   
     fclose(file_id);
 end
