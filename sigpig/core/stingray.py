@@ -312,7 +312,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             # plot cross-sections of velocity model
             fig = plot_3d_array(Pmod)
 
-            # make dict of P wave slowness
+            # make dict of P wave slowness and save as mat file
             modeldict = {}
             modeldict['ghead'] = [xoffset, yoffset, nx, ny, nz, dx, dy, dz]
             modeldict['P'] = {}
