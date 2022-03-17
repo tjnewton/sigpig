@@ -1,5 +1,5 @@
 """
-Functions to constrain the origin location of signals.
+Functions to assist with constraining the origin location of signals.
 """
 # stop numpy using all available threads (these environment variables must be
 # set before numpy is imported for the first time).
