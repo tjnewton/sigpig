@@ -236,8 +236,10 @@ def elevations_from_raster(raster_file, longitudes, latitudes):
 
     Example:
         raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
-        longitudes = [-120.480, -120.480]
-        latitudes = [46.538, 46.519]
+        # longitudes = [-120.480, -120.480]
+        # latitudes = [46.538, 46.519]
+        longitudes = [-120.4706347915009, -120.46074932200101]
+        latitudes = [46.52239398104922, 46.530274799769188]
 
         # query raster at specified coordinates
         elevations = elevations_from_raster(raster_file, longitudes, latitudes)
