@@ -25,6 +25,7 @@ from scipy import stats, interpolate
 from time_miner import build_unet_model, trace_arrival_prediction
 import base64
 import hashlib
+from tqdm import tqdm
 import tensorflow as tf
 # turn off verbose tensorflow logging
 tf.get_logger().setLevel('INFO')
@@ -1409,9 +1410,10 @@ def top_n_autopicked_events(autopicked_file_path, n):
 
     Example:
         # define the file paths containing the autopicked .mrkr file
-        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
-        # define the desire number of events to get
-        n = 500
+        # autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_test.mrkr"
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13-07_09_2018.mrkr"
+        # define the desired number of events to get
+        n = -1
         events = top_n_autopicked_events(autopicked_file_path, n)
     """
     # store the events in a structure
@@ -1466,8 +1468,11 @@ def top_n_autopicked_events(autopicked_file_path, n):
     phase_time_threshold = 0.1 # in seconds
     deleted_phase_count = 0
     # loop over each event
-    for index, event_id in enumerate(events.keys()):
-        print(f"Processing event {index}/{len(events)}")
+    event_ids = list(events.keys())
+    for index in tqdm(range(len(event_ids))):
+        event_id = event_ids[index]
+        # print(f"Processing event {index}/{len(events)}")
+
         # loop over each phase in each event
         for phase in events[event_id]:
             # compare this phase with every other phase
