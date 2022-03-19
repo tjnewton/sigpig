@@ -1462,11 +1462,12 @@ def top_n_autopicked_events(autopicked_file_path, n):
 
     # There are some events with different event id's but identical phase
     # picks. Duplicate phase times withint + or - the phase_time_threshold are
-    # deleted in the loop below. This traversal is not optimized so it's slow.
+    # deleted in the loop below. This traversal is not optimized so it's slowww
     phase_time_threshold = 0.1 # in seconds
     deleted_phase_count = 0
     # loop over each event
-    for event_id in events.keys():
+    for index, event_id in enumerate(events.keys()):
+        print(f"Processing event {index}/{len(events)}")
         # loop over each phase in each event
         for phase in events[event_id]:
             # compare this phase with every other phase
@@ -1488,6 +1489,12 @@ def top_n_autopicked_events(autopicked_file_path, n):
                             deleted_phase_count += 1
 
     print(f"Deleted {deleted_phase_count} duplicate phases.")
+    # now delete events that have had all phases removed or < 4 phases
+    deletion_keys = []
+    for event_id in events.keys():
+        if len(events[event_id]) < 4:
+            deletion_keys.append(event_id)
+    [events.pop(deletion_key, None) for deletion_key in deletion_keys]
 
     # make lists of event ids and the number of phases for each event
     event_ids = []
@@ -1513,7 +1520,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
 
     # save pickle file with top n events
     top_events = {event_id: events[event_id] for event_id in event_ids}
-    outfile = open(f"top_events_dict.pkl", 'wb')
+    outfile = open(f"top_{n}_events_dict.pkl", 'wb')
     pickle.dump(top_events, outfile)
     outfile.close()
 
