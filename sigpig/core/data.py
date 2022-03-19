@@ -1611,7 +1611,14 @@ def events_dict_to_snuffler(events: dict):
     https://github.com/pyrocko/pyrocko/blob/4971d5e5ac3c4ac4b75992452a934e01a784ea8d/src/gui/marker.py
 
     Example:
+        # define the file paths containing the autopicked .mrkr file
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+        # define the desired number of events to get
+        n = 500
+        events = top_n_autopicked_events(autopicked_file_path, n)
 
+        # write the events to a snuffler format file
+        events_dict_to_snuffler(events)
     """
     # initialize list to store content to write to file
     content_list = []
