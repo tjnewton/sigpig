@@ -1427,7 +1427,8 @@ def top_n_autopicked_events(autopicked_file_path, n):
             if line_contents[0:5] == 'event':
                 # store the hash ID for the event
                 hash_id = line_contents.strip()[36:64]
-                # generate an event entry in the dict
+                # generate an event entry in the dict. This storage method has
+                # the side effect of ignoring duplicate events.
                 events[hash_id] = []
 
     # store arrival times by reading the marker file line by line
@@ -1458,6 +1459,35 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # Now we have a dict where each key is a unique hash id for an event, and
     # each entry is a list of dicts containing time of the first arrival and
     # the station it was recorded on.
+
+    # There are some events with different event id's but identical phase
+    # picks. Duplicate phase times withint + or - the phase_time_threshold are
+    # deleted in the loop below. This traversal is not optimized so it's slow.
+    phase_time_threshold = 0.1 # in seconds
+    deleted_phase_count = 0
+    # loop over each event
+    for event_id in events.keys():
+        # loop over each phase in each event
+        for phase in events[event_id]:
+            # compare this phase with every other phase
+            for comp_event_id in events.keys():
+                # only compare selected phase to phases with other event id's
+                if event_id != comp_event_id:
+                    # get the length of the list storing phases and loop
+                    # over it in reverse to accommodate deletion of items
+                    for phase_index in range(len(events[comp_event_id]) - 1,
+                                             -1, -1):
+                        comp_phase = events[comp_event_id][phase_index]
+                        # compare the phase station and time
+                        if (phase['station'] == comp_phase['station']) and \
+                           (phase['time'] >= (comp_phase['time'] -
+                           phase_time_threshold)) and  (phase['time'] <= (
+                           comp_phase['time'] + phase_time_threshold)):
+                            # remove the comparison phase from the list
+                            del events[comp_event_id][phase_index]
+                            deleted_phase_count += 1
+
+    print(f"Deleted {deleted_phase_count} duplicate phases.")
 
     # make lists of event ids and the number of phases for each event
     event_ids = []
