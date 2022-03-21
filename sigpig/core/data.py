@@ -1422,7 +1422,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # event tags and phase tags can be out of order so the autopicked .mrkr
     # file is looped over two times to collect events then phases.
 
-    # build a list indicating the order of events
+    # build a list indicating the order of events to compare neighbors
     event_order = []
     # store events by reading the marker file line by line
     with open(autopicked_file_path, 'r') as file:
