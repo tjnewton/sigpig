@@ -1914,6 +1914,62 @@ def process_picks(marker_File_Path: str):
 
     return pick_counts_dates, event_dates
 
+
+# function to ingest pickle file containing dictionary of events and phases
+def process_events_dict(events_dict_path: str):
+    """take in a pickle file containing a dictionary of events and
+    associated phases, then returns the count and dates of
+    detected signals per station, and the dates of detected events
+
+    Example:
+        events_dict_path = '4801130_events_dict.pkl'
+        pick_counts_dates, event_dates = process_events_dict(events_dict_path)
+
+        # plot the results
+
+    """
+    # build dict of [pick counts per station, [pick dates per station]]
+    pick_counts_dates = {'1': [0, []], '2': [0, []], '3': [0, []],
+                         '4': [0, []], '5': [0, []], '6': [0, []],
+                         '7': [0, []], '8': [0, []], '9': [0, []],
+                         '10': [0, []], '12': [0, []], '13': [0, []],
+                         '14': [0, []],
+                         '15': [0, []], '16': [0, []], '17': [0, []],
+                         '18': [0, []], '20': [0, []], '21': [0, []],
+                         '22': [0, []], '23': [0, []], '24': [0, []],
+                         '25': [0, []],
+                         '26': [0, []], '27': [0, []], '28': [0, []],
+                         '29': [0, []],
+                         '30': [0, []], '31': [0, []], '32': [0, []],
+                         '33': [0, []], '34': [0, []], '35': [0, []],
+                         '36': [0, []], '37': [0, []], '38': [0, []],
+                         '39': [0, []], '40': [0, []], '41': [0, []],
+                         '42': [0, []], 'UGAP3': [0, []], 'UGAP5': [0, []],
+                         'UGAP6': [0, []]}
+    event_dates = []
+
+    # load events dict
+    infile = open(events_dict_path, 'rb')
+    events = pickle.load(infile)
+    infile.close()
+
+    # loop over each event and store it
+    for event_id in events.keys():
+        event_time = events[event_id][0]['time']
+        event_dates.append(event_time)
+
+        # loop over phase times and store them
+        for phase in events[event_id]:
+            pick_station = phase['station'].split('.')[0]
+            pick_time = phase['time']
+
+            # increment pick counter
+            pick_counts_dates[pick_station][0] += 1
+            # add pick time to list
+            pick_counts_dates[pick_station][1].append(pick_time)
+
+    return pick_counts_dates, event_dates
+
 # plot event histogram from mrkr file
 def event_histogram(event_filename, save_fig=False):
     """Ingests snuffler-style .mrkr file and generates a histogram from its
@@ -1981,6 +2037,7 @@ def event_histogram(event_filename, save_fig=False):
     plt.show()
 
     return None
+
 
 # plot signal histogram from mrkr file
 def signal_histogram(event_filename, save_fig=False):
