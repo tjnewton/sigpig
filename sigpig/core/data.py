@@ -1422,6 +1422,8 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # event tags and phase tags can be out of order so the autopicked .mrkr
     # file is looped over two times to collect events then phases.
 
+    # build a list indicating the order of events
+    event_order = []
     # store events by reading the marker file line by line
     with open(autopicked_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
@@ -1432,6 +1434,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
                 # generate an event entry in the dict. This storage method has
                 # the side effect of ignoring duplicate events.
                 events[hash_id] = []
+                event_order.append(hash_id)
 
     # store arrival times by reading the marker file line by line
     with open(autopicked_file_path, 'r') as file:
@@ -1463,35 +1466,190 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # the station it was recorded on.
 
     # There are some events with different event id's but identical phase
-    # picks. Duplicate phase times withint + or - the phase_time_threshold are
-    # deleted in the loop below. This traversal is not optimized so it's slowww
+    # picks. Duplicate phase times within + or - the phase_time_threshold are
+    # deleted in the loop below.
     phase_time_threshold = 0.1 # in seconds
     deleted_phase_count = 0
-    # loop over each event
     event_ids = list(events.keys())
-    for index in tqdm(range(len(event_ids))):
-        event_id = event_ids[index]
-        # print(f"Processing event {index}/{len(events)}")
 
-        # loop over each phase in each event
-        for phase in events[event_id]:
-            # compare this phase with every other phase
-            for comp_event_id in events.keys():
-                # only compare selected phase to phases with other event id's
+    # # This traversal is not optimized; it is O(n^2) so it's slowww; ~10000
+    # # day runtime for 4.2 million events so that isn't going to work.
+    # # loop over each event and display a progress bar
+    # for index in tqdm(range(len(event_ids))):
+    #     event_id = event_ids[index]
+    #
+    #     # loop over each phase in each event
+    #     for phase in events[event_id]:
+    #         # compare this phase with every other phase
+    #         for comp_event_id in events.keys():
+    #             # only compare selected phase to phases with other event id's
+    #             if event_id != comp_event_id:
+    #                 # get the length of the list storing phases and loop
+    #                 # over it in reverse to accommodate deletion of items
+    #                 for phase_index in range(len(events[comp_event_id]) - 1,
+    #                                          -1, -1):
+    #                     comp_phase = events[comp_event_id][phase_index]
+    #                     # compare the phase station and time
+    #                     if (phase['station'] == comp_phase['station']) and \
+    #                        (phase['time'] >= (comp_phase['time'] -
+    #                        phase_time_threshold)) and  (phase['time'] <= (
+    #                        comp_phase['time'] + phase_time_threshold)):
+    #                         # remove the comparison phase from the list
+    #                         del events[comp_event_id][phase_index]
+    #                         deleted_phase_count += 1
+
+    # # Optimized traversal of every event to compare and delete duplicate phase
+    # # time arrivals belonging to different events. Phases times in
+    # # different events are only compared if the events are within 1 minute
+    # # of each other, in which case every phase for each phase is compared.
+    # # Runtime still too slow at 2480 days per 4.2 million events. Nope.
+    # # build a list of event times from the first phase time so they aren't
+    # # looked up each time
+    # event_times = {event_id: events[event_id][0]["time"] for event_id in
+    #                events.keys()}
+    #
+    # # loop over each event and display a progress bar
+    # for index in tqdm(range(len(event_ids))):
+    #     event_id = event_ids[index]
+    #
+    #     # loop over every event again so each event is compared to every event
+    #     for comp_event_id in events.keys():
+    #         # avoid comparing an event to itself
+    #         if event_id != comp_event_id:
+    #             # get the event time and compare it to the other event
+    #             if abs(event_times[event_id] - event_times[comp_event_id]) <60:
+    #                 # loop over each phase in the original event (outermost
+    #                 # loop)
+    #                 for phase in events[event_id]:
+    #                     # get the length of the list storing phases and loop
+    #                     # over it in reverse to accommodate deletion of items
+    #                     for phase_index in range(len(events[comp_event_id])
+    #                                              - 1, -1, -1):
+    #                         comp_phase = events[comp_event_id][phase_index]
+    #                         # compare the phase station and time
+    #                         if (phase['station'] == comp_phase['station']) and \
+    #                                 (phase['time'] >= (comp_phase['time'] -
+    #                                                    phase_time_threshold)) and (
+    #                                 phase['time'] <= (
+    #                                 comp_phase[
+    #                                     'time'] + phase_time_threshold)):
+    #                             # remove the comparison phase from the list
+    #                             del events[comp_event_id][phase_index]
+    #                             deleted_phase_count += 1
+    #
+    #                             # stop searching for duplicate after it's found
+    #                             break
+
+    # Another optimization using event neighbors rather than comparing each
+    # event time. This loop takes ## minutes to cull 4.2 million events.
+    # build a list of event times from the first phase time so they aren't
+    # looked up each time
+    event_times = {event_id: events[event_id][0]["time"] for event_id in
+                   events.keys()}
+
+    # loop over each event from the in-order event list, compare it to 3
+    # events on each side,  and display a progress bar
+    num_events = len(event_order)
+    for index in tqdm(range(num_events)):
+        event_id = event_order[index]
+
+        # case: first three events
+        if index < 3:
+            # loop over any events before and the 3 events after current
+            for comp_event_index in range(0, index + 4):
+                comp_event_id = event_order[comp_event_index]
+                # avoid comparing an event to itself
                 if event_id != comp_event_id:
-                    # get the length of the list storing phases and loop
-                    # over it in reverse to accommodate deletion of items
-                    for phase_index in range(len(events[comp_event_id]) - 1,
-                                             -1, -1):
-                        comp_phase = events[comp_event_id][phase_index]
-                        # compare the phase station and time
-                        if (phase['station'] == comp_phase['station']) and \
-                           (phase['time'] >= (comp_phase['time'] -
-                           phase_time_threshold)) and  (phase['time'] <= (
-                           comp_phase['time'] + phase_time_threshold)):
-                            # remove the comparison phase from the list
-                            del events[comp_event_id][phase_index]
-                            deleted_phase_count += 1
+                    # get the event time and compare it to the other event
+                    if abs(event_times[event_id] - event_times[
+                        comp_event_id]) < 60:
+                        # loop over each phase in the original event (outermost
+                        # loop)
+                        for phase in events[event_id]:
+                            # get the length of the list storing phases and loop
+                            # over it in reverse to accommodate deletion of items
+                            for phase_index in range(len(events[comp_event_id])
+                                                     - 1, -1, -1):
+                                comp_phase = events[comp_event_id][phase_index]
+                                # compare the phase station and time
+                                if (phase['station'] == comp_phase[
+                                    'station']) and \
+                                        (phase['time'] >= (comp_phase['time'] -
+                                                           phase_time_threshold)) and (
+                                        phase['time'] <= (
+                                        comp_phase[
+                                            'time'] + phase_time_threshold)):
+                                    # remove the comparison phase from the list
+                                    del events[comp_event_id][phase_index]
+                                    deleted_phase_count += 1
+
+                                    # stop searching for duplicate after it's found
+                                    break
+
+        # case: last three events
+        elif num_events - index <= 3:
+            # loop over any events before and the 3 events after current
+            for comp_event_index in range(index - 3, num_events):
+                comp_event_id = event_order[comp_event_index]
+                # avoid comparing an event to itself
+                if event_id != comp_event_id:
+                    # get the event time and compare it to the other event
+                    if abs(event_times[event_id] - event_times[
+                        comp_event_id]) < 60:
+                        # loop over each phase in the original event (outermost
+                        # loop)
+                        for phase in events[event_id]:
+                            # get the length of the list storing phases and loop
+                            # over it in reverse to accommodate deletion of items
+                            for phase_index in range(len(events[comp_event_id])
+                                                     - 1, -1, -1):
+                                comp_phase = events[comp_event_id][phase_index]
+                                # compare the phase station and time
+                                if (phase['station'] == comp_phase[
+                                    'station']) and \
+                                        (phase['time'] >= (comp_phase['time'] -
+                                                           phase_time_threshold)) and (
+                                        phase['time'] <= (
+                                        comp_phase[
+                                            'time'] + phase_time_threshold)):
+                                    # remove the comparison phase from the list
+                                    del events[comp_event_id][phase_index]
+                                    deleted_phase_count += 1
+
+                                    # stop searching for duplicate after it's found
+                                    break
+
+        # case: all other events
+        else:
+            # loop over the 3 events before and the 3 events after current
+            for comp_event_index in range(index - 3, index + 4):
+                comp_event_id = event_order[comp_event_index]
+                # avoid comparing an event to itself
+                if event_id != comp_event_id:
+                    # get the event time and compare it to the other event
+                    if abs(event_times[event_id] - event_times[
+                        comp_event_id]) < 60:
+                        # loop over each phase in the original event (outermost
+                        # loop)
+                        for phase in events[event_id]:
+                            # get the length of the list storing phases and loop
+                            # over it in reverse to accommodate deletion of items
+                            for phase_index in range(len(events[comp_event_id])
+                                                     - 1, -1, -1):
+                                comp_phase = events[comp_event_id][phase_index]
+                                # compare the phase station and time
+                                if (phase['station'] == comp_phase['station']) and \
+                                        (phase['time'] >= (comp_phase['time'] -
+                                                           phase_time_threshold)) and (
+                                        phase['time'] <= (
+                                        comp_phase[
+                                            'time'] + phase_time_threshold)):
+                                    # remove the comparison phase from the list
+                                    del events[comp_event_id][phase_index]
+                                    deleted_phase_count += 1
+
+                                    # stop searching for duplicate after it's found
+                                    break
 
     print(f"Deleted {deleted_phase_count} duplicate phases.")
     # now delete events that have had all phases removed or < 4 phases
