@@ -6,6 +6,10 @@ events utilizing rules in a decision tree.
 # FIXME: verify model is only receiving P picks
 # FIXME: test association on all 5s windows in 30s, and other subsets
 # FIXME: change camel case to lowercase:::within function
+# FIXME: there is a bug in here somewhere that generates duplicate phase
+#        time picks in events with different hashs. This is probably due to
+#        slightly different medians of duplicate pick times generating a unique
+#        hash since the event_id is hashed from the median phase pick time.
 
 # Run the autopicker?
 RUN = False
