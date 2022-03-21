@@ -1924,9 +1924,6 @@ def process_events_dict(events_dict_path: str):
     Example:
         events_dict_path = '4801130_events_dict.pkl'
         pick_counts_dates, event_dates = process_events_dict(events_dict_path)
-
-        # plot the results
-
     """
     # build dict of [pick counts per station, [pick dates per station]]
     pick_counts_dates = {'1': [0, []], '2': [0, []], '3': [0, []],
@@ -2034,6 +2031,54 @@ def event_histogram(event_filename, save_fig=False):
 
     if save_fig:
         plt.savefig(f'event_histogram.pdf', dpi=600)
+    plt.show()
+
+    return None
+
+# plot event histogram from mrkr file
+def events_dict_histogram(events_dict_path, save_fig=False):
+    """Ingests pickle file containing a dictionary of events and phases, then
+       generates a histogram from its contents.
+
+       Example:
+            events_dict_path = '4801130_events_dict.pkl'
+            event_dict_histogram(events_dict_path, save_fig=True)
+    """
+    # get info from marker file
+    _, event_dates = process_events_dict(events_dict_path)
+
+    # convert event dates to matplotlib dates
+    event_dates = [event_date.matplotlib_date for event_date in event_dates]
+
+    # generate event date histogram
+    plt.figure(figsize=(13, 5))  # figsize for many weeks
+    n, bins, patches = plt.hist(event_dates, bins=2688, facecolor="darkred",
+                                alpha=0.6)
+    ax = plt.axes()
+    # set background color
+    ax.set_facecolor("dimgrey")
+    # set plot labels
+    # plt.xlabel(f'hour : minute : second of'
+    #            f' {num2date(bins[0]).strftime("%m/%d/%Y")}')
+    plt.xlabel(f'Day [1 hour bins : 16 weeks starting on'
+               f' {num2date(bins[0]).strftime("%m/%d/%Y")}]')
+    plt.ylabel('Events')
+    ax.set_title(f'Autodetected Events Histogram (n={len(event_dates)})',
+                 y=0.9999)
+    # set plot limits
+    # plt.ylim(0, 50)
+    ax.set_xlim([bins[0], bins[-1]])
+    myFmt = DateFormatter("%m-%d")
+    # myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    ax.xaxis.set_major_formatter(myFmt)
+    locator_x = AutoDateLocator() # minticks=12, maxticks=18
+    ax.xaxis.set_major_locator(locator_x)
+
+    plt.tight_layout()
+    plt.grid(True)
+
+    if save_fig:
+        plt.savefig(f'events_dict_histogram.pdf', dpi=600)
     plt.show()
 
     return None
