@@ -2042,17 +2042,27 @@ def events_dict_histogram(events_dict_path, save_fig=False):
 
        Example:
             events_dict_path = '4801130_events_dict.pkl'
-            event_dict_histogram(events_dict_path, save_fig=True)
+            events_dict_histogram(events_dict_path, save_fig=True)
     """
     # get info from marker file
     _, event_dates = process_events_dict(events_dict_path)
+
+    # outfile = open("final_event_dates.pkl", 'wb')
+    # pickle.dump(event_dates, outfile)
+    # outfile.close()
+
+    # # load event_dates object
+    # infile = open("final_event_dates.pkl", 'rb')
+    # event_dates = pickle.load(infile)
+    # infile.close()
 
     # convert event dates to matplotlib dates
     event_dates = [event_date.matplotlib_date for event_date in event_dates]
 
     # generate event date histogram
-    plt.figure(figsize=(13, 5))  # figsize for many weeks
-    n, bins, patches = plt.hist(event_dates, bins=2688, facecolor="darkred",
+    bins = 119 # every 24 hours
+    plt.figure(figsize=(6, 5))  # figsize for many weeks
+    n, bins, patches = plt.hist(event_dates, bins=bins, facecolor="darkred",
                                 alpha=0.6)
     ax = plt.axes()
     # set background color
@@ -2060,10 +2070,11 @@ def events_dict_histogram(events_dict_path, save_fig=False):
     # set plot labels
     # plt.xlabel(f'hour : minute : second of'
     #            f' {num2date(bins[0]).strftime("%m/%d/%Y")}')
-    plt.xlabel(f'Day [1 hour bins : 16 weeks starting on'
-               f' {num2date(bins[0]).strftime("%m/%d/%Y")}]')
-    plt.ylabel('Events')
-    ax.set_title(f'Autodetected Events Histogram (n={len(event_dates)})',
+    plt.xlabel(f'Date (17 weeks starting on'
+               f' {num2date(bins[0]).strftime("%m/%d/%Y")})')
+    plt.ylabel('Events per day')
+    num = "{:,}".format(len(event_dates))
+    ax.set_title(f'Event Detections (n={num})',
                  y=0.9999)
     # set plot limits
     # plt.ylim(0, 50)
