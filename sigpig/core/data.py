@@ -1473,7 +1473,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
     event_ids = list(events.keys())
 
     # # This traversal is not optimized; it is O(n^2) so it's slowww; ~10000
-    # # day runtime for 4.2 million events so that isn't going to work.
+    # # day runtime for 4.8 million events so that isn't going to work.
     # # loop over each event and display a progress bar
     # for index in tqdm(range(len(event_ids))):
     #     event_id = event_ids[index]
@@ -1502,7 +1502,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # # time arrivals belonging to different events. Phases times in
     # # different events are only compared if the events are within 1 minute
     # # of each other, in which case every phase for each phase is compared.
-    # # Runtime still too slow at 2480 days per 4.2 million events. Nope.
+    # # Runtime still too slow at 2480 days per 4.8 million events. Nope.
     # # build a list of event times from the first phase time so they aren't
     # # looked up each time
     # event_times = {event_id: events[event_id][0]["time"] for event_id in
@@ -1541,7 +1541,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
     #                             break
 
     # Another optimization using event neighbors rather than comparing each
-    # event time. This loop takes ## minutes to cull 4.2 million events.
+    # event time. This loop takes ## minutes to cull 4.8 million events.
     # build a list of event times from the first phase time so they aren't
     # looked up each time
     event_times = {event_id: events[event_id][0]["time"] for event_id in
@@ -1672,6 +1672,13 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # if n=-1, reset n to number of events
     if n == -1:
         n = sort_indices.size
+
+    outfile = open(f"{n}_events_dict.pkl", 'wb')
+    pickle.dump(events, outfile)
+    outfile.close()
+    outfile = open(f"{n}_events_order.pkl", 'wb')
+    pickle.dump(event_order, outfile)
+    outfile.close()
 
     # find the top n events with most phases
     top_n_sort_indices = [sort_indices[index] for index in range(-1, (n + 1)
