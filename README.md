@@ -205,5 +205,17 @@ events_dict_histogram(events_dict_path, save_fig=True)
 ```
 ![](doc/images/events_histogram.png?raw=true)  
 
+or inspect an autopicked event catalog directly without culling it:
+```
+# define the file path to the snuffler-format autopicked events file
+event_filename = "autopicked_events_03_13-07_09_2018.mrkr"
+
+# generate a histogram to describe the temporal distribution of events
+event_histogram(event_filename, save_fig=True)
+
+# generate a histogram to describe the temporal distribution of all phases of all events
+signal_histogram(event_filename, save_fig=True)
+```
+
 ### sigpig.core.stress inverts slip vectors for principal stress orientation:  
 xy
