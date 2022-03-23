@@ -172,5 +172,15 @@ stack_list = stack_waveforms(party, pick_offset,
 ### sigpig.core.time_miner detects and associates signals in time series:  
 #TODO: rename to something more intuitive like event_miner and refactor internal names
 
+Detect phase arrival times and associate phases to events:
+```
+# run time_miner.py from terminal and specify the start and end dates of the detection as parameters
+# this example specifies a 5 second window
+./time_miner.py 2018-03-13T00:10:00.0Z 2018-03-13T00:10:05.0Z
+
+# set parameters in time_miner.py for tunability, including plot_Association_Results=True to generate figures
+```
+![](doc/images/association_results.png?raw=true)
+
 ### sigpig.core.stress inverts slip vectors for principal stress orientation:  
 xy
