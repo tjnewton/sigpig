@@ -185,6 +185,7 @@ Detect phase arrival times and associate phases to events:
 Process an autopicked event catalog and display the results:  
 ```
 from data import top_n_autopicked_events
+import pickle
 
 # define the path to the autopicked events file in snuffler format
 autopicked_file_path = "autopicked_events_03_13-07_09_2018.mrkr"
@@ -193,8 +194,14 @@ n = -1
 # extract a dictionary of events processed from the file
 events = top_n_autopicked_events(autopicked_file_path, n)
 
+# save events dict to a file for future reference
+events_dict_path = "events_dict.pkl"
+outfile = open(events_dict_path, 'wb')
+pickle.dump(events, outfile)
+outfile.close()
+
 # generate a histogram to describe the events
-events_dict_histogram(events_dict, save_fig=True)
+events_dict_histogram(events_dict_path, save_fig=True)
 ```
 ![](doc/images/events_histogram.png?raw=true)  
 
