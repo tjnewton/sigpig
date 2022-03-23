@@ -59,7 +59,7 @@ np.seterr(divide='ignore', invalid='ignore')
 # # # #  D E F I N E   P A R A M E T E R S  # # # #
 # plot association results? only do this for small time periods, otherwise
 # the figure will squished and useless.
-plot_Association_Results = False # see warning above
+plot_Association_Results = True # see warning above
 load = False # load windows from a previous run?
 detection_Parameters = (120, 60) # window size and offset
 
@@ -774,14 +774,18 @@ def trim_Daily_Waveforms(project_Name: str, start_Time, end_Time, channels:
         for station in stations_channels:
             for channel in stations_channels[station]:
                 if channel in channels:  # is this a channel we specified?
-                    # EXTERNAL HD LOCATION
+                    # EXTERNAL HD PATH
                     # filepath = f"/Volumes/newton_6TB/RR_MSEED/5A.{station}.." \
                     #            f"{channel}.{start_Time.year}-" \
                     #            f"{start_Time.month:02}-{start_Time.day:02}T00.00.00.ms"
-                    # LOCAL LOCATION
-                    filepath = f"../shared/Rattlesnake_2018/5A.{station}.." \
+                    # LOCAL PATH
+                    filepath = f"/Users/human/Desktop/RR_MSEED/5A.{station}.."\
                                f"{channel}.{start_Time.year}-" \
                                f"{start_Time.month:02}-{start_Time.day:02}T00.00.00.ms"
+                    # HPC PATH
+                    # filepath = f"../shared/Rattlesnake_2018/5A.{station}.." \
+                    #            f"{channel}.{start_Time.year}-" \
+                    #            f"{start_Time.month:02}-{start_Time.day:02}T00.00.00.ms"
                     filepaths.append(filepath)
 
         obspyStream = Stream()
@@ -1531,7 +1535,8 @@ def process_Clusters(labels, pick_Times, pick_Station_Order,
 # associates signal arrival times via manual decision tree
 def associate_Picks(clustering_Algo, station_Picks, scale_Time, PCA,
                     PCA_Components, duplicate_Threshold, temporal_Threshold,
-                    spatial_Threshold, min_Quakes_Per_Cluster, model):
+                    spatial_Threshold, min_Quakes_Per_Cluster, model,
+                    filepaths):
     """
     Forms clusters from picks then alters them based on a manual decision
     tree to associate phase picks into events and associated picks.
@@ -1713,7 +1718,7 @@ def build_association_figure(figure_Columns, period_Index, labels,
                              pick_Station_Order, pick_Times,
                              cluster_Start_Time, cluster_End_Time,
                              waveforms, threshold, duplicate_Threshold,
-                             DBSCAN_Distance, ax_DBSCAN0):
+                             DBSCAN_Distance, ax_DBSCAN0, station_Distance):
     """ Plots results of associate_Picks function. Displays and saves the
         figure on the last iteration. """
 
@@ -1860,6 +1865,170 @@ def build_association_figure(figure_Columns, period_Index, labels,
         plt.subplots_adjust(wspace=0.00)
         plt.savefig(f'clustering_Results_thr{threshold}_dupThr'
                     f'{duplicate_Threshold}_DB{DBSCAN_Distance}.pdf', dpi=600)
+        plt.show()
+
+    # return shared axis
+    return ax_DBSCAN0
+
+# plots association results for the specified time period
+def build_single_association_figure(figure_Columns, period_Index, labels,
+                             pick_Station_Order, pick_Times,
+                             cluster_Start_Time, cluster_End_Time,
+                             waveforms, threshold, duplicate_Threshold,
+                             DBSCAN_Distance, ax_DBSCAN0, station_Distance):
+    """ Plots results of associate_Picks function. Displays and saves the
+        figure on the last iteration. """
+
+    # rows=1, columns are different time windows
+    figureWidth = 10 # was 19
+    figureHeight = 14
+
+    # initialize figure on first period (or column)
+    if period_Index == 0:
+        fig, ax = plt.subplots(1, figure_Columns, sharex='col',
+                               sharey='row', figsize=(figureWidth, figureHeight))
+
+    # build list of subplot indices to build figure
+    subplot_Indices = [index for index in range(1, figure_Columns + 1)]
+
+    subplot_Index = subplot_Indices[period_Index]
+
+    # set figure subplot, if first index set with different name to
+    # enforce sharing of y axis
+    if subplot_Index == subplot_Indices[0]:
+        ax_DBSCAN0 = plt.subplot(1, figure_Columns,
+                                 subplot_Index)
+    else:
+        ax_DBSCAN = plt.subplot(1, figure_Columns,
+                                subplot_Index, sharey=ax_DBSCAN0)
+
+    # set colors: black is removed and used for noise
+    unique_labels = set(labels)
+    colors = [plt.cm.Spectral(each)
+              for each in np.linspace(0, 1, len(unique_labels))]
+
+    # convert to np.array for bool indexing
+    pick_Station_Order = np.array(pick_Station_Order)
+    pick_Times = np.array(pick_Times)
+
+    # calculate median time of picks for each cluster
+    cluster_Medians = {}
+    cluster_Means = {}
+    for label in unique_labels:
+        member_Indices = np.where(labels == label)[0]
+        cluster_Medians[label] = np.median(pick_Times[member_Indices])
+        cluster_Means[label] = np.mean(pick_Times[member_Indices])
+
+    # loop through all clusters and plot them
+    for k, col in zip(unique_labels, colors):
+        if k == -1:
+            # Black used for noise.
+            col = [0, 0, 0, 1]
+
+        # mask to identify members of class
+        class_member_mask = (labels == k)
+
+        # get cluster median and mean
+        cluster_Median = cluster_Medians[k]
+        cluster_Mean = cluster_Means[k]
+
+        # # plot in PCA space
+        # xy = pick_Array_PCA[class_member_mask & core_samples_mask]
+        # plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+        #          markeredgecolor='k', markersize=9)
+        #
+        # xy = pick_Array_PCA[class_member_mask & ~core_samples_mask]
+        # plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
+        #          markeredgecolor='k', markersize=6)
+
+        if k == -1:
+            # plot noise
+            y = pick_Station_Order[class_member_mask]  # & ~core_samples_mask
+            x = pick_Times[class_member_mask]  # & ~core_samples_mask
+            plt.plot_date(x, y, 'o', markerfacecolor='grey',
+                          markeredgecolor='grey', markersize=12, alpha=0.4)
+
+        else:
+            # plot in station order vs. time space
+            y = pick_Station_Order[class_member_mask]  # & core_samples_mask
+            x = pick_Times[class_member_mask]  # & core_samples_mask
+            plt.plot_date(x, y, 'o', markerfacecolor=tuple(col),
+                          markeredgecolor='k', markersize=15)
+            plt.plot_date(x, y, '|', markerfacecolor='k',
+                          markeredgewidth=0.2, markeredgecolor='k',
+                          markersize=15)
+
+            # plot cluster median
+            y2 = [pick_Station_Order[class_member_mask].min(),
+                  pick_Station_Order[class_member_mask].max()]
+            x2 = [cluster_Median, cluster_Median]
+            plt.plot_date(x2, y2, fmt='-', linewidth=0.4, color='grey')
+
+            # # plot cluster mean
+            # x3 = [cluster_Mean, cluster_Mean]
+            # plt.plot_date(x3, y2, fmt='-', linewidth=0.4, color='green')
+
+        # set axes attributes on first subplot
+        if subplot_Index == subplot_Indices[0]:
+            ax_DBSCAN0.set_yticks(np.arange(0, len(station_Distance)))
+            ax_DBSCAN0.set_yticklabels(station_Distance.keys())
+            ax_DBSCAN0.set_ylabel('Station', fontsize=20)
+            # ax_DBSCAN0.set_xticks(np.arange(0, 1.1, 0.5))
+            ax_DBSCAN0.set_xlim([cluster_Start_Time.matplotlib_date,
+                                 cluster_End_Time.matplotlib_date])
+            # ax_DBSCAN0.set_xticklabels([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+            # ax_DBSCAN0.set_xticklabels(np.arange(0, 1.1, 0.2))
+            # ax_DBSCAN0.set_xlabel('Seconds')
+
+            myFmt = DateFormatter("%S.")  # "%H:%M:%S.f"
+            ax_DBSCAN0.xaxis.set_major_formatter(myFmt)
+            locator = AutoDateLocator(minticks=5, maxticks=6)
+            ax_DBSCAN0.xaxis.set_major_locator(locator)
+            ax_DBSCAN0.set_ylim((17, len(station_Distance) - 1)) # FIXME:
+            # ax_DBSCAN0.set_xlim((0, 1))
+            # fig.tight_layout()
+            ax_DBSCAN0.tick_params(axis='both', which='major', labelsize=20)
+
+            # reverse y axis
+            ax_DBSCAN0.set_ylim(ax_DBSCAN0.get_ylim()[::-1])
+
+            ax_DBSCAN0.set_title('Phase Association', fontsize=25)
+
+        else:
+            ax_DBSCAN.set_xlim([cluster_Start_Time.matplotlib_date,
+                                cluster_End_Time.matplotlib_date])
+            myFmt = DateFormatter("%S.")  # "%H:%M:%S.f"
+            ax_DBSCAN.xaxis.set_major_formatter(myFmt)
+            locator = AutoDateLocator(minticks=5, maxticks=6)
+            ax_DBSCAN.xaxis.set_major_locator(locator)
+            # ax_DBSCAN.set_xticklabels(np.arange(0, 1.1, 0.2))
+            # ax_DBSCAN.set_xlabel('Seconds')
+            ax_DBSCAN.yaxis.set_visible(False)
+
+    # plot waveforms for each station
+    # normalize by max value in each window
+    maxTraceValue = max_Amplitude(waveforms)
+    for trace in range(len(waveforms)):
+        # only plot last x traces
+        if trace > 17 and trace < 39:
+            plt.plot_date(waveforms[trace].times(type="matplotlib"),
+                          (waveforms[trace].data / maxTraceValue) * 8 +
+                          trace, fmt="k-", linewidth=0.4)
+
+    print(f"Column: {period_Index}")
+    print(f"Start time: {cluster_Start_Time}")
+    print(f"End time: {cluster_End_Time}")
+
+    # display and save plot on last period_Index (last column)
+    if subplot_Index == subplot_Indices[-1]:
+        # plt.ylim((0, 5))
+        # plt.xticks([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+        plt.xlabel('Time (seconds)', fontsize=20)
+        # plt.suptitle('Phase Association', fontweight="bold", fontsize=25)
+        plt.tight_layout()
+        # remove gap between subplots
+        # plt.subplots_adjust(wspace=0.00)
+        plt.savefig(f'association.pdf', dpi=300)
         plt.show()
 
     # return shared axis
@@ -2169,7 +2338,7 @@ def signal_histogram(event_filename, save_fig=False):
 
     return None
 
-
+RUN = True
 if RUN:
     # # # #   B E G I N   P R O C E S S I N G   T I M E   W I N D O W S   # # # #
     start = time.time()
@@ -2177,8 +2346,15 @@ if RUN:
     # identify time period(s) of interest from input
     # 2018-05-08T00:01:10.0Z - 2018-05-08T12:00:00.0Z
     # 2018-05-08T12:00:00.0Z - 2018-05-08T23:59:00.0Z
-    start_date = UTCDateTime(sys.argv[1])
-    end_date = UTCDateTime(sys.argv[2])
+
+    # start_date = UTCDateTime(sys.argv[1])
+    # end_date = UTCDateTime(sys.argv[2])
+
+    #FIXME: delete after testing
+    start_date = UTCDateTime("2018-03-13T00:10:20.0Z")
+    end_date = start_date + 5
+    # end_date = UTCDateTime("2018-03-13T00:00:05.7Z")
+
     time_Period = (start_date, end_date)
 
     # build list of clustering algorithms to run
@@ -2291,7 +2467,8 @@ if RUN:
                                                  duplicate_Threshold,
                                                  temporal_Threshold,
                                                  spatial_Threshold,
-                                                 min_Quakes_Per_Cluster, model)
+                                                 min_Quakes_Per_Cluster,
+                                                 model, filepaths)
 
             ###################################################################
             ################# Save the association results ####################
@@ -2314,13 +2491,29 @@ if RUN:
                     ax_DBSCAN0 = []
                 # build the figure for each window and display the figure on the
                 # last iteration
-                ax_DBSCAN0 = build_association_figure(clustering_Windows,
+                # ax_DBSCAN0 = build_association_figure(clustering_Windows,
+                #                                       period_Index, labels,
+                #                                       pick_Station_Order, pick_Times,
+                #                                       cluster_Start_Time,
+                #                                       cluster_End_Time, waveforms,
+                #                                       threshold, duplicate_Threshold,
+                #                                       DBSCAN_Distance,
+                #                                       ax_DBSCAN0,
+                #                                       station_Distance)
+
+                # build a pretty association figure of a single 5 second period
+                ax_DBSCAN0 = build_single_association_figure(clustering_Windows,
                                                       period_Index, labels,
-                                                      pick_Station_Order, pick_Times,
+                                                      pick_Station_Order,
+                                                      pick_Times,
                                                       cluster_Start_Time,
-                                                      cluster_End_Time, waveforms,
-                                                      threshold, duplicate_Threshold,
-                                                      DBSCAN_Distance, ax_DBSCAN0)
+                                                      cluster_End_Time,
+                                                      waveforms,
+                                                      threshold,
+                                                      duplicate_Threshold,
+                                                      DBSCAN_Distance,
+                                                      ax_DBSCAN0,
+                                                      station_Distance)
 
         # if _OPTICS:
         #     # FIXME: this section needs updated
