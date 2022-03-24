@@ -1642,7 +1642,8 @@ def get_detections(party, streams_path, main_trace):
     return sta_chan_stream
 
 # stacking routine to generate stacks from template detections (doesn't use
-# EQcorrscan stacking routine)
+# EQcorrscan stacking routine), this implementation is memory-limited as all
+# traces are loaded into memory at the same time
 def stack_template_detections(party, streams_path, main_trace,
                               template_times, align_type,
                               animate_stacks=False):
@@ -2017,6 +2018,7 @@ def stack_template_detections(party, streams_path, main_trace,
         # check for -2 reference index indicating stack x-corr shifting
         elif reference_idx == -2:
             # zero shift stream then get a linear stack
+            # FIXME: logic here probably needs to change after refactoring
             zero_shift_stream(stream)
             lin, _ = generate_stacks(stream, normalize=True, animate=False)
 
@@ -2120,7 +2122,10 @@ def stack_template_detections(party, streams_path, main_trace,
     def align_stream(stream, shifts, indices):
         # first check if data are bad, if so zero shift instead
         if shifts == None:
+            # first change all start times to be the same time
             zero_shift_stream(stream)
+            # then trim to 40 seconds total for stacks
+            # TODO:
 
         # data are good, so process them
         else:
@@ -2164,10 +2169,11 @@ def stack_template_detections(party, streams_path, main_trace,
             tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") # + 2#3
                                             # add 4 seconds for second stack
 
-        new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
-        new_end_time = new_start_time + 40
-        stream.trim(new_start_time, new_end_time, pad=True, fill_value=np.nan,
-                    nearest_sample=True)
+        # # don't trim for this implementation
+        # new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
+        # new_end_time = new_start_time + 40
+        # stream.trim(new_start_time, new_end_time, pad=True, fill_value=np.nan,
+        #             nearest_sample=True)
 
         return None
 
@@ -2310,7 +2316,8 @@ def stack_template_detections(party, streams_path, main_trace,
                     # process according to specified method and alignment
                     if align_type == 'zero':
                         # align the start time of each trace in stream
-                        zero_shift_stream(sta_chan_stream)
+                        shifts, indices = None, None
+                        align_stream(sta_chan_stream, shifts, indices)
                     elif align_type == 'med' or align_type == 'max' or \
                             align_type == 'self' or align_type == 'stack':
                         # get xcorr time shift from reference signal
@@ -2380,6 +2387,760 @@ def stack_template_detections(party, streams_path, main_trace,
     #     plot_stack(stack_lin, title='linear_stack', save=True)
 
     return [stack_pw, stack_lin, stack_ccs]
+
+
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
+#     #     #    building here      #     #     #     #     #     #     #     #
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
+def stack_template_detections2(party, streams_path, main_trace,
+                              template_times, align_type,
+                              animate_stacks=False):
+    """
+    # FIXME: change to non-memory-limited implementation
+
+    An implementation of phase-weighted and linear stacking that is
+    independent of EQcorrscan routines, allowing more customization of the
+    workflow.
+
+    Types of trace shifting for stacking (align_type):
+    'zero'  : no time shift for stacking.
+    'self'  : cross-correlation of each detection trace with the template
+              signal on each station to determine time shifts for stacking.
+    'fixed' : time shifts for all stations are determined from the cross-
+              correlation of each detection on the main trace with the template
+              signal. This is equivalent to the 'self' method on the main
+              trace, then applying those same shift times to each station.
+    'med'   : cross-correlation of each detection trace with the detection
+              trace with the median SNR signal on each station to determine
+              time shifts for stacking.
+    'max'   : cross-correlation of each detection trace with the detection
+              trace with the maximum SNR signal on each station to determine
+              time shifts for stacking.
+    'stack' : cross-correlation of each detection trace with the linear stack
+              of the traces on each station to determine time shifts for
+              stacking. This is the equivalent of a 'zero' stack used as the
+              reference signal for each station.
+
+    Example:
+        # time the run
+        start = time.time()
+
+        # define template length and prepick length (both in seconds)
+        template_length = 16.0
+        template_prepick = 0.5
+
+        # define the main trace to use for detections (best amplitude station)
+        main_trace = ("TA", "N25K", "BHN")
+
+        # define path of files for detection
+        streams_path = "/Users/human/ak_data/inner"
+
+        # load party object from file
+        party_file = 'party_06_15_2016_to_08_12_2018_MAD8.pkl'
+        infile = open(party_file, 'rb')
+        party = pickle.load(infile)
+        infile.close()
+
+        # inspect the party object detections
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
+        print(sorted(party.families, key=lambda f: len(f))[-1])
+
+        # get the stacks
+        stack_list = stack_template_detections(party, streams_path, main_trace,
+                                               align_type='stack')
+        end = time.time()
+        hours = int((end - start) / 60 / 60)
+        minutes = int(((end - start) / 60) - (hours * 60))
+        seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+        print(f"Runtime: {hours} h {minutes} m {seconds} s")
+
+        # save stacks as pickle file
+        outfile = open('inner_stack_list.pkl', 'wb')
+        pickle.dump(stack_list, outfile)
+        outfile.close()
+    """
+    # function to build a stream from which to generate time shifts for
+    # a fixed-location event
+    def build_main_stream(main_trace, streams_path, pick_times):
+        main_stream = Stream()
+        main_stream_snrs = []
+        # loop over pick times to assemble stream & show tqdm progress bar
+        for index in tqdm(range(len(pick_times))):
+            pick_time = pick_times[index]
+            # find the local file corresponding to the station:channel pair
+            file_list = glob.glob(f"{streams_path}/{main_trace[0]}."
+                                  f"{main_trace[1]}."
+                                  f"{main_trace[2]}.{pick_time.year}"
+                                  f"-{pick_time.month:02}"
+                                  f"-{pick_time.day:02}.ms")
+
+            # guard against missing files
+            if len(file_list) > 0:
+                # should only be one file, but safeguard against many
+                file = file_list[0]
+                # load day file into stream
+                day_st = read(file)
+                # bandpass filter
+                day_st.filter('bandpass', freqmin=1, freqmax=15)
+                # interpolate to 100 Hz
+                day_st.interpolate(sampling_rate=100)
+                # trim trace to 60 seconds surrounding pick time
+                day_st.trim(pick_time - 27, pick_time + 33, pad=True,
+                            fill_value=np.nan, nearest_sample=True)
+                # append snr
+                main_stream_snrs.append(snr(day_st)[0])
+
+                # add trace to main_stream
+                main_stream += day_st
+
+            # otherwise append empty Trace to preserve equal length with
+            # pick_times
+            else:
+                main_stream += Trace()
+                main_stream_snrs.append(np.nan)
+
+        return main_stream, main_stream_snrs
+
+    # function to generate linear and phase-weighted stacks from a stream
+    def generate_stacks(stream, normalize=True, animate=False):
+        # guard against stacking zeros and create data array
+        data = []
+        reference_idx = 0
+        for tr_idx ,trace in enumerate(stream):
+            if len(trace.data) > 0:
+                if trace.data.max() > 0:
+                    data.append(trace.data)
+                    reference_idx = tr_idx
+        # put the data into a numpy array
+        data = np.asarray(data, dtype='float64')
+
+        # if there is no data, return zeros
+        if data.size == 0:
+            lin = stream[0].copy()
+            lin.data = np.zeros_like(lin.data)
+            pws = stream[0].copy()
+            pws.data = np.zeros_like(lin.data)
+            return lin, pws
+
+        # remove traces with NaN data
+        # data = data[~np.any(np.isnan(data), axis=1)]
+
+        # normalize data or not
+        if normalize:
+            maxs = np.max(np.abs(data), axis=1)
+            data = data / maxs[:, None]
+
+        # make structures for stacks
+        linear_stack = np.nanmean(data, axis=0)
+        phas = np.zeros_like(data)
+
+        # loop over each trace and get instantaneous phase of each sample
+        for tr_idx in range(np.shape(phas)[0]):
+            # hilbert transform of each time series
+            tmp = hilbert(data[tr_idx, :])
+            # get instantaneous phase using the hilbert transform
+            phas[tr_idx, :] = np.arctan2(np.imag(tmp), np.real(tmp))
+
+        # sum of phases for each sample across traces
+        sump = np.abs(np.sum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
+               np.shape(phas)[0]
+
+        # pws = traditional stack * phase weighting stack
+        phase_weighted_stack = sump * linear_stack
+
+        lin = stream[reference_idx].copy()
+        lin.data = linear_stack
+        pws = stream[reference_idx].copy()
+        pws.data = phase_weighted_stack
+
+        # generate an animation of the stack if specified
+        if animate:
+            # # check animation writers
+            # import matplotlib.animation as manimation
+            # manimation.writers.list()
+
+            # initialize figure and camera to show trace and stack animation
+            fig, axes = plt.subplots(2, figsize=(7,4))
+            camera = Camera(fig)
+
+            data_len = len(data)
+            trace_len = data.shape[1]
+            # get x values from trace shape and sampling rate
+            x_vals = np.linspace(0, trace_len, trace_len, endpoint=False)
+            x_vals = x_vals / stream[0].stats.sampling_rate
+
+            # get y limits before plotting
+            y_min = -1 if normalize else np.mean(data.min(axis=1))
+            y_max = 1 if normalize else np.mean(data.max(axis=1))
+            for trace_idx, stack_trace in enumerate(data):
+                axes[0].plot(x_vals, stack_trace, color='blue', linewidth=1)
+                axes[0].set_ylim(bottom=y_min, top=y_max)
+                axes[0].set_xlim(0, ceil(x_vals.max()))
+                axes[1].plot(x_vals, data[:trace_idx+1].mean(axis=0),
+                                     color='blue', linewidth=1)
+                axes[1].text(1, lin.data.max(), f"{trace_idx+1}/{data_len}")
+                axes[1].set_ylim(bottom=lin.data.min() * 1.25,
+                                 top=lin.data.max() * 1.25)
+                axes[1].set_xlim(0, ceil(x_vals.max()))
+                axes[1].set_xlabel(f"Time (seconds)")
+                camera.snap()
+
+            animation = camera.animate()
+            animation.save(f'./stack_gifs/{stream[0].stats.network}'
+                           f'.{stream[0].stats.station}.'
+                           f'{stream[0].stats.channel}.gif',
+                           writer='imagemagick')
+
+        return lin, pws
+
+    def load_trace(streams_path, pick_time, ref_ID):
+        st = Stream()
+        network = ref_ID.split('.')[0]
+        station = ref_ID.split('.')[1]
+        channel = ref_ID.split('.')[2]
+
+        # find the local file corresponding to the station:channel pair
+        day_file_list = glob.glob(f"{streams_path}/{network}."
+                                  f"{station}."
+                                  f"{channel}.{pick_time[0].year}"
+                                  f"-{pick_time[0].month:02}"
+                                  f"-{pick_time[0].day:02}.ms")
+
+        # guard against missing files
+        if len(day_file_list) > 0:
+            # should only be one file, but safeguard against many
+            file = day_file_list[0]
+            # load day file into stream
+            day_st = read(file)
+            # interpolate to 100 Hz
+            day_st.interpolate(sampling_rate=100.0)
+            # bandpass filter
+            day_st.filter('bandpass', freqmin=1, freqmax=15)
+            # trim trace to 60 seconds surrounding pick time
+            day_st.trim(pick_time[0], pick_time[1], pad=True,
+                        fill_value=np.nan, nearest_sample=True)
+
+            st += day_st
+
+        return st[0]
+
+    # helper function to determine time offset of each time series in a
+    # stream with respect to a main trace via cross correlation
+    def xcorr_time_shifts(stream, reference_signal, template_times,
+                          streams_path):
+        # get index of first non-empty trace
+        for index, trace in enumerate(stream):
+            if len(trace) > 0:
+                ID_idx = index
+                break
+        # get ID of stream
+        ID = f"{stream[ID_idx].stats.network}.{stream[ID_idx].stats.station}."\
+             f"{stream[ID_idx].stats.channel}"
+
+        # TODO: rename "maxs" to targets
+        shifts = []
+        indices = []
+        ccs = []
+
+        # find reference index with strongest signal or median snr, this serves
+        # as a template
+        max_snr = 0
+        snrs = []
+        for index, trace in enumerate(stream):
+            if len(snr(trace)) > 0:
+                if snr(trace)[0] > 0:
+                    snrs.append(snr(trace)[0])
+                else:
+                    snrs.append(np.nan)
+            else:
+                snrs.append(np.nan)
+
+        # define target signal as max, median, self, or similar
+        reference_idx = -1 # flag to check for unset reference_idx
+        if reference_signal == "max":
+            reference_idx = np.nanargmax(snrs)
+        elif reference_signal == "med":
+            median_snr = np.nanmedian(snrs)
+            # find index of SNR closest to median
+            reference_idx = np.nanargmin(np.abs(snrs - median_snr))
+        elif reference_signal == "self":
+            # find index that corresponds with template event time
+            if ID in template_times:
+                for tr_idx, trace in enumerate(stream):
+                    if trace.stats.starttime < template_times[ID][0] and \
+                            trace.stats.endtime > template_times[ID][1]:
+                        reference_idx = tr_idx
+                        break
+        elif reference_signal == "stack":
+            # set reference index to -2 to indicate stack shifting
+            reference_idx = -2
+
+        # check for unset reference_idx, then set reference signal to a
+        # signal on another station
+        if reference_idx == -1:
+            # if template event time wasn't found within stream, use a similar
+            # signal. The first choice is a template signal on a different
+            # station in the same network on the same line, and on the same
+            # channel. The second choice is a template signal on a different
+            # station in the same network on the same channel. The third
+            # choice is a template signal on a different station in the same
+            # network.
+            ID_list = list(template_times.keys())
+            same_network_ID_list = []
+            same_channel_ID_list = []
+            same_line_ID_list = []
+            for item in ID_list:
+                # check for common network
+                if item.split('.')[0] == ID.split('.')[0]:
+                    same_network_ID_list.append(item)
+                # check for common channel and network
+                if item.split('.')[0] == ID.split('.')[0] and item.split(\
+                    '.')[2] == ID.split('.')[2]:
+                    same_channel_ID_list.append(item)
+                # check for common station line by first two characters of
+                # station name and channel code
+                if item.split('.')[1][:2] == ID.split('.')[1][:2] and \
+                   item.split('.')[2] == ID.split('.')[2]:
+                    same_line_ID_list.append(item)
+
+            # check for most ideal condition to least ideal condition
+            if len(same_line_ID_list) > 0:
+                # if only one candidate, use it
+                if len(same_line_ID_list) == 1:
+                    ref_ID = same_line_ID_list[0]
+                    pick_time = template_times[ref_ID]
+                    reference_trace = load_trace(streams_path, pick_time, ref_ID)
+                # if many candidates, select the closest one
+                else:
+                    # first decypher naming scheme to find digits for "closeness"
+                    digit_start_idx = -1
+                    for index, char in same_line_ID_list[0]:
+                        if char.isdigit():
+                            digit_start_idx = index
+                            break
+                    # if there are no digits, blindly choose a station
+                    if digit_start_idx == -1:
+                        ref_ID = same_line_ID_list[0]
+                        pick_time = template_times[ref_ID]
+                        reference_trace = load_trace(streams_path, pick_time,
+                                                     ref_ID)
+                    # otherwise, find the closest digit for the closest station
+                    else:
+                        # store distances
+                        digit_dist = []
+                        for entry in same_line_ID_list:
+                            entry_digits = int(entry.split('.')[1][
+                                           digit_start_idx:])
+                            station_digits = int(ID.split('.')[1][
+                                             digit_start_idx:])
+                            digit_dist.append(abs(station_digits -
+                                                  entry_digits))
+                        # find minimum distance index and use that one
+                        min_dist_idx = digit_dist.index(min(digit_dist))
+                        ref_ID = same_line_ID_list[min_dist_idx]
+                        pick_time = template_times[ref_ID]
+                        reference_trace = load_trace(streams_path, pick_time,
+                                                     ref_ID)
+
+            # check for 2nd best condition, signal from same network and
+            # common channel code
+            elif len(same_channel_ID_list) > 0:
+                # select candidate
+                ref_ID = same_channel_ID_list[0]
+                pick_time = template_times[ref_ID]
+                reference_trace = load_trace(streams_path, pick_time, ref_ID)
+
+            # check for 3nd best condition, signal from same network
+            elif len(same_network_ID_list) > 0:
+                # select candidate
+                ref_ID = same_channel_ID_list[0]
+                pick_time = template_times[ref_ID]
+                reference_trace = load_trace(streams_path, pick_time, ref_ID)
+
+            # else error
+            else:
+                print(f"ERROR: Things are about to break because there is no "
+                      "suitable reference signal for {ID}")
+
+        # check for -2 reference index indicating stack x-corr shifting
+        elif reference_idx == -2:
+            # zero shift stream then get a linear stack
+            # FIXME: logic here probably needs to change after refactoring
+            zero_shift_stream(stream)
+            lin, _ = generate_stacks(stream, normalize=True, animate=False)
+
+            # set the linear stack as the reference trace
+            reference_trace = lin
+            reference_trace.trim(reference_trace.stats.starttime,
+                                 reference_trace.stats.starttime + 35)
+
+        else:
+            trace = stream[reference_idx]
+            ref_snr = snrs[reference_idx]
+            # trim the reference trace to the template length
+            reference_trace = trace.copy().trim(template_times[ID][0],
+                                                template_times[ID][1])
+
+            # check centering of signals
+            st = Stream()
+            st += stream[0]
+            st += reference_trace
+            st0_middle = st[0].stats.starttime + ((st[0].stats.npts / 2) / st[
+                                                        0].stats.sampling_rate)
+            st1_middle = st[1].stats.starttime + ((st[1].stats.npts / 2) / st[
+                1].stats.sampling_rate)
+            difference = st1_middle - st0_middle
+
+
+
+            # print a warning if SNR is bad
+            if ref_snr == 0:
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("ERROR: reference SNR is 0")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+                print("- ! - ! - ! - ! - ! - ! -")
+            # else:
+            #     print(f"SNR in reference trace: {ref_snr}")
+
+        # guard against empty reference trace
+        if len(reference_trace) > 0:
+
+            # loop through each trace and get cross-correlation time delay
+            for st_idx, trace in enumerate(stream):
+
+                # length of trace must be greater than template for xcorr
+                if len(trace.data) > len(reference_trace.data):
+                    # # correlate the reference trace through the trace
+                    # cc = correlate_template(trace, reference_trace, mode='valid',
+                    #                         normalize='naive', demean=True,
+                    #                         method='auto')
+                    # # find the index with the max correlation coefficient
+                    # max_idx = np.argmax(cc)
+
+                    # # to visualize a trace, the template, and the max correlation
+                    # stt = Stream()
+                    # stt += trace # the trace
+                    # # the section of the trace where max correlation coef. starts
+                    # stt += trace.copy().trim(trace.stats.starttime + (max_idx /
+                    #                          trace.stats.sampling_rate),
+                    #                          trace.stats.endtime)
+                    # # the template aligned with the max correlation section
+                    # stt += reference_trace.copy()
+                    # stt[2].stats.starttime = stt[1].stats.starttime
+                    # stt.plot()
+
+                    # correlate the reference trace through the trace
+                    # FIXME: check centering
+                    max_shift = 50 # maximum xcorr shift in samples
+                    cc = correlate(trace, reference_trace, max_shift,
+                                   demean=True, normalize='naive',
+                                   method='auto')
+                    # find the index with the max correlation coefficient
+                    max_idx = np.argmax(cc) - max_shift # + (2 * max_shift)
+                    ccs.append(cc.max())
+
+                    # keep track of negative correlation coefficients
+                    if cc.max() < 0:
+                        indices.append(st_idx)
+
+                    # append the cross correlation time shift for this trace
+                    # referenced from trace.stats.starttime
+                    shifts.append((max_idx / trace.stats.sampling_rate) + 20)
+
+                else:
+                    # keep track of bad traces
+                    indices.append(st_idx)
+                    # append a zero shift
+                    shifts.append(0)
+
+        # case for bad data
+        else:
+            shifts = None
+            indices = None
+
+        return shifts, indices, ccs
+
+    # helper function to align all traces in a stream based on xcorr shifts
+    # from the main_trace for each pick time. Stream is altered in place and
+    # each trace is trimmed to be 40 seconds long.
+    def align_stream(stream, shifts, indices):
+        # first check if data are bad, if so zero shift instead
+        if shifts == None:
+            # first change all start times to be the same time
+            zero_shift_stream(stream)
+            # then trim to 40 seconds total for stacks
+            # TODO:
+
+        # data are good, so process them
+        else:
+            # shift each trace of stream in place to avoid memory issues
+            for tr_idx, tr in enumerate(stream):
+                # create false starttime to shift around
+                tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z") - \
+                                     shifts[tr_idx] + 25
+
+            # consider 40 seconds total for stacks
+            new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") # - 10
+            new_end_time = new_start_time + 40
+            # all traces need to be same length for further processing
+            stream.trim(new_start_time, new_end_time, pad=True,
+                        fill_value=np.nan, nearest_sample=True)
+
+        # remove bad indices
+        if indices != None and len(indices) > 0:
+            removal_list = []
+            for tr_idx in indices:
+                removal_list.append(stream[tr_idx])
+            for trace in removal_list:
+                stream.remove(trace)
+
+        # remove traces with no data
+        removal_list = []
+        for trace in stream:
+            if trace.stats.npts == 0:
+                removal_list.append(trace)
+        for trace in removal_list:
+            stream.remove(trace)
+
+        return None
+
+    # align the start time of each trace in the stream to the same
+    # arbitrary time
+    def zero_shift_stream(stream):
+        # shift each trace of stream in place to avoid memory issues
+        for tr_idx, tr in enumerate(stream):
+            # create false starttime to shift around
+            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") # + 2#3
+                                            # add 4 seconds for second stack
+
+        # # don't trim for this implementation
+        # new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
+        # new_end_time = new_start_time + 40
+        # stream.trim(new_start_time, new_end_time, pad=True, fill_value=np.nan,
+        #             nearest_sample=True)
+
+        return None
+
+    # first extract pick times for each event from party object
+    # pick_times is a list of the pick times for the main trace
+    pick_times = []
+    pick_network, pick_station, pick_channel = main_trace
+    for event in party.families[0].catalog.events:
+        for pick in event.picks:
+            # trace with highest amplitude signal
+            if pick.waveform_id.station_code == pick_station and \
+                    pick.waveform_id.network_code == pick_network and \
+                    pick.waveform_id.channel_code == pick_channel:
+                pick_times.append(pick.time)
+
+    # build dict of stations from contents of specified directory
+    file_list = glob.glob(f"{streams_path}/*.ms")
+    station_dict = {}
+    for file in file_list:
+        filename = file.split("/")[-1]
+        file_station = filename.split(".")[1]
+        if file_station not in station_dict:
+            file_network = filename.split(".")[0]
+
+            # # for 1 component
+            # file_channel = filename.split(".")[2][:-1] + "N" # force N
+            # for 3 components
+            file_channel = filename.split(".")[2]
+
+            # component
+            station_dict[file_station] = {"network": file_network,
+                                          "channel": file_channel}
+
+    if align_type == 'fixed':
+        # get the main trace detections in a stream
+        print(f"Assembling main stream {pick_network}.{pick_station}"
+              f".{pick_channel}")
+        main_stream, _ = build_main_stream(main_trace, streams_path,
+                                           pick_times)
+        # get the fixed location time shifts from the main trace
+        shifts, indices, ccs = xcorr_time_shifts(main_stream, 'self',
+                                            template_times, streams_path)
+
+        # free up memory
+        del main_stream
+
+    # loop over stations and generate a stack for each station:channel pair
+    stack_pw = Stream()
+    stack_lin = Stream()
+    stations = list(station_dict.keys())
+    stack_ccs = []
+    # keep track of missing files
+    # missing_files = open("missing_files", "w")
+    for station_idx, station in enumerate(stations):
+        network = station_dict[station]["network"]
+        channels = []
+
+        # # for 1 component
+        # channels.append(station_dict[station]["channel"])  # append main component
+
+        # for 3 components
+        # force Z component
+        channels.append(station_dict[station]["channel"][:-1] + "Z")
+        channels.append(f"{channels[0][:-1]}N")  # append N component
+        channels.append(f"{channels[0][:-1]}E")  # append E component
+
+        for channel in channels:
+            print(f"Assembling streams for {station}.{channel} ["
+                  f"{station_idx+1}/{len(stations)}]")
+
+            # build a stream with a trace for each detection
+            sta_chan_stream = Stream()
+            for index in tqdm(range(len(pick_times))):
+                pick_time = pick_times[index]
+
+                # find the local file corresponding to the station:channel pair
+                day_file_list = glob.glob(f"{streams_path}/{network}."
+                                          f"{station}."
+                                          f"{channel}.{pick_time.year}"
+                                          f"-{pick_time.month:02}"
+                                          f"-{pick_time.day:02}.ms")
+
+                # guard against missing files
+                if len(day_file_list) > 0:
+                    # should only be one file, but safeguard against many
+                    file = day_file_list[0]
+                    # load day file into stream
+                    day_st = read(file)
+                    # interpolate to 100 Hz
+                    day_st.interpolate(sampling_rate=100.0)
+                    # bandpass filter
+                    # day_st.filter('highpass', freq=1)
+                    day_st.filter('bandpass', freqmin=1, freqmax=15)
+                    # trim trace to 60 seconds surrounding pick time
+                    day_st.trim(pick_time - 20, pick_time + 40, pad=True,
+                                fill_value=np.nan, nearest_sample=True)
+
+                    sta_chan_stream += day_st
+
+                # if no file, append blank trace to preserve stream length
+                # equality with pick_times
+                else:
+                    sta_chan_stream += Trace()
+                    # missing_files.write(f"No file for {network}.{station}."
+                    #                     f"{channel}.{pick_time.year}-"
+                    #                     f"{pick_time.month:02}-"
+                    #                     f" {pick_time.day:02}\n")
+
+            # guard against empty stream
+            if len(sta_chan_stream) > 0:
+                # sta_chan_stream.write(f"{network}.{station}.{channel}.ms",
+                #                      format="MSEED")
+
+                # # FIXME: delete after testing
+                # # Temp to plot traces and their shifts
+                # st = Stream()
+                # for tr_idx in range(0, 10):
+                #     tr = sta_chan_stream[tr_idx].copy()
+                #     tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z")
+                #     st += tr
+                #     tr2 = sta_chan_stream[tr_idx].copy()
+                #     tr2.stats.starttime = UTCDateTime(
+                #         "2016-01-01T12:00:00.0Z") - shifts[tr_idx]
+                #     tr2.trim(UTCDateTime("2016-01-01T12:00:00.0Z"),
+                #             UTCDateTime("2016-01-01T12:01:00.0Z"), pad=True,
+                #                 fill_value=0, nearest_sample=True)
+                #     st += tr2
+                # plot_stack(st)
+                # # FIXME: delete above after testing
+
+                # guard against stream of empty traces
+                EMPTY_FLAG = True
+                for trace in sta_chan_stream:
+                    if len(trace) > 0:
+                        EMPTY_FLAG = False
+
+                # dont consider empty traces (case of no data present)
+                if not EMPTY_FLAG:
+
+                    # process according to specified method and alignment
+                    if align_type == 'zero':
+                        # align the start time of each trace in stream
+                        shifts, indices = None, None
+                        align_stream(sta_chan_stream, shifts, indices)
+                    elif align_type == 'med' or align_type == 'max' or \
+                            align_type == 'self' or align_type == 'stack':
+                        # get xcorr time shift from reference signal
+                        shifts, indices, ccs = xcorr_time_shifts(
+                                                            sta_chan_stream,
+                                                            align_type,
+                                                            template_times,
+                                                            streams_path)
+                        # append cross-correlation coefficients to list
+                        stack_ccs.append(ccs)
+
+                        # align stream traces from time shifts
+                        align_stream(sta_chan_stream, shifts, indices)
+                    else:
+                        # align stream traces from fixed location time shifts
+                        align_stream(sta_chan_stream, shifts, indices)
+                        # append cross-correlation coefficients to list
+                        stack_ccs.append(ccs)
+
+                    # plot aligned stream to verify align function works
+                    # plot_stream_absolute(sta_chan_stream[:100])
+                    # plot_stream_relative(aligned_sta_chan_stream)
+
+                    # guard against stacking error:
+                    try:
+                        # # check if the right animation writers exist
+                        # import matplotlib.animation as manimation
+                        # manimation.writers.list()
+
+                        # generate linear and phase-weighted stack
+                        lin, pws = generate_stacks(sta_chan_stream,
+                                                   normalize=True,
+                                                   animate=animate_stacks)
+
+                        # add phase-weighted stack to stream
+                        stack_pw += pws
+                        # and add linear stack to stream
+                        stack_lin += lin
+
+                        # # fill nan's with zeros so plot_stack doesn't go boom
+                        # sta_chan_stream.trim(sta_chan_stream[0].stats.starttime,
+                        #                      sta_chan_stream[0].stats.endtime,
+                        #                      pad=True, fill_value=0,
+                        #                      nearest_sample=True)
+                        # # get rid of short traces for plotting
+                        # trace_pop_list = []
+                        # for tr in sta_chan_stream:
+                        #     if tr.stats.npts < 4001:
+                        #         trace_pop_list.append(tr)
+                        # for tr in trace_pop_list:
+                        #     sta_chan_stream.remove(tr)
+                        # # inspect the stack contents
+                        # plot_stack(sta_chan_stream, title=f'top_{n}_{station}'
+                        #            f't5_stack_contents_7s_100Hz_0.5prepick',
+                        #            save=True)
+
+                    except Exception:
+                        pass
+
+    # missing_files.close()
+
+    # # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
+    # if len(stack_pw) > 0:
+    #     plot_stack(stack_pw, title='phase_weighted_stack', save=True)
+    #
+    # if len(stack_lin) > 0:
+    #     plot_stack(stack_lin, title='linear_stack', save=True)
+
+    return [stack_pw, stack_lin, stack_ccs]
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
+#     #     #     #     #     #     #     #     #     #     #     #     #     #
 
 
 def detections_from_stacks(stack, detection_files_path, start_date,
