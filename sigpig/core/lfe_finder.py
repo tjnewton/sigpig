@@ -1667,6 +1667,10 @@ def stack_template_detections(party, streams_path, main_trace,
     'max'   : cross-correlation of each detection trace with the detection
               trace with the maximum SNR signal on each station to determine
               time shifts for stacking.
+    'stack' : cross-correlation of each detection trace with the linear stack
+              of the traces on each station to determine time shifts for
+              stacking. This is the equivalent of a 'zero' stack used as the
+              reference signal for each station.
 
     Example:
         # time the run
@@ -1695,7 +1699,7 @@ def stack_template_detections(party, streams_path, main_trace,
 
         # get the stacks
         stack_list = stack_template_detections(party, streams_path, main_trace,
-                                               align_type='zero')
+                                               align_type='stack')
         end = time.time()
         hours = int((end - start) / 60 / 60)
         minutes = int(((end - start) / 60) - (hours * 60))
@@ -1919,6 +1923,9 @@ def stack_template_detections(party, streams_path, main_trace,
                             trace.stats.endtime > template_times[ID][1]:
                         reference_idx = tr_idx
                         break
+        elif reference_signal == "stack":
+            # set reference index to -2 to indicate stack shifting
+            reference_idx = -2
 
         # check for unset reference_idx, then set reference signal to a
         # signal on another station
@@ -2006,6 +2013,26 @@ def stack_template_detections(party, streams_path, main_trace,
             else:
                 print(f"ERROR: Things are about to break because there is no "
                       "suitable reference signal for {ID}")
+
+        # check for -2 reference index indicating stack x-corr shifting
+        elif reference_idx == -2:
+            # TODO:
+
+
+
+
+
+            zero_shift_stream(stream)
+            lin, _ = generate_stacks(stream, normalize=True, animate=False)
+
+
+
+            ...
+
+
+
+
+
 
         else:
             trace = stream[reference_idx]
@@ -2293,7 +2320,7 @@ def stack_template_detections(party, streams_path, main_trace,
                         # align the start time of each trace in stream
                         zero_shift_stream(sta_chan_stream)
                     elif align_type == 'med' or align_type == 'max' or \
-                            align_type == 'self':
+                            align_type == 'self' or align_type == 'stack':
                         # get xcorr time shift from reference signal
                         shifts, indices, ccs = xcorr_time_shifts(
                                                             sta_chan_stream,
