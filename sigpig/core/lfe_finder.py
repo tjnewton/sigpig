@@ -2016,23 +2016,14 @@ def stack_template_detections(party, streams_path, main_trace,
 
         # check for -2 reference index indicating stack x-corr shifting
         elif reference_idx == -2:
-            # TODO:
-
-
-
-
-
+            # zero shift stream then get a linear stack
             zero_shift_stream(stream)
             lin, _ = generate_stacks(stream, normalize=True, animate=False)
 
-
-
-            ...
-
-
-
-
-
+            # set the linear stack as the reference trace
+            reference_trace = lin
+            reference_trace.trim(reference_trace.stats.starttime,
+                                 reference_trace.stats.starttime + 35)
 
         else:
             trace = stream[reference_idx]
@@ -2065,8 +2056,8 @@ def stack_template_detections(party, streams_path, main_trace,
             # else:
             #     print(f"SNR in reference trace: {ref_snr}")
 
-        # guard against empty trace
-        if len(trace) > 0:
+        # guard against empty reference trace
+        if len(reference_trace) > 0:
 
             # loop through each trace and get cross-correlation time delay
             for st_idx, trace in enumerate(stream):
@@ -2137,10 +2128,10 @@ def stack_template_detections(party, streams_path, main_trace,
             for tr_idx, tr in enumerate(stream):
                 # create false starttime to shift around
                 tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z") - \
-                                     shifts[tr_idx]
+                                     shifts[tr_idx] + 25
 
             # consider 40 seconds total for stacks
-            new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 10
+            new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") # - 10
             new_end_time = new_start_time + 40
             # all traces need to be same length for further processing
             stream.trim(new_start_time, new_end_time, pad=True,
@@ -2170,7 +2161,7 @@ def stack_template_detections(party, streams_path, main_trace,
         # shift each trace of stream in place to avoid memory issues
         for tr_idx, tr in enumerate(stream):
             # create false starttime to shift around
-            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") + 2#3
+            tr.stats.starttime = UTCDateTime("2016-01-01T00:00:00.0Z") # + 2#3
                                             # add 4 seconds for second stack
 
         new_start_time = UTCDateTime("2016-01-01T00:00:00.0Z") + 15
@@ -2247,6 +2238,7 @@ def stack_template_detections(party, streams_path, main_trace,
             print(f"Assembling streams for {station}.{channel} ["
                   f"{station_idx+1}/{len(stations)}]")
 
+            # build a stream with a trace for each detection
             sta_chan_stream = Stream()
             for index in tqdm(range(len(pick_times))):
                 pick_time = pick_times[index]
@@ -2956,12 +2948,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'zero'
+    shift_method = 'stack'
     load_party = True
     save_detections = True
 
     top_n = True
-    n = 250
+    n = 100
 
     load_stack = False
     load_stack_detects = False
@@ -3139,10 +3131,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_stack_9sta_t3_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_9sta_stack_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s.pkl', 'wb')
+                       f'{detect_thresh}_14s_t1.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -3178,7 +3170,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_t3',
+                                       f'{detect_thresh}_14s_t1',
                        save=True)
 
         if len(stack_lin) > 0:
@@ -3186,7 +3178,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_t3',
+                                        f'{detect_thresh}_14s_t1',
                        save=True)
 
             # now plot template with the linear stack from same station for
