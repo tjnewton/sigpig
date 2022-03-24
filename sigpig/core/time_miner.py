@@ -2338,7 +2338,7 @@ def signal_histogram(event_filename, save_fig=False):
 
     return None
 
-RUN = True
+RUN = False
 if RUN:
     # # # #   B E G I N   P R O C E S S I N G   T I M E   W I N D O W S   # # # #
     start = time.time()
