@@ -2506,8 +2506,83 @@ def stack_template_detections2(party, streams_path, main_trace,
 
         return main_stream, main_stream_snrs
 
+    # function to get a numpy array of waveforms for the specified station
+    # and channel
+    def get_waveform_array(network, station, channel, pick_times,
+                           streams_path, normalize=True):
+        # store data from each trace in a list
+        sta_chan_array = []
+
+        # loop over each detection time in this sta:chan permutation
+        for idx in tqdm(range(len(pick_times))):
+            pick_time = pick_times[idx]
+
+            # find the local file corresponding to the sta:chan pair
+            file_list = glob.glob(f"{streams_path}/{network}.{station}"
+                                  f".{channel}.{pick_time.year}"
+                                  f"-{pick_time.month:02}"
+                                  f"-{pick_time.day:02}.ms")
+
+            # load the detection waveform and guard against missing files
+            if len(file_list) > 0:
+                # should only be one file, but safeguard against many
+                file = file_list[0]
+                # load day file into stream
+                st = read(file)
+                # trim trace to 5 minutes surrounding pick time
+                st.trim(pick_time - 150, pick_time + 150, pad=True,
+                        fill_value=np.nan, nearest_sample=True)
+                # interpolate to 100 Hz
+                st.interpolate(sampling_rate=100.0)
+                # detrend
+                st.detrend()
+                # bandpass filter
+                # day_st.filter('highpass', freq=1)
+                st.filter('bandpass', freqmin=1, freqmax=15)
+                # trim trace to 40 seconds surrounding pick time
+                st.trim(pick_time - 10, pick_time + 30, pad=True,
+                        fill_value=np.nan, nearest_sample=True)
+
+                # add the data to the array
+                sta_chan_array.append(st[0].data)
+
+        # convert the list to a numpy array and normalize it
+        sta_chan_array = np.asarray(sta_chan_array, dtype='float64')
+        if normalize:
+            sta_chan_array_maxs = np.max(np.abs(sta_chan_array), axis=1)
+            sta_chan_array = sta_chan_array / sta_chan_array_maxs[:, None]
+
+        return sta_chan_array
+
+    # function to find a reference signal in the waveform array, or generate
+    # the reference signal based on the specified align_type
+    def get_reference_signal(waveform_array, align_type):
+
+
+
     # function to generate linear and phase-weighted stacks from a stream
-    def generate_stacks(stream, normalize=True, animate=False):
+    def generate_stacks(network, station, channel, pick_times, streams_path,
+                        align_type, normalize=True, animate=False):
+
+        # get the array of waveforms for the station:channel permutation
+        waveform_array = get_waveform_array(network, station, channel,
+                                            pick_times, streams_path)
+
+        # get the reference signal from the waveform array
+        reference_signal = get_reference_signal(waveform_array, align_type)
+
+        # get the time shifts for each trace based on cross-corr. with ref sig
+        shifts, indices, ccs = get_xcorr_time_shifts(waveform_array,
+                                                     reference_signal)
+
+        # shift traces in time based on cross-correlation with ref signal
+        waveform_array = shift_traces(shifts, indices)
+
+        # calculate the stacks
+
+
+
+
         # guard against stacking zeros and create data array
         data = []
         reference_idx = 0
@@ -2961,10 +3036,9 @@ def stack_template_detections2(party, streams_path, main_trace,
             # component
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
-    stations = list(station_dict.keys())
 
-    # build a dict of reference signals from the specified shift type
-    reference_signals = {}
+
+
 
     # TODO: fix this shift type implementation
     # case: # TODO:
@@ -2985,68 +3059,13 @@ def stack_template_detections2(party, streams_path, main_trace,
     # permutation for reference signals
     elif align_type == 'stack':
 
-        # loop over each station:channel
-        for station_idx, station in enumerate(stations):
-            network = station_dict[station]["network"]
-
-            # for 3 components
-            channels = []
-            channels.append(station_dict[station]["channel"][:-1] + "Z")
-            channels.append(f"{channels[0][:-1]}N")  # append N component
-            channels.append(f"{channels[0][:-1]}E")  # append E component
-
-            for channel in channels:
-                print(f"Processing {station}.{channel} ["
-                      f"{station_idx + 1}/{len(stations)}]")
-
-                # store data from each trace in a list
-                sta_chan_array = []
-
-                # loop over each detection time in this sta:chan permutation
-                for index in tqdm(range(len(pick_times))):
-                    pick_time = pick_times[index]
-
-                    # find the local file corresponding to the sta:chan pair
-                    file_list = glob.glob(f"{streams_path}/{network}.{station}"
-                                          f".{channel}.{pick_time.year}"
-                                          f"-{pick_time.month:02}"
-                                          f"-{pick_time.day:02}.ms")
-
-                    # load the detection waveform and guard against missing files
-                    if len(file_list) > 0:
-                        # should only be one file, but safeguard against many
-                        file = file_list[0]
-                        # load day file into stream
-                        st = read(file)
-                        # trim trace to 5 minutes surrounding pick time
-                        st.trim(pick_time - 150, pick_time + 150, pad=True,
-                                fill_value=np.nan, nearest_sample=True)
-                        # interpolate to 100 Hz
-                        st.interpolate(sampling_rate=100.0)
-                        # detrend
-                        st.detrend()
-                        # bandpass filter
-                        # day_st.filter('highpass', freq=1)
-                        st.filter('bandpass', freqmin=1, freqmax=15)
-                        # trim trace to 40 seconds surrounding pick time
-                        st.trim(pick_time - 10, pick_time + 30, pad=True,
-                                fill_value=np.nan, nearest_sample=True)
-
-                        # add the data to the array
-                        sta_chan_array.append(st[0].data)
-
-                # convert the list to a numpy array and normalize it
-                sta_chan_array = np.asarray(sta_chan_array, dtype='float64')
-                sta_chan_array_maxs = np.max(np.abs(sta_chan_array), axis=1)
-                sta_chan_array = sta_chan_array / sta_chan_array_maxs[:, None]
-
-                # make linear stack
-                linear_stack = np.nanmean(sta_chan_array, axis=0)
-                # store linear stack in trace
-                sta_chan_reference_signal = st[0].copy()
-                sta_chan_reference_signal.data = linear_stack
-                # store the reference signal in the dict
-                reference_signals[f"{station}.{channel}"] = sta_chan_reference_signal
+        # make linear stack
+        linear_stack = np.nanmean(sta_chan_array, axis=0)
+        # store linear stack in trace
+        sta_chan_reference_signal = st[0].copy()
+        sta_chan_reference_signal.data = linear_stack
+        # store the reference signal in the dict
+        reference_signals[f"{station}.{channel}"] = sta_chan_reference_signal
 
     # case # TODO: other shift types
 
@@ -3056,6 +3075,7 @@ def stack_template_detections2(party, streams_path, main_trace,
     stack_ccs = []
     # keep track of missing files
     # missing_files = open("missing_files", "w")
+    stations = list(station_dict.keys())
     for station_idx, station in enumerate(stations):
         network = station_dict[station]["network"]
         channels = []
@@ -3074,14 +3094,22 @@ def stack_template_detections2(party, streams_path, main_trace,
                   f"{station_idx+1}/{len(stations)}]")
 
             # get the reference signal for this station:channel permutation
-            # FIXME: below
-            if align_type == 'zero':
-                reference_signal = None
-            elif align_type == 'med' or align_type == 'max' or \
-                    align_type == 'self' or align_type == 'stack':
-                # get xcorr time shift from reference signal
-                shifts, indices, ccs = xcorr_time_shifts(
-                    sta_chan_stream,
+            reference_signal = reference_signals[f"{station}.{channel}"]
+
+            # generate the stack for this permutation based on the specified
+            # reference signal and corresponding time shifts of traces
+            # generate linear and phase-weighted stack
+            lin, pws = generate_stacks(network, station, channel, pick_times,
+                                       streams_path, align_type,
+                                       normalize=True, animate=animate_stacks)
+
+            # add phase-weighted stack to stream
+            stack_pw += pws
+            # and add linear stack to stream
+            stack_lin += lin
+
+
+            shifts, indices, ccs = xcorr_time_shifts(sta_chan_stream,
                     align_type,
                     template_times,
                     streams_path)
