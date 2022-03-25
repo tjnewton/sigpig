@@ -2394,6 +2394,8 @@ def stack_template_detections(party, streams_path, main_trace,
 #     #     #    building here      #     #     #     #     #     #     #     #
 #     #     #     #     #     #     #     #     #     #     #     #     #     #
 #     #     #     #     #     #     #     #     #     #     #     #     #     #
+# this function shifts and stacks traces without loading them all into
+# memory at once, so it is not memory-limited
 def stack_template_detections2(party, streams_path, main_trace,
                               template_times, align_type,
                               animate_stacks=False):
@@ -2627,9 +2629,9 @@ def stack_template_detections2(party, streams_path, main_trace,
 
         return st[0]
 
-    # helper function to determine time offset of each time series in a
-    # stream with respect to a main trace via cross correlation
-    def xcorr_time_shifts(stream, reference_signal, template_times,
+    # helper function to determine time offset of a trace with respect to a
+    # reference signal via cross correlation
+    def xcorr_time_shift(trace, reference_signal, template_times,
                           streams_path):
         # get index of first non-empty trace
         for index, trace in enumerate(stream):
@@ -2866,10 +2868,9 @@ def stack_template_detections2(party, streams_path, main_trace,
 
         return shifts, indices, ccs
 
-    # helper function to align all traces in a stream based on xcorr shifts
-    # from the main_trace for each pick time. Stream is altered in place and
-    # each trace is trimmed to be 40 seconds long.
-    def align_stream(stream, shifts, indices):
+    # helper function to align shift a trace in time based on xcorr shifts
+    # from a specified reference signal.
+    def align_trace(stream, shifts, indices):
         # first check if data are bad, if so zero shift instead
         if shifts == None:
             # first change all start times to be the same time
@@ -2927,6 +2928,10 @@ def stack_template_detections2(party, streams_path, main_trace,
 
         return None
 
+
+
+
+
     # first extract pick times for each event from party object
     # pick_times is a list of the pick times for the main trace
     pick_times = []
@@ -2970,6 +2975,15 @@ def stack_template_detections2(party, streams_path, main_trace,
         # free up memory
         del main_stream
 
+    # FIXME:
+    if align_type == 'stack':
+        # call this same function with 'zero' and store the linear stacks
+        # for reference signals
+
+        # TODO:
+
+        ...
+
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
@@ -2991,11 +3005,15 @@ def stack_template_detections2(party, streams_path, main_trace,
         channels.append(f"{channels[0][:-1]}E")  # append E component
 
         for channel in channels:
-            print(f"Assembling streams for {station}.{channel} ["
+            print(f"Stacking {station}.{channel} ["
                   f"{station_idx+1}/{len(stations)}]")
 
-            # build a stream with a trace for each detection
-            sta_chan_stream = Stream()
+            # get the reference signal for this station:channel permutation
+            # FIXME:
+
+
+
+            # loop over each detection time in this station:channel permutation
             for index in tqdm(range(len(pick_times))):
                 pick_time = pick_times[index]
 
@@ -3006,68 +3024,42 @@ def stack_template_detections2(party, streams_path, main_trace,
                                           f"-{pick_time.month:02}"
                                           f"-{pick_time.day:02}.ms")
 
-                # guard against missing files
+                # load the detection waveform and guard against missing files
                 if len(day_file_list) > 0:
                     # should only be one file, but safeguard against many
                     file = day_file_list[0]
                     # load day file into stream
-                    day_st = read(file)
+                    st = read(file)
+                    # trim trace to 5 minutes surrounding pick time
+                    st.trim(pick_time - 150, pick_time + 150, pad=True,
+                                fill_value=np.nan, nearest_sample=True)
                     # interpolate to 100 Hz
-                    day_st.interpolate(sampling_rate=100.0)
+                    st.interpolate(sampling_rate=100.0)
+                    # detrend
+                    st.detrend()
                     # bandpass filter
                     # day_st.filter('highpass', freq=1)
-                    day_st.filter('bandpass', freqmin=1, freqmax=15)
+                    st.filter('bandpass', freqmin=1, freqmax=15)
                     # trim trace to 60 seconds surrounding pick time
-                    day_st.trim(pick_time - 20, pick_time + 40, pad=True,
-                                fill_value=np.nan, nearest_sample=True)
+                    st.trim(pick_time - 20, pick_time + 40, pad=True,
+                            fill_value=np.nan, nearest_sample=True)
 
-                    sta_chan_stream += day_st
 
-                # if no file, append blank trace to preserve stream length
-                # equality with pick_times
-                else:
-                    sta_chan_stream += Trace()
-                    # missing_files.write(f"No file for {network}.{station}."
-                    #                     f"{channel}.{pick_time.year}-"
-                    #                     f"{pick_time.month:02}-"
-                    #                     f" {pick_time.day:02}\n")
 
-            # guard against empty stream
-            if len(sta_chan_stream) > 0:
-                # sta_chan_stream.write(f"{network}.{station}.{channel}.ms",
-                #                      format="MSEED")
 
-                # # FIXME: delete after testing
-                # # Temp to plot traces and their shifts
-                # st = Stream()
-                # for tr_idx in range(0, 10):
-                #     tr = sta_chan_stream[tr_idx].copy()
-                #     tr.stats.starttime = UTCDateTime("2016-01-01T12:00:00.0Z")
-                #     st += tr
-                #     tr2 = sta_chan_stream[tr_idx].copy()
-                #     tr2.stats.starttime = UTCDateTime(
-                #         "2016-01-01T12:00:00.0Z") - shifts[tr_idx]
-                #     tr2.trim(UTCDateTime("2016-01-01T12:00:00.0Z"),
-                #             UTCDateTime("2016-01-01T12:01:00.0Z"), pad=True,
-                #                 fill_value=0, nearest_sample=True)
-                #     st += tr2
-                # plot_stack(st)
-                # # FIXME: delete above after testing
 
-                # guard against stream of empty traces
-                EMPTY_FLAG = True
-                for trace in sta_chan_stream:
-                    if len(trace) > 0:
-                        EMPTY_FLAG = False
 
-                # dont consider empty traces (case of no data present)
-                if not EMPTY_FLAG:
 
-                    # process according to specified method and alignment
+
+                    # process according to specified method of alignment
                     if align_type == 'zero':
-                        # align the start time of each trace in stream
-                        shifts, indices = None, None
-                        align_stream(sta_chan_stream, shifts, indices)
+                        # # align the start time of each trace in stream
+                        # shifts, indices = None, None
+                        # align_stream(sta_chan_stream, shifts, indices)
+
+                        # get trace time shift
+                        # TODO:
+
                     elif align_type == 'med' or align_type == 'max' or \
                             align_type == 'self' or align_type == 'stack':
                         # get xcorr time shift from reference signal
@@ -3086,6 +3078,12 @@ def stack_template_detections2(party, streams_path, main_trace,
                         align_stream(sta_chan_stream, shifts, indices)
                         # append cross-correlation coefficients to list
                         stack_ccs.append(ccs)
+
+                    # shift the trace
+                    # TODO:
+
+                    # store the stack
+                    # TODO:
 
                     # plot aligned stream to verify align function works
                     # plot_stream_absolute(sta_chan_stream[:100])
