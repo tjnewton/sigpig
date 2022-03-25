@@ -2614,25 +2614,33 @@ def stack_template_detections2(party, streams_path, main_trace,
 
         # case: zero-shifting
         if reference_signal == None:
-            # TODO: make start time the same for all
-            # probably need stored start times for this... and everything
-            ...
+            # append all zeros, e.g. make start time the same for all traces
+            for trace in waveform_array:
+                shifts.append(0)
 
         # case: determine cross-correlation time shifts for each trace
         else:
-            #
+            for tr_idx, trace in enumerate(waveform_array):
+                # put array data into a trace
+                tr = Trace()
+                tr.data = trace
+                tr.stats.sampling_rate = 100.00
 
+                # FIXME: check centering
+                max_shift = 50  # maximum xcorr shift in samples
+                cc = correlate(tr, reference_signal, max_shift,
+                               demean=True, normalize='naive',
+                               method='auto')
+                # find the index with the max correlation coefficient
+                max_idx = np.argmax(cc) - max_shift
+                ccs.append(cc.max())
 
+                # keep track of negative correlation coefficients
+                if cc.max() < 0:
+                    indices.append(tr_idx)
 
-
-
-        #  TODO : :: : :: : :: working here ~~
-
-
-
-
-
-
+                # append the cross correlation time shift for this trace
+                shifts.append((max_idx / trace.stats.sampling_rate))
 
         return shifts, indices, ccs
 
