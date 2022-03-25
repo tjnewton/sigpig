@@ -2540,7 +2540,7 @@ def stack_template_detections2(party, streams_path, main_trace,
                 # day_st.filter('highpass', freq=1)
                 st.filter('bandpass', freqmin=1, freqmax=15)
                 # trim trace to 40 seconds surrounding pick time
-                st.trim(pick_time - 10, pick_time + 30, pad=True,
+                st.trim(pick_time - 20, pick_time + 40, pad=True,
                         fill_value=np.nan, nearest_sample=True)
 
                 # add the data to the array
@@ -2559,7 +2559,7 @@ def stack_template_detections2(party, streams_path, main_trace,
     def get_reference_signal(waveform_array, align_type):
         # make a trace to store the reference signal
         reference_signal = Trace()
-        reference_signal.sampling_rate = 100.00
+        reference_signal.stats.sampling_rate = 100.00
 
         # case: zero-shifting doesn't require a reference signal
         if align_type == "zero":
@@ -2597,16 +2597,31 @@ def stack_template_detections2(party, streams_path, main_trace,
             # TODO:
             ...
 
+        # trim the reference signal
+        if reference_signal != None:
+            reference_signal.trim(reference_signal.stats.starttime + 10,
+                                  reference_signal.stats.endtime - 10)
+
         return reference_signal
 
     # function to calculate the amount of time to shift each trace in a
     # waveform array based on cross-correlation with a reference signal
     def get_xcorr_time_shifts(waveform_array, reference_signal):
+        # structures to store and return information
+        shifts = []
+        indices = []
+        ccs = []
+
         # case: zero-shifting
         if reference_signal == None:
             # TODO: make start time the same for all
             # probably need stored start times for this... and everything
             ...
+
+        # case: determine cross-correlation time shifts for each trace
+        else:
+            #
+
 
 
 
