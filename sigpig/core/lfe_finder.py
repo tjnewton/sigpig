@@ -2567,14 +2567,24 @@ def stack_template_detections2(party, streams_path, main_trace,
 
         # case: shifting based on snr metric
         elif align_type == "med" or align_type == "max":
-            # TODO:
-            ...
+            # get snrs of each trace
+            rmss = np.sqrt(np.nanmean(waveform_array ** 2, axis=1))
+            maxs = abs(np.nanmax(waveform_array, axis=1))
+            snrs = maxs / rmss
+
+            # set reference signal based on specified target snr
+            if align_type == "med":
+                median_snr = np.nanmedian(snrs)
+                # find index of SNR closest to median
+                reference_idx = np.nanargmin(np.abs(snrs - median_snr))
+            elif align_type == "max":
+                reference_idx = np.nanargmax(snrs)
+            reference_signal.data = waveform_array[reference_idx, :]
 
         # case: shifting based on template signal, e.g. first detection in a
         # sorted party object
         elif align_type == "self":
-            # TODO:
-            ...
+            reference_signal.data = waveform_array[0, :]
 
         # case: shifting based on the linear stack as the reference signal
         elif align_type == "stack":
@@ -2597,6 +2607,17 @@ def stack_template_detections2(party, streams_path, main_trace,
             # TODO: make start time the same for all
             # probably need stored start times for this... and everything
             ...
+
+
+
+
+        #  TODO : :: : :: : :: working here ~~
+
+
+
+
+
+
 
         return shifts, indices, ccs
 
@@ -3081,7 +3102,7 @@ def stack_template_detections2(party, streams_path, main_trace,
 
 
     # TODO: fix this shift type implementation
-    # case: # TODO:
+    # case: # TODO: do things here because this case is distinct
     if align_type == 'fixed':
         # get the main trace detections in a stream
         print(f"Assembling main stream {pick_network}.{pick_station}"
