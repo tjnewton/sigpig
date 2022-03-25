@@ -2557,10 +2557,35 @@ def stack_template_detections2(party, streams_path, main_trace,
     # function to find a reference signal in the waveform array, or generate
     # the reference signal based on the specified align_type
     def get_reference_signal(waveform_array, align_type):
+        # make a trace to store the reference signal
+        reference_signal = Trace()
+        reference_signal.sampling_rate = 100.00
+
         # case: zero-shifting doesn't require a reference signal
         if align_type == "zero":
             reference_signal = None
 
+        # case: shifting based on snr metric
+        elif align_type == "med" or align_type == "max":
+            # TODO:
+            ...
+
+        # case: shifting based on template signal, e.g. first detection in a
+        # sorted party object
+        elif align_type == "self":
+            # TODO:
+            ...
+
+        # case: shifting based on the linear stack as the reference signal
+        elif align_type == "stack":
+            # make linear stack
+            linear_stack = np.nanmean(waveform_array, axis=0)
+            reference_signal.data = linear_stack
+
+        # case: shifting based on fixed location from main trace
+        elif align_type == "fixed":
+            # TODO:
+            ...
 
 
         return reference_signal
@@ -3075,13 +3100,7 @@ def stack_template_detections2(party, streams_path, main_trace,
     # permutation for reference signals
     elif align_type == 'stack':
 
-        # make linear stack
-        linear_stack = np.nanmean(sta_chan_array, axis=0)
-        # store linear stack in trace
-        sta_chan_reference_signal = st[0].copy()
-        sta_chan_reference_signal.data = linear_stack
-        # store the reference signal in the dict
-        reference_signals[f"{station}.{channel}"] = sta_chan_reference_signal
+
 
     # case # TODO: other shift types
 
