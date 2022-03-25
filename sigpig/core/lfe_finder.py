@@ -2557,8 +2557,24 @@ def stack_template_detections2(party, streams_path, main_trace,
     # function to find a reference signal in the waveform array, or generate
     # the reference signal based on the specified align_type
     def get_reference_signal(waveform_array, align_type):
+        # case: zero-shifting doesn't require a reference signal
+        if align_type == "zero":
+            reference_signal = None
 
 
+
+        return reference_signal
+
+    # function to calculate the amount of time to shift each trace in a
+    # waveform array based on cross-correlation with a reference signal
+    def get_xcorr_time_shifts(waveform_array, reference_signal):
+        # case: zero-shifting
+        if reference_signal == None:
+            # TODO: make start time the same for all
+            # probably need stored start times for this... and everything
+            ...
+
+        return shifts, indices, ccs
 
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(network, station, channel, pick_times, streams_path,
