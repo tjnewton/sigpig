@@ -2961,7 +2961,13 @@ def stack_template_detections2(party, streams_path, main_trace,
             # component
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
+    stations = list(station_dict.keys())
 
+    # build a dict of reference signals from the specified shift type
+    reference_signals = {}
+
+    # TODO: fix this shift type implementation
+    # case: # TODO:
     if align_type == 'fixed':
         # get the main trace detections in a stream
         print(f"Assembling main stream {pick_network}.{pick_station}"
@@ -2975,19 +2981,78 @@ def stack_template_detections2(party, streams_path, main_trace,
         # free up memory
         del main_stream
 
-    # FIXME:
-    if align_type == 'stack':
-        # call this same function with 'zero' and store the linear stacks
-        # for reference signals
+    # case: calculate and store the linear stacks on each station:channel
+    # permutation for reference signals
+    elif align_type == 'stack':
 
-        # TODO:
+        # loop over each station:channel
+        for station_idx, station in enumerate(stations):
+            network = station_dict[station]["network"]
 
-        ...
+            # for 3 components
+            channels = []
+            channels.append(station_dict[station]["channel"][:-1] + "Z")
+            channels.append(f"{channels[0][:-1]}N")  # append N component
+            channels.append(f"{channels[0][:-1]}E")  # append E component
+
+            for channel in channels:
+                print(f"Processing {station}.{channel} ["
+                      f"{station_idx + 1}/{len(stations)}]")
+
+                # store data from each trace in a list
+                sta_chan_array = []
+
+                # loop over each detection time in this sta:chan permutation
+                for index in tqdm(range(len(pick_times))):
+                    pick_time = pick_times[index]
+
+                    # find the local file corresponding to the sta:chan pair
+                    file_list = glob.glob(f"{streams_path}/{network}.{station}"
+                                          f".{channel}.{pick_time.year}"
+                                          f"-{pick_time.month:02}"
+                                          f"-{pick_time.day:02}.ms")
+
+                    # load the detection waveform and guard against missing files
+                    if len(file_list) > 0:
+                        # should only be one file, but safeguard against many
+                        file = file_list[0]
+                        # load day file into stream
+                        st = read(file)
+                        # trim trace to 5 minutes surrounding pick time
+                        st.trim(pick_time - 150, pick_time + 150, pad=True,
+                                fill_value=np.nan, nearest_sample=True)
+                        # interpolate to 100 Hz
+                        st.interpolate(sampling_rate=100.0)
+                        # detrend
+                        st.detrend()
+                        # bandpass filter
+                        # day_st.filter('highpass', freq=1)
+                        st.filter('bandpass', freqmin=1, freqmax=15)
+                        # trim trace to 40 seconds surrounding pick time
+                        st.trim(pick_time - 10, pick_time + 30, pad=True,
+                                fill_value=np.nan, nearest_sample=True)
+
+                        # add the data to the array
+                        sta_chan_array.append(st[0].data)
+
+                # convert the list to a numpy array and normalize it
+                sta_chan_array = np.asarray(sta_chan_array, dtype='float64')
+                sta_chan_array_maxs = np.max(np.abs(sta_chan_array), axis=1)
+                sta_chan_array = sta_chan_array / sta_chan_array_maxs[:, None]
+
+                # make linear stack
+                linear_stack = np.nanmean(sta_chan_array, axis=0)
+                # store linear stack in trace
+                sta_chan_reference_signal = st[0].copy()
+                sta_chan_reference_signal.data = linear_stack
+                # store the reference signal in the dict
+                reference_signals[f"{station}.{channel}"] = sta_chan_reference_signal
+
+    # case # TODO: other shift types
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
-    stations = list(station_dict.keys())
     stack_ccs = []
     # keep track of missing files
     # missing_files = open("missing_files", "w")
@@ -3009,9 +3074,28 @@ def stack_template_detections2(party, streams_path, main_trace,
                   f"{station_idx+1}/{len(stations)}]")
 
             # get the reference signal for this station:channel permutation
-            # FIXME:
+            # FIXME: below
+            if align_type == 'zero':
+                reference_signal = None
+            elif align_type == 'med' or align_type == 'max' or \
+                    align_type == 'self' or align_type == 'stack':
+                # get xcorr time shift from reference signal
+                shifts, indices, ccs = xcorr_time_shifts(
+                    sta_chan_stream,
+                    align_type,
+                    template_times,
+                    streams_path)
+                # append cross-correlation coefficients to list
+                stack_ccs.append(ccs)
+                # align stream traces from time shifts
+                align_stream(sta_chan_stream, shifts, indices)
+            else:
+                # align stream traces from fixed location time shifts
+                align_stream(sta_chan_stream, shifts, indices)
+                # append cross-correlation coefficients to list
+                stack_ccs.append(ccs)
 
-
+            # FIXME: above
 
             # loop over each detection time in this station:channel permutation
             for index in tqdm(range(len(pick_times))):
@@ -3059,6 +3143,7 @@ def stack_template_detections2(party, streams_path, main_trace,
 
                         # get trace time shift
                         # TODO:
+                        ...
 
                     elif align_type == 'med' or align_type == 'max' or \
                             align_type == 'self' or align_type == 'stack':
