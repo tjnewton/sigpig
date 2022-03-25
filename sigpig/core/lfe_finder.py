@@ -2587,7 +2587,6 @@ def stack_template_detections2(party, streams_path, main_trace,
             # TODO:
             ...
 
-
         return reference_signal
 
     # function to calculate the amount of time to shift each trace in a
@@ -3096,14 +3095,6 @@ def stack_template_detections2(party, streams_path, main_trace,
         # free up memory
         del main_stream
 
-    # case: calculate and store the linear stacks on each station:channel
-    # permutation for reference signals
-    elif align_type == 'stack':
-
-
-
-    # case # TODO: other shift types
-
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
     stack_lin = Stream()
@@ -3128,8 +3119,6 @@ def stack_template_detections2(party, streams_path, main_trace,
             print(f"Stacking {station}.{channel} ["
                   f"{station_idx+1}/{len(stations)}]")
 
-            # get the reference signal for this station:channel permutation
-            reference_signal = reference_signals[f"{station}.{channel}"]
 
             # generate the stack for this permutation based on the specified
             # reference signal and corresponding time shifts of traces
@@ -3142,145 +3131,6 @@ def stack_template_detections2(party, streams_path, main_trace,
             stack_pw += pws
             # and add linear stack to stream
             stack_lin += lin
-
-
-            shifts, indices, ccs = xcorr_time_shifts(sta_chan_stream,
-                    align_type,
-                    template_times,
-                    streams_path)
-                # append cross-correlation coefficients to list
-                stack_ccs.append(ccs)
-                # align stream traces from time shifts
-                align_stream(sta_chan_stream, shifts, indices)
-            else:
-                # align stream traces from fixed location time shifts
-                align_stream(sta_chan_stream, shifts, indices)
-                # append cross-correlation coefficients to list
-                stack_ccs.append(ccs)
-
-            # FIXME: above
-
-            # loop over each detection time in this station:channel permutation
-            for index in tqdm(range(len(pick_times))):
-                pick_time = pick_times[index]
-
-                # find the local file corresponding to the station:channel pair
-                day_file_list = glob.glob(f"{streams_path}/{network}."
-                                          f"{station}."
-                                          f"{channel}.{pick_time.year}"
-                                          f"-{pick_time.month:02}"
-                                          f"-{pick_time.day:02}.ms")
-
-                # load the detection waveform and guard against missing files
-                if len(day_file_list) > 0:
-                    # should only be one file, but safeguard against many
-                    file = day_file_list[0]
-                    # load day file into stream
-                    st = read(file)
-                    # trim trace to 5 minutes surrounding pick time
-                    st.trim(pick_time - 150, pick_time + 150, pad=True,
-                                fill_value=np.nan, nearest_sample=True)
-                    # interpolate to 100 Hz
-                    st.interpolate(sampling_rate=100.0)
-                    # detrend
-                    st.detrend()
-                    # bandpass filter
-                    # day_st.filter('highpass', freq=1)
-                    st.filter('bandpass', freqmin=1, freqmax=15)
-                    # trim trace to 60 seconds surrounding pick time
-                    st.trim(pick_time - 20, pick_time + 40, pad=True,
-                            fill_value=np.nan, nearest_sample=True)
-
-
-
-
-
-
-
-
-                    # process according to specified method of alignment
-                    if align_type == 'zero':
-                        # # align the start time of each trace in stream
-                        # shifts, indices = None, None
-                        # align_stream(sta_chan_stream, shifts, indices)
-
-                        # get trace time shift
-                        # TODO:
-                        ...
-
-                    elif align_type == 'med' or align_type == 'max' or \
-                            align_type == 'self' or align_type == 'stack':
-                        # get xcorr time shift from reference signal
-                        shifts, indices, ccs = xcorr_time_shifts(
-                                                            sta_chan_stream,
-                                                            align_type,
-                                                            template_times,
-                                                            streams_path)
-                        # append cross-correlation coefficients to list
-                        stack_ccs.append(ccs)
-
-                        # align stream traces from time shifts
-                        align_stream(sta_chan_stream, shifts, indices)
-                    else:
-                        # align stream traces from fixed location time shifts
-                        align_stream(sta_chan_stream, shifts, indices)
-                        # append cross-correlation coefficients to list
-                        stack_ccs.append(ccs)
-
-                    # shift the trace
-                    # TODO:
-
-                    # store the stack
-                    # TODO:
-
-                    # plot aligned stream to verify align function works
-                    # plot_stream_absolute(sta_chan_stream[:100])
-                    # plot_stream_relative(aligned_sta_chan_stream)
-
-                    # guard against stacking error:
-                    try:
-                        # # check if the right animation writers exist
-                        # import matplotlib.animation as manimation
-                        # manimation.writers.list()
-
-                        # generate linear and phase-weighted stack
-                        lin, pws = generate_stacks(sta_chan_stream,
-                                                   normalize=True,
-                                                   animate=animate_stacks)
-
-                        # add phase-weighted stack to stream
-                        stack_pw += pws
-                        # and add linear stack to stream
-                        stack_lin += lin
-
-                        # # fill nan's with zeros so plot_stack doesn't go boom
-                        # sta_chan_stream.trim(sta_chan_stream[0].stats.starttime,
-                        #                      sta_chan_stream[0].stats.endtime,
-                        #                      pad=True, fill_value=0,
-                        #                      nearest_sample=True)
-                        # # get rid of short traces for plotting
-                        # trace_pop_list = []
-                        # for tr in sta_chan_stream:
-                        #     if tr.stats.npts < 4001:
-                        #         trace_pop_list.append(tr)
-                        # for tr in trace_pop_list:
-                        #     sta_chan_stream.remove(tr)
-                        # # inspect the stack contents
-                        # plot_stack(sta_chan_stream, title=f'top_{n}_{station}'
-                        #            f't5_stack_contents_7s_100Hz_0.5prepick',
-                        #            save=True)
-
-                    except Exception:
-                        pass
-
-    # missing_files.close()
-
-    # # if the stacks exist, plot them and don't bandpass filter from 1-15 Hz
-    # if len(stack_pw) > 0:
-    #     plot_stack(stack_pw, title='phase_weighted_stack', save=True)
-    #
-    # if len(stack_lin) > 0:
-    #     plot_stack(stack_lin, title='linear_stack', save=True)
 
     return [stack_pw, stack_lin, stack_ccs]
 #     #     #     #     #     #     #     #     #     #     #     #     #     #
