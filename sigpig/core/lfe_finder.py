@@ -2838,7 +2838,7 @@ def stack_template_detections(party, streams_path, main_trace,
 
 
 def detections_from_stacks(stack, detection_files_path, start_date,
-                           end_date, main_trace):
+                           end_date, template_number):
     """ Transform stacks so they can be used as templates for matched-filter
     analysis via EQcorrscan, FIXME, then finds detections corresponding to
     stacks.
@@ -2888,26 +2888,28 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         #             fill_value=np.nan, nearest_sample=True)
         # st2.plot()
 
-        # t4: 2016  9 27  6 31 15.00
-        if trace.stats.station == "RH08":
-            picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 27, 0),
-                              phase_hint="P", waveform_id=WaveformStreamID(
-                    network_code=trace.stats.network,
-                    station_code=trace.stats.station,
-                    channel_code=trace.stats.channel)))
-        elif trace.stats.station == "RH10" or trace.stats.station == "MCR1" \
-                or trace.stats.station == "RH09":
-            picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 26, 0),
-                              phase_hint="P", waveform_id=WaveformStreamID(
-                    network_code=trace.stats.network,
-                    station_code=trace.stats.station,
-                    channel_code=trace.stats.channel)))
-        else:
-            picks.append(Pick(time=UTCDateTime(2016, 1, 1, 0, 0, 22, 0),
-                              phase_hint="P", waveform_id=WaveformStreamID(
-                              network_code=trace.stats.network,
-                              station_code=trace.stats.station,
-                              channel_code=trace.stats.channel)))
+        # set pick times based on template number
+        # t1: 2016  9 27  6 31 15.00
+        if template_number == 1:
+            # FIXME
+            if trace.stats.station == "RH08" or trace.stats.station == "RH09":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 27, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+            elif trace.stats.station == "RH10" or trace.stats.station == "MCR1":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 26, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+            else:
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 21, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
 
     # build catalog object from picks list with made up origin and magnitude
     event = Event(origins=[Origin(latitude=61.9833, longitude=-144.0437,
@@ -2993,10 +2995,10 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         party = party_list[0]
 
         # save party to pickle
-        filename = f'party_{start_date.month:02}_{start_date.day:02}_' \
+        filename = f'new_party_{start_date.month:02}_{start_date.day:02}_' \
                    f'{start_date.year}_to_{end_date.month:02}' \
                    f'_{end_date.day:02}_' \
-                   f'{end_date.year}_MAD8_14s_stackDetects2.pkl'
+                   f'{end_date.year}_MAD8_14s_t1stackDetects.pkl'
         outfile = open(filename, 'wb')
         pickle.dump(party, outfile)
         outfile.close()
@@ -3399,7 +3401,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'stack'
+    shift_method = 'zero'
     load_party = True
     save_detections = True
 
@@ -3645,7 +3647,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile.close()
     else:
         party = detections_from_stacks(stack_lin, detection_files_path,
-                                       start_date, end_date, main_trace)
+                                       start_date, end_date, template_number=1)
     if plot:
         if party != None and len(party) > 0:
             # inspect the party growth over time
