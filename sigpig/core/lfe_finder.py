@@ -3614,14 +3614,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{detect_thresh}_14s_t1',
                        save=True)
 
-            # now plot template with the linear stack from same station for
+            # now plot template with the stacks from same station for
             # comparison
-            # plot_template_and_stack(party, stack_lin, stack_pw,
-            #                         detection_files_path, save=False,
-            #                         title=f'stacks_templates_sn'
-            #                               f'r{snr_threshold}_'
-            #                         f'{shift_method}Shift_abs.24_16s')
-
             plot_template_and_stack(party, stack_lin, stack_pw,
                                     detection_files_path, 6, save=True,
                                     title=f'top_{n}_9sta_stacks_templates_sn'
