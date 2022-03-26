@@ -1645,7 +1645,8 @@ def get_detections(party, streams_path, main_trace):
 # stacking routine to generate stacks from template detections (doesn't use
 # EQcorrscan stacking routine), this implementation is memory-limited as all
 # traces are loaded into memory at the same time
-def stack_template_detections(party, streams_path, main_trace,
+# FIXME: this function is memory-limited. delete after optimization is finished
+def old_stack_template_detections(party, streams_path, main_trace,
                               template_times, align_type,
                               animate_stacks=False):
     """
@@ -2397,7 +2398,7 @@ def stack_template_detections(party, streams_path, main_trace,
 #     #     #     #     #     #     #     #     #     #     #     #     #     #
 # this function shifts and stacks traces without loading them all into
 # memory at once, so it is not memory-limited
-def stack_template_detections2(party, streams_path, main_trace,
+def stack_template_detections(party, streams_path, main_trace,
                               template_times, align_type,
                               animate_stacks=False):
     """
@@ -3412,7 +3413,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'zero'
+    shift_method = 'stack'
     load_party = True
     save_detections = True
 
@@ -3588,7 +3589,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                   trace.stats.endtime]
 
         # stack the culled party detections
-        stack_list = stack_template_detections2(party, detection_files_path,
+        stack_list = stack_template_detections(party, detection_files_path,
                                                main_trace, template_times,
                                                align_type=shift_method,
                                                animate_stacks=False)
