@@ -2848,10 +2848,6 @@ def detections_from_stacks(stack, detection_files_path, start_date,
     Example:
 
     """
-
-    # FIXME: stack should be denormalized for this? check if EQcorrscan
-    #  normalizes before xcorr
-
     # build stream of day-long data from stack and compile picks list
     st = Stream()
     picks = []
