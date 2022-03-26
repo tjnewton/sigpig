@@ -3407,7 +3407,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'stack'
+    shift_method = 'zero'
     load_party = True
     save_detections = True
 
