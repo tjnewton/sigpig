@@ -2391,19 +2391,13 @@ def old_stack_template_detections(party, streams_path, main_trace,
     return [stack_pw, stack_lin, stack_ccs]
 
 
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
-#     #     #    building here      #     #     #     #     #     #     #     #
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
 # this function shifts and stacks traces without loading them all into
-# memory at once, so it is not memory-limited
+# memory at once in a stream (instead a numpy array is used), so it is not as
+# memory-limited as a stream object implementation
 def stack_template_detections(party, streams_path, main_trace,
                               template_times, align_type,
                               animate_stacks=False):
     """
-    # FIXME: change to non-memory-limited implementation
-
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
     workflow.
@@ -2841,10 +2835,6 @@ def stack_template_detections(party, streams_path, main_trace,
             stack_lin += lin
 
     return [stack_pw, stack_lin, stack_ccs]
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
-#     #     #     #     #     #     #     #     #     #     #     #     #     #
 
 
 def detections_from_stacks(stack, detection_files_path, start_date,
