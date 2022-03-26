@@ -2877,7 +2877,7 @@ def detections_from_stacks(stack, detection_files_path, start_date,
             process_len = 86400
         else:
             st += trace
-            process_len = 40
+            process_len = 60
 
         # # for testing
         # new_start_time = UTCDateTime("2016-01-01T12:00:00.0Z") - 5
