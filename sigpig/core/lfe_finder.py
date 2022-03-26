@@ -3595,26 +3595,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # expand list into items
     stack_pw, stack_lin, stack_ccs = stack_list
 
-    # # stack_ccs has uneven lengths of rows
-    # for item in stack_ccs:
-    #     print(len(item))
-    # # pad stack_ccs rows to view as np.array
-    # padded_stack_ccs = []
-    # for row in range(len(stack_ccs)):
-    #     row_ccs = []
-    #     for column in range(0, n):
-    #         try:
-    #             row_ccs.append(stack_ccs[row][column])
-    #         except Exception:
-    #             row_ccs.append(0)
-    #             pass
-    #     padded_stack_ccs.append(row_ccs)
-    # stack_ccs = np.array(padded_stack_ccs)
-    # plt.hist(stack_ccs[0])
-    # plt.show()
-    # for trace in stack_pw:
-    #     print(trace.stats.npts)
-
     # plot stacks
     if plot:
         if len(stack_pw) > 0:
