@@ -3550,18 +3550,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if load_stack:
         # load stack list from file
         # TEMPLATE 1
-        # infile = open(f'inner_stack_0_snr{snr_threshold}_'
-        #               f'{shift_method}Shift_abs.25_16s.pkl', 'rb')
-        # infile = open(f'inner_stack_0_snr{snr_threshold}_'
-        #               f'{shift_method}Shift_abs.27_16s.pkl', 'rb')
-        # TEMPLATE 2
-        # infile = open(f'inner_t2_stack_0_snr{snr_threshold}_'
-        #               f'{shift_method}Shift_abs.23_16s.pkl', 'rb')
-        # TEMPLATE 4
-        infile = open(f'top_{n}_stack_9sta_t6_snr{snr_threshold[0]}-'
+        infile = open(f'top_{n}_9sta_stack_snr{snr_threshold[0]}-'
                       f'{snr_threshold[1]}_'
                       f'{shift_method}Shift_{thresh_type}'
-                      f'{detect_thresh}_14s.pkl', 'rb')
+                      f'{detect_thresh}_14s_t1.pkl', 'rb')
 
         stack_list = pickle.load(infile)
         infile.close()
