@@ -2534,7 +2534,7 @@ def stack_template_detections(party, streams_path, main_trace,
                 st.detrend()
                 # bandpass filter
                 # day_st.filter('highpass', freq=1)
-                st.filter('bandpass', freqmin=1, freqmax=15)
+                st.filter('bandpass', freqmin=1, freqmax=10)
                 # trim trace to 40 seconds surrounding pick time
                 st.trim(pick_time - 20, pick_time + 40, pad=True,
                         fill_value=0, nearest_sample=True)
