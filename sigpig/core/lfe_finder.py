@@ -2532,7 +2532,7 @@ def stack_template_detections2(party, streams_path, main_trace,
                 st = read(file)
                 # trim trace to 5 minutes surrounding pick time
                 st.trim(pick_time - 150, pick_time + 150, pad=True,
-                        fill_value=np.nan, nearest_sample=True)
+                        fill_value=0, nearest_sample=True)
                 # interpolate to 100 Hz
                 st.interpolate(sampling_rate=100.0)
                 # detrend
@@ -2542,10 +2542,15 @@ def stack_template_detections2(party, streams_path, main_trace,
                 st.filter('bandpass', freqmin=1, freqmax=15)
                 # trim trace to 40 seconds surrounding pick time
                 st.trim(pick_time - 20, pick_time + 40, pad=True,
-                        fill_value=np.nan, nearest_sample=True)
+                        fill_value=0, nearest_sample=True)
 
                 # add the data to the array
                 sta_chan_array.append(st[0].data)
+
+        # fix a padding bug where a trace can be 1 sample short
+        for index, element in enumerate(sta_chan_array):
+            if len(element) == 6000:
+                sta_chan_array[index] = np.append(element, [0])
 
         # convert the list to a numpy array and normalize it
         sta_chan_array = np.asarray(sta_chan_array, dtype='float64')
@@ -2692,7 +2697,7 @@ def stack_template_detections2(party, streams_path, main_trace,
             phas[tr_idx, :] = np.arctan2(np.imag(tmp), np.real(tmp))
 
         # sum of phases for each sample across traces
-        sump = np.abs(np.sum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
+        sump = np.abs(np.nansum(np.exp(np.complex(0, 1) * phas), axis=0)) / \
                np.shape(phas)[0]
 
         # pws = traditional stack * phase weighting stack
@@ -3515,8 +3520,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # trace.stats.npts NaNs.
         culled_party = cull_detections(party, detection_files_path,
                                        snr_threshold, main_trace)
-
-        # TODO: cull based on spectral energy in a specific band?
 
         print(f"Culled detections comprise "
               f"{(round(100 * (len(culled_party) / len(party)), 1))}% of all "
