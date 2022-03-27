@@ -3407,6 +3407,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     top_n = True
     n = 100
+    template_number = 1
 
     load_stack = False
     load_stack_detects = False
@@ -3634,20 +3635,44 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # use stacks as templates in matched-filter search to build catalog of
     # detections
     if load_stack_detects:
-        # MAD 8 template: 1728 detections
-        # culled MAD 8 detections: 1581
+        # t1 MAD 8 stack template: 1834 detections
+        # culled MAD 8 detections: 1686
         # load stack list from file
         infile = open(f'party_{start_date.month:02}_{start_date.day:02}_' \
-                   f'{start_date.year}_to_{end_date.month:02}' \
-                   f'_{end_date.day:02}_' \
-                   f'{end_date.year}_{thresh_type}'
-                      f'{detect_thresh}_14s_stackDetects.pkl', 'rb')
+                      f'{start_date.year}_to_{end_date.month:02}' \
+                      f'_{end_date.day:02}_{end_date.year}_{thresh_type}'
+                      f'{detect_thresh}_14s_t1stackDetects_culled_sorted.pkl',
+                      'rb')
 
         party = pickle.load(infile)
         infile.close()
     else:
         party = detections_from_stacks(stack_lin, detection_files_path,
                                        start_date, end_date, template_number=1)
+
+    # cull the party detections outside the specified signal to noise ratio
+    if cull:
+        # SNR based culling & removal of traces with > 0.3 *
+        # trace.stats.npts NaNs.
+        culled_party = cull_detections(party, detection_files_path,
+                                       snr_threshold, main_trace)
+
+        print(f"Culled detections comprise "
+              f"{(round(100 * (len(culled_party) / len(party)), 1))}% of all "
+              f"detections ({len(culled_party)}/{len(party)}).")
+        # allow old party to get trash collected from memory
+        party = culled_party
+
+    # consider only top n detections ranked by the cross-channel correlation sum
+    if top_n:
+        party = sort_party(party, n, detection_files_path, main_trace,
+                           plot=plot, save_detections=save_detections,
+                           title=f"new_top_{n}_detections_"
+                                 f"t{template_number}_party"
+                                 f"_{template_length}s_{template_prepick}_"
+                                 f"prepick_{thresh_type}{detect_thresh}_"
+                                 f"{snr_threshold}_SNR")
+
     if plot:
         if party != None and len(party) > 0:
             # inspect the party growth over time
@@ -3659,10 +3684,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
             family = sorted(party.families, key=lambda f: len(f))[-1]
             fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
-    # TODO: Call to cull
-
-    # TODO: Call to top_n
-
     # make another stack from the new detections
     if load_second_stack:
         # load stack list from file
@@ -3672,19 +3693,32 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         stack_list = pickle.load(infile)
         infile.close()
     else:
-        # TODO: add changed stack call
+        # TODO: try stack with:
+        #       - culled and sorted detections
+        #       - raw detections
+
+        # get the template start and end times
+        family = sorted(party.families, key=lambda f: len(f))[-1]
+        # build a dict of template times that are used for determining cross-
+        # correlation time shifts for stacking (if align_type != 'zero')
+        template_times = {}
+        for trace in family.template.st:
+            ID = f"{trace.stats.network}.{trace.stats.station}." \
+                 f"{trace.stats.channel}"
+            # this selects the entire template including prepick as ref. signal
+            template_times[ID] = [trace.stats.starttime - template_prepick,
+                                  trace.stats.endtime]
 
         # stack the culled party detections
         stack_list = stack_template_detections(party, detection_files_path,
-                                               main_trace,
-                                               align_type=shift_method)
+                                               main_trace, template_times,
+                                               align_type=shift_method,
+                                               animate_stacks=False)
         # save stacks as pickle file
-        # abs 0.25: h m to stack
-        outfile = open(f'inner_stack_t4_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.29_7s.pkl', 'wb')
-        # MAD 8: 6h 35m to stack
-        # outfile = open(f'inner_stack_0_snr{snr_threshold}_'
-        #                f'{shift_method}Shift_MAD8_16s.pkl', 'wb')
+        outfile = open(f'top_{n}_9sta_stackDetectsStack_snr{snr_threshold[0]}-'
+                       f'{snr_threshold[1]}_'
+                       f'{shift_method}Shift_{thresh_type}'
+                       f'{detect_thresh}_14s_t{template_number}.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
