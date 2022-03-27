@@ -3726,19 +3726,24 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     stack_pw, stack_lin, stack_ccs = stack_list
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'phase_weighted_stack_t4_snr'
-                       f'{snr_threshold}_{shift_method}'
-                       f'Shift_abs.29_7s', save=True)
+            plot_stack(stack_pw, title=f'top_'
+                                       f'{n}_9sta_phase_weighted_stack_snr'
+                                       f'{snr_threshold[0]}-'
+                                       f'{snr_threshold[1]}_{shift_method}'
+                                       f'Shift_{thresh_type}{detect_thresh}_'
+                                       f'14s_t{template_number}_ '
+                                       f'stackDetectsStack', save=True)
+
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'linear_stack_t4_snr{snr_threshold}_'
-                       f'{shift_method}Shift_abs.29_7s',
-                       save=True)
+            plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stack_sn'
+                                        f'r{snr_threshold[0]}-'
+                                        f'{snr_threshold[1]}_'
+                                        f'{shift_method}Shift_{thresh_type}'
+                                        f'{detect_thresh}_14s_t'
+                                        f'{template_number}_stackDetectsStack',
+                                        save=True)
 
-
-    # TODO: what should the ultimate return(s) be after generating second
-    #  stack? Need to guard memory from large stacks.
-
-    return party
+    return None
 
 # NEXT DO MAX & FIXED, ANIMATE IF BROKEN
 if False:
