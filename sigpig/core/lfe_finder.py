@@ -29,7 +29,7 @@ from tqdm import tqdm
 from figures import plot_stack, plot_stream_absolute, plot_stream_relative, \
                     plot_party_detections, plot_distribution, \
                     plot_template_and_stack, plot_Time_Series_And_Spectrogram,\
-                    spectra
+                    spectra, plot_date_distribution
 from scipy.signal import hilbert
 import time
 from data import max_amplitude, snr
@@ -3262,7 +3262,7 @@ def get_day_detections(date, party, plot=False):
 
     Example:
         # define a date of interest
-        date =
+        date = UTCDateTime('2016-09-26T09:25:46.008400Z')
 
         # get the detections corresponding to the specified date
         day_party = get_day_detections(date, party, plot=True)
@@ -3293,7 +3293,7 @@ def get_day_detections(date, party, plot=False):
 
     # plot the detection dates
     if plot:
-
+        fig = plot_date_distribution(dates, save=False)
 
 
     return day_party
