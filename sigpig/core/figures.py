@@ -1081,6 +1081,47 @@ def plot_distribution(data, bins=False, title=False, save=False):
     return fig
 
 
+def plot_date_distribution(dates, save=False):
+    """ Plots UTCDateTime distribution as a histogram.
+
+    Example:
+        dates = []
+        # TODO:
+
+    """
+    # convert event dates to matplotlib dates
+    dates = [date.matplotlib_date for date in dates]
+
+    # generate event date histogram
+    plt.figure(figsize=(13, 5))  # figsize for many weeks
+    n, bins, patches = plt.hist(dates, bins=100, facecolor="darkred",
+                                alpha=0.6)
+    ax = plt.axes()
+    # set background color
+    ax.set_facecolor("dimgrey")
+    # set plot labels
+    # plt.xlabel(f'hour : minute : second of'
+    #            f' {num2date(bins[0]).strftime("%m/%d/%Y")}')
+    plt.xlabel(f'Day')
+    plt.ylabel("Detections")
+    ax.set_title(f'Dates Histogram (n={len(dates)})', y=0.9999)
+    # set plot limits
+    # plt.ylim(0, 50)
+    ax.set_xlim([bins[0], bins[-1]])
+    myFmt = DateFormatter("%m-%d")
+    # myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
+    ax.xaxis.set_major_formatter(myFmt)
+    locator_x = AutoDateLocator() # minticks=12, maxticks=18
+    ax.xaxis.set_major_locator(locator_x)
+
+    plt.tight_layout()
+    plt.grid(True)
+
+    if save:
+        plt.savefig(f'time_histogram.pdf', dpi=600)
+    plt.show()
+
+
 def plot_event_picks(event, plot_curvature=False):
     """ Plots time series and associated picks from time_miner autopicker.
     Takes in an event from the events dict from the
