@@ -3256,6 +3256,27 @@ def sort_party(party, n, detection_files_path, main_trace, plot=False,
 
     return party
 
+
+def get_day_detections(date, party):
+    """ Returns a party containing only detections on the specified day.
+
+    Example:
+        # define a date of interest
+        date =
+
+        # get the detections corresponding to the specified date
+        day_party = get_day_detections(date, party)
+    """
+
+    # plot the detection dates
+
+
+    # cull the party detections to the specified day
+
+
+
+    return day_party
+
 # driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
