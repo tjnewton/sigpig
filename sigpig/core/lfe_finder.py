@@ -3579,7 +3579,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"newtop_{n}_detections_t{template_number}_waveforms_"
+                   title=f"9-26_top_{n}_detections_"
+                         f"t{template_number}_waveforms_"
                                  f"{template_length}s_{template_prepick}_"
                                  f"prepick_{thresh_type}{detect_thresh}_"
                                  f"{snr_threshold}_SNR", save=True)
@@ -3616,7 +3617,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_9sta_stack_snr{snr_threshold[0]}-'
+        outfile = open(f'9-26_top_{n}_9sta_stack_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_14s_t1.pkl', 'wb')
@@ -3630,7 +3631,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot stacks
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'top_'
+            plot_stack(stack_pw, title=f'9-26_top_'
                                        f'{n}_9sta_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
@@ -3639,7 +3640,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        save=True)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stack_sn'
+            plot_stack(stack_lin, title=f'9-26_top_{n}_9sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
