@@ -3257,7 +3257,7 @@ def sort_party(party, n, detection_files_path, main_trace, plot=False,
     return party
 
 
-def get_day_detections(date, party):
+def get_day_detections(date, party, plot=False):
     """ Returns a party containing only detections on the specified day.
 
     Example:
@@ -3265,13 +3265,34 @@ def get_day_detections(date, party):
         date =
 
         # get the detections corresponding to the specified date
-        day_party = get_day_detections(date, party)
+        day_party = get_day_detections(date, party, plot=True)
     """
+    # cull the party detections to the specified day
+    detections = []
+    dates = []
+    # loop over all detections
+    for index, detection in enumerate(party.families[0].detections):
+        # define the date of detection at this index
+        doi = detection.detect_time
+
+        # check if detection is on the specified date
+        if doi.year == date.year and doi.month == date.month and doi.day == \
+                date.day:
+            # build list of detections to keep
+            detections.append(detection)
+            # store all dates in a list to plot
+            dates.append(doi)
+
+        else:
+            # store all dates in a list to plot
+            dates.append(doi)
+
+    # make a new party object
+    template = party.families[0].template
+    day_party = Party(families=Family(template, detections))
 
     # plot the detection dates
-
-
-    # cull the party detections to the specified day
+    if plot:
 
 
 
