@@ -3265,7 +3265,7 @@ def get_day_detections(date, party, plot=False):
         date = UTCDateTime('2016-09-26T09:25:46.008400Z')
 
         # get the detections corresponding to the specified date
-        day_party = get_day_detections(date, party, plot=True)
+        party = get_day_detections(date, party, plot=True)
     """
     # cull the party detections to the specified day
     detections = []
@@ -3294,7 +3294,6 @@ def get_day_detections(date, party, plot=False):
     # plot the detection dates
     if plot:
         fig = plot_date_distribution(dates, save=False)
-
 
     return day_party
 
