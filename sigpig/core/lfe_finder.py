@@ -3538,7 +3538,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         detection_stream = get_detections(party, detection_files_path, main_trace)
         plot_stack(detection_stream[:100],
-                   title=f"top_{n}_detections_t{template_number}_waveforms_"
+                   title=f"newtop_{n}_detections_t{template_number}_waveforms_"
                                  f"{template_length}s_{template_prepick}_"
                                  f"prepick_{thresh_type}{detect_thresh}_"
                                  f"{snr_threshold}_SNR", save=True)
@@ -3694,8 +3694,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile.close()
     else:
         # TODO: try stack with:
-        #       - culled and sorted detections
-        #       - raw detections
+        #   - 1686 & 100
+        #       - zero: culled and sorted detections
+        #       - stack: culled and sorted detections
+        #       - zero: raw detections
+        #       - stack: raw detections
 
         # get the template start and end times
         family = sorted(party.families, key=lambda f: len(f))[-1]
