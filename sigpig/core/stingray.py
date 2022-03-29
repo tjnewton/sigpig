@@ -232,11 +232,12 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             # velmod = pd.read_csv("/Users/human/git/sigpig/sigpig/stingray/m-files/vels.txt", delim_whitespace=True)
 
             # define a slowness factor to multipy onslide slowness by
+            # 25 for 1/25-velocity on-slide
             # 10 for 1/10-velocity on-slide
             # 4 for 1/4-velocity on-slide
             # 2 for 1/2-velocity on-slide
             # 4/3 for 3/4-velocity on-slide
-            slowness_factor = 10
+            slowness_factor = 25
 
             # original velocity model based on Vs30
             velocity_model = [[0.00, 0.60],
@@ -325,7 +326,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
             modeldict['S']['u'] = [] # modeldict['S']['u'] = Smod
             savemat(
                 "/Users/human/git/sigpig/sigpig/stingray/srInput/srModel_" + str(
-                    int(1000 * dz)) + "m_OSOS_0.1.mat",
+                    int(1000 * dz)) + "m_OSOS_0.04.mat",
                 {'srModel':modeldict})
 
     else:
