@@ -2591,10 +2591,11 @@ def stack_template_detections(party, streams_path, main_trace,
         elif align_type == "self":
             reference_signal.data = waveform_array[0, :]
 
-        # case: shifting based on the linear stack as the reference signal
+        # case: shifting based on the top-100 detections linear stack as the
+        # reference signal
         elif align_type == "stack":
             # make linear stack
-            linear_stack = np.nanmean(waveform_array, axis=0)
+            linear_stack = np.nanmean(waveform_array[:100, :], axis=0)
             reference_signal.data = linear_stack
 
         # # trim the reference signal
