@@ -2626,7 +2626,7 @@ def stack_template_detections(party, streams_path, main_trace,
                 tr.data = trace
                 tr.stats.sampling_rate = 100.00
 
-                max_shift = 30  # maximum xcorr shift in samples
+                max_shift = 600  # maximum xcorr shift in samples, 30
                 cc = correlate(tr, reference_signal, max_shift,
                                demean=True, normalize='naive',
                                method='auto')
@@ -2787,7 +2787,6 @@ def stack_template_detections(party, streams_path, main_trace,
             station_dict[file_station] = {"network": file_network,
                                           "channel": file_channel}
 
-    # TODO: fix this shift type implementation
     # case: get time shifts to apply to detections on all stations from the
     # super stack of the main trace
     if align_type == 'super_stack':
@@ -3356,8 +3355,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     Inputs:
 
         shift_method: string identifying the cross-correlation time shift
-                      method to use. 'zero', 'med', 'max', and 'fixed' are
-                      options.
+                      method to use. 'zero', 'med', 'max', 'stack', and
+                      'super_stack' are options.
 
         # TODO: add all params
 
@@ -3461,8 +3460,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # thresh_type = "abs"
 
         # define the main trace to use for detections (best amplitude station)
-        main_trace = ("AV", "WASW", "SHZ")
-        # main_trace = ("TA", "N25K", "BHN")
+        # main_trace = ("AV", "WASW", "SHE")
+        main_trace = ("TA", "N25K", "BHE")
         # main_trace = ("YG", "MCR2", "BHN")
 
         # run detection and time it
@@ -3489,7 +3488,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = True
 
     top_n = True
-    n = 100
+    n = 978
     template_number = 1
 
     load_stack = False
@@ -3659,10 +3658,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'9-26_top_{n}_9sta_stack_snr{snr_threshold[0]}-'
+        outfile = open(f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top'
+                       f'_{n}_9sta_stack_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s_t1.pkl', 'wb')
+                       f'{detect_thresh}_14s_t{template_number}.pkl', 'wb')
 
         pickle.dump(stack_list, outfile)
         outfile.close()
@@ -3673,20 +3673,20 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot stacks
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'9-26_top_'
+            plot_stack(stack_pw, title=f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top_'
                                        f'{n}_9sta_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
-                                       f'{detect_thresh}_14s_t1',
+                                       f'{detect_thresh}_14s_t{template_number}',
                        save=True)
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'9-26_top_{n}_9sta_linear_stack_sn'
+            plot_stack(stack_lin, title=f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top_{n}_9sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
-                                        f'{detect_thresh}_14s_t1',
+                                        f'{detect_thresh}_14s_t{template_number}',
                        save=True)
 
             # now plot template with the stacks from same station for
