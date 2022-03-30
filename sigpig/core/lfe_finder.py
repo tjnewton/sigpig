@@ -2542,6 +2542,10 @@ def stack_template_detections(party, streams_path, main_trace,
                 # add the data to the array
                 sta_chan_array.append(st[0].data)
 
+            # if no file, append zeros
+            else:
+                sta_chan_array.append(np.zeros(6001))
+
         # fix a padding bug where a trace can be 1 sample short
         for index, element in enumerate(sta_chan_array):
             if len(element) == 6000:
@@ -2593,15 +2597,10 @@ def stack_template_detections(party, streams_path, main_trace,
             linear_stack = np.nanmean(waveform_array, axis=0)
             reference_signal.data = linear_stack
 
-        # case: shifting based on main trace super stack
-        elif align_type == "fixed":
-            # TODO:
-            ...
-
-        # trim the reference signal
-        if reference_signal != None:
-            reference_signal.trim(reference_signal.stats.starttime + 15,
-                                  reference_signal.stats.endtime - 15)
+        # # trim the reference signal
+        # if reference_signal != None:
+        #     reference_signal.trim(reference_signal.stats.starttime + 15,
+        #                           reference_signal.stats.endtime - 15)
 
         return reference_signal
 
@@ -2664,18 +2663,24 @@ def stack_template_detections(party, streams_path, main_trace,
 
     # function to generate linear and phase-weighted stacks from a stream
     def generate_stacks(network, station, channel, pick_times, streams_path,
-                        align_type, normalize=True, animate=False):
+                        align_type, super_stack_shifts=False, normalize=True,
+                        animate=False):
 
         # get the array of waveforms for the station:channel permutation
         waveform_array = get_waveform_array(network, station, channel,
                                             pick_times, streams_path)
 
-        # get the reference signal from the waveform array
-        reference_signal = get_reference_signal(waveform_array, align_type)
+        # get the appropriate reference signal
+        if align_type == "super_stack":
+            shifts = super_stack_shifts
+            indices = []
+        else:
+            # get the reference signal from the waveform array
+            reference_signal = get_reference_signal(waveform_array, align_type)
 
-        # get the time shifts for each trace based on cross-corr. with ref sig
-        shifts, indices, ccs = get_xcorr_time_shifts(waveform_array,
-                                                     reference_signal)
+            # get the time shifts for each trace based on cross-corr. with ref sig
+            shifts, indices, ccs = get_xcorr_time_shifts(waveform_array,
+                                                         reference_signal)
 
         # shift traces in time based on cross-correlation with ref signal
         waveform_array = shift_traces(waveform_array, shifts, indices)
@@ -2783,19 +2788,55 @@ def stack_template_detections(party, streams_path, main_trace,
                                           "channel": file_channel}
 
     # TODO: fix this shift type implementation
-    # case: # TODO: do things here because this case is distinct
-    if align_type == 'fixed':
-        # get the main trace detections in a stream
-        print(f"Assembling main stream {pick_network}.{pick_station}"
+    # case: get time shifts to apply to detections on all stations from the
+    # super stack of the main trace
+    if align_type == 'super_stack':
+        #  - - - - - - - - - make the first linear stack - - - - - - - - - - -
+        print(f"Assembling super stack {pick_network}.{pick_station}"
               f".{pick_channel}")
-        main_stream, _ = build_main_stream(main_trace, streams_path,
-                                           pick_times)
-        # get the fixed location time shifts from the main trace
-        shifts, indices, ccs = xcorr_time_shifts(main_stream, 'self',
-                                            template_times, streams_path)
+        # get the array of waveforms for the station:channel permutation
+        waveform_array = get_waveform_array(pick_network, pick_station,
+                                            pick_channel, pick_times,
+                                            streams_path)
+        # get a linear stack of the waveform array as the reference signal
+        reference_signal_v1 = get_reference_signal(waveform_array, "stack")
 
-        # free up memory
-        del main_stream
+
+        # get the time shifts for each trace based on cross-corr. with ref sig
+        shifts_v1, indices, _ = get_xcorr_time_shifts(waveform_array,
+                                                 reference_signal_v1)
+
+        # # shift traces in time based on cross-correlation with ref signal
+        # waveform_array = shift_traces(waveform_array, shifts_v1, indices)
+        #
+        # # - - - - - make the second linear stack from shifted traces - - - - -
+        # reference_signal_v2 = get_reference_signal(waveform_array, "stack")
+        #
+        # # get the time shifts for each trace based on cross-corr. with ref sig
+        # shifts_v2, indices, _ = get_xcorr_time_shifts(waveform_array,
+        #                                            reference_signal_v2)
+        #
+        # # shift traces in time based on cross-correlation with ref signal
+        # waveform_array = shift_traces(waveform_array, shifts_v2, indices)
+        #
+        # # - - - - - make the third linear stack from shifted traces - - - - - -
+        # reference_signal_v3 = get_reference_signal(waveform_array, "stack")
+        #
+        # # get the time shifts for each trace based on cross-corr. with ref sig
+        # shifts_v3, indices, _ = get_xcorr_time_shifts(waveform_array,
+        #                                               reference_signal_v3)
+        #
+        # # shift traces in time based on cross-correlation with ref signal
+        # waveform_array = shift_traces(waveform_array, shifts_v3, indices)
+        #
+        # # - - - - - make the fourth linear stack from shifted traces - - - - -
+        # reference_signal_v4 = get_reference_signal(waveform_array, "stack")
+
+
+        # store the final time shifts to apply to every station:channel
+        super_stack_shifts = shifts_v1
+    else:
+        super_stack_shifts = False
 
     # loop over stations and generate a stack for each station:channel pair
     stack_pw = Stream()
@@ -2827,6 +2868,7 @@ def stack_template_detections(party, streams_path, main_trace,
             # generate linear and phase-weighted stack
             lin, pws = generate_stacks(network, station, channel, pick_times,
                                        streams_path, align_type,
+                                       super_stack_shifts=super_stack_shifts,
                                        normalize=True, animate=animate_stacks)
 
             # add phase-weighted stack to stream
@@ -3442,7 +3484,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'stack'
+    shift_method = 'super_stack'
     load_party = True
     save_detections = True
 
