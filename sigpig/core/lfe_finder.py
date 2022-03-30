@@ -2593,7 +2593,7 @@ def stack_template_detections(party, streams_path, main_trace,
             linear_stack = np.nanmean(waveform_array, axis=0)
             reference_signal.data = linear_stack
 
-        # case: shifting based on fixed location from main trace
+        # case: shifting based on main trace super stack
         elif align_type == "fixed":
             # TODO:
             ...
@@ -2627,7 +2627,7 @@ def stack_template_detections(party, streams_path, main_trace,
                 tr.data = trace
                 tr.stats.sampling_rate = 100.00
 
-                max_shift = 10  # maximum xcorr shift in samples, was 50
+                max_shift = 30  # maximum xcorr shift in samples
                 cc = correlate(tr, reference_signal, max_shift,
                                demean=True, normalize='naive',
                                method='auto')
