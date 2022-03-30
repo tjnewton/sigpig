@@ -2626,7 +2626,7 @@ def stack_template_detections(party, streams_path, main_trace,
                 tr.data = trace
                 tr.stats.sampling_rate = 100.00
 
-                max_shift = 600  # maximum xcorr shift in samples, 30
+                max_shift = 30  # maximum xcorr shift in samples, 30
                 cc = correlate(tr, reference_signal, max_shift,
                                demean=True, normalize='naive',
                                method='auto')
@@ -2797,8 +2797,10 @@ def stack_template_detections(party, streams_path, main_trace,
         waveform_array = get_waveform_array(pick_network, pick_station,
                                             pick_channel, pick_times,
                                             streams_path)
-        # get a linear stack of the waveform array as the reference signal
-        reference_signal_v1 = get_reference_signal(waveform_array, "stack")
+        # get a linear stack of the first 100 detections of the waveform array
+        # as the reference signal
+        reference_signal_v1 = get_reference_signal(waveform_array[:100, :],
+                                                   "stack")
 
 
         # get the time shifts for each trace based on cross-corr. with ref sig
