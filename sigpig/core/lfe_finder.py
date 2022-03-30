@@ -2600,8 +2600,8 @@ def stack_template_detections(party, streams_path, main_trace,
 
         # trim the reference signal
         if reference_signal != None:
-            reference_signal.trim(reference_signal.stats.starttime + 10,
-                                  reference_signal.stats.endtime - 10)
+            reference_signal.trim(reference_signal.stats.starttime + 15,
+                                  reference_signal.stats.endtime - 15)
 
         return reference_signal
 
@@ -2627,7 +2627,7 @@ def stack_template_detections(party, streams_path, main_trace,
                 tr.data = trace
                 tr.stats.sampling_rate = 100.00
 
-                max_shift = 50  # maximum xcorr shift in samples
+                max_shift = 10  # maximum xcorr shift in samples, was 50
                 cc = correlate(tr, reference_signal, max_shift,
                                demean=True, normalize='naive',
                                method='auto')
@@ -3330,17 +3330,17 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # templates = ["# 2016  9 27  6 31 15.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
         #              "MCR1    0.000  1       P\n"]
 
-        # # T1 (old 6) - Aaron's template 1
-        # templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-        #              "WASW    0.000  1       P\n",
-        #              "N25K    1.500  1       P\n",
-        #              "MCR2    0.500  1       P\n",
-        #              "MCR1    2.500  1       P\n",
-        #              "RH09    9.000  1       P\n",
-        #              "RH10    9.000  1       P\n",
-        #              "RH08    9.000  1       P\n",
-        #              "WACK    1.500  1       P\n",
-        #              "GLB     2.500  1       P\n"]
+        # T1 (old 6) - Aaron's template 1
+        templates = ["# 2016  9 26  9 25 48.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+                     "WASW    0.000  1       P\n",
+                     "N25K    1.500  1       P\n",
+                     "MCR2    0.500  1       P\n",
+                     "MCR1    2.500  1       P\n",
+                     "RH09    9.000  1       P\n",
+                     "RH10    9.000  1       P\n",
+                     "RH08    9.000  1       P\n",
+                     "WACK    1.500  1       P\n",
+                     "GLB     2.500  1       P\n"]
 
         # # T2 - Aaron's template 2
         # templates = ["# 2016  9 26 15 45 16.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
@@ -3354,17 +3354,17 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         #              "WACK    0.000  1       P\n",
         #              "GLB     2.000  1       P\n"]
 
-        # T3 - My template following M5.3
-        templates = ["# 2017 11 27 22 57 51.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
-                     "WASW    4.000  1       P\n",
-                     "N25K    1.000  1       P\n",
-                     "MCR2    1.000  1       P\n",
-                     "MCR1    1.000  1       P\n",
-                     "RH09    4.000  1       P\n",
-                     "RH10    0.000  1       P\n",
-                     "RH08    1.000  1       P\n",
-                     "WACK    4.000  1       P\n",
-                     "GLB     2.000  1       P\n"]
+        # # T3 - My template following M5.3
+        # templates = ["# 2017 11 27 22 57 51.00  61.8000 -144.0000  30.00  1.00  0.0  0.0  0.00  1\n",
+        #              "WASW    4.000  1       P\n",
+        #              "N25K    1.000  1       P\n",
+        #              "MCR2    1.000  1       P\n",
+        #              "MCR1    1.000  1       P\n",
+        #              "RH09    4.000  1       P\n",
+        #              "RH10    0.000  1       P\n",
+        #              "RH08    1.000  1       P\n",
+        #              "WACK    4.000  1       P\n",
+        #              "GLB     2.000  1       P\n"]
 
         # specify the length of the template in seconds, starting from the
         # time defined in the `templates` variable
@@ -3392,8 +3392,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/WASW"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/N25K"
         # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/MCR2"
-        # files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
-        files_path = "/Users/human/Desktop/2017-11-27"
+        files_path = "/Users/human/Dropbox/Research/Alaska/build_templates/picked"
+        # files_path = "/Users/human/Desktop/2017-11-27"
 
         # get all relevant files that contain the template time series
         template_files = glob.glob(f"{files_path}/*.ms")
@@ -3442,7 +3442,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         print(f"Runtime: {hours} h {minutes} m {seconds} s")
     """
     # # FIXME: delete after testing
-    shift_method = 'zero'
+    shift_method = 'stack'
     load_party = True
     save_detections = True
 
