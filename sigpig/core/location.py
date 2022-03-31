@@ -10,7 +10,7 @@ os.environ.update(OMP_NUM_THREADS="1",
                   NUMEXPR_NUM_THREADS="1",
                   MKL_NUM_THREADS="1")
 import pathlib
-from obspy import read, UTCDateTime, Inventory
+from obspy import read, UTCDateTime, Inventory, Stream
 from obspy.clients.fdsn import Client
 import glob
 from obspy.core import AttribDict
@@ -350,7 +350,7 @@ from data import rattlesnake_Ridge_Station_Locations
 # TODO: check Quakemigrate notebook for other info
 
 
-def picks_to_nonlinloc(marker_file_path):
+def picks_to_nonlinloc(marker_file_path, waveform_files_path):
     """ Reads the specified snuffler format marker file and converts it to
     NonLinLoc phase file format (written to present working directory):
     http://alomax.free.fr/nlloc/soft7.00/formats.html#_phase_nlloc_
@@ -359,11 +359,16 @@ def picks_to_nonlinloc(marker_file_path):
     Side effects: writes .obs file to current path
 
     Example:
+        # define the path to the snuffler-format marker file containing picks
         marker_file_path = "event_picks.mrkr"
-        picks_to_nonlinloc(marker_file_path)
+        # define the path to the directory containing waveform files
+        waveform_files_path = "/Users/human/Desktop/RR_MSEED"
+
+        picks_to_nonlinloc(marker_file_path, waveform_files_path)
     """
     # keep track of event ID's
     event_ids = []
+    phases_dict = {}
     first_event = True
     # read the marker file line by line
     with open("nll_picks.obs", "w") as write_file:
@@ -383,6 +388,7 @@ def picks_to_nonlinloc(marker_file_path):
                         # check if event has been found yet
                         if event_id not in event_ids:
                             event_ids.append(event_id)
+                            phases_dict[event_id] = []
                             # the first event header has location information
                             if first_event:
                                 write_file.write("# EQEVENT:  Label: EQ001  "
@@ -394,30 +400,90 @@ def picks_to_nonlinloc(marker_file_path):
                                 event_header = "#\n# EQEVENT:\n"
                                 write_file.write(event_header)
 
+                        # get station and channel of pick
                         pick_station = line_Contents[-95:-78].strip().split('.')[1]
-                        # convert UGAP station names
-                        if pick_station == "UGAP3":
-                            pick_station = "103"
-                        elif pick_station == "UGAP5":
-                            pick_station = "105"
-                        elif pick_station == "UGAP6":
-                            pick_station = "106"
-
                         pick_channel = line_Contents[-95:-78].strip().split('.')[3]
-                        start_time = UTCDateTime(line_Contents[7:32])
-                        end_time = UTCDateTime(line_Contents[33:58])
-                        one_sigma = (end_time - start_time) / 2
-                        pick_time = start_time + one_sigma
-                        first_motion = "?"
 
-                        # write extracted information to nonlinloc phase file
-                        line = f"{pick_station:<6} ?    N    ? P      ? " \
-                               f"{pick_time.year}{pick_time.month:02}" \
-                               f"{pick_time.day:02} {pick_time.hour:02}" \
-                               f"{pick_time.minute:02} " \
-                               f"{pick_time.second:02}." \
-                               f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  0.00e+00  0.00e+00    1.0000\n"
-                        write_file.write(line)
+                        # check if this pick is a duplicate
+                        sta_chan = f"{pick_station}.{pick_channel}"
+                        if sta_chan not in phases_dict[event_id]:
+                            # append the phase to keep track of duplicates
+                            phases_dict[event_id].append(sta_chan)
+
+                            start_time = UTCDateTime(line_Contents[7:32])
+                            end_time = UTCDateTime(line_Contents[33:58])
+                            # check if times need to be swapped for some reason
+                            if start_time > end_time:
+                                swap = start_time
+                                start_time = end_time
+                                end_time = swap
+
+                            one_sigma = (end_time - start_time) / 2
+                            pick_time = start_time + one_sigma
+                            first_motion = "?"
+
+                            # get amplitude information from the trace
+                            try:
+                                # first find all files for specified day
+                                day_file_list = sorted(
+                                    glob.glob(f"{waveform_files_path}/"
+                                              f"*.{pick_station}.."
+                                              f"{pick_channel}"
+                                              f".{pick_time.year}-{pick_time.month:02}"
+                                              f"-{pick_time.day:02}*.ms"))
+
+                                # should only be one file, guard against many
+                                file = day_file_list[0]
+
+                                # load file into stream
+                                st = Stream()
+                                st += read(file)
+
+                                st.trim(start_time - 1, end_time + 2, pad=True,
+                                        fill_value=0, nearest_sample=True)
+                                # interpolate to 250 Hz
+                                st.interpolate(sampling_rate=250.0)
+                                # detrend
+                                # st[0].detrend("demean")
+                                # bandpass filter
+                                st.filter("bandpass", freqmin=20, freqmax=60,
+                                          corners=4)
+                                # trim trace surrounding pick time
+                                st.trim(start_time - 0.01, pick_time + 0.1, pad=True,
+                                        fill_value=0, nearest_sample=True)
+
+                                # get the trace data
+                                trace = st[0].data
+                                # find the maximum and minimum value in the trace
+                                max_idx = np.nanargmax(trace)
+                                min_idx = np.nanargmin(trace)
+                                # get the peak to peak amplitude and period
+                                peak_to_peak_amplitude = trace[max_idx] - trace[
+                                                                           min_idx]
+                                peak_to_peak_period = abs(max_idx - min_idx) / 250
+
+                            # if something failed, use zeros
+                            except Exception:
+                                peak_to_peak_amplitude = 0
+                                peak_to_peak_period = 0
+                                pass
+
+                            # convert UGAP station names
+                            if pick_station == "UGAP3":
+                                pick_station = "103"
+                            elif pick_station == "UGAP5":
+                                pick_station = "105"
+                            elif pick_station == "UGAP6":
+                                pick_station = "106"
+
+                            # write extracted information to nonlinloc phase file
+                            line = f"{pick_station:<6} ?    N    ? P      ? " \
+                                   f"{pick_time.year}{pick_time.month:02}" \
+                                   f"{pick_time.day:02} {pick_time.hour:02}" \
+                                   f"{pick_time.minute:02} " \
+                                   f"{pick_time.second:02}." \
+                                   f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  {peak_to_peak_amplitude:1.2e}  {peak_to_peak_period:1.2e}    1.0000\n"
+                            write_file.write(line)
 
                 # # add blank lines between events # FIXME:
                 # elif (line_Contents[0:5] == 'event') and (index != 1):
