@@ -3464,7 +3464,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         # define the main trace to use for detections (best amplitude station)
         # main_trace = ("AV", "WASW", "SHE")
-        main_trace = ("TA", "N25K", "BHE")
+        main_trace = ("TA", "N25K", "BHZ")
         # main_trace = ("YG", "MCR2", "BHN")
 
         # run detection and time it
