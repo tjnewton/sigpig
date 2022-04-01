@@ -1449,6 +1449,86 @@ def spectra(stream):
     return None
 
 
+def multi_spectra(stream):
+    """ Generates a single figure containing the spectra for each trace in
+    an Obspy stream.
+
+    Example:
+        # load traces into a stream from a list of file paths, sta 23
+        file_paths = ["00.13.02_00.13.03.ms"]
+        spectra_st = Stream()
+        for file_path in file_paths:
+            st = Stream()
+            st += read(file_path)
+            st = st.select(station="23")
+
+            # interpolate to 250 Hz
+            st.interpolate(sampling_rate=250.0)
+            # detrend
+            st[0].detrend("demean")
+            # bandpass filter
+            st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+
+            spectra_st += st[0]
+
+        fig = multi_spectra(stream)
+    """
+    # initialize figure and set the figure size
+    figureWidth = 6
+    figureHeight = 6
+    plt.figure(figsize=(figureWidth, figureHeight))
+    # plt.suptitle("Stack spectra")
+
+    # loop through stream and generate plots
+    y_labels = []
+    for index, trace in enumerate(stream):
+        # add station name to list of y labels
+        network_station = f"{trace.stats.network}.{trace.stats.station}"
+        y_labels.append(f"{network_station}.{trace.stats.channel}")
+
+        fs = trace.stats.sampling_rate
+        # the number of frequencies to calculate
+        Nfft = len(trace.data)
+        f = np.arange(0, fs / 2, fs / Nfft)  # to get the actual frequency
+        f=f[:-1]
+        # values
+        S = spfft.fft(trace.data, Nfft)
+        # remove anything above Nyquist
+        S = S[:int(Nfft / 2)]
+
+        # plot the spectra
+        spec = plt.subplot(len(stream), 1, len(stream) - index)
+        spec.plot(f, np.absolute(S), 'k')
+
+        # spec.set_xlim([30, duration - 30])
+        spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
+                        f"{trace.stats.channel}",
+                        rotation=0, labelpad=40)
+        spec.tick_params(axis='x', which='both', bottom=True, top=False,
+                         labelbottom=True)
+        spec.set_xlim([0, 25])
+        spec.grid(which='minor', axis='x')
+
+        if index == 0:
+            spec.set_xlabel('Frequency (Hz)')
+
+    # set axes attributes
+
+    spec.set_ylabel('Amplitude')
+    # frequency_plot.set_yticks([])
+    # frequency_plot.set_xticks([])
+    # fig.tight_layout()
+    # frequency_plot.set_xticks([0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875,
+    #                            1.0])
+    # frequency_plot.set_xticklabels([0, 5, 10, 15, 20, 25, 30, 25, 40])
+    plt.tight_layout()
+    plt.savefig(f"stack_spectra.png", dpi=100)
+
+    plt.show()
+
+    return None
+
+
 def examine_stack():
     """Animate building of stack
 
