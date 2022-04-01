@@ -468,6 +468,8 @@ def picks_to_nonlinloc(marker_file_path, waveform_files_path):
                                 peak_to_peak_period = 0
                                 pass
 
+                            peak_to_peak_amplitude = np.log(peak_to_peak_amplitude)
+
                             # convert UGAP station names
                             if pick_station == "UGAP3":
                                 pick_station = "103"
@@ -482,8 +484,9 @@ def picks_to_nonlinloc(marker_file_path, waveform_files_path):
                                    f"{pick_time.day:02} {pick_time.hour:02}" \
                                    f"{pick_time.minute:02} " \
                                    f"{pick_time.second:02}." \
-                                   f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  {peak_to_peak_amplitude:1.2e}  {peak_to_peak_period:1.2e}    1.0000\n"
+                                   f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  {peak_to_peak_amplitude:1.2e}  {peak_to_peak_period:1.2e}    {peak_to_peak_amplitude:1.2e}\n"
                             write_file.write(line)
+                            # f"{int(str(round(pick_time.microsecond / 1000000, 4))[2:]):<04} GAU {one_sigma:1.2e}  0.00e+00  {peak_to_peak_amplitude:1.2e}  {peak_to_peak_period:1.2e}    1.0000\n"
 
                 # # add blank lines between events # FIXME:
                 # elif (line_Contents[0:5] == 'event') and (index != 1):
@@ -518,6 +521,7 @@ def process_nll_hypocenters(file_path):
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.75/relocated/RR.hyp"
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.5_amp/relocated/RR.hyp"
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.04_amp/relocated/RR.hyp"
+        file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.5_amp_scale/relocated/RR.hyp"
         process_nll_hypocenters(file_path)
 
         # then plot with gmt/RR_events_plot.sh
@@ -714,6 +718,7 @@ def location_pdfs_to_grid(pdfs, project_name):
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.75/relocated/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.5_amp/relocated/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.04_amp/relocated/RR.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_ssst-coh_rr_0.6-0.75_214Picks_OSOS_0.5_amp_scale/relocated/RR.hyp"
             pdfs, hypocenters = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
