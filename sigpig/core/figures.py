@@ -1454,75 +1454,91 @@ def multi_spectra(stream):
     an Obspy stream.
 
     Example:
-        # load traces into a stream from a list of file paths, sta 23
-        file_paths = ["00.13.02_00.13.03.ms"]
+        # load traces into a stream from a list of file paths, station 23
+        file_paths = ["spectra_fig/5A.23..DP1.2018-03-13T00.00.00.ms",
+                      "spectra_fig/5A.23..DP1.2018-04-29T00.00.00.ms",
+                      "spectra_fig/5A.23..DP1.2018-03-13T00.00.00.ms",
+                      "spectra_fig/5A.23..DP1.2018-03-13T00.00.00.ms",
+                      ]
         spectra_st = Stream()
-        for file_path in file_paths:
+        for index, file_path in enumerate(file_paths):
             st = Stream()
             st += read(file_path)
-            st = st.select(station="23")
+
+            # first trim before filtering
+            if index == 0: # background noise
+                st.trim(UTCDateTime("2018-03-13T12:45:26.0Z"), UTCDateTime("2018-03-13T12:45:34.0Z"),pad=True, fill_value=0, nearest_sample=True)
+            elif index == 1: # earthquake
+                st.trim(UTCDateTime("2018-04-29T17:55:40.0Z"), UTCDateTime("2018-04-29T17:56:45.5Z"),pad=True, fill_value=0,nearest_sample=True)
+            elif index == 2: # slidequake
+                st.trim(UTCDateTime("2018-03-13T00:13:02.0Z"), UTCDateTime("2018-03-13T00:13:05.0Z"),pad=True, fill_value=0,nearest_sample=True)
+                # st.trim(UTCDateTime("2018-03-13T01:20:16.5Z"), UTCDateTime("2018-03-13T01:20:19.0Z"),pad=True, fill_value=0,nearest_sample=True)
+
+            elif index == 3: # slidequake
+                st.trim(UTCDateTime("2018-03-13T23:07:49.0Z"), UTCDateTime("2018-03-13T23:07:53.0Z"),pad=True, fill_value=0,nearest_sample=True)
 
             # interpolate to 250 Hz
             st.interpolate(sampling_rate=250.0)
             # detrend
             st[0].detrend("demean")
             # bandpass filter
-            st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+            # st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+
+            # final trim
+            if index == 0: # background noise
+                st.trim(UTCDateTime("2018-03-13T12:45:27.0Z"), UTCDateTime("2018-03-13T12:45:33.0Z"),pad=True, fill_value=0, nearest_sample=True)
+            elif index == 1: # slidequake
+                st.trim(UTCDateTime("2018-04-29T17:55:43.8Z"), UTCDateTime("2018-04-29T17:56:35.5Z"),pad=True, fill_value=0,nearest_sample=True)
+            elif index == 2:
+                st.trim(UTCDateTime("2018-03-13T00:13:03.0Z"), UTCDateTime("2018-03-13T00:13:04.0Z"),pad=True, fill_value=0,nearest_sample=True)
+                # st.trim(UTCDateTime("2018-03-13T01:20:17.0Z"), UTCDateTime("2018-03-13T01:20:18.7Z"),pad=True, fill_value=0,nearest_sample=True)
+
+            elif index == 3:
+                st.trim(UTCDateTime("2018-03-13T23:07:50.5Z"), UTCDateTime("2018-03-13T23:07:52.0Z"),pad=True, fill_value=0,nearest_sample=True)
 
             spectra_st += st[0]
 
-        fig = multi_spectra(stream)
+        fig = multi_spectra(spectra_st)
     """
     # initialize figure and set the figure size
-    figureWidth = 6
-    figureHeight = 6
-    plt.figure(figsize=(figureWidth, figureHeight))
-    # plt.suptitle("Stack spectra")
+    figureWidth = 7
+    figureHeight = 4
+    fig = plt.figure(figsize=(figureWidth, figureHeight))
 
     # loop through stream and generate plots
-    y_labels = []
+    labels = ["Background noise", "M3.3 2018-04-29T17:55:43.8Z",
+              "SQ 2018-03-13T00:13:03.5Z",
+              "SQ 2018-03-13T23:07:51.0Z"]
+    colors = ['black', 'grey', 'blue', 'red']
+    alphas = [1, 0.5, 0.8, 0.8]
     for index, trace in enumerate(stream):
-        # add station name to list of y labels
-        network_station = f"{trace.stats.network}.{trace.stats.station}"
-        y_labels.append(f"{network_station}.{trace.stats.channel}")
-
         fs = trace.stats.sampling_rate
         # the number of frequencies to calculate
         Nfft = len(trace.data)
         f = np.arange(0, fs / 2, fs / Nfft)  # to get the actual frequency
-        f=f[:-1]
-        # values
+
+        # amplitudes
         S = spfft.fft(trace.data, Nfft)
         # remove anything above Nyquist
         S = S[:int(Nfft / 2)]
 
+        # check if values need to be trimmed to match size
+        if len(f) == len(S) + 1:
+            f = f[:-1]
+
         # plot the spectra
-        spec = plt.subplot(len(stream), 1, len(stream) - index)
-        spec.plot(f, np.absolute(S), 'k')
-
-        # spec.set_xlim([30, duration - 30])
-        spec.set_ylabel(f"{trace.stats.network}.{trace.stats.station}."
-                        f"{trace.stats.channel}",
-                        rotation=0, labelpad=40)
-        spec.tick_params(axis='x', which='both', bottom=True, top=False,
-                         labelbottom=True)
-        spec.set_xlim([0, 25])
-        spec.grid(which='minor', axis='x')
-
-        if index == 0:
-            spec.set_xlabel('Frequency (Hz)')
+        plt.loglog(f, np.absolute(S), color=colors[index], label=labels[
+            index], alpha=alphas[index])
 
     # set axes attributes
-
-    spec.set_ylabel('Amplitude')
-    # frequency_plot.set_yticks([])
-    # frequency_plot.set_xticks([])
-    # fig.tight_layout()
-    # frequency_plot.set_xticks([0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875,
-    #                            1.0])
-    # frequency_plot.set_xticklabels([0, 5, 10, 15, 20, 25, 30, 25, 40])
+    plt.ylabel('Amplitude')
+    plt.xlabel('Frequency (Hz)')
+    plt.legend()
+    plt.xlim([0.1, int(f.max())])
+    #plt.ylim([40, 50000])
+    plt.grid(b=True, which='both', axis='both')
     plt.tight_layout()
-    plt.savefig(f"stack_spectra.png", dpi=100)
+    plt.savefig(f"waveform_spectra.png", dpi=200)
 
     plt.show()
 
