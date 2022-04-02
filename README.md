@@ -82,10 +82,16 @@ Spectrogram plotting from an Obspy stream object:
 fig = spectrogram(stream)
 ```
 
-Spectra plotting from an Obspy stream object: 
+Separate spectra plotting for each trace in an Obspy stream object: 
 ```
 fig = spectra(stream)
 ```
+
+Combined spectra plotting of each trace in an Obspy stream object: 
+```
+fig = multi_spectra(stream)
+```
+![](doc/images/waveform_spectra.png?raw=true)
 
 ### sigpig.core.lidar processes lidar data:  
 3D point cloud plotting  
