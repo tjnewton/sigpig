@@ -2888,9 +2888,21 @@ def stack_template_detections(party, streams_path, main_trace,
 
     # case: use stacks to make a super stack if specified
     if align_type == 'super_stack':
-        # loop over each station:channel permutation and use stack as
-        # reference signal
-        # loop over stations and generate a stack for each station:channel pair
+        # determine the super_stack time shifts first
+        # get the array of waveforms for the main station:channel permutation
+        waveform_array = get_waveform_array(pick_network, pick_station,
+                                            pick_channel, pick_times,
+                                            streams_path)
+
+        # set the reference signal from the linear stack trace
+        reference_signal = stack_lin.select(network=pick_network,
+                                            station=pick_station,
+                                            channel=pick_channel)[0]
+        # get the time shifts for main trace based on cross-corr. with ref sig
+        super_stack_shifts, indices, _ = get_xcorr_time_shifts(waveform_array,
+                                                              reference_signal)
+
+        # loop over stations and generate a super-stack for each permutation
         super_stack_pw = Stream()
         super_stack_lin = Stream()
         super_stack_ccs = []
@@ -2906,17 +2918,17 @@ def stack_template_detections(party, streams_path, main_trace,
             for channel in channels:
                 print(f"Super-stacking {station}.{channel} ["
                       f"{station_idx + 1}/{len(stations)}]")
-                # get the array of waveforms for the station:channel permutation
-                waveform_array = get_waveform_array(network, station, channel,
-                                                    pick_times, streams_path)
-                # set the reference signal from the linear stack trace
-                reference_signal = stack_lin.select(network=network,
-                                                    station=station,
-                                                    channel=channel)[0]
-                # get the time shifts for each trace based on cross-corr. with ref sig
-                super_stack_shifts, indices, _ = get_xcorr_time_shifts(
-                                                              waveform_array,
-                                                              reference_signal)
+                # # get the array of waveforms for the station:channel permutation
+                # waveform_array = get_waveform_array(network, station, channel,
+                #                                     pick_times, streams_path)
+                # # set the reference signal from the linear stack trace
+                # reference_signal = stack_lin.select(network=network,
+                #                                     station=station,
+                #                                     channel=channel)[0]
+                # # get the time shifts for each trace based on cross-corr. with ref sig
+                # super_stack_shifts, indices, _ = get_xcorr_time_shifts(
+                #                                               waveform_array,
+                #                                               reference_signal)
 
                 # generate the stack for this permutation based on the specified
                 # reference signal and corresponding time shifts of traces
