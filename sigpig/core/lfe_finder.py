@@ -2904,7 +2904,7 @@ def stack_template_detections(party, streams_path, main_trace,
             channels.append(f"{channels[0][:-1]}E")  # append E component
 
             for channel in channels:
-                print(f"Stacking {station}.{channel} ["
+                print(f"Super-stacking {station}.{channel} ["
                       f"{station_idx + 1}/{len(stations)}]")
                 # get the array of waveforms for the station:channel permutation
                 waveform_array = get_waveform_array(network, station, channel,
