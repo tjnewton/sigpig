@@ -1506,9 +1506,9 @@ def multi_spectra(stream):
     fig = plt.figure(figsize=(figureWidth, figureHeight))
 
     # loop through stream and generate plots
-    labels = ["Background noise", "M3.3 2018-04-29T17:55:43.8Z",
-              "SQ 2018-03-13T00:13:03.5Z",
-              "SQ 2018-03-13T23:07:51.0Z"]
+    labels = ["Background noise", "M3.3 2018-04-29 17:55:43.8",
+              "SQ 2018-03-13 00:13:03.5",
+              "SQ 2018-03-13 23:07:51.0"]
     colors = ['black', 'grey', 'blue', 'red']
     alphas = [1, 0.5, 0.8, 0.8]
     for index, trace in enumerate(stream):
@@ -1534,7 +1534,7 @@ def multi_spectra(stream):
     plt.ylabel('Amplitude')
     plt.xlabel('Frequency (Hz)')
     plt.legend()
-    plt.xlim([0.1, int(f.max())])
+    plt.xlim([0.1, 100])
     #plt.ylim([40, 50000])
     plt.grid(b=True, which='both', axis='both')
     plt.tight_layout()
