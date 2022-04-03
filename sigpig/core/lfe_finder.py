@@ -2808,35 +2808,44 @@ def stack_template_detections(party, streams_path, main_trace,
         shifts_v1, indices, _ = get_xcorr_time_shifts(waveform_array,
                                                  reference_signal_v1)
 
-        # # shift traces in time based on cross-correlation with ref signal
-        # waveform_array = shift_traces(waveform_array, shifts_v1, indices)
-        #
-        # # - - - - - make the second linear stack from shifted traces - - - - -
-        # reference_signal_v2 = get_reference_signal(waveform_array, "stack")
-        #
-        # # get the time shifts for each trace based on cross-corr. with ref sig
-        # shifts_v2, indices, _ = get_xcorr_time_shifts(waveform_array,
-        #                                            reference_signal_v2)
-        #
-        # # shift traces in time based on cross-correlation with ref signal
-        # waveform_array = shift_traces(waveform_array, shifts_v2, indices)
-        #
-        # # - - - - - make the third linear stack from shifted traces - - - - - -
-        # reference_signal_v3 = get_reference_signal(waveform_array, "stack")
-        #
-        # # get the time shifts for each trace based on cross-corr. with ref sig
-        # shifts_v3, indices, _ = get_xcorr_time_shifts(waveform_array,
-        #                                               reference_signal_v3)
-        #
-        # # shift traces in time based on cross-correlation with ref signal
-        # waveform_array = shift_traces(waveform_array, shifts_v3, indices)
-        #
-        # # - - - - - make the fourth linear stack from shifted traces - - - - -
-        # reference_signal_v4 = get_reference_signal(waveform_array, "stack")
+        # shift traces in time based on cross-correlation with ref signal
+        waveform_array = shift_traces(waveform_array, shifts_v1, indices)
 
+        # - - - - - make the second linear stack from shifted traces - - - - -
+        reference_signal_v2 = get_reference_signal(waveform_array[:100, :], "stack")
+
+        # get the array of waveforms again
+        waveform_array = get_waveform_array(pick_network, pick_station,
+                                            pick_channel, pick_times,
+                                            streams_path)
+
+        # get the time shifts for each trace based on cross-corr. with ref sig
+        shifts_v2, indices, _ = get_xcorr_time_shifts(waveform_array,
+                                                   reference_signal_v2)
+
+        # shift traces in time based on cross-correlation with ref signal
+        waveform_array = shift_traces(waveform_array, shifts_v2, indices)
+
+        # - - - - - make the third linear stack from shifted traces - - - - - -
+        reference_signal_v3 = get_reference_signal(waveform_array[:100, :], "stack")
+
+        # get the array of waveforms again
+        waveform_array = get_waveform_array(pick_network, pick_station,
+                                            pick_channel, pick_times,
+                                            streams_path)
+
+        # get the time shifts for each trace based on cross-corr. with ref sig
+        shifts_v3, indices, _ = get_xcorr_time_shifts(waveform_array,
+                                                      reference_signal_v3)
+
+        # shift traces in time based on cross-correlation with ref signal
+        waveform_array = shift_traces(waveform_array, shifts_v3, indices)
+
+        # - - - - - make the fourth linear stack from shifted traces - - - - -
+        reference_signal_v4 = get_reference_signal(waveform_array, "stack")
 
         # store the final time shifts to apply to every station:channel
-        super_stack_shifts = shifts_v1
+        super_stack_shifts = shifts_v3
     else:
         super_stack_shifts = False
 
