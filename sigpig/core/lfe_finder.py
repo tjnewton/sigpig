@@ -3008,19 +3008,19 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         if template_number == 1:
             # FIXME
             if trace.stats.station == "RH08" or trace.stats.station == "RH09":
-                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 27, 0),
-                                  phase_hint="P", waveform_id=WaveformStreamID(
-                                  network_code=trace.stats.network,
-                                  station_code=trace.stats.station,
-                                  channel_code=trace.stats.channel)))
-            elif trace.stats.station == "RH10" or trace.stats.station == "MCR1":
                 picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 26, 0),
                                   phase_hint="P", waveform_id=WaveformStreamID(
                                   network_code=trace.stats.network,
                                   station_code=trace.stats.station,
                                   channel_code=trace.stats.channel)))
+            elif trace.stats.station == "RH10" or trace.stats.station == "MCR1":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 25, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
             else:
-                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 21, 0),
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 20, 0),
                                   phase_hint="P", waveform_id=WaveformStreamID(
                                   network_code=trace.stats.network,
                                   station_code=trace.stats.station,
@@ -3706,7 +3706,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if load_stack:
         # load stack list from file
         # TEMPLATE 1
-        infile = open(f'top_{n}_9sta_stack_snr{snr_threshold[0]}-'
+        infile = open(f'v2_{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_'
+                      f'top_{n}_9sta_stack_snr{snr_threshold[0]}-'
                       f'{snr_threshold[1]}_'
                       f'{shift_method}Shift_{thresh_type}'
                       f'{detect_thresh}_14s_t1.pkl', 'rb')
@@ -3753,7 +3754,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}'
                                        f'{detect_thresh}_14s_t{template_number}',
-                       save=True)
+                       filter=True, bandpass=[1,10], save=True)
 
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top_{n}_9sta_linear_stack_sn'
@@ -3761,7 +3762,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
                                         f'{detect_thresh}_14s_t{template_number}',
-                       save=True)
+                       filter=True, bandpass=[1,10], save=True)
 
             # now plot template with the stacks from same station for
             # comparison
