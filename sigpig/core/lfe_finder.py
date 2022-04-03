@@ -2907,13 +2907,12 @@ def stack_template_detections(party, streams_path, main_trace,
                 print(f"Stacking {station}.{channel} ["
                       f"{station_idx + 1}/{len(stations)}]")
                 # get the array of waveforms for the station:channel permutation
-                waveform_array = get_waveform_array(pick_network, pick_station,
-                                                    pick_channel, pick_times,
-                                                    streams_path)
-                # set the reference signal from the linear stack
+                waveform_array = get_waveform_array(network, station, channel,
+                                                    pick_times, streams_path)
+                # set the reference signal from the linear stack trace
                 reference_signal = stack_lin.select(network=network,
                                                     station=station,
-                                                    channel=channel)
+                                                    channel=channel)[0]
                 # get the time shifts for each trace based on cross-corr. with ref sig
                 super_stack_shifts, indices, _ = get_xcorr_time_shifts(
                                                               waveform_array,
