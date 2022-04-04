@@ -3920,10 +3920,5 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 #     - build grid via stingray
 #     - build NLL files from stingray files
 
-# generate focal mechanisms from phase weighted stacks and locations
+# generate focal mechanisms from final phase weighted stacks and locations
 # TODO
-
-
-# STATUS: detections contain events that are not similar period and spectrum
-# TODO: culling function based on spectral energy & period
-#     : notes below find_LFEs have structure for spect.
