@@ -3832,6 +3832,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                  f"prepick_{thresh_type}{detect_thresh}_"
                                  f"{snr_threshold}_SNR")
 
+        if save_detections:
+            # save detections as pickle file
+            outfile = open("super_stack_t1stackDetects_culled_sorted.pkl",
+                           'wb')
+            pickle.dump(party, outfile)
+            outfile.close()
+
     if plot:
         if party != None and len(party) > 0:
             # inspect the party growth over time
@@ -3907,35 +3914,6 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
     return None
 
-# NEXT DO MAX & FIXED, ANIMATE IF BROKEN
-if False:
-    # TODO: develop time-frequency filter based on template signal to
-    #  exclude shorter-period signal that xcorr captures
-    trace = detection_stream[0].copy()
-    trace.spectrogram()
-
-    # download instrument response inventory
-    datacenter = "IRIS"
-    client = Client(datacenter)
-    inv = Inventory()
-    inv += client.get_stations(network=trace.stats.network,
-                               station=trace.stats.station,
-                               starttime=trace.stats.starttime,
-                               endtime=trace.stats.endtime, level="response")
-
-    # get PSD
-    # FIXME: this doesn't always successfully add trace. Guard against
-    #  empty case
-    ppsd = PPSD(trace.stats, metadata=inv)
-    ppsd.add(trace)
-    print("number of psd segments:", len(ppsd.times_processed))
-    ppsd.plot()
-
-    # better spectrogram
-    # https://krischer.github.io/seismo_live_build/html/Signal%20Processing/spectral_analysis+preprocessing_solution_wrapper.html
-
-    # for fft npts
-    # https://docs.obspy.org/packages/autogen/obspy.signal.util._npts2nfft.html?highlight=fft#obspy.signal.util._npts2nfft
 
 # get locations from detection times and stacks via NLL
 # TODO:
