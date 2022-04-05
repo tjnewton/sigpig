@@ -3386,10 +3386,10 @@ def get_day_detections(date, party, plot=False):
 
     Example:
         # define a date of interest
-        date = UTCDateTime('2016-09-26T09:25:46.008400Z')
+        date = UTCDateTime('2016-10-08T09:25:46.008400Z')
 
         # get the detections corresponding to the specified date
-        party = get_day_detections(date, party, plot=True)
+        day_party2 = get_day_detections(date, party, plot=False)
     """
     # cull the party detections to the specified day
     detections = []
@@ -3420,6 +3420,71 @@ def get_day_detections(date, party, plot=False):
         fig = plot_date_distribution(dates, save=False)
 
     return day_party
+
+def cull_party_dates(dates, party, plot=False):
+    """ Returns a party containing only detections on the specified dates.
+
+    Example:
+        # define the dates of interest in a list
+        dates = [UTCDateTime('2016-09-25T08:00:00.0Z'),
+                 UTCDateTime('2016-09-26T08:00:00.0Z'),
+                 UTCDateTime('2016-09-27T08:00:00.0Z'),
+                 UTCDateTime('2016-12-05T08:00:00.0Z'),
+                 UTCDateTime('2016-12-06T08:00:00.0Z'),
+                 UTCDateTime('2016-12-07T08:00:00.0Z'),
+                 UTCDateTime('2017-03-04T08:00:00.0Z'),
+                 UTCDateTime('2017-03-05T08:00:00.0Z'),
+                 UTCDateTime('2017-03-06T08:00:00.0Z'),
+                 UTCDateTime('2017-06-20T08:00:00.0Z'),
+                 UTCDateTime('2017-06-21T08:00:00.0Z'),
+                 UTCDateTime('2017-06-22T08:00:00.0Z'),
+                 UTCDateTime('2017-07-16T08:00:00.0Z'),
+                 UTCDateTime('2017-07-17T08:00:00.0Z'),
+                 UTCDateTime('2017-07-18T08:00:00.0Z'),
+                 UTCDateTime('2017-10-28T08:00:00.0Z'),
+                 UTCDateTime('2017-10-29T08:00:00.0Z'),
+                 UTCDateTime('2017-10-30T08:00:00.0Z'),
+                 UTCDateTime('2018-01-23T08:00:00.0Z'),
+                 UTCDateTime('2018-01-24T08:00:00.0Z'),
+                 UTCDateTime('2018-01-25T08:00:00.0Z'),
+                 UTCDateTime('2018-05-29T08:00:00.0Z'),
+                 UTCDateTime('2018-05-30T08:00:00.0Z'),
+                 UTCDateTime('2018-05-31T08:00:00.0Z')]
+
+        # get the detections corresponding to the specified date
+        dates_party = get_day_detections(dates, party, plot=True)
+    """
+    # cull the party detections to the specified day
+    detections = []
+    detection_dates = []
+    # loop over all detections
+    for index, detection in enumerate(party.families[0].detections):
+        # define the date of detection at this index
+        doi = detection.detect_time
+
+        # check if detection is on the specified date
+        for date in dates:
+            if doi.year == date.year and doi.month == date.month and doi.day == \
+                    date.day:
+                # build list of detections to keep
+                detections.append(detection)
+                # store all dates in a list to plot
+                detection_dates.append(doi)
+
+            else:
+                # store all dates in a list to plot
+                # detection_dates.append(doi)
+                ...
+
+    # make a new party object
+    template = party.families[0].template
+    dates_party = Party(families=Family(template, detections))
+
+    # plot the detection dates
+    if plot:
+        fig = plot_date_distribution(detection_dates, save=False)
+
+    return dates_party
 
 # driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
@@ -3701,9 +3766,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         family = sorted(party.families, key=lambda f: len(f))[-1]
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
-        detection_stream = get_detections(party, detection_files_path, main_trace)
-        plot_stack(detection_stream[:100],
-                   title=f"9-26_top_{n}_detections_"
+        detection_stream = get_detections(day_party2, detection_files_path,
+                                          main_trace)
+        plot_stack(detection_stream[:6],
+                   title=f"day_p_top_{n}_detections_"
                          f"t{template_number}_waveforms_"
                                  f"{template_length}s_{template_prepick}_"
                                  f"prepick_{thresh_type}{detect_thresh}_"
@@ -3742,7 +3808,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top'
+        outfile = open(f'top_8_days_stack_{main_trace[0]}.{main_trace[1]}'
+                       f'.{main_trace[2]}_top'
                        f'_{n}_9sta_stack_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
@@ -3757,7 +3824,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot stacks
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top_'
+            plot_stack(stack_pw, title=f'top8_{main_trace[0]}.{main_trace[1]}'
+                                       f'.{main_trace[2]}_top_'
                                        f'{n}_9sta_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
                                        f'{snr_threshold[1]}_{shift_method}'
@@ -3766,7 +3834,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        save=True) # filter=True, bandpass=[1,10],
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top_{n}_9sta_linear_stack_sn'
+            plot_stack(stack_lin, title=f'top8_{main_trace[0]}.{main_trace[1]}'
+                                        f'.{main_trace[2]}_top_{n}_9sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
