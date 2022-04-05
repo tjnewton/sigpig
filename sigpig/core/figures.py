@@ -1095,7 +1095,7 @@ def plot_date_distribution(dates, save=False):
     # generate event date histogram
     plt.figure(figsize=(10, 5))  # figsize for many weeks
     n, bins, patches = plt.hist(dates, bins=755, facecolor="darkred",
-                                alpha=0.6)
+                                alpha=0.6) #755, 453
     ax = plt.axes()
     # set background color
     ax.set_facecolor("dimgrey")
@@ -1108,7 +1108,7 @@ def plot_date_distribution(dates, save=False):
     # set plot limits
     # plt.ylim(0, 50)
     ax.set_xlim([bins[0], bins[-1]])
-    myFmt = DateFormatter("%m-%d-%y %H:%M:%S")
+    myFmt = DateFormatter("%m-%d-%y") #  "%H:%M:%S"
     # myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
     ax.xaxis.set_major_formatter(myFmt)
     locator_x = AutoDateLocator() # minticks=12, maxticks=18
