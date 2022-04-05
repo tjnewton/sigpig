@@ -1650,8 +1650,6 @@ def old_stack_template_detections(party, streams_path, main_trace,
                               template_times, align_type,
                               animate_stacks=False):
     """
-    # FIXME: change to non-memory-limited implementation
-
     An implementation of phase-weighted and linear stacking that is
     independent of EQcorrscan routines, allowing more customization of the
     workflow.
@@ -2888,7 +2886,7 @@ def stack_template_detections(party, streams_path, main_trace,
 
     # case: use stacks to make a super stack if specified
     # TODO: delete v1 or v2 later, keep best stacking algoritm
-    v1 = True
+    v1 = False
     v2 = not v1
     if align_type == 'super_stack':
         if v2:
@@ -3570,10 +3568,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # # FIXME: delete after testing
     shift_method = 'super_stack'
     load_party = True
-    save_detections = True
+    save_detections = False
 
     top_n = True
-    n = 978
+    n = 1581
     template_number = 1
 
     load_stack = False
@@ -3845,8 +3843,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save detections as pickle file
-            outfile = open("super_stack_t1stackDetects_culled_sorted.pkl",
-                           'wb')
+            outfile = open("super_stack_t1stackDetects_from1581party_culled_"
+                           "sorted.pkl", 'wb')
             pickle.dump(party, outfile)
             outfile.close()
 
@@ -3898,7 +3896,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         outfile = open(f'top_{n}_9sta_stackDetectsStack_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
-                       f'{detect_thresh}_14s_t{template_number}.pkl', 'wb')
+                       f'{detect_thresh}_14s_t'
+                       f'{template_number}_from1581party.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -3912,7 +3911,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}{detect_thresh}_'
                                        f'14s_t{template_number}_ '
-                                       f'stackDetectsStack', save=True)
+                                       f'stackDetectsStack_from1581party',
+                                       save=True)
 
         if len(stack_lin) > 0:
             plot_stack(stack_lin, title=f'top_{n}_9sta_linear_stack_sn'
@@ -3920,8 +3920,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
                                         f'{detect_thresh}_14s_t'
-                                        f'{template_number}_stackDetectsStack',
-                                        save=True)
+                                        f'{template_number}_stackDetectsStack'
+                                        f'_from1581party', save=True)
 
     return None
 
