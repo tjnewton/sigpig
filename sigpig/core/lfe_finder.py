@@ -2600,7 +2600,7 @@ def stack_template_detections(party, streams_path, main_trace,
         # reference signal
         elif align_type == "stack":
             # make linear stack
-            linear_stack = np.nanmean(waveform_array[:100, :], axis=0)
+            linear_stack = np.nanmean(waveform_array, axis=0)
             reference_signal.data = linear_stack
 
         # # trim the reference signal
@@ -2808,8 +2808,8 @@ def stack_template_detections(party, streams_path, main_trace,
         # get a linear stack of the first 100 detections of the waveform array
         # as the reference signal
         # FIXME: try all rather than just 100
-        reference_signal_v1 = get_reference_signal(waveform_array[:100, :],
-                                                   "stack")
+        reference_signal_v1 = get_reference_signal(waveform_array,
+                                                   "stack") # [:100, :]
 
 
         # get the time shifts for each trace based on cross-corr. with ref sig
@@ -2820,7 +2820,7 @@ def stack_template_detections(party, streams_path, main_trace,
         waveform_array = shift_traces(waveform_array, shifts_v1, indices)
 
         # - - - - - make the second linear stack from shifted traces - - - - -
-        reference_signal_v2 = get_reference_signal(waveform_array[:100, :], "stack")
+        reference_signal_v2 = get_reference_signal(waveform_array, "stack")
 
         # get the array of waveforms again
         waveform_array = get_waveform_array(pick_network, pick_station,
@@ -2836,7 +2836,7 @@ def stack_template_detections(party, streams_path, main_trace,
         waveform_array = shift_traces(waveform_array, shifts_v2, indices)
 
         # - - - - - make the third linear stack from shifted traces - - - - - -
-        reference_signal_v3 = get_reference_signal(waveform_array[:100, :], "stack")
+        reference_signal_v3 = get_reference_signal(waveform_array, "stack")
 
         # get the array of waveforms again
         waveform_array = get_waveform_array(pick_network, pick_station,
@@ -2853,6 +2853,11 @@ def stack_template_detections(party, streams_path, main_trace,
 
         # - - - - - make the fourth linear stack from shifted traces - - - - -
         reference_signal_v4 = get_reference_signal(waveform_array, "stack")
+
+        reference_signal_v1.plot()
+        reference_signal_v2.plot()
+        reference_signal_v3.plot()
+        reference_signal_v4.plot()
 
         # store the final time shifts to apply to every station:channel
         super_stack_shifts = shifts_v3
