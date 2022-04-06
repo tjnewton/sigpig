@@ -2503,7 +2503,8 @@ def stack_template_detections(party, streams_path, main_trace,
     # function to get a numpy array of waveforms for the specified station
     # and channel
     def get_waveform_array(network, station, channel, pick_times,
-                           streams_path, normalize=True):
+                           streams_path, normalize=True, filter=False,
+                           filter_params=[]):
         # store data from each trace in a list
         sta_chan_array = []
 
@@ -2530,9 +2531,15 @@ def stack_template_detections(party, streams_path, main_trace,
                 st.interpolate(sampling_rate=100.0)
                 # detrend
                 st.detrend()
-                # bandpass filter
-                # day_st.filter('highpass', freq=1)
-                st.filter('bandpass', freqmin=1, freqmax=10)
+                # filter if specified
+                if filter:
+                    # case: highpass filter
+                    if len(filter_params) == 1:
+                        st.filter('highpass', freq=filter_params[0])
+                    # case: bandpass filter
+                    elif len(filter_params) == 2:
+                        st.filter('bandpass', freqmin=filter_params[0],
+                                  freqmax=filter_params[1])
                 # trim trace to 40 seconds surrounding pick time
                 st.trim(pick_time - 20, pick_time + 40, pad=True,
                         fill_value=0, nearest_sample=True)
@@ -2667,7 +2674,8 @@ def stack_template_detections(party, streams_path, main_trace,
 
         # get the array of waveforms for the station:channel permutation
         waveform_array = get_waveform_array(network, station, channel,
-                                            pick_times, streams_path)
+                                            pick_times, streams_path,
+                                            filter=True, filter_params=[1])
 
         # get the appropriate reference signal
         if align_type == "super_stack":
@@ -2795,9 +2803,11 @@ def stack_template_detections(party, streams_path, main_trace,
         # get the array of waveforms for the station:channel permutation
         waveform_array = get_waveform_array(pick_network, pick_station,
                                             pick_channel, pick_times,
-                                            streams_path)
+                                            streams_path, filter=True,
+                                            filter_params=[1, 6])
         # get a linear stack of the first 100 detections of the waveform array
         # as the reference signal
+        # FIXME: try all rather than just 100
         reference_signal_v1 = get_reference_signal(waveform_array[:100, :],
                                                    "stack")
 
@@ -2815,7 +2825,8 @@ def stack_template_detections(party, streams_path, main_trace,
         # get the array of waveforms again
         waveform_array = get_waveform_array(pick_network, pick_station,
                                             pick_channel, pick_times,
-                                            streams_path)
+                                            streams_path, filter=True,
+                                            filter_params=[1, 6])
 
         # get the time shifts for each trace based on cross-corr. with ref sig
         shifts_v2, indices, _ = get_xcorr_time_shifts(waveform_array,
@@ -2830,7 +2841,8 @@ def stack_template_detections(party, streams_path, main_trace,
         # get the array of waveforms again
         waveform_array = get_waveform_array(pick_network, pick_station,
                                             pick_channel, pick_times,
-                                            streams_path)
+                                            streams_path, filter=True,
+                                            filter_params=[1, 6])
 
         # get the time shifts for each trace based on cross-corr. with ref sig
         shifts_v3, indices, _ = get_xcorr_time_shifts(waveform_array,
@@ -2894,7 +2906,8 @@ def stack_template_detections(party, streams_path, main_trace,
             # get the array of waveforms for the main station:channel permutation
             waveform_array = get_waveform_array(pick_network, pick_station,
                                                 pick_channel, pick_times,
-                                                streams_path)
+                                                streams_path, filter=True,
+                                                filter_params=[1, 6])
 
             # set the reference signal from the linear stack trace
             reference_signal = stack_lin.select(network=pick_network,
@@ -2923,7 +2936,8 @@ def stack_template_detections(party, streams_path, main_trace,
                 if v1:
                     # get the array of waveforms for the station:channel permutation
                     waveform_array = get_waveform_array(network, station, channel,
-                                                        pick_times, streams_path)
+                                                        pick_times, streams_path,
+                                                        filter=True, filter_params=[1, 6])
                     # set the reference signal from the linear stack trace
                     reference_signal = stack_lin.select(network=network,
                                                         station=station,
