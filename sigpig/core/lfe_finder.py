@@ -2418,6 +2418,10 @@ def stack_template_detections(party, streams_path, main_trace,
               of the traces on each station to determine time shifts for
               stacking. This is the equivalent of a 'zero' stack used as the
               reference signal for each station.
+    'super_stack' :
+                    # TODO:
+    'self_super_stack' :
+                    # TODO:
 
     Example:
         # time the run
@@ -2807,9 +2811,7 @@ def stack_template_detections(party, streams_path, main_trace,
                                             filter_params=[1, 6])
         # get a linear stack of the first 100 detections of the waveform array
         # as the reference signal
-        # FIXME: try all rather than just 100
-        reference_signal_v1 = get_reference_signal(waveform_array,
-                                                   "stack") # [:100, :]
+        reference_signal_v1 = get_reference_signal(waveform_array, "stack") # [:100, :]
 
 
         # get the time shifts for each trace based on cross-corr. with ref sig
@@ -2854,10 +2856,11 @@ def stack_template_detections(party, streams_path, main_trace,
         # - - - - - make the fourth linear stack from shifted traces - - - - -
         reference_signal_v4 = get_reference_signal(waveform_array, "stack")
 
-        reference_signal_v1.plot()
-        reference_signal_v2.plot()
-        reference_signal_v3.plot()
-        reference_signal_v4.plot()
+        # # plot reference signals
+        # reference_signal_v1.plot()
+        # reference_signal_v2.plot()
+        # reference_signal_v3.plot()
+        # reference_signal_v4.plot()
 
         # store the final time shifts to apply to every station:channel
         super_stack_shifts = shifts_v3
@@ -2902,11 +2905,8 @@ def stack_template_detections(party, streams_path, main_trace,
             stack_lin += lin
 
     # case: use stacks to make a super stack if specified
-    # TODO: delete v1 or v2 later, keep best stacking algoritm
-    v1 = False
-    v2 = not v1
-    if align_type == 'super_stack':
-        if v2:
+    if align_type == 'super_stack' or 'self_super_stack':
+        if align_type == 'super_stack':
             # determine the super_stack time shifts first
             # get the array of waveforms for the main station:channel permutation
             waveform_array = get_waveform_array(pick_network, pick_station,
@@ -2938,7 +2938,7 @@ def stack_template_detections(party, streams_path, main_trace,
             for channel in channels:
                 print(f"Super-stacking {station}.{channel} ["
                       f"{station_idx + 1}/{len(stations)}]")
-                if v1:
+                if align_type == 'self_super_stack':
                     # get the array of waveforms for the station:channel permutation
                     waveform_array = get_waveform_array(network, station, channel,
                                                         pick_times, streams_path,
