@@ -2600,9 +2600,8 @@ def stack_template_detections(party, streams_path, main_trace,
         elif align_type == "self":
             reference_signal.data = waveform_array[0, :]
 
-        # case: shifting based on the top-100 detections linear stack as the
-        # reference signal
-        elif align_type == "stack":
+        # case: shifting based on the linear stack as the reference signal
+        elif align_type == "stack" or "self_super_stack":
             # make linear stack
             linear_stack = np.nanmean(waveform_array, axis=0)
             reference_signal.data = linear_stack
@@ -3043,6 +3042,39 @@ def detections_from_stacks(stack, detection_files_path, start_date,
                                   channel_code=trace.stats.channel)))
             elif trace.stats.station == "WASW":
                 picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 18, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+            else:
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 20, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+
+        elif template_number == 2:
+            if trace.stats.station == "RH08" or trace.stats.station == "RH09" \
+                                             or trace.stats.station == "RH10":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 28, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+            elif trace.stats.station == "MCR1":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 24, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+            elif trace.stats.station == "WASW":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 19, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+            elif trace.stats.station == "N25K" or trace.stats.station == "GLB":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 21, 0),
                                   phase_hint="P", waveform_id=WaveformStreamID(
                                   network_code=trace.stats.network,
                                   station_code=trace.stats.station,
@@ -3655,7 +3687,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     save_detections = False
 
     top_n = True
-    n = 1581
+    n = 2000
     template_number = 1
 
     load_stack = False
@@ -3827,7 +3859,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_8_days_stack_{main_trace[0]}.{main_trace[1]}'
+        outfile = open(f'{main_trace[0]}.{main_trace[1]}'
                        f'.{main_trace[2]}_top'
                        f'_{n}_9sta_stack_snr{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
@@ -3843,7 +3875,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # plot stacks
     if plot:
         if len(stack_pw) > 0:
-            plot_stack(stack_pw, title=f'top8_{main_trace[0]}.{main_trace[1]}'
+            plot_stack(stack_pw, title=f'{main_trace[0]}.{main_trace[1]}'
                                        f'.{main_trace[2]}_top_'
                                        f'{n}_9sta_phase_weighted_stack_snr'
                                        f'{snr_threshold[0]}-'
@@ -3853,7 +3885,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        save=True) # filter=True, bandpass=[1,10],
 
         if len(stack_lin) > 0:
-            plot_stack(stack_lin, title=f'top8_{main_trace[0]}.{main_trace[1]}'
+            plot_stack(stack_lin, title=f'{main_trace[0]}.{main_trace[1]}'
                                         f'.{main_trace[2]}_top_{n}_9sta_linear_stack_sn'
                                         f'r{snr_threshold[0]}-'
                                         f'{snr_threshold[1]}_'
@@ -3900,11 +3932,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                       f'{detect_thresh}_14s_t1stackDetects_culled_sorted.pkl',
                       'rb')
 
+        infile = open(f't1_stackDetectsStackDetects_culled_sorted_n6361.pkl','rb')
+
         party = pickle.load(infile)
         infile.close()
     else:
         party = detections_from_stacks(stack_lin, detection_files_path,
-                                       start_date, end_date, template_number=1)
+                                       start_date, end_date, template_number=2)
 
     # cull the party detections outside the specified signal to noise ratio
     if cull:
@@ -3923,7 +3957,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if top_n:
         party = sort_party(party, n, detection_files_path, main_trace,
                            plot=plot, save_detections=save_detections,
-                           title=f"new_top_{n}_detections_"
+                           title=f"top_{n}_detections_stackDetectsStackDetects"
                                  f"t{template_number}_party"
                                  f"_{template_length}s_{template_prepick}_"
                                  f"prepick_{thresh_type}{detect_thresh}_"
@@ -3931,8 +3965,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
 
         if save_detections:
             # save detections as pickle file
-            outfile = open("super_stack_t1stackDetects_from1581party_culled_"
-                           "sorted.pkl", 'wb')
+            outfile = open(f"super-stack_t1_stackDetectsStackDetects_culled_"
+                           f"sorted_n{n}.pkl", 'wb')
             pickle.dump(party, outfile)
             outfile.close()
 
@@ -3985,7 +4019,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_14s_t'
-                       f'{template_number}_from1581party.pkl', 'wb')
+                       f'{template_number}.pkl', 'wb')
         pickle.dump(stack_list, outfile)
         outfile.close()
 
@@ -3999,7 +4033,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}{detect_thresh}_'
                                        f'14s_t{template_number}_ '
-                                       f'stackDetectsStack_from1581party',
+                                       f'stackDetectsStack',
                                        save=True)
 
         if len(stack_lin) > 0:
@@ -4009,7 +4043,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{shift_method}Shift_{thresh_type}'
                                         f'{detect_thresh}_14s_t'
                                         f'{template_number}_stackDetectsStack'
-                                        f'_from1581party', save=True)
+                                        , save=True)
 
     return None
 
