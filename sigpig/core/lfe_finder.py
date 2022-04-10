@@ -3544,7 +3544,9 @@ def get_threshold_detections(party, threshold, plot=False):
     threshold.
 
     Example:
-        # determine a threshold from the MAD 8 detection value
+        # specify the MAD detection value
+        threshold = 9.0
+        plot=True
 
         # make a party containing only the threshold detections
         party =
@@ -3556,7 +3558,7 @@ def get_threshold_detections(party, threshold, plot=False):
     # loop over all detections
     for index, detection in enumerate(party.families[0].detections):
         # define the date of detection at this index
-        detection_value = detection.detect_val
+        detection_value = abs(detection.detect_val)
         detection_threshold = detection.threshold / detection.threshold_input
         threshold_value = detection_threshold * threshold
 
