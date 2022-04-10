@@ -3503,7 +3503,7 @@ def cull_party_dates(dates, party, plot=False):
                  UTCDateTime('2018-05-31T08:00:00.0Z')]
 
         # get the detections corresponding to the specified date
-        dates_party = get_day_detections(dates, party, plot=True)
+        party = get_day_detections(dates, party, plot=True)
     """
     # cull the party detections to the specified day
     detections = []
