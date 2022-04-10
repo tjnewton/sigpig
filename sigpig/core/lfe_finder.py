@@ -3034,14 +3034,20 @@ def detections_from_stacks(stack, detection_files_path, start_date,
                                   network_code=trace.stats.network,
                                   station_code=trace.stats.station,
                                   channel_code=trace.stats.channel)))
-            elif trace.stats.station == "RH10" or trace.stats.station == "MCR1":
-                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 25, 0),
+            elif trace.stats.station == "MCR1":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 22, 0),
+                                  phase_hint="P", waveform_id=WaveformStreamID(
+                                  network_code=trace.stats.network,
+                                  station_code=trace.stats.station,
+                                  channel_code=trace.stats.channel)))
+            elif trace.stats.station == "RH10":
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 27, 0),
                                   phase_hint="P", waveform_id=WaveformStreamID(
                                   network_code=trace.stats.network,
                                   station_code=trace.stats.station,
                                   channel_code=trace.stats.channel)))
             elif trace.stats.station == "WASW":
-                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 18, 0),
+                picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 19, 0),
                                   phase_hint="P", waveform_id=WaveformStreamID(
                                   network_code=trace.stats.network,
                                   station_code=trace.stats.station,
@@ -3503,7 +3509,7 @@ def cull_party_dates(dates, party, plot=False):
                  UTCDateTime('2018-05-31T08:00:00.0Z')]
 
         # get the detections corresponding to the specified date
-        party = get_day_detections(dates, party, plot=True)
+        party = cull_party_dates(dates, party, plot=True)
     """
     # cull the party detections to the specified day
     detections = []
@@ -3990,7 +3996,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile.close()
     else:
         party = detections_from_stacks(stack_lin, detection_files_path,
-                                       start_date, end_date, template_number=2)
+                                       start_date, end_date, template_number=1)
 
     # cull the party detections outside the specified signal to noise ratio
     if cull:
@@ -4070,7 +4076,8 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_9sta_stackDetectsStack_snr{snr_threshold[0]}-'
+        outfile = open(f'top_{n}_9sta_stackDetectsStack2_sn'
+                       f'r{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
                        f'{detect_thresh}_14s_t'
@@ -4088,7 +4095,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}{detect_thresh}_'
                                        f'14s_t{template_number}_ '
-                                       f'stackDetectsStack',
+                                       f'stackDetectsStack2',
                                        save=True)
 
         if len(stack_lin) > 0:
@@ -4097,7 +4104,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
                                         f'{detect_thresh}_14s_t'
-                                        f'{template_number}_stackDetectsStack'
+                                        f'{template_number}_stackDetectsStack2'
                                         , save=True)
 
     return None
