@@ -3538,7 +3538,7 @@ def cull_party_dates(dates, party, plot=False):
     return dates_party
 
 
-def get_threshold_detections(party, threshold):
+def get_threshold_detections(party, threshold, plot=False):
     """ Takes in a party object and a threshold, then returns a party
     containing only detections above the absolute value of the specified
     threshold.
@@ -3550,9 +3550,32 @@ def get_threshold_detections(party, threshold):
         party =
 
     """
+    # cull the party detections to the specified threshold
+    detections = []
+    detection_dates = []
+    # loop over all detections
+    for index, detection in enumerate(party.families[0].detections):
+        # define the date of detection at this index
+        detection_value = detection.detect_val
+        detection_threshold = detection.threshold / detection.threshold_input
+        threshold_value = detection_threshold * threshold
 
+        # check if detection is above threshold or equal to
+        if detection_value >= threshold_value:
+            # build list of detections to keep
+            detections.append(detection)
+            # store all dates in a list to plot
+            detection_dates.append(detection.detect_time)
 
-    ...
+    # make a new party object
+    template = party.families[0].template
+    threshold_party = Party(families=Family(template, detections))
+
+    # plot the detection dates
+    if plot:
+        fig = plot_date_distribution(detection_dates, save=False)
+
+    return threshold_party
 
 # driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
