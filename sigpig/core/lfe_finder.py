@@ -3737,16 +3737,27 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_250_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_978_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        # ----> using the top 978 stack as a template yeilds 1443 detections ->
+        # TA.N25K.BHZ_top_1443_9sta_stackDetectsStack_snr1.0-15.0_super_stackShift_MAD8.0_14s_t1.pkl
+        # ----> then using the stack from those detections as a template yeilds
+        #       #### detections # TODO: current doing this
 
-        # StacksDetects SNR 1-15 from top_250 linear stack
-        infile = open('top_250_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
-        infile = open('top_1000_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
-        infile = open('stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        # StacksDetects SNR 1-15 from n=978 super-stack
+        infile = open('super-stack_t1_stackDetects_culled_sorted_n1443.pkl', 'rb')
 
         # StacksDetects SNR 1-15 from top_250 linear stack of top_250 linear
         # stack, with 2 second shift from zero, 1423 detections
-        infile = open('top_250_stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
-        infile = open('stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        infile = open('stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl', 'rb')
+
+        # # StacksDetects SNR 1-15 from top_250 linear stack
+        # infile = open('top_250_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        # infile = open('top_1000_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        # infile = open('stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        #
+        # # StacksDetects SNR 1-15 from top_250 linear stack of top_250 linear
+        # # stack, with 2 second shift from zero, 1423 detections
+        # infile = open('top_250_stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        # infile = open('stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
 
 
         ####################### TEMPLATE 2 -  9 sta, 3 chan ###################
@@ -3802,10 +3813,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if top_n:
         party = sort_party(party, n, detection_files_path, main_trace,
                            plot=plot, save_detections=save_detections,
-                           title=f"top_{n}_detections_t{template_number}_party"
+                           title=f"{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_top_{n}_detections_t{template_number}_party"
                                  f"_{template_length}s_{template_prepick}_"
                                  f"prepick_{thresh_type}{detect_thresh}_"
-                                 f"{snr_threshold}_SNR")
+                                 f"{snr_threshold[0]}_{snr_threshold[1]}_SNR")
 
     if plot:
         # inspect the party growth over time
@@ -3817,10 +3828,10 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         family = sorted(party.families, key=lambda f: len(f))[-1]
         fig = family.template.st.plot(equal_scale=False, size=(800, 600))
 
-        detection_stream = get_detections(day_party2, detection_files_path,
+        detection_stream = get_detections(party, detection_files_path,
                                           main_trace)
-        plot_stack(detection_stream[:6],
-                   title=f"day_p_top_{n}_detections_"
+        plot_stack(detection_stream[:100],
+                   title=f"vv_top_{n}_detections_"
                          f"t{template_number}_waveforms_"
                                  f"{template_length}s_{template_prepick}_"
                                  f"prepick_{thresh_type}{detect_thresh}_"
@@ -3832,7 +3843,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     if load_stack:
         # load stack list from file
         # TEMPLATE 1
-        infile = open(f'v2_{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_'
+        infile = open(f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_'
                       f'top_{n}_9sta_stack_snr{snr_threshold[0]}-'
                       f'{snr_threshold[1]}_'
                       f'{shift_method}Shift_{thresh_type}'
@@ -3984,9 +3995,12 @@ def find_LFEs(templates, template_files, station_dict, template_length,
     # make another stack from the new detections
     if load_second_stack:
         # load stack list from file
-        infile = open(f'top_{n}_stackDS2_9sta_t6_snr{snr_threshold[0]}-'
+        infile = open(f'{main_trace[0]}.{main_trace[1]}.{main_trace[2]}_'
+                      f'top_{n}_9sta_stackDetectsStack_snr{snr_threshold[0]}-'
                       f'{snr_threshold[1]}_'
-                      f'{shift_method}Shift_MAD8.0_14s.pkl', 'rb')
+                      f'{shift_method}Shift_{thresh_type}'
+                      f'{detect_thresh}_14s_t1.pkl', 'rb')
+
         stack_list = pickle.load(infile)
         infile.close()
     else:
