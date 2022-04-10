@@ -3737,15 +3737,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_250_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_978_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
-        # ----> using the top 978 stack as a template yeilds 1443 detections ->
-        # TA.N25K.BHZ_top_1443_9sta_stackDetectsStack_snr1.0-15.0_super_stackShift_MAD8.0_14s_t1.pkl
-        # ----> then using the stack from those detections as a template yeilds
-        #       #### detections # TODO: current doing this
+        # ----> using the top-978 stack as a template yields 1443 detections ->
 
         # StacksDetects SNR 1-15 from top-978 super-stack, 1443 detections
         infile = open('super-stack_t1_stackDetects_culled_sorted_n1443.pkl', 'rb')
 
-        # StacksDetects SNR 1-15 from top-1443 super-stack, #### detections
+        # StacksDetects SNR 1-15 from top-1443 super-stack, 5415 detections
+        # TODO: current doing this
         infile = open('super-stack_t1_stackDetects2_culled_sorted_n5415.pkl', 'rb')
 
         # # StacksDetects SNR 1-15 from top_250 linear stack
