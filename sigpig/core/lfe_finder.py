@@ -3537,6 +3537,23 @@ def cull_party_dates(dates, party, plot=False):
 
     return dates_party
 
+
+def get_threshold_detections(party, threshold):
+    """ Takes in a party object and a threshold, then returns a party
+    containing only detections above the absolute value of the specified
+    threshold.
+
+    Example:
+        # determine a threshold from the MAD 8 detection value
+
+        # make a party containing only the threshold detections
+        party =
+
+    """
+
+
+    ...
+
 # driver function to find LFEs from a template and time series files
 def find_LFEs(templates, template_files, station_dict, template_length,
               template_prepick, detection_files_path, start_date, end_date,
