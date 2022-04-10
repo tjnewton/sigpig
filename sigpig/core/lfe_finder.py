@@ -3742,12 +3742,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # ----> then using the stack from those detections as a template yeilds
         #       #### detections # TODO: current doing this
 
-        # StacksDetects SNR 1-15 from n=978 super-stack
+        # StacksDetects SNR 1-15 from top-978 super-stack, 1443 detections
         infile = open('super-stack_t1_stackDetects_culled_sorted_n1443.pkl', 'rb')
 
-        # StacksDetects SNR 1-15 from top_250 linear stack of top_250 linear
-        # stack, with 2 second shift from zero, 1423 detections
-        infile = open('stacksDetects2_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl', 'rb')
+        # StacksDetects SNR 1-15 from top-1443 super-stack, #### detections
+        infile = open('super-stack_t1_stackDetects2_culled_sorted_n5415.pkl', 'rb')
 
         # # StacksDetects SNR 1-15 from top_250 linear stack
         # infile = open('top_250_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
