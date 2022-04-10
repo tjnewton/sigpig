@@ -3545,12 +3545,14 @@ def get_threshold_detections(party, threshold, plot=False):
 
     Example:
         # specify the MAD detection value
-        threshold = 9.0
-        plot=True
+        threshold = 10.0
 
         # make a party containing only the threshold detections
-        party =
+        party = get_threshold_detections(party, threshold, plot=True)
 
+        # inspect the party growth over time
+        detections_fig = party.plot(plot_grouped=True)
+        rate_fig = party.plot(plot_grouped=True, rate=True)
     """
     # cull the party detections to the specified threshold
     detections = []
