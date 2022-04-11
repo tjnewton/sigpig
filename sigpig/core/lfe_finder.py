@@ -3027,7 +3027,6 @@ def detections_from_stacks(stack, detection_files_path, start_date,
         # set pick times based on template number
         # t1: 2016  9 27  6 31 15.00
         if template_number == 1:
-            # FIXME
             if trace.stats.station == "RH08" or trace.stats.station == "RH09":
                 picks.append(Pick(time=UTCDateTime(1970, 1, 1, 0, 0, 26, 0),
                                   phase_hint="P", waveform_id=WaveformStreamID(
