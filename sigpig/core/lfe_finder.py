@@ -3787,11 +3787,13 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_250_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_978_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
+        # culled to busy days = 461 detections
 
         # StacksDetects SNR 1-15 from top-978 super-stack, 1443 detections
         infile = open('super-stack_t1_stackDetects_culled_sorted_n1443.pkl', 'rb')
-        # or detections from the busy-days super-stack, 1763 detections
+        # or detections from the busy-days v1 super-stack, 1763 detections
         infile = open('busy_super-stack_t1_stackDetects_culled_sorted_n1763.pkl', 'rb')
+        # -> culled to only busy days = 923 detections
 
         # StacksDetects SNR 1-15 from top-1443 super-stack, 5415 detections
         # TODO: current doing this
@@ -4077,7 +4079,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_9sta_stackDetectsStack2_sn'
+        outfile = open(f'top_{n}_9sta_stackDetectsStack_sn'
                        f'r{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
@@ -4096,7 +4098,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}{detect_thresh}_'
                                        f'14s_t{template_number}_ '
-                                       f'stackDetectsStack2',
+                                       f'stackDetectsStack',
                                        save=True)
 
         if len(stack_lin) > 0:
@@ -4105,7 +4107,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
                                         f'{detect_thresh}_14s_t'
-                                        f'{template_number}_stackDetectsStack2'
+                                        f'{template_number}_stackDetectsStack'
                                         , save=True)
 
     return None
