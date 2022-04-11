@@ -3787,10 +3787,11 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         infile = open('top_250_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_500_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
         infile = open('top_978_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
-        # ----> using the top-978 stack as a template yields 1443 detections ->
 
         # StacksDetects SNR 1-15 from top-978 super-stack, 1443 detections
         infile = open('super-stack_t1_stackDetects_culled_sorted_n1443.pkl', 'rb')
+        # or detections from the busy-days super-stack, 1763 detections
+        infile = open('busy_super-stack_t1_stackDetects_culled_sorted_n1763.pkl', 'rb')
 
         # StacksDetects SNR 1-15 from top-1443 super-stack, 5415 detections
         # TODO: current doing this
