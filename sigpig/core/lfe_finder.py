@@ -3797,6 +3797,9 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # StacksDetects SNR 1-15 from top-1443 super-stack, 5415 detections
         # TODO: current doing this
         infile = open('super-stack_t1_stackDetects2_culled_sorted_n5415.pkl', 'rb')
+        # or detections from the busy-days v2 super-stack, 2382 detections
+        infile = open('busy_super-stack_t1_stackDetects2_culled_sorted_n2382.pkl', 'rb')
+        # -> culled to only busy days = 1150 detections
 
         # # StacksDetects SNR 1-15 from top_250 linear stack
         # infile = open('top_250_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
@@ -4078,7 +4081,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                                align_type=shift_method,
                                                animate_stacks=False)
         # save stacks as pickle file
-        outfile = open(f'top_{n}_9sta_stackDetectsStack_sn'
+        outfile = open(f'top_{n}_9sta_stackDetects2Stack_sn'
                        f'r{snr_threshold[0]}-'
                        f'{snr_threshold[1]}_'
                        f'{shift_method}Shift_{thresh_type}'
@@ -4097,7 +4100,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                        f'{snr_threshold[1]}_{shift_method}'
                                        f'Shift_{thresh_type}{detect_thresh}_'
                                        f'14s_t{template_number}_ '
-                                       f'stackDetectsStack',
+                                       f'stackDetects2Stack',
                                        save=True)
 
         if len(stack_lin) > 0:
@@ -4106,7 +4109,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
                                         f'{snr_threshold[1]}_'
                                         f'{shift_method}Shift_{thresh_type}'
                                         f'{detect_thresh}_14s_t'
-                                        f'{template_number}_stackDetectsStack'
+                                        f'{template_number}_stackDetects2Stack'
                                         , save=True)
 
     return None
