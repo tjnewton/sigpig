@@ -3803,7 +3803,7 @@ def find_LFEs(templates, template_files, station_dict, template_length,
         # StacksDetects3 SNR 1-15 from top-1150 busy-daty super-stack,
         # 2875 detections
         # TODO: current doing this
-        # culled to only busy days =
+        # culled to only busy days n=1218
 
         # # StacksDetects SNR 1-15 from top_250 linear stack
         # infile = open('top_250_stacksDetects_9sta_3comp_t6_12.0s_2.0_prepick_MAD8.0_culled_sorted_party_1-15.pkl','rb')
