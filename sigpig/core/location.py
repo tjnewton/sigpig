@@ -966,3 +966,24 @@ def location_pdfs_to_grid(pdfs, project_name):
         print(f"Max weight sum: {yz_weights_grid.max()}")
 
     return None
+
+
+def find_max_hypocenter(hypocenters):
+    """Finds the index of the hypocenter that is closest to the upper right
+    corner (themax coordinates) of the project location grid. """
+    x_limits = [694.10, 694.50]
+    y_limits = [5155.3, 5155.99]
+
+    # find the distance from each hypocenter to the upper right grid corner
+    distances = []
+    for hypocenter in hypocenters:
+        distances.append(np.sqrt((hypocenter[0] - x_limits[1])**2 + (
+                         hypocenter[1] - y_limits[1])**2))
+
+    distances = np.asarray(distances)
+    index = distances.argmin()
+    lats_lons = utm.to_latlon(np.asarray(hypocenters[index,0]) * 1000,
+                              np.asarray(hypocenters[index,1]) * 1000, 10,
+                              'N')
+
+    return
