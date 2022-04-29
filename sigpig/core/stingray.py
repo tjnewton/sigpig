@@ -33,7 +33,7 @@ def stingray_setup(project_name: str, date: UTCDateTime):
 
     Example:
         # to get Rattlesnake Ridge station locations a date must be specified
-        date = UTCDateTime("2018-03-16T00:04:00.0Z")
+        date = UTCDateTime("2018-03-13T00:04:00.0Z")
         project_name = "Rattlesnake Ridge"
         stingray_setup(project_name, date)
     """
