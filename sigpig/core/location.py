@@ -705,7 +705,7 @@ def extract_nll_locations(file_path):
     pdfs = pd.DataFrame(pdfs, columns = ['x', 'y', 'z', 'weight'])
     hypocenters = np.asarray(hypocenters)
     rms = np.asarray(rms)
-    print(hypocenters[:,3].sum())
+    print(f"RMS sum: {rms.sum()}")
 
     return pdfs, hypocenters
 
@@ -744,7 +744,7 @@ def location_pdfs_to_grid(pdfs, project_name):
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_OSOS_0.1_amp_scale/loc/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_OSOS_0.04_amp_scale/loc/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale/loc/RR.hyp"
-            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65_214Picks_amp_scale/loc/RR.sum.grid0.loc.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65_214Picks_amp_scale/loc/RR.hyp"
             pdfs, hypocenters = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
