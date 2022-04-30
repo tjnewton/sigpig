@@ -533,6 +533,7 @@ def process_nll_hypocenters(file_path):
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.3-0.45_214Picks_amp_scale/loc/RR.hyp"
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale_ssst/relocated/RR.hyp"
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65_214Picks_amp_scale_ssst/relocated/RR.hyp"
+        file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.4-0.55_214Picks_amp_scale_ssst/relocated/RR.hyp"
         process_nll_hypocenters(file_path)
 
         # then plot with gmt/RR_events_plot.sh
@@ -752,6 +753,7 @@ def location_pdfs_to_grid(pdfs, project_name):
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.3-0.45_214Picks_amp_scale/loc/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale_ssst/relocated/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65_214Picks_amp_scale_ssst/relocated/RR.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.4-0.55_214Picks_amp_scale_ssst/relocated/RR.hyp"
             pdfs, hypocenters = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
