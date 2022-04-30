@@ -624,7 +624,20 @@ def extract_nll_locations(file_path):
     pdfs = []
     rms = []
 
-    # read the hypocenter file line by line
+    # access file with rejected events for RMS summing
+    file_path = file_path[:-3] + 'sum.grid0.loc.hyp'
+
+    # get the summed RMS among all accepted and rejected events
+    with open(file_path, 'r') as file:
+        # process contents of each line
+        for index, line_contents in enumerate(file):
+            # if line contains RMS: save it
+            if line_contents[:7] == "QUALITY":
+                line = line_contents.split()
+                rms.append(float(line[8]))
+
+
+    # store accepted hypocenters
     with open(file_path, 'r') as file:
         SAVE_FLAG = False
         SCATTER_FLAG = False
@@ -691,6 +704,7 @@ def extract_nll_locations(file_path):
 
     pdfs = pd.DataFrame(pdfs, columns = ['x', 'y', 'z', 'weight'])
     hypocenters = np.asarray(hypocenters)
+    rms = np.asarray(rms)
     print(hypocenters[:,3].sum())
 
     return pdfs, hypocenters
@@ -730,7 +744,7 @@ def location_pdfs_to_grid(pdfs, project_name):
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_OSOS_0.1_amp_scale/loc/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_OSOS_0.04_amp_scale/loc/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale/loc/RR.hyp"
-            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65_214Picks_amp_scale/loc/RR.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.5-0.65_214Picks_amp_scale/loc/RR.sum.grid0.loc.hyp"
             pdfs, hypocenters = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
