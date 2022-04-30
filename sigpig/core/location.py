@@ -626,17 +626,16 @@ def extract_nll_locations(file_path):
     rms = []
 
     # access file with rejected events for RMS summing
-    file_path = file_path[:-3] + 'sum.grid0.loc.hyp'
+    rms_file_path = file_path[:-3] + 'sum.grid0.loc.hyp'
 
     # get the summed RMS among all accepted and rejected events
-    with open(file_path, 'r') as file:
+    with open(rms_file_path, 'r') as file:
         # process contents of each line
         for index, line_contents in enumerate(file):
             # if line contains RMS: save it
             if line_contents[:7] == "QUALITY":
                 line = line_contents.split()
                 rms.append(float(line[8]))
-
 
     # store accepted hypocenters
     with open(file_path, 'r') as file:
