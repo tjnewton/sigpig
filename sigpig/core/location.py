@@ -623,8 +623,6 @@ def extract_nll_locations(file_path):
     hypocenters = []
     pdfs = []
     rms = []
-    # velocity_range = file_path[-25:-17]
-    velocity_range = "0.5-0.65"
 
     # read the hypocenter file line by line
     with open(file_path, 'r') as file:
