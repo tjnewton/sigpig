@@ -24,6 +24,7 @@ import datetime
 import matplotlib.pyplot as plt
 import math
 from data import rattlesnake_Ridge_Station_Locations
+from lidar import elevations_from_raster
 # from quakemigrate import QuakeScan, Trigger
 # from quakemigrate.io import Archive, read_lut, read_stations, read_vmodel, \
 #                             read_response_inv
@@ -1024,3 +1025,60 @@ def find_max_hypocenter(hypocenters):
                               'N')
 
     return
+
+
+def generate_amplitude_station_file():
+    """Generates a file of station information in the format necessary for
+    amplidue-based locations programs."""
+
+    dfdict = {'name': [], 'northing': [], 'easting': [],
+              'elevation': [], 'latitude': [], 'longitude': []}
+
+    # get station locations on specified date from native GPS elevation
+    date = UTCDateTime("2018-03-13T00:04:00.0Z")
+    station_locations = rattlesnake_Ridge_Station_Locations(date)
+
+    # get station elevations from DEM rather than using native GPS
+    # elevations
+    raster_file = '/Users/human/Dropbox/Programs/lidar/yakima_basin_2018_dtm_43.tif'
+    for station in station_locations.keys():
+        elevation = elevations_from_raster(raster_file,
+                                       [station_locations[station][1]],
+                                       [station_locations[station][0]])
+        station_locations[station][2] = elevation[0]
+
+    # assemble dict in proper format for Stingray
+    for station in station_locations.keys():
+            easting, northing, _, _ = utm.from_latlon(station_locations[
+                                                      station][0],
+                                                      station_locations[
+                                                      station][1])
+
+            # append eastings, northings, and elevations in m
+            dfdict['northing'].append(northing)
+            dfdict['easting'].append(easting)
+            dfdict['latitude'].append(station_locations[station][0])
+            dfdict['longitude'].append(station_locations[station][1])
+            dfdict['elevation'].append(station_locations[station][2])
+
+        # convert UGAP station names
+        if station == "UGAP3":
+            station = "103"
+        elif station == "UGAP5":
+            station = "105"
+        elif station == "UGAP6":
+            station = "106"
+        dfdict['name'].append([station])
+
+    # write station locations to file
+    with open('amplitude_station_locations.dat', 'a') as file:
+        for index in range(len(dfdict['name'])):
+            # write station, easting, northing, elevation
+            file.write(f'{dfdict["name"][index][0]} '
+                       f'{dfdict["latitude"][index]},'
+                       f'{dfdict["longitude"][index]},'
+                       f'{dfdict["northing"][index]},'
+                       f'{dfdict["easting"][index]},'
+                       f'{dfdict["elevation"][index]}\n')
+
+    return None
