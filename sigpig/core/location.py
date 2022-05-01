@@ -1049,17 +1049,17 @@ def generate_amplitude_station_file():
 
     # assemble dict in proper format for Stingray
     for station in station_locations.keys():
-            easting, northing, _, _ = utm.from_latlon(station_locations[
-                                                      station][0],
-                                                      station_locations[
-                                                      station][1])
+        easting, northing, _, _ = utm.from_latlon(station_locations[
+                                                  station][0],
+                                                  station_locations[
+                                                  station][1])
 
-            # append eastings, northings, and elevations in m
-            dfdict['northing'].append(northing)
-            dfdict['easting'].append(easting)
-            dfdict['latitude'].append(station_locations[station][0])
-            dfdict['longitude'].append(station_locations[station][1])
-            dfdict['elevation'].append(station_locations[station][2])
+        # append eastings, northings, and elevations in m
+        dfdict['northing'].append(northing)
+        dfdict['easting'].append(easting)
+        dfdict['latitude'].append(station_locations[station][0])
+        dfdict['longitude'].append(station_locations[station][1])
+        dfdict['elevation'].append(station_locations[station][2])
 
         # convert UGAP station names
         if station == "UGAP3":
