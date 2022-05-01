@@ -11,7 +11,7 @@ from datetime import datetime
 import glob
 import numpy as np
 import utm
-from obspy import read, Stream
+from obspy import read, Stream, Inventory
 from obspy.core.utcdatetime import UTCDateTime
 import os
 from lidar import grids_from_raster
@@ -2054,5 +2054,48 @@ def process_autopicked_events(autopicked_file_path, uncertainty_file_path):
     outfile = open(f"top_events_dict.pkl", 'wb')
     pickle.dump(top_events, outfile)
     outfile.close()
+
+    return None
+
+def get_response_files(station_list):
+    """ Downloads the response files for the specified stations.
+
+    Example:
+        from time_miner import project_stations
+        date = UTCDateTime("2018-03-13T00:04:00.0Z")
+        station_list = project_stations("Rattlesnake Ridge", date)
+        get_response_files(station_list)
+    """
+
+    datacentre = "IRIS"
+    client = Client(datacentre)
+    starttime = UTCDateTime("2018-03-13T00:00:00.0Z")
+    endtime = UTCDateTime("2018-03-13T23:59:59.99999999Z")
+    for station in station_list:
+        inv = Inventory()
+
+        if isinstance(station, int):
+            try:
+                inv += client.get_stations(network="5A", station=station,
+                                           channel="DP1",
+                                           starttime=starttime, endtime=endtime,
+                                           level="response")
+                inv.write(f"RESP.5A.{station}..DP1", format="STATIONXML")
+
+            except Exception:
+                print(f"failed inventory at station {station}")
+                pass
+
+        else:
+            try:
+                inv += client.get_stations(network="UW", station=station,
+                                           channel="EHN",
+                                           starttime=starttime, endtime=endtime,
+                                           level="response")
+                inv.write(f"RESP.UW.{station}..EHN", format="STATIONXML")
+
+            except Exception:
+                print(f"failed inventory at station {station}")
+                pass
 
     return None
