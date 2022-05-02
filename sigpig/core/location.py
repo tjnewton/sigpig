@@ -1029,7 +1029,11 @@ def find_max_hypocenter(hypocenters):
 
 def generate_amplitude_station_file():
     """Generates a file of station information in the format necessary for
-    amplidue-based locations programs."""
+    amplidue-based locations programs.
+
+    Example:
+        generate_amplitude_station_file()
+    """
 
     dfdict = {'name': [], 'northing': [], 'easting': [],
               'elevation': [], 'latitude': [], 'longitude': []}
