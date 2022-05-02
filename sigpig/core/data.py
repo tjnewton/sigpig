@@ -3,7 +3,6 @@ Functions to fetch data.
 """
 
 import obspy
-from obspy import read, Stream
 from obspy.core.utcdatetime import UTCDateTime
 from obspy.clients.fdsn import Client
 import calendar
@@ -1439,7 +1438,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
     # store arrival times by reading the marker file line by line
     with open(autopicked_file_path, 'r') as file:
         for index, line_contents in enumerate(file):
-            if line_contents[0:5] == 'phase':
+            if line_contents[0:5] == 'phase' and len(line_contents) < 140:
                 # store the hash ID, station, and time for the phase
                 hash_id = line_contents.strip()[52:80]
                 station_components = line_contents.strip()[
@@ -1451,15 +1450,16 @@ def top_n_autopicked_events(autopicked_file_path, n):
 
                 # check for duplicates
                 duplicate = False
-                for entry in events[hash_id]:
-                    if entry['station'] == phase_station:
-                        duplicate = True
-                        break
+                if hash_id in events.keys():
+                    for entry in events[hash_id]:
+                        if entry['station'] == phase_station:
+                            duplicate = True
+                            break
 
-                # store the station and time of the phase in a list of dicts
-                if not duplicate:
-                    events[hash_id].append({'station': phase_station, 'time':
-                        phase_time})
+                    # store the station and time of the phase in a list of dicts
+                    if not duplicate:
+                        events[hash_id].append({'station': phase_station, 'time':
+                            phase_time})
 
     # Now we have a dict where each key is a unique hash id for an event, and
     # each entry is a list of dicts containing time of the first arrival and
@@ -1843,7 +1843,7 @@ def events_dict_to_snuffler(events: dict):
             content_list.append(pick_line)
 
     # append contents to file
-    f = open('event_picks.mrkr', "a")
+    f = open('event_picks2.mrkr', "a")
     f.writelines(content_list)
     f.close()
 
