@@ -2104,47 +2104,48 @@ def instantaneous_frequency():
     """
     TODO: convert matlab script to Python function
     """
-    function
-    f = inst_freq( in, o)
-    halfwin = 0.05;
-    pts = halfwin / o.dt;
-    t = o.dt * (1:length( in));
-    ind = find(abs( in) == max(abs( in)));
-    if ind - pts < 1
-        f = NaN;
-    elseif
-    ind + pts > length( in)
-    f = NaN;
-
-
-    elseif
-    length(ind) > 1
-    f = NaN;
-    else
-    tmp = hilbert( in (ind - pts:ind+pts));
-    v = real(tmp);
-    h = imag(tmp);
-    dv = gradient(v, o.dt);
-    dh = gradient(h, o.dt);
-    f_t = 1 / (2 * pi) * ((v. * dh - h. * dv). / (v. ^ 2 + h. ^ 2));
-    f = median(f_t);
-    plots = 0;
-    if plots
-        figure
-    subplot(3, 1, 1)
-    plot(t, in)
-    hold
-    on
-    plot(t(ind - pts: ind + pts), in (ind - pts:ind+pts), 'r')
-    subplot(3, 1, 2)
-    plot(o.dt * (1:length(v)), v)
-    hold
-    on
-    subplot(3, 1, 3)
-    plot(o.dt * (1:length(f_t)), f_t)
-    hold
-    on
-    pause
-    end
-    end
-    end
+    # function
+    # f = inst_freq( in, o)
+    # halfwin = 0.05;
+    # pts = halfwin / o.dt;
+    # t = o.dt * (1:length( in));
+    # ind = find(abs( in) == max(abs( in)));
+    # if ind - pts < 1
+    #     f = NaN;
+    # elseif
+    # ind + pts > length( in)
+    # f = NaN;
+    #
+    #
+    # elseif
+    # length(ind) > 1
+    # f = NaN;
+    # else
+    # tmp = hilbert( in (ind - pts:ind+pts));
+    # v = real(tmp);
+    # h = imag(tmp);
+    # dv = gradient(v, o.dt);
+    # dh = gradient(h, o.dt);
+    # f_t = 1 / (2 * pi) * ((v. * dh - h. * dv). / (v. ^ 2 + h. ^ 2));
+    # f = median(f_t);
+    # plots = 0;
+    # if plots
+    #     figure
+    # subplot(3, 1, 1)
+    # plot(t, in)
+    # hold
+    # on
+    # plot(t(ind - pts: ind + pts), in (ind - pts:ind+pts), 'r')
+    # subplot(3, 1, 2)
+    # plot(o.dt * (1:length(v)), v)
+    # hold
+    # on
+    # subplot(3, 1, 3)
+    # plot(o.dt * (1:length(f_t)), f_t)
+    # hold
+    # on
+    # pause
+    # end
+    # end
+    # end
+    ...
