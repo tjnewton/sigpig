@@ -537,6 +537,7 @@ def process_nll_hypocenters(file_path):
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.4-0.55_214Picks_amp_scale_ssst/relocated/RR.hyp"
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.3-0.45_214Picks_amp_scale_ssst/relocated/RR.hyp"
         file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale_syn/loc/RR.hyp"
+        file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale_ssst_syn/relocated/RR.hyp"
         process_nll_hypocenters(file_path)
 
         # then plot with gmt/RR_events_plot.sh
@@ -759,6 +760,7 @@ def location_pdfs_to_grid(pdfs, project_name):
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.4-0.55_214Picks_amp_scale_ssst/relocated/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.3-0.45_214Picks_amp_scale_ssst/relocated/RR.hyp"
             file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale_syn/loc/RR.hyp"
+            file_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/nlloc_rr_0.6-0.75_214Picks_amp_scale_ssst_syn/relocated/RR.hyp"
             pdfs, hypocenters = extract_nll_locations(file_path)
             project_name = "Rattlesnake Ridge"
             location_pdfs_to_grid(pdfs, project_name)
@@ -835,6 +837,16 @@ def location_pdfs_to_grid(pdfs, project_name):
         longitude_grid = np.asarray(longitude_grid)
         latitude_grid = np.asarray(latitude_grid)
         weights_grid = np.asarray(weights_grid)
+
+        # # helper for converting synthetics
+        # row_longitudes = [694.341]
+        # row_latitudes = [5155.78]
+        # lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
+        #                           np.asarray(row_latitudes) * 1000, 10,
+        #                           'N')
+        # row_lons = [lon for lon in lats_lons[1]]
+        # row_lats = [lat for lat in lats_lons[0]]
+        # print(f"{row_lons[0]} {row_lats[0]}")
 
         # initialize grid lists for x_z plot
         x_grid = []
