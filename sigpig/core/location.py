@@ -839,8 +839,8 @@ def location_pdfs_to_grid(pdfs, project_name):
         weights_grid = np.asarray(weights_grid)
 
         # # helper for converting synthetics
-        # row_longitudes = [694.341]
-        # row_latitudes = [5155.78]
+        # row_longitudes = [694.337]
+        # row_latitudes = [5155.76]
         # lats_lons = utm.to_latlon(np.asarray(row_longitudes) * 1000,
         #                           np.asarray(row_latitudes) * 1000, 10,
         #                           'N')
