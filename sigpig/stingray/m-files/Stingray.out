@@ -1,0 +1,146 @@
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2017 The MathWorks, Inc.
+                   R2017b (9.3.0.713579) 64-bit (glnxa64)
+                             September 14, 2017
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+
+res =
+
+     2
+
+
+srControl = 
+
+  struct with fields:
+
+            tf_latlon: 0
+        tf_anisotropy: 0
+    tf_line_integrate: 0
+              arcfile: 'arc7.mat'
+         tf_waterpath: 0
+             tf_carve: 1
+                carve: [1x1 struct]
+             filename: '/gpfs/projects/amt/shared/stingray_rr/srInput/srControl_TN.mat'
+
+
+srGeometry = 
+
+  struct with fields:
+
+    tf_latlon: 0
+      easting: 694.15
+     northing: 5155.4
+     rotation: 0
+     filename: '/gpfs/projects/amt/shared/stingray_rr/srInput/srGeometry_TN.mat'
+
+
+srStation = 
+
+  struct with fields:
+
+         name: {40x1 cell}
+     northing: [1x40 double]
+      easting: [1x40 double]
+    elevation: [1x40 double]
+            x: [1x40 double]
+            y: [1x40 double]
+      statics: [1x1 struct]
+         nsta: 40
+     filename: '/gpfs/projects/amt/shared/stingray_rr/srInput/srStation_TN.mat'
+
+
+srElevation = 
+
+  struct with fields:
+
+      header: [694.15 694.45 5155.4 5155.9 0.001 0.001 300 500]
+        data: [300x500 double]
+     easting: [1x300 double]
+    northing: [500x1 double]
+    NORTHING: [300x500 double]
+     EASTING: [300x500 double]
+           X: [300x500 double]
+           Y: [300x500 double]
+    filename: '/gpfs/projects/amt/shared/stingray_rr/srInput/srElevation_TN.mat'
+
+
+srModel = 
+
+  struct with fields:
+
+               ghead: [0 0 150 250 75 0.002 0.002 0.002]
+                   P: [1x1 struct]
+                   S: [1x1 struct]
+          anis_theta: []
+            anis_phi: []
+     anis_fraction_P: []
+    anis_fraction_Sh: []
+    anis_fraction_Sv: []
+                  nx: 150
+                  ny: 250
+                  nz: 75
+                  gx: 0.002
+                  gy: 0.002
+                  gz: 0.002
+               nodes: 2812500
+                  xg: [150x1 double]
+                  yg: [250x1 double]
+                  zg: [75x1 double]
+                maxx: 0.298
+                minx: 0
+                maxy: 0.498
+                miny: 0
+                maxz: 0
+                minz: -0.148
+             EASTING: [150x250 double]
+            NORTHING: [150x250 double]
+           elevation: [150x250 double]
+          srGeometry: [1x1 struct]
+            filename: '/gpfs/projects/amt/shared/stingray_rr/srInput/srModel_2m_0.6-0.75_TN.mat'
+
+Starting job:  1
+Starting job:  2
+Starting job:  3
+Starting job:  4
+Starting job:  5
+Starting job:  6
+Starting job:  7
+Starting job:  8
+Starting job:  9
+Starting job:  10
+Starting job:  11
+Starting job:  12
+Starting job:  13
+Starting job:  14
+Starting job:  15
+Starting job:  16
+Starting job:  17
+Starting job:  18
+Starting job:  19
+Starting job:  20
+Starting job:  21
+Starting job:  22
+Starting job:  23
+Starting job:  24
+Starting job:  25
+Starting job:  26
+Starting job:  27
+Starting job:  28
+Starting job:  29
+Starting job:  30
+Starting job:  31
+Starting job:  32
+Starting job:  33
+Starting job:  34
+Starting job:  35
+Starting job:  36
+Starting job:  37
+Starting job:  38
+Starting job:  39
+Starting job:  40
+>> 
