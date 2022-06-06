@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#SBATCH --partition=amt         ### Partition
+#SBATCH --job-name=Stingray     ### Job Name
+#SBATCH --output=Stingray.out   ### File in which to store job output
+#SBATCH --error=Stingray.err    ### File in which to store job error messages
+#SBATCH --time=1-00:00:00       ### Wall clock time limit in Days-HH:MM:SS
+#SBATCH --nodes=1               ### Node count required for the job
+#SBATCH --ntasks-per-node=14    ### Number of tasks to be launched per Node
+#SBATCH --account=amt           ### Who to bill
+#SBATCH --nodelist=n233         ### not n234, was 237
+
+module load matlab/R2017b
+#export STINGRAY=/projects/seismolab/drt/StingrayGIT_BPV
+
+# execute program
+#cd /projects/seismolab/drt/SoCascadia/m-files
+cd /projects/amt/shared/stingray_rr/m-files
+matlab -nodisplay -nosplash -r runStingray_Talapas
