@@ -1035,7 +1035,7 @@ def plot_distribution(data, bins=False, title=False, save=False):
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'SNR (100 bins)')
+    plt.xlabel(f'Value (100 bins)')
     plt.ylabel("Counts per bin")
     # set plot limits
     # plt.ylim(0, 50)
