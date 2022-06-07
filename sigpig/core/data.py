@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import pickle
 from sklearn import preprocessing
 from scipy import stats, interpolate
+from scipy.signal import hilbert
 from time_miner import build_unet_model, trace_arrival_prediction
 import base64
 import hashlib
@@ -1705,7 +1706,7 @@ def get_event_stream(event):
     Example:
         # define the file paths containing the autopicked .mrkr file
         autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
-        # define the desire number of events to get
+        # define the desired number of events to get
         n = 100
         events = top_n_autopicked_events(autopicked_file_path, n)
 
@@ -2100,52 +2101,69 @@ def get_response_files(station_list):
 
     return None
 
-def instantaneous_frequency():
+def instantaneous_frequency(trace, plots=0):
     """
-    TODO: convert matlab script to Python function
+    Calculates the instantaneous frequency of a time series trace.
+
+    # get a dictionary of top 500 events (by phase count)
+    infile = open('top_events_dict.pkl', 'rb')
+    events_dict = pickle.load(infile)
+    infile.close()
+
+    # get the keys from the dict and select the top event
+    keys = list(events_dict.keys())
+
+    # loop over all events and get inst. freq. of every phase
+    freqs = []
+    for key in keys:
+        event = events_dict[key]
+
+        # get stream containing all phases in the event
+        stream = get_event_stream(event)
+        # # plot them
+        # from figures import plot_event_picks
+        # plot_event_picks(event, plot_curvature=False)
+        # plt.show()
+
+        for trace in stream:
+            freqs.append(instantaneous_frequency(trace, plots=0))
+
+    from figures import plot_distribution
+    plot_distribution(freqs, title="Instantaneous frequency distribution for top 500 events", save=True)
     """
-    # function
-    # f = inst_freq( in, o)
-    # halfwin = 0.05;
-    # pts = halfwin / o.dt;
-    # t = o.dt * (1:length( in));
-    # ind = find(abs( in) == max(abs( in)));
-    # if ind - pts < 1
-    #     f = NaN;
-    # elseif
-    # ind + pts > length( in)
-    # f = NaN;
-    #
-    #
-    # elseif
-    # length(ind) > 1
-    # f = NaN;
-    # else
-    # tmp = hilbert( in (ind - pts:ind+pts));
-    # v = real(tmp);
-    # h = imag(tmp);
-    # dv = gradient(v, o.dt);
-    # dh = gradient(h, o.dt);
-    # f_t = 1 / (2 * pi) * ((v. * dh - h. * dv). / (v. ^ 2 + h. ^ 2));
-    # f = median(f_t);
-    # plots = 0;
-    # if plots
-    #     figure
-    # subplot(3, 1, 1)
-    # plot(t, in)
-    # hold
-    # on
-    # plot(t(ind - pts: ind + pts), in (ind - pts:ind+pts), 'r')
-    # subplot(3, 1, 2)
-    # plot(o.dt * (1:length(v)), v)
-    # hold
-    # on
-    # subplot(3, 1, 3)
-    # plot(o.dt * (1:length(f_t)), f_t)
-    # hold
-    # on
-    # pause
-    # end
-    # end
-    # end
-    ...
+    # store the time step duration
+    dt = trace.stats.delta
+    halfwin = 0.06
+    # results at different halfwin
+    # 0.20    29.38
+    # 0.06    32.35
+    # 0.02    31.47
+    # 0.001   36.61
+    pts = halfwin / dt
+    ind = np.where(abs(trace.data) == max(abs(trace.data)))[0][0]
+    if ind - pts < 1:
+        out = np.nan
+    elif ind + pts > len(trace):
+        out = np.nan
+    else:
+        tmp = hilbert(trace.data[int(ind - pts) : int(ind + pts)])
+        v = tmp.real
+        h = tmp.imag
+        dv = np.gradient(v, dt)
+        dh = np.gradient(h, dt)
+        f_t = 1 / (2 * np.pi) * ((v*dh - h*dv) / (v**2 + h**2))
+        out = np.median(f_t)
+
+    if plots:
+        fig = plt.figure(figsize=(12, 8))
+        times = trace.times()
+        plt.subplot(211)
+        plt.plot(times, trace.data)
+        plt.plot(times[int(ind - pts) : int(ind + pts)], trace.data[int(ind
+                                                      - pts) : int(ind + pts)])
+        plt.subplot(212)
+        plt.plot(np.linspace(0, len(v)-1, len(v)), v, 'r')
+        plt.plot(np.linspace(0, len(f_t)-1, len(f_t)), f_t, 'b')
+        plt.show()
+
+    return out
