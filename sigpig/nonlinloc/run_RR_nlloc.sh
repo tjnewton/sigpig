@@ -13,7 +13,7 @@
 
 # alias ghostview="open -a Preview"    # MacOSX
 # PS_VIEWER=ghostview    # Linux, MacOSX
-setGMT4    # make sure GMT4 and not GMT5 commands are on path
+# setGMT4    # make sure GMT4 and not GMT5 commands are on path
 
 
 # echo
@@ -30,8 +30,8 @@ setGMT4    # make sure GMT4 and not GMT5 commands are on path
 # echo "Generate and view the travel-time and take-off angle grids "
 # Grid2Time run/RR_nlloc.in
 # echo
-echo "Visualize P travel-time grid"
-Grid2GMT run/RR_nlloc.in time/RR.P.32.time gmt/ V G 1 250 300 250
+# echo "Visualize P travel-time grid"
+# Grid2GMT run/RR_nlloc.in time/RR.P.32.time gmt/ V G 1 250 300 250
 # ${PS_VIEWER} gmt/RR.P.32.time.VG.ps &
 # echo
 
@@ -45,17 +45,24 @@ Grid2GMT run/RR_nlloc.in time/RR.P.32.time gmt/ V G 1 250 300 250
 # more obs_synth/synth.obs
 # echo
 
-# echo "Do the event Location "
-# NLLoc run/RR_nlloc.in
+echo "Run NLL location "
+NLLoc run/RR_nlloc.in
+# echo "Run NLL-SSST-coherence travel time grid correction"
+# Loc2ssst run/RR_nlloc.in
+# echo "Run NLL relocation "
+# NLLoc run/RR_nlloc_reloc.in
+# combine locations
+LocSum loc/RR.sum.grid0.loc 1 loc/RR "loc/RR.*.*.grid0.loc"
+
 # echo "Plot the first event location with GMT"
-# Grid2GMT run/RR_nlloc.in loc/alaska.20181130.172935.grid0.loc gmt/ L S
+# Grid2GMT run/RR_nlloc.in loc/RR.20180313.000125.grid0.loc gmt/ L S
 # ${PS_VIEWER} gmt/alaska.20181130.172935.grid0.loc.LS.ps &
 # echo
 
 # echo "Plot the combined locations with GMT"
-# LocSum loc/alaska.sum.grid0.loc 1 loc/alaska "loc/alaska.*.*.grid0.loc"
-# Grid2GMT run/nlloc_sample.in loc/alaska gmt/ L E101
+# LocSum loc/RR.sum.grid0.loc 1 loc/RR "loc/RR.*.*.grid0.loc"
+# Grid2GMT run/RR_nlloc.in loc/RR gmt/ L E101
 # ${PS_VIEWER} gmt/alaska.LE_101.ps &
 # echo "Visualise the location with Seismicity Viewer (you must have installed Seismicity Viewer, see Seismicity Viewer software guide) "
-# java net.alomax.seismicity.Seismicity loc/alaska.*.*.grid0.loc.hyp
+# java net.alomax.seismicity.Seismicity loc/RR.*.*.grid0.loc.hyp
 
