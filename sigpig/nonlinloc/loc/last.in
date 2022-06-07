@@ -1,0 +1,306 @@
+
+CONTROL 10 54321
+TRANS NONE
+EQFILES ./time/RR ./obs/RR.obs
+EQMECH  NONE 0.0 90.0 0.0
+EQMODE SRCE_TO_STA
+
+# EQSTA - Station List
+EQSTA 1  P      GAU  0.0    GAU  0.0
+EQSTA 2  P      GAU  0.0    GAU  0.0
+EQSTA 3  P      GAU  0.0    GAU  0.0
+EQSTA 4  P      GAU  0.0    GAU  0.0
+EQSTA 5  P      GAU  0.0    GAU  0.0
+EQSTA 6  P      GAU  0.0    GAU  0.0
+EQSTA 7  P      GAU  0.0    GAU  0.0
+EQSTA 8  P      GAU  0.0    GAU  0.0
+EQSTA 9  P      GAU  0.0    GAU  0.0
+EQSTA 10  P     GAU  0.0    GAU  0.0
+EQSTA 12  P     GAU  0.0    GAU  0.0
+EQSTA 13  P     GAU  0.0    GAU  0.0
+EQSTA 15  P     GAU  0.0    GAU  0.0
+EQSTA 16  P     GAU  0.0    GAU  0.0
+EQSTA 17  P     GAU  0.0    GAU  0.0
+EQSTA 18  P     GAU  0.0    GAU  0.0
+EQSTA 20  P     GAU  0.0    GAU  0.0
+EQSTA 21  P     GAU  0.0    GAU  0.0
+EQSTA 22  P     GAU  0.0    GAU  0.0
+EQSTA 23  P     GAU  0.0    GAU  0.0
+EQSTA 25  P     GAU  0.0    GAU  0.0
+EQSTA 26  P     GAU  0.0    GAU  0.0
+EQSTA 27  P     GAU  0.0    GAU  0.0
+EQSTA 28  P     GAU  0.0    GAU  0.0
+EQSTA 30  P     GAU  0.0    GAU  0.0
+EQSTA 31  P     GAU  0.0    GAU  0.0
+EQSTA 32  P     GAU  0.0    GAU  0.0
+EQSTA 33  P     GAU  0.0    GAU  0.0
+EQSTA 34  P     GAU  0.0    GAU  0.0
+EQSTA 35  P     GAU  0.0    GAU  0.0
+EQSTA 36  P     GAU  0.0    GAU  0.0
+EQSTA 37  P     GAU  0.0    GAU  0.0
+EQSTA 38  P     GAU  0.0    GAU  0.0
+EQSTA 39  P     GAU  0.0    GAU  0.0
+EQSTA 40  P     GAU  0.0    GAU  0.0
+EQSTA 41  P     GAU  0.0    GAU  0.0
+EQSTA 42  P     GAU  0.0    GAU  0.0
+EQSTA 103  P     GAU  0.0    GAU  0.0
+EQSTA 105  P     GAU  0.0    GAU  0.0
+EQSTA 106  P     GAU  0.0    GAU  0.0
+
+EQQUAL2ERR 0.005 0.010 0.020 0.1 99999.9
+LOCCOM Rattlesnake Ridge Slidequake Locations
+LOCFILES ./obs/nll_picks.obs NLLOC_OBS ./time/RR ./loc/RR
+LOCHYPOUT SAVE_NLLOC_ALL NLL_FORMAT_VER_2 SAVE_HYPOINV_SUM
+
+# LOCSEARCH - Search Type
+# required, non-repeatable
+#
+# search type
+# (LOCSEARCH search_type <params>)
+#    (char[])   search_type (GRID, MET (Metropolis), OCT (Octtree))
+#    <params>:
+#	GRID NumScatterSamples
+#	MET  NumSamples NumLearn NumEquil BeginSave NumSkip
+#               StepInit StepMin StepFact ProbMin
+#	OCT init_num_cells_x, init_num_cells_y, init_num_cells_z,
+#	    initNumCells_x initNumCells_y initNumCells_z (integer):
+#	    initial number of octtree cells in the x, y, and z directions 
+#		min_node_size, max_num_nodes, num_scatter,
+#		use_stations_density (1 = Weights oct-tree cell prob values used for subdivide decision
+#				in proportion to number of stations in oct-tree cell.
+#				Gives higher search priority to cells containing stations,
+#				stablises convergence to local events when global search used
+#				with dense cluster of local stations.),
+#		stop_on_min_node_size (1 = stop search when first min_node_size reached,
+#				0 = stop subdividing a given cell when min_node_size reached.)
+LOCSEARCH  OCT 10 10 10 0.001 20000 5000 0 1
+
+# LOCGRID - Search Grid Description
+# required, repeatable
+# Syntax 1: LOCGRID xNum yNum zNum xOrig yOrig zOrig dx dy dz gridType saveFlag
+# Specifies the size and other parameters of an initial or nested 3D search grid. The order of LOCGRID statements is critical (see Notes).
+#    xNum yNum zNum (integer, min:2) number of grid nodes in the x, y and z directions
+#    xOrig yOrig zOrig (float) x, y and z location of the grid origin in km relative to the geographic origin. Use a large, negative value ( i.e. -1.0e30 ) to indicate automatic positioning of grid along corressponding direction (valid for nested grids only, may not be used for initial grid).
+#    dx dy dz (float) grid node spacing in kilometers along the x, y and z axes
+#    gridType (choice: MISFIT PROB_DENSITY) statistical quantity to calculate on grid
+#    saveFlag (choice: SAVE NO_SAVE) specifies if the results of the search over this grid should be saved to disk
+LOCGRID  150 250 75 694.15 5155.40 0.0  0.002 0.002 0.002   PROB_DENSITY  SAVE
+# LOCGRID  150 250 75 0.0 0.0 0.0  0.002 0.002 0.002   PROB_DENSITY  SAVE
+
+# LOCMETH - Location Method
+# required, non-repeatable
+#
+# method
+# (LOCMETH method)
+#    (char[])   method (GAU_ANALYTIC, EDT, EDT_OT_WT)
+#          GAU_ANALYTIC - L2 norm following Tarantola and Valette (1982)
+#          EDT - Equal Differential Time (see )
+#          EDT_OT_WT - Weights EDT sum prob by variance of OT estimated over all pairs of readings.
+#                              Downweights locations with inconsistent OT estimates.
+#    (float)   maximum_dist_sta_to_grid (use very large value for no max)
+#    (int)   minimum_number_phases for location
+#    (int)   maximum_number_phases for location (-1 for no max)
+#    (int)   minimum_number_S_phases for location (-1 for no min)
+#    (float)   Vp/Vs ratio (< 0.0 to use S travel time grids)
+#    (int)   maximum_number_3D_grids to attempt to read into memory (-1 for no max)
+#    (float)   minimum_dist_sta_to_grid (-1 for no min)
+#    (int)   flag indicating if duplicate arrivals used for location (1=reject, 0=use if time diff < sigma / 2)
+#            duplicate arrivals have same station label and phase name
+LOCMETH EDT_OT_WT_ML 1.0 4 -1 -1 1.68 6 -1.0 1
+
+# LOCGAU - Gaussian Model Errors
+# required, non-repeatable
+# Syntax 1: LOCGAU SigmaTime CorrLen
+# Specifies parameters for Gaussian modelisation-error covariances Covariance ij between stations i and j using the relation ( Tarantola and Valette, 1982 ): Covariance ij = SigmaTime 2 exp(-0.5(Dist 2 ij )/ CorrLen 2 ) where Dist is the distance in km between stations i and j .
+#
+#    SigmaTime (float, min:0.0) typical error in seconds for travel-time to one station due to model errors
+#    CorrLen (float, min:0.0) correllaton length that controls covariance between stations ( i.e. may be related to a characteristic scale length of the medium if variations on this scale are not included in the velocity model)
+#
+# FIXME: ? 
+LOCGAU 0.01 0.1
+
+# LOCGAU2 - Travel-Time Dependent Model Errors
+# optional, non-repeatable
+# Syntax 1: LOCGAU2 SigmaTfraction SigmaTmin SigmaTmax
+# Specifies parameters for travel-time dependent modelisation-error. Sets the travel-time error in proportion to the travel-time, thus giving effectively a station-distance weighting, which was not included in the standard Tarantola and Valette formulation used by LOCGAU. This is important with velocity model errors, because nearby stations would usually have less absolute error than very far stations, and in general it is probably more correct that travel-time error is a percentage of the travel-time. Preliminary results using LOCGAU2 indicate that this way of setting travel-time errors gives visible improvement in hypocenter clustering. (can currently only be used with the EDT location methods)
+#
+#    SigmaTfraction (float, min:0.0, max:1.0) fraction of of travel-time to use as error
+#    SigmaTmin (float, min:0.0) minimum trave-time error in seconds
+#    SigmaTmax (float, min:0.0) maximum trave-time error in seconds
+#
+# travel time error is travel_time*SigmaTfraction, with max/min value = SigmaTmin/SigmaTmax
+# FIXME: ?
+LOCGAU2 0.001 0.0001 0.5
+
+# ========================================================================
+# LOCPHASEID - Phase Identifier Mapping
+# optional, repeatable
+
+# phase identifier mapping
+# (LOCPHASEID phase  phase_id0 phase_id1 ...)
+#
+# examples for P and S
+#LOCPHASEID  P   P p
+#LOCPHASEID  S   S s
+#
+# LOCPHASEID  P   P p G PN PG
+#LOCPHASEID  S   S s G SN SG
+#ToIgnoreS#LOCPHASEID  $   S s G SN SG
+
+# ========================================================================
+# LOCQUAL2ERR - Quality to Error Mapping
+# required, non-repeatable, for phase/observation file formats that do not 
+# include time uncertainties ; ignored, non-repeatable, otherwise 
+#
+# quality to error mapping (for HYPO71, etc)
+# (LOCQUAL2ERR Err0 Err1 Err2 ... )
+#
+# the following quality mapping is default from Hypoellipse documentation
+# TODO: ???
+LOCQUAL2ERR 0.005 0.010 0.020 0.1 99999.9
+
+# ========================================================================
+# LOCANGLES - Take-off Angles parameters
+# optional, non-repeatable
+#
+# take-off angles mode & minimum quality
+# (LOCANGLES angles_mode, min_quality)
+#    (char[])   angles_mode (ANGLES_YES, ANGLES_NO)
+#    (integer)   min_quality : minimum quality to use take-off angles
+LOCANGLES ANGLES_NO 5
+
+# ========================================================================
+# LOCTOPO_SURFACE - T topo surface file in GMT GRD format used to mask prior search volume to space below topography
+# (LOCTOPO_SURFACE  <GMT GRD File>  dump_flag)
+#    (char[]) <GMT GRD File> : GMT ascii or binary grd file (make from *.grd using grdinfo and grd2xyz)
+#        with topo surface in meters (x - longitude in deg, y - latitude in deg, z - elev in m).
+#		 Important: For binary grd file, filename must end in .bin with associated .bin.hdr ascii header file
+#    (int)    dump_flag : if >=1 dump topo lat/lon/elev with decimation=dump_flag to file in NLL binary scatter file format.
+# Note: To convert topo.grd to GMT ascii grid format, use:
+#        grdinfo topo.grd > topo.grd.asc
+#        grd2xyz topo.grd -Z >> topo.grd.asc
+# Note: To convert topo.grd to GMT binary grid format, use:
+#        grdinfo topo.grd > topo.grd.bin.hdr
+#        grd2xyz topo.grd -ZTLd > topo.grd.bin
+
+# ========================================================================
+# LOCMAG - Magnitude Calculation Method
+# optional, non-repeatable
+#
+# magnitude calculation method
+# (LOCMAG magnitude_type <params>)
+#    (char[])   magnitude_type (ML_HB (ML, Hutton Boore))
+#    <params>:
+#	ML_HB  amp_fact n K
+# TODO: leaving this for now but could adjust ultimately to PNSN stats
+LOCMAG ML_HB 1.0 1.110 0.00189
+
+# ========================================================================
+# LOCCMP - Magnitude Calculation Component
+# optional, repeatable
+#
+# station/inst/comp parameters (for specifying component specific parameters, i.e. constants for magnitude calculation)
+# (LOCCMP name inst comp amp_fact sta_corr)
+#    (char[])   name  : station identifier (after alias evaluation, without trailing underscore "_")
+#    (char[])   name  : inst identifier (use '?' for don't care)
+#    (char[])   name  : comp identifier (use '?' for don't care)
+#    (float)    amp_fact: amplitude factor, will be multiplied by amplitude
+#    (float)    sta_corr: mganitude correction
+#
+# example:
+#
+#LOCCMP CDR ? ? 1.0 0.0
+
+# ========================================================================
+# LOCALIAS - Station Code Alias
+# optional, repeatable
+#
+# station name alias (for aliasing sta names, for date validation and for
+#    phase time delays)
+# (LOCALIAS name alias year mo day year mo day)
+#    (char[])   name  : station identifier on input
+#    (char[])   alias : station identifier for travel time grid on output
+#                    NOTE: a trailing underscore "_" in aliases will only be
+#                          used for time grid identification, not for output
+#    (ints)    year mo day : start date of validity (0 0 0 = no start date)
+#    (ints)    year mo day : end date of validity  (9999 99 99 = no end date)
+#
+#   Note:
+#       Alias evaluation is applied recursively, beware of infinite recursion!
+# 	P and S delays from last alias only are used!
+#
+# example:
+#
+#LOCALIAS ART ART_	1996 05 29	1996 09 18   0.03  0.08
+#
+#LOCALIAS SBFX SBF	0 0 0	9999 99 99
+
+# ========================================================================
+#LOCEXCLUDE - Exclude Observations
+#optional, repeatable (ver 2.0)
+#
+# phase exclude
+# (LOCEXCLUDE name phase)
+#    (char[])   name  : station identifier after any alias
+#    (char[])   phase : phase identifier on input
+#
+#LOCEXCLUDE NEGI S
+
+# =======================================================================
+# LOCPHSTAT - Phase Statistics parameters
+# optional, non-repeatable
+#
+# phase statistics parameters
+# (LOCPHSTAT RMS_Max, NRdgs_Min, Gap_Max, P_ResMax, S_ResMax)
+#    (float)   RMS_Max : max hypocenter RMS to include in ave res
+#    (float)   NRdgs_Min : min hypocenter num readings to include in ave res
+#    (float)   Gap_Max : max hypocenter gap (deg) to include in ave res
+#    (float)   P_ResMax : max abs(P res) to include in ave res
+#    (float)   S_ResMax : max abs(S res) to include in ave res
+#    (float)   Ell_Len3_Max : max ellipsoid major semi-axis length to include in ave res
+#    (float)   Hypo_Depth_Min : min hypo depth (km) to include in ave res
+#    (float)   Hypo_Depth_Max : max hypo depth (km) to include in ave res
+#    (float)   Hypo_Dist_Max : max hypo distance (km) to include in ave res
+LOCPHSTAT 9999.0 -1 9999.0 1.0 1.0 9999.9 -9999.9 9999.9
+
+# ========================================================================
+# LOCDELAY - Phase Time Delays
+# optional, repeatable
+#
+# time delays
+# (LOCDELAY name phase n_readings p_delay s_delay)
+#    (char[])   name  : station identifier on control file statements
+#    (char[])   phase : phase identifier
+#    (int)  n_readings : number of residuals used to calc delay
+#    (float)     delay : delay in seconds, subtracted from obs time
+# 	station identifiers are evaluated after aliases has been evaluated!
+#
+# example:
+#
+#LOCDELAY NEGI P	 1  0.04
+#
+# example, delays read from file:
+#INCLUDE obs/vinti.sum.grid0.loc.stat_totcorr
+#
+# time corrections
+# LOCDELAY NEGI P	 1  0.04
+# LOCDELAY NEGI S	 1  0.04
+# LOCDELAY MONE P	 1  0.04
+# LOCDELAY MONE S	 1  0.04
+
+# ========================================================================
+# Loc2sst parameters
+LSOUT ./reloc/RR
+LSLOCFILES ./loc/*.hyp
+# LSPARAMS described here: http://alomax.free.fr/nlloc/docs/programs/core.Loc2ssst.html
+LSPARAMS 0.001 0.00001 1
+LSMODE ANGLES_NO
+LSGRID  150 250 75 694.15 5155.40 0.0  0.002 0.002 0.002   SSST_TIMECORR
+LSOUTGRID  150 250 75 694.15 5155.40 0.0  0.002 0.002 0.002   TIME
+
+#
+#
+# =============================================================================
+# END of NLLoc control file statements
+# =============================================================================
+# =============================================================================

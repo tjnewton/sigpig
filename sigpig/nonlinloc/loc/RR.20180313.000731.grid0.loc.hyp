@@ -1,0 +1,31 @@
+NLLOC "./loc/RR.20180313.000731.grid0" "LOCATED" "Location completed."
+PUBLIC_ID None
+SIGNATURE "   obs:./obs/nll_picks.obs   NLLoc:v7.00.10(30Aug2020)   run:29Apr2022 23h17m42"
+COMMENT "Rattlesnake Ridge Slidequake Locations"
+GRID  150 250 75  694.15 5155.4 0  0.002 0.002 0.002 PROB_DENSITY
+SEARCH OCTREE nInitial 1000 nEvaluated 1920 smallestNodeSide 0.001863/0.003112/0.000925 oct_tree_integral 6.045791e-06 scatter_volume 6.045791e-06
+HYPOCENTER  x 694.343 y 5155.79 z 0.0004625  OT 31.9252  ix -1 iy -1 iz -1 MAXIMUM_LIKELIHOOD
+GEOGRAPHIC  OT 2018 03 13  00 07 31.925177  Lat 5155.793731 Long 694.342769 Depth 0.000462
+QUALITY  Pmax 1.6957e+22 MFmin 41.013 MFmax 41.0289 RMS 0.0441549 Nphs 10 Gap 172.812 Dist 0.0029056 Mamp -0.09 10 Mdur -9.90 0
+VPVSRATIO  VpVsRatio -1  Npair 0  Diff -2e+30
+STATISTICS  ExpectX 694.376841 Y 5155.798519 Z 0.015667  CovXX 0.00112079 XY 0.000540288 XZ 0.000124793 YY 0.00274684 YZ -0.000248787 ZZ 0.000603127 EllAz1  298.039 Dip1  66.6712 Len1  0.0422293 Az2  284.212 Dip2  -22.7223 Len2  0.0605282 Len3  1.016602e-01
+STAT_GEOG  ExpectLat 5155.798519 Long 694.376841 Depth 0.015667
+TRANSFORM  NONE
+QML_OriginQuality  assocPhCt 10  usedPhCt 10  assocStaCt -1  usedStaCt 10  depthPhCt -1  stdErr 0.0441549  azGap 172.812  secAzGap 294.483  gtLevel -  minDist 0.0029056 maxDist 0.0930913 medDist 0.0558348
+QML_OriginUncertainty  horUnc -1  minHorUnc 0.0469315  maxHorUnc 0.0818106  azMaxHorUnc 16.8028
+QML_ConfidenceEllipsoid  semiMajorAxisLength 0.10166  semiMinorAxisLength 0.0422293  semiIntermediateAxisLength 0.0605282  majorAxisPlunge -5.00827  majorAxisAzimuth 16.315  majorAxisRotation 112.501
+FOCALMECH  Hyp  5155.793731 694.342769 0.000462 Mech  0 0 0 mf  0 nObs -1
+PHASE ID Ins Cmp On Pha  FM Date     HrMn   Sec     Err  ErrMag    Coda      Amp       Per       PriorWt  >   TTpred    Res       Weight    StaLoc(X  Y         Z)        SDist    SAzim  RAz  RDip RQual    Tcorr       TTerr
+16           ?    N    ? P      ? 20180313 0007   32.2770 GAU  2.15e-02 -1.00e+00  6.99e+00  3.60e-02    6.9900 >    0.0053    0.3465    0.0066  694.3452 5155.7921   -0.4642    0.0029 123.56  -1.0  -1.0  0     0.0000    0.0001
+12           ?    N    ? P      ? 20180313 0007   31.9935 GAU  2.32e-02 -1.00e+00  6.85e+00  8.00e-03    6.8500 >    0.0452    0.0231    1.4569  694.3356 5155.8197   -0.4663    0.0270 344.65  -1.0  -1.0  0     0.0000    0.0001
+15           ?    N    ? P      ? 20180313 0007   31.9710 GAU  7.29e-03 -1.00e+00  9.37e+00  2.00e-02    9.3700 >    0.0470   -0.0012    1.6861  694.3206 5155.8107   -0.4609    0.0279 307.37  -1.0  -1.0  0     0.0000    0.0001
+10           ?    N    ? P      ? 20180313 0007   31.9955 GAU  1.59e-02 -1.00e+00  7.08e+00  1.60e-02    7.0800 >    0.0677    0.0027    1.6844  694.3329 5155.8329   -0.4673    0.0404 345.86  -1.0  -1.0  0     0.0000    0.0001
+8            ?    N    ? P      ? 20180313 0007   32.2470 GAU  2.65e-02 -1.00e+00  6.24e+00  1.20e-02    6.2400 >    0.0921    0.2297    0.2049  694.3223 5155.8450   -0.4648    0.0552 338.24  -1.0  -1.0  0     0.0000    0.0001
+6            ?    N    ? P      ? 20180313 0007   32.1102 GAU  1.86e-02 -1.00e+00  6.24e+00  2.00e-02    6.2400 >    0.0953    0.0897    0.0881  694.3446 5155.8502   -0.4728    0.0565   1.89  -1.0  -1.0  0     0.0000    0.0001
+13           ?    N    ? P      ? 20180313 0007   31.9988 GAU  1.92e-02 -1.00e+00  7.97e+00  8.00e-03    7.9700 >    0.0977   -0.0241    0.6618  694.3062 5155.8390   -0.4568    0.0582 321.11  -1.0  -1.0  0     0.0000    0.0001
+5            ?    N    ? P      ? 20180313 0007   32.3130 GAU  1.72e-02 -1.00e+00  8.26e+00  1.20e-02    8.2600 >    0.1337    0.2541    0.2085  694.2898 5155.8520   -0.4475    0.0787 317.69  -1.0  -1.0  0     0.0000    0.0001
+7            ?    N    ? P      ? 20180313 0007   32.6380 GAU  1.46e-02 -1.00e+00  7.27e+00  1.20e-02    7.2700 >    0.1542    0.5586    0.0000  694.2704 5155.8450   -0.4359    0.0887 305.32  -1.0  -1.0  0     0.0000    0.0002
+9            ?    N    ? P      ? 20180313 0007   32.1065 GAU  2.22e-02 -1.00e+00  8.34e+00  8.00e-03    8.3400 >    0.1642    0.0171    4.0027  694.2594 5155.8351   -0.4296    0.0931 296.37  -1.0  -1.0  0     0.0000    0.0002
+END_PHASE
+END_NLLOC
+

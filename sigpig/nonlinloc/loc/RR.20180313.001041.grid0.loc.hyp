@@ -1,0 +1,33 @@
+NLLOC "./loc/RR.20180313.001041.grid0" "REJECTED" "WARNING: max prob location on grid boundary 31, rejecting location."
+PUBLIC_ID None
+SIGNATURE "   obs:./obs/nll_picks.obs   NLLoc:v7.00.10(30Aug2020)   run:29Apr2022 23h18m19"
+COMMENT "Rattlesnake Ridge Slidequake Locations"
+GRID  150 250 75  694.15 5155.4 0  0.002 0.002 0.002 PROB_DENSITY
+SEARCH OCTREE nInitial 1000 nEvaluated 20000 smallestNodeSide 0.003725/0.006225/0.001850 oct_tree_integral 3.256056e-04 scatter_volume 3.256056e-04
+HYPOCENTER  x 694.342 y 5155.67 z 0.147075  OT 40.8932  ix -1 iy -1 iz -1 MAXIMUM_LIKELIHOOD
+GEOGRAPHIC  OT 2018 03 13  00 10 40.893235  Lat 5155.670787 Long 694.341838 Depth 0.147075
+QUALITY  Pmax 1.04559e+39 MFmin 53.0541 MFmax 53.0682 RMS 0.0122869 Nphs 12 Gap 142.434 Dist 0.0312277 Mamp  0.57 12 Mdur -9.90 0
+VPVSRATIO  VpVsRatio -1  Npair 0  Diff -2e+30
+STATISTICS  ExpectX 694.270351 Y 5155.658449 Z 0.101824  CovXX 0.0053194 XY 0.000593302 XZ 0.000681012 YY 0.000412943 YZ 0.000174553 ZZ 0.00141991 EllAz1  173.941 Dip1  5.34815 Len1  0.0343131 Az2  292.498 Dip2  78.9196 Len2  0.0679963 Len3  1.394509e-01
+STAT_GEOG  ExpectLat 5155.658449 Long 694.270351 Depth 0.101824
+TRANSFORM  NONE
+QML_OriginQuality  assocPhCt 12  usedPhCt 12  assocStaCt -1  usedStaCt 12  depthPhCt -1  stdErr 0.0122869  azGap 142.434  secAzGap 241.709  gtLevel -  minDist 0.0312277 maxDist 0.0914496 medDist 0.045241
+QML_OriginUncertainty  horUnc -1  minHorUnc 0.0280553  maxHorUnc 0.111343  azMaxHorUnc 83.2022
+QML_ConfidenceEllipsoid  semiMajorAxisLength 0.139451  semiMinorAxisLength 0.0343131  semiIntermediateAxisLength 0.0679963  majorAxisPlunge 9.6757  majorAxisAzimuth 83.0269  majorAxisRotation 5.74832
+FOCALMECH  Hyp  5155.670787 694.341838 0.147075 Mech  0 0 0 mf  0 nObs -1
+PHASE ID Ins Cmp On Pha  FM Date     HrMn   Sec     Err  ErrMag    Coda      Amp       Per       PriorWt  >   TTpred    Res       Weight    StaLoc(X  Y         Z)        SDist    SAzim  RAz  RDip RQual    Tcorr       TTerr
+106          ?    N    ? P      ? 20180313 0010   41.1326 GAU  3.37e-02 -1.00e+00  7.55e+00  1.20e-02    7.5500 >    0.2275    0.0119    1.5467  694.3120 5155.6801   -0.4360    0.0312 287.27  -1.0  -1.0  0     0.0000    0.0002
+28           ?    N    ? P      ? 20180313 0010   41.1321 GAU  1.63e-02 -1.00e+00  7.39e+00  4.80e-02    7.3900 >    0.2290    0.0099    0.6349  694.3767 5155.6745   -0.4362    0.0350  83.99  -1.0  -1.0  0     0.0000    0.0002
+30           ?    N    ? P      ? 20180313 0010   41.1324 GAU  2.20e-02 -1.00e+00  8.46e+00  8.00e-03    8.4600 >    0.2258    0.0134    0.5985  694.3775 5155.6619   -0.4333    0.0367 103.98  -1.0  -1.0  0     0.0000    0.0002
+105          ?    N    ? P      ? 20180313 0010   41.1356 GAU  1.44e-02 -1.00e+00  7.37e+00  1.20e-02    7.3700 >    0.2326    0.0098    0.7431  694.3764 5155.6832   -0.4382    0.0367  70.19  -1.0  -1.0  0     0.0000    0.0002
+26           ?    N    ? P      ? 20180313 0010   41.1272 GAU  3.10e-02 -1.00e+00  6.69e+00  1.20e-02    6.6900 >    0.2371   -0.0031    0.6010  694.3783 5155.6910   -0.4400    0.0417  61.03  -1.0  -1.0  0     0.0000    0.0002
+32           ?    N    ? P      ? 20180313 0010   41.1136 GAU  1.25e-02 -1.00e+00  7.87e+00  4.40e-02    7.8700 >    0.2232   -0.0029    0.9511  694.3777 5155.6456   -0.4297    0.0438 125.12  -1.0  -1.0  0     0.0000    0.0002
+25           ?    N    ? P      ? 20180313 0010   41.1566 GAU  2.45e-02 -1.00e+00  6.95e+00  8.00e-03    6.9500 >    0.2442    0.0191    0.9513  694.3684 5155.7091   -0.4438    0.0467  34.75  -1.0  -1.0  0     0.0000    0.0002
+33           ?    N    ? P      ? 20180313 0010   41.1163 GAU  1.20e-02 -1.00e+00  8.11e+00  1.20e-02    8.1100 >    0.2222    0.0008    1.4285  694.3775 5155.6293   -0.4252    0.0547 139.28  -1.0  -1.0  0     0.0000    0.0002
+23           ?    N    ? P      ? 20180313 0010   41.1329 GAU  1.55e-02 -1.00e+00  6.78e+00  8.00e-03    6.7800 >    0.2543   -0.0146    1.4800  694.3677 5155.7226   -0.4473    0.0579  26.54  -1.0  -1.0  0     0.0000    0.0003
+27           ?    N    ? P      ? 20180313 0010   41.1506 GAU  2.39e-02 -1.00e+00  6.52e+00  1.20e-02    6.5200 >    0.2483    0.0090    0.9200  694.4008 5155.6912   -0.4412    0.0624  70.86  -1.0  -1.0  0     0.0000    0.0002
+35           ?    N    ? P      ? 20180313 0010   41.1172 GAU  1.44e-02 -1.00e+00  8.43e+00  8.00e-03    8.4300 >    0.2263   -0.0023    1.9923  694.3818 5155.6141   -0.4216    0.0693 144.83  -1.0  -1.0  0     0.0000    0.0002
+34           ?    N    ? P      ? 20180313 0010   41.2213 GAU  1.74e-02 -1.00e+00  6.93e+00  1.20e-02    6.9300 >    0.2490    0.0791    0.1525  694.4145 5155.6153   -0.4263    0.0914 127.37  -1.0  -1.0  0     0.0000    0.0002
+END_PHASE
+END_NLLOC
+
