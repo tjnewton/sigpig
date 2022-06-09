@@ -1036,10 +1036,10 @@ def process_data(st,reft):
         # response.networks[0].stations[0].channels[0].location_code = \
         #     tr.stats.location
         if tr.stats.network == 'UW':
-            invfile = './resp/RESP.' + tr.stats.station + '.' + \
+            invfile = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/resp/RESP.' + tr.stats.station + '.' + \
                       tr.stats.network + '..' + tr.stats.channel
         else:
-            invfile = './resp/RESP.' + tr.stats.network + '.' + \
+            invfile = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/resp/RESP.' + tr.stats.network + '.' + \
                       tr.stats.station + '..' + tr.stats.channel
 
         inv = read_inventory(path_or_file_object=invfile, format="RESP")
@@ -1092,6 +1092,9 @@ def dists_from_srrays():
     and saves to pickle files.
 
     TODO: write docstring
+
+    Example:
+        dists_from_srrays()
 
     """
 
@@ -1227,7 +1230,7 @@ def amplitude_locations():
 
     """
     # load positions
-    stas = pd.read_csv('crackattack_d1_locations_welev.csv', sep=',')
+    stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
     stas = stas.sort_values(by=['latitude'], ascending=False)
 
     # load amplitude factors and add to stas
