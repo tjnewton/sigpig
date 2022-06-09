@@ -776,3 +776,187 @@ def generate_amplitude_station_file():
                        f'{dfdict["elevation"][index]}\n')
 
     return None
+
+
+def amplitude_locations():
+    """ Driver function to calculate amplitude-based locations.
+
+    # TODO: finish docstring
+
+    """
+    # load positions
+    stas = pd.read_csv('crackattack_d1_locations_welev.csv', sep=',')
+    stas = stas.sort_values(by=['latitude'], ascending=False)
+
+    # load amplitude factors and add to stas
+    afs = pd.read_csv('noise_metrics.csv')
+    meanaf = np.zeros(len(stas))
+    medaf = np.zeros(len(stas))
+    rmsaf = np.zeros(len(stas))
+    for ii in range(len(stas)):
+        meanaf[ii] = afs[afs['station'] == stas.iloc[ii]['station']][
+            'mean'].values
+        medaf[ii] = afs[afs['station'] == stas.iloc[ii]['station']][
+            'median'].values
+        rmsaf[ii] = afs[afs['station'] == stas.iloc[ii]['station']][
+            'rms'].values
+    stas['meanaf'] = meanaf
+    stas['medaf'] = medaf
+    stas['rmsaf'] = rmsaf
+
+    # # load the data
+    date = UTCDateTime(2018, 3, 13)
+    st = Stream()
+    print('loading data')
+    for sta in stas['station'].values:
+        #
+
+        file = '/Users/human/Desktop/RR_MSEED/5A.' + str(
+            sta) + '..DP1.2018-' + str(date.month).zfill(2) + '-' + str(
+            date.day).zfill(2) + 'T00.00.00.ms'
+        print(file)
+        try:
+            st += read(file)
+        except:
+            try:
+                file = '/Users/human/Desktop/RR_MSEED/5A.' + str(
+                    sta) + '..EHN.2018-' + str(date.month).zfill(
+                    2) + '-' + str(
+                    date.day).zfill(2) + 'T00.00.00.ms'
+                st += read(file)
+            except:
+                print('No data for ' + file)
+
+    # add lat lon data
+    for tr in st:
+        # get the station
+        tr_id = tr.stats.station
+
+        # set new id in stream
+        # tr.stats.station = tr_id
+        tr.stats.coordinates = AttribDict(
+            {'latitude': stas[stas.station == tr_id].latitude.values[0],
+             'longitude': stas[stas.station == tr_id].longitude.values[0]})
+
+    # location grid nodes
+    de, dn, dz, elev = location_tools.get_coords()
+    # fac=1
+    # de=de[::fac]
+    # dn=dn[::fac]
+    # dz=dz[:41:fac]
+    # elev=elev[::fac,::fac]
+
+    # set up grid for plotting
+    X, Y = np.meshgrid(de, dn)
+
+    # load tylers phase picks -- phase.mrkr
+    df = pd.read_csv("res.mrkr", skiprows=1, delim_whitespace=True,
+                     usecols=[1, 2, 4, 6, 7, 8],
+                     names=['pick date', 'pick time', 'station_channel',
+                            'marker date', 'marker time', 'phase'])
+
+    # grab only P picks
+    df = df[df['phase'] == 'P']
+
+    # define the stations and channels
+    df['station'] = df['station_channel'].str.split('.').str[1]
+    df['channel'] = df['station_channel'].str.split('.').str[-1]
+
+    # convert markers and picks to date format
+    df['markers'] = pd.to_datetime(df['marker date'] + ' ' + df['marker time'],
+                                   errors='coerce', format='%Y-%m-%d %H:%M:%S')
+    df['picks'] = pd.to_datetime(df['pick date'] + ' ' + df['pick time'],
+                                 errors='coerce', format='%Y-%m-%d %H:%M:%S')
+    markers = pd.unique(df['markers'])
+
+    import location_tools
+    evlocs = []
+    # # for each marker
+    # markers=markers[:2]
+    for ii, markertime in enumerate(markers):
+        print(f'Processing marker {ii + 1} of {len(markers)}')
+        # find all the picks that correspond to that marker
+        evd = df[df['markers'] == markertime]
+
+        # calculate the maximum differential time
+        dt = (np.max(evd['picks']) - np.min(evd['picks'])).total_seconds()
+
+        # crude QC to make sure there are more than 5 picks and the time between them is reasonable
+        if len(evd) > 5 and dt < 0.5:
+            staids = evd['station'].values
+            stadts = (evd['picks'] - np.min(
+                evd['picks'])).dt.total_seconds().values
+
+            # cut, correct, filter, and detrend traces
+            stalist = stas['station'].values.tolist()
+            reft = UTCDateTime(np.min(evd['picks']))
+            smallst = location_tools.process_data(st, reft)
+
+            # event only stream
+            eventst = location_tools.event_stream(smallst, reft)
+
+            # # plot traces
+            # location_tools.plot_traces(smallst, eventst, evd)
+
+            # prep inputs for amplocation
+            ampinputs = pd.DataFrame(columns=['station', 'ampfac', 'amp'])
+            for jj in range(len(smallst)):
+                # # if stations are in pick list, add amplitudes
+                # if smallst[jj].stats.station in evd['station'].values:
+                #     ampinputs.loc[jj] = [eventst[jj].stats.station, stas[stas['station']==eventst[jj].stats.station]['meanaf'].values[0]/stas.iloc[0]['meanaf'], np.sqrt(np.mean((eventst[jj].data)**2))]
+                rms = np.sqrt(np.mean((eventst[jj].data) ** 2))
+                ampinputs.loc[jj] = [eventst[jj].stats.station, stas[
+                    stas['station'] == eventst[jj].stats.station][
+                    'rmsaf'].values[0] / stas.iloc[0]['rmsaf'], rms]
+
+            # plt.figure()
+            normamps = ampinputs['amp'].values / ampinputs['ampfac'].values
+            ind = np.where(normamps == np.max(normamps))[0][0]
+            maxstax = stas[ampinputs.iloc[ind]['station'] == stas['station']][
+                'utmx'].values[0]
+            maxstay = stas[ampinputs.iloc[ind]['station'] == stas['station']][
+                'utmy'].values[0]
+            dfrommax = np.zeros(len(ampinputs))
+            for kk in range(len(ampinputs)):
+                stax = stas[ampinputs.iloc[kk]['station'] == stas['station']][
+                    'utmx'].values[0]
+                stay = stas[ampinputs.iloc[kk]['station'] == stas['station']][
+                    'utmy'].values[0]
+                dfrommax[kk] = np.sqrt(
+                    (maxstax - stax) ** 2 + (maxstay - stay) ** 2)
+            ampinputs['dfrommax'] = dfrommax
+
+            # # locate me with travel times
+            # refstaid=staids[0]
+            # resid=location_tools.locate(refstaid,staids,stadts)
+            # minind = np.unravel_index(np.argmin(resid, axis=None), resid.shape)
+
+            # locate me with amplitudes
+            A0s = np.logspace(-5, -3, 11)
+            ampresid, staamps, predamps, err, weights \
+                = location_tools.amplocate(ampinputs['station'].values,
+                                           ampinputs['ampfac'].values,
+                                           ampinputs['amp'].values, de, dn, dz,
+                                           A0s, ampinputs['dfrommax'].values,
+                                           2, dijkstra=1)
+            minind = np.unravel_index(np.argmin(ampresid, axis=None),
+                                      ampresid.shape)
+
+            mininds = np.where(ampresid <= ampresid[
+                minind[0], minind[1], minind[2], minind[3]] * 1.05)
+
+            plots = 0
+            if plots:
+                # plot residual
+                location_tools.plot_resid(X, Y, ampresid, minind, mininds, de,
+                                          dn, dz, stas, staids, A0s)
+
+                # plot fits
+                location_tools.plot_fits(ampinputs, err, staamps, predamps,
+                                         weights)
+
+            evlocs.append([ii, de[minind[0]], dn[minind[1]], dz[minind[2]],
+                           A0s[minind[3]], err, len(evd)])
+
+    # plot locs
+    # TODO:
