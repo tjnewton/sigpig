@@ -10,7 +10,7 @@ os.environ.update(OMP_NUM_THREADS="1",
                   NUMEXPR_NUM_THREADS="1",
                   MKL_NUM_THREADS="1")
 import pathlib
-from obspy import read, UTCDateTime, Inventory, Stream
+from obspy import read, UTCDateTime, Inventory, Stream, read_inventory
 from obspy.clients.fdsn import Client
 import glob
 from obspy.core import AttribDict
@@ -23,8 +23,13 @@ import netCDF4 as nc
 import datetime
 import matplotlib.pyplot as plt
 import math
+import pickle
+import utm
 from data import rattlesnake_Ridge_Station_Locations
 from lidar import elevations_from_raster
+import scipy.io as sio
+from matplotlib import cm
+from obspy.core import Stream, Trace
 
 
 def picks_to_nonlinloc(marker_file_path, waveform_files_path):
@@ -1080,6 +1085,90 @@ def plot_traces(smallst, eventst, evd):
     axs[1].set_yticklabels(labels)
     axs[1].invert_yaxis()
     return None
+
+
+def dists_from_srrays():
+    """ Calculates source-station distances from srRays stingray structures
+    and saves to pickle files.
+
+    TODO: write docstring
+
+    """
+
+    # load positions
+    stas = pd.read_csv('crackattack_d1_locations_welev.csv', sep=',')
+    stas = stas.sort_values(by=['latitude'], ascending=False)
+
+    # load station coords
+    # locs=np.loadtxt('ca_stalocs_1.dat')
+
+    # # add distances to dataframe
+    # hts=np.zeros(len(stas))
+    # for ii in range(len(stas)):
+    #     name=stas.iloc[ii]['station']
+    #     if name=="UGAP3":
+    #         name=103
+    #     elif name=="UGAP5":
+    #         name=105
+    #     elif name=="UGAP6":
+    #         name=106
+    #     hts[ii]=locs[locs[:,0]==int(name)][0][5]
+
+    stas['utmz'] = stas['elev']
+
+    # location grid nodes
+    de, dn, dz, elev = get_coords()
+
+    # set up grid for plotting
+    X, Y = np.meshgrid(de, dn)
+    # plt.contourf(X,Y,elev,cmap='viridis')
+    # plt.colorbar()
+
+    # plt.figure()
+    # plt.scatter(X,Y,s=20, marker='o', c=elev)
+
+    beta = 400  # m/s
+    f = 40  # frequency
+    Q = 50  # quality factor (??)
+    B = np.pi * f / (Q * beta)  # 1/m
+    A0 = 1
+
+    # Save distances
+    for ii in range(len(stas)):
+        print(
+            f"Processing station {stas.iloc[ii]['station']}({ii + 1}/{len(stas)})")
+        dists = np.zeros((len(de), len(dn), len(dz)))
+        stax = stas.iloc[ii]['utmx']
+        stay = stas.iloc[ii]['utmy']
+        staz = stas.iloc[ii]['utmz']
+        amps = np.zeros((len(de), len(dn), len(dz)))
+        dists = np.zeros((len(de), len(dn), len(dz)))
+        for jj, e in enumerate(de):
+            for kk, n in enumerate(dn):
+                z0 = elev[jj, kk]
+                for ll, z in enumerate(dz):
+                    r = np.sqrt((e - stax) ** 2 + (n - stay) ** 2 + (
+                                (z0 + z) - staz) ** 2)
+                    dists[jj, kk, ll] = r
+                    # amps[kk,jj,ll]=A0*np.exp(-B*r)/r
+        file = f'/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+               f'/amplitude_locations/ray_tracing/dists_{stas.iloc[ii]["station"]}.pkl'
+        with open(file, 'wb') as f:
+            pickle.dump(dists, f)
+        # fig,axs=plt.subplots(nrows=1,ncols=2,figsize=(10,6))
+        # #plt.contourf(X,Y,dists[:,:,0],cmap='viridis')
+        # im=axs[0].scatter(X,Y,s=20, marker='o', c=dists[:,:,0].T, vmin=0, vmax=400)
+        # axs[0].plot(stax,stay,'r^')
+        # axs[0].set_title("Station "+stas.iloc[ii]['station']+ " surface distances")
+        # #plt.contourf(X,Y,dists[:,:,-1],cmap='viridis')
+        # im=axs[1].scatter(X,Y,s=20, marker='o', c=dists[:,:,-1].T, vmin=0, vmax=400)
+        # axs[1].plot(stax,stay,'r^')
+        # axs[1].set_title("Station "+stas.iloc[ii]['station']+ " base distances")
+        # fig.subplots_adjust(right=0.8)
+        # cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+        # fig.colorbar(im, cax=cbar_ax)
+        # plt.title("distance (m)")
+        # fig.savefig('/Users/amt/Documents/rattlesnake_ridge/ray_tracing/dists_'+stas.iloc[ii]['station']+'.png')
 
 
 def amplitude_locations():
