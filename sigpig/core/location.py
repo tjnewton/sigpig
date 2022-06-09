@@ -778,10 +778,317 @@ def generate_amplitude_station_file():
     return None
 
 
+def set_params():
+    beta=400 # m/s
+    f=60 # frequency
+    Q=50 # quality factor (??)
+    return beta, f, Q
+
+
+def locate(refstaid,staids,statts):
+    """
+    refstaid - reference station
+    staids - station ids
+    statts - difference between arrival at station and reference station
+    """
+    # calculate travel time difference relative to reference station
+    ind=np.where(staids==str(refstaid))[0][0]
+    stadts=statts-statts[ind]
+    file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/ray_tracing/tts_'+str(refstaid)+'.pkl'
+    #print(file)
+    with open(file, 'rb') as f:
+        reftts = pickle.load(f)
+    residuals=np.zeros_like(reftts)
+    for ii in range(len(staids)):
+        #print(ii)
+        if refstaid != staids[ii]:
+            file='/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+                 '/amplitude_locations/ray_tracing/tts_'+str(staids[ii])+'.pkl'
+            with open(file, 'rb') as f:
+                tts = pickle.load(f)
+            pred=tts-reftts # model difference between ref and arrival
+            dts=np.abs(stadts[ii]-pred) # difference between observed and predicted differences
+            residuals+=dts
+    return residuals
+
+
+def amplocate(staids,ampfacs,staamps,de,dn,dz,A0,dists, weight=2,
+              dijkstra=1):
+    """
+    Locates events based on amplitude
+    Inputs:
+        staids - station ids that correspond to amplitudes in staamps
+        ampfacs - amplitude factors for each station in staids
+        staamps - amplitudes measured at each station (set to zero if no pick), needs to be in same order as staids
+        A0 - initial amplitudes to consider
+    Outputs:
+        residuals - sum of squared differences between normalized predicted amps and normalized actual amps
+    """
+    # some constants
+    beta, f, Q = set_params()
+    B=np.pi*f/(Q*beta) # 1/m
+    # add amplification factor correction
+    staamps=staamps/ampfacs
+    if weight==0:
+        weights=np.ones(len(staamps))
+    elif weight==1:
+        weights=((np.max(dists)-dists)/np.max(dists))
+    elif weight==2:
+        weights=((np.max(dists)-dists)/np.max(dists))**2
+    # initialize array for residuals
+    residuals=np.zeros((len(de),len(dn),len(dz),len(A0)))
+    for ii in range(len(staids)):
+        if dijkstra==1:
+            file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/ray_tracing/dists_'+str(staids[ii])+'.pkl'
+            # file='/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+            #      '/amplitude_locations/ray_tracing' \
+            #      '/amandas_old_files/dijkstra_dists_'+str(staids[ii])+'.pkl'
+
+        else:
+            file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/ray_tracing/dists_'+str(staids[ii])+'.pkl'
+        with open(file, 'rb') as f:
+            r = pickle.load(f)
+        for jj in range(len(A0)):
+            amp=A0[jj]*np.exp(-B*r)/r
+            damps=(staamps[ii]-amp)**2*weights[ii] # difference between observed and predicted differences
+            residuals[:,:,:,jj] = residuals[:,:,:,jj]+damps
+    minind = np.unravel_index(np.argmin(residuals, axis=None), residuals.shape)
+    predamps=np.zeros(len(staids))
+    for ii in range(len(staids)):
+        # file='/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+        #      '/amplitude_locations/ray_tracing' \
+        #      '/amandas_old_files/dists_'+str(staids[ii])+'.pkl'
+        file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/ray_tracing/dists_'+str(staids[ii])+'.pkl'
+        with open(file, 'rb') as f:
+            r = pickle.load(f)
+        r=r[minind[0],minind[1],minind[2]]
+        predamps[ii]=A0[minind[3]]*np.exp(-B*r)/r
+    err=100*np.sqrt(np.sum((staamps-predamps)**2)/np.sum(staamps**2))
+    return residuals, staamps, predamps, err, weights
+
+
+def fakequake(x,y,z,A0,staids):
+    """
+    Calculates travel times for a fake earthquake
+    Inputs:
+        x - x loc of quake
+        y - y loc of quake
+        z - z loc of quake
+        staids - station ids
+    Outputs:
+        dts - predicted travel times from source to all stations
+        damps - predicted amplitudes at all stations
+    """
+    # some constants
+    beta, f, Q = set_params()
+    B=np.pi*f/(Q*beta) # 1/m
+    # get coordinates
+    de, dn, dz, _=get_coords()
+    xind=np.where(de==x)[0][0]
+    yind=np.where(dn==y)[0][0]
+    zind=np.where(dz==z)[0][0]
+    dts=np.zeros(len(staids))
+    damps=np.zeros(len(staids))
+    for ii in range(len(staids)):
+        file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/ray_tracing/tts_'+str(staids[ii])+'.pkl'
+        with open(file, 'rb') as f:
+            tts = pickle.load(f)
+        dts[ii]=tts[xind,yind,zind]
+        file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/ray_tracing/dists_'+str(staids[ii])+'.pkl'
+        with open(file, 'rb') as f:
+            dists = pickle.load(f)
+        r=dists[xind,yind,zind]
+        damps[ii]=A0*np.exp(-B*r)/r
+    return dts, damps
+
+
+def plot_resid(X,Y,ampresid,minind,mininds,de,dn,dz,locs,staids,A0s):
+    fig,axs=plt.subplots(nrows=1,ncols=1,figsize=(6,8))
+    # plot solution
+    cs=axs.contourf(X, Y, np.log10(ampresid[:,:,minind[2],minind[3]].T), 30, cmap=cm.PuBu_r)
+    axs.axis('equal')
+    for ii in range(len(mininds[0])):
+        axs.plot(de[mininds[0][ii]],dn[mininds[1][ii]],'ko') # plot location
+    axs.plot(de[minind[0]],dn[minind[1]],'ro') # plot location
+    axs.plot(locs['utmx'].values,locs['utmy'].values,'r^') # plot all the stations
+    for kk in range(len(locs)): # plot all station names
+        axs.text(locs['utmx'].values[kk],locs['utmy'].values[kk],str(locs.iloc[kk]['station']))
+    axs.set_title('Depth: '+str(dz[minind[2]])+' m Amp: '+str(A0s[minind[3]]))
+    axs.set_xlim((np.min(X),np.max(X)))
+    axs.set_ylim((np.min(Y),np.max(Y)))
+    fig.colorbar(cs)
+    return None
+
+
+def plot_resid_slices(X,Y,ampresid,minind,de,dn,dz,locs,staids,A0s):
+    for ii in np.arange(0,40,5):
+        fig,axs=plt.subplots(nrows=1,ncols=1,figsize=(6,8))
+        # plot solution
+        cs=axs.contourf(X, Y, np.log10(ampresid[:,:,ii,minind[3]].T), 30, cmap=cm.PuBu_r)
+        axs.axis('equal')
+        axs.plot(de[minind[0]],dn[minind[1]],'ro') # plot location
+        axs.plot(locs[:,3],locs[:,4],'r^') # plot all the stations
+        for kk in range(len(locs)): # plot all station names
+            axs.text(locs[kk,3],locs[kk,4],str(int(locs[kk,0])))
+            if (locs[kk,0] in staids):
+                plt.plot(locs[kk,3],locs[kk,4],'g^')
+        axs.set_title('Depth: '+str(dz[ii])+' m Amp: '+str(A0s[minind[3]]))
+        axs.set_xlim((np.min(X),np.max(X)))
+        axs.set_ylim((np.min(Y),np.max(Y)))
+        fig.colorbar(cs)
+    return None
+
+
+def plot_fits(ampinputs,err,staamps,predamps,weights):
+    fig,axs=plt.subplots(nrows=2,ncols=1,figsize=(10,8))
+    axs[0].plot(ampinputs['station'].values,ampinputs['amp'].values,label='Amplitudes')
+    axs[0].tick_params(labelrotation=90)
+    fig.suptitle('%Err: '+str(err), fontsize=16)
+    axs[1].plot(ampinputs['station'].values,staamps,label='AF corrected amplitudes')
+    axs[1].plot(ampinputs['station'].values,predamps,label='Predicted amplitudes')
+    axs[1].tick_params(labelrotation=90)
+    ax2 = axs[1].twinx()
+    ax2.plot(ampinputs['station'].values,weights,color=(0,0,0),label="weights")
+    ax2.legend()
+    axs[1].legend()
+    return None
+
+
+def get_coords():
+    file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
+         '/srOutput/0.6-0.75/srRays_38_2.mat'
+    sta=sio.loadmat(file) # this doesn't work for v7.3 mat files
+
+    # import h5py
+    # import numpy as np
+    # sta = {}
+    # f = h5py.File(file)
+    # for k, v in f.items():
+    #     sta[k] = np.array(v)
+    #
+    # import hdf5storage
+    # sta = hdf5storage.loadmat(file)
+
+    # sta = mat73.loadmat(file)
+    e0=sta['srRays']['srGeometry'][0][0][0][0][1][0][0]
+    n0=sta['srRays']['srGeometry'][0][0][0][0][2][0][0]
+    z0=sta['srRays']['srGeometry'][0][0][0][0][3][0][0]
+    de=np.zeros(len(sta['srRays']['xg'][0][0]))
+    dn=np.zeros(len(sta['srRays']['yg'][0][0]))
+    dz=np.zeros(len(sta['srRays']['zg'][0][0]))
+    # east range
+    for ii in range(len(de)):
+        de[ii]=sta['srRays']['xg'][0][0][ii][0]
+    de+=e0
+    # north range
+    for ii in range(len(dn)):
+        dn[ii]=sta['srRays']['yg'][0][0][ii][0]
+    dn+=n0
+    # vertical range
+    for ii in range(len(dz)):
+        dz[ii]=sta['srRays']['zg'][0][0][ii][0]
+    dz+=z0
+    elev=sta['srRays']['elevation'][0][0]
+    de*=1000
+    dn*=1000
+    dz*=1000
+    elev*=1000
+    return de, dn, dz, elev
+
+
+def event_stream(smallst,reft):
+    start=reft
+    finish=reft+0.2
+    eventst=smallst.copy().slice(starttime=start,endtime=finish)
+    return eventst
+
+
+def process_data(st,reft):
+    # datacentre = "IRIS"
+    # client = Client(datacentre)
+    start=reft-0.1
+    finish=reft+0.4
+    smallst=Stream()
+    for tr in st:
+        # print(tr.stats.station)
+        smalltr=tr.copy().slice(starttime=start,endtime=finish)
+        # # inv = Inventory()
+        # tr.stats.location = "00"
+        # # inv += client.get_stations(network=tr.stats.network,
+        # #                            station=tr.stats.station,
+        # #                            channel=tr.stats.channel,
+        # #                            location=tr.stats.location,
+        # #                            starttime=start,
+        # #                            endtime=finish)
+        # # response = inv.get_response(f"{tr.stats.network}."
+        # #                             f"{tr.stats.station}.{tr.stats.location}"
+        # #                             f".{tr.stats.channel}", start)
+        # response = read_inventory(path_or_file_object=f"./resp/RESP."
+        #                           f"{tr.stats.network}", format="RESP")
+        # response.networks[0].code = tr.stats.network
+        # response.networks[0].stations[0].code = tr.stats.station
+        # response.networks[0].stations[0].channels[0].code = tr.stats.channel
+        # response.networks[0].stations[0].channels[0].location_code = \
+        #     tr.stats.location
+        if tr.stats.network == 'UW':
+            invfile = './resp/RESP.' + tr.stats.station + '.' + \
+                      tr.stats.network + '..' + tr.stats.channel
+        else:
+            invfile = './resp/RESP.' + tr.stats.network + '.' + \
+                      tr.stats.station + '..' + tr.stats.channel
+
+        inv = read_inventory(path_or_file_object=invfile, format="RESP")
+
+        try:
+            smalltr.remove_response(inventory=inv, output='VEL')
+        except:
+            print('cannot correct for resp')
+        else:
+            smallst+=smalltr
+    smallst=smallst.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+    smallst=smallst.detrend('linear')
+    return smallst
+
+
+def plot_traces(smallst, eventst, evd):
+    fig,axs=plt.subplots(nrows=1,ncols=2,figsize=(8,10))
+    labels=[]
+    fac=5
+    for jj in range(len(smallst)):
+        #plt.plot(smallst[jj].times("relative"),smallst[jj].data/np.max(1.5*np.abs(smallst[jj].data))+jj,color=(0.5,0.5,0.5))
+        axs[0].plot(smallst[jj].times("timestamp"),smallst[jj].data/np.max(fac*np.abs(smallst[0].data))+jj,color=(0.25,0.25,0.25))
+        axs[0].plot(eventst[jj].times("timestamp"),eventst[jj].data/np.max(fac*np.abs(smallst[0].data))+jj,color=(96/256, 145/256, 186/256))
+        axs[1].plot(smallst[jj].times("timestamp"),smallst[jj].data/np.max(fac*np.abs(smallst[jj].data))+jj,color=(0.25,0.25,0.25))
+        axs[1].plot(eventst[jj].times("timestamp"),eventst[jj].data/np.max(fac*np.abs(smallst[jj].data))+jj,color=(96/256, 145/256, 186/256))
+        if smallst[jj].stats.station in evd['station'].values:
+            pt=UTCDateTime(evd[evd['station']==smallst[jj].stats.station].iloc[0]['picks']) #-smallst[0].times("utcdatetime")[0]
+            axs[0].plot([pt, pt],[jj-0.4,jj+0.4], color=(0.5,0,0),alpha=0.75)
+            axs[1].plot([pt, pt],[jj-0.4,jj+0.4], color=(0.5,0,0),alpha=0.75)
+        labels.append(smallst[jj].stats.station+"-"+smallst[jj].stats.channel)
+    axs[0].set_ylim((-1,41))
+    axs[0].set_xlim((smallst[0].times("timestamp")[0],smallst[0].times("timestamp")[-1]))
+    axs[0].set_xlabel('Time (s)')
+    # axs.set_title("Event: "+str(ii)) #+" Ref. Station: "+str(refstaid))
+    axs[0].set_yticks(range(len(labels)))
+    axs[0].set_yticklabels(labels)
+    axs[0].invert_yaxis()
+    axs[1].set_ylim((-1,41))
+    axs[1].set_xlim((smallst[0].times("timestamp")[0],smallst[0].times("timestamp")[-1]))
+    axs[1].set_xlabel('Time (s)')
+    # axs.set_title("Event: "+str(ii)) #+" Ref. Station: "+str(refstaid))
+    axs[1].set_yticks(range(len(labels)))
+    axs[1].set_yticklabels(labels)
+    axs[1].invert_yaxis()
+    return None
+
+
 def amplitude_locations():
     """ Driver function to calculate amplitude-based locations.
 
     # TODO: finish docstring
+
+    Example:
+        amplitude_locations()
 
     """
     # load positions
@@ -839,7 +1146,7 @@ def amplitude_locations():
              'longitude': stas[stas.station == tr_id].longitude.values[0]})
 
     # location grid nodes
-    de, dn, dz, elev = location_tools.get_coords()
+    de, dn, dz, elev = get_coords()
     # fac=1
     # de=de[::fac]
     # dn=dn[::fac]
@@ -869,7 +1176,6 @@ def amplitude_locations():
                                  errors='coerce', format='%Y-%m-%d %H:%M:%S')
     markers = pd.unique(df['markers'])
 
-    import location_tools
     evlocs = []
     # # for each marker
     # markers=markers[:2]
@@ -890,13 +1196,10 @@ def amplitude_locations():
             # cut, correct, filter, and detrend traces
             stalist = stas['station'].values.tolist()
             reft = UTCDateTime(np.min(evd['picks']))
-            smallst = location_tools.process_data(st, reft)
+            smallst = process_data(st, reft)
 
             # event only stream
-            eventst = location_tools.event_stream(smallst, reft)
-
-            # # plot traces
-            # location_tools.plot_traces(smallst, eventst, evd)
+            eventst = event_stream(smallst, reft)
 
             # prep inputs for amplocation
             ampinputs = pd.DataFrame(columns=['station', 'ampfac', 'amp'])
@@ -928,13 +1231,13 @@ def amplitude_locations():
 
             # # locate me with travel times
             # refstaid=staids[0]
-            # resid=location_tools.locate(refstaid,staids,stadts)
+            # resid=locate(refstaid,staids,stadts)
             # minind = np.unravel_index(np.argmin(resid, axis=None), resid.shape)
 
             # locate me with amplitudes
             A0s = np.logspace(-5, -3, 11)
             ampresid, staamps, predamps, err, weights \
-                = location_tools.amplocate(ampinputs['station'].values,
+                = amplocate(ampinputs['station'].values,
                                            ampinputs['ampfac'].values,
                                            ampinputs['amp'].values, de, dn, dz,
                                            A0s, ampinputs['dfrommax'].values,
@@ -948,11 +1251,11 @@ def amplitude_locations():
             plots = 0
             if plots:
                 # plot residual
-                location_tools.plot_resid(X, Y, ampresid, minind, mininds, de,
+                plot_resid(X, Y, ampresid, minind, mininds, de,
                                           dn, dz, stas, staids, A0s)
 
                 # plot fits
-                location_tools.plot_fits(ampinputs, err, staamps, predamps,
+                plot_fits(ampinputs, err, staamps, predamps,
                                          weights)
 
             evlocs.append([ii, de[minind[0]], dn[minind[1]], dz[minind[2]],
