@@ -1096,7 +1096,7 @@ def dists_from_srrays():
     """
 
     # load positions
-    stas = pd.read_csv('crackattack_d1_locations_welev.csv', sep=',')
+    stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
     stas = stas.sort_values(by=['latitude'], ascending=False)
 
     # load station coords
@@ -1176,9 +1176,12 @@ def srrays_to_pickle():
 
     # TODO: write docstring
 
+    Example:
+        srrays_to_pickle()
+
     """
     # load positions
-    stas = pd.read_csv('crackattack_d1_locations_welev.csv', sep=',')
+    stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
     stas = stas.sort_values(by=['latitude'], ascending=False)
     # stas=stas.reset_index(drop=True)
     # stas=stas.drop([22])
