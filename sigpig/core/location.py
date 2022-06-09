@@ -959,4 +959,75 @@ def amplitude_locations():
                            A0s[minind[3]], err, len(evd)])
 
     # plot locs
-    # TODO:
+    evlocs = pd.DataFrame(evlocs, columns=['ID', 'x', 'y', 'z', 'amp', 'error',
+                                           'picks'])
+    plt.figure()
+    plt.scatter(evlocs['x'].values, evlocs['y'].values, s=15,
+                c=evlocs['error'].values)
+    plt.plot(stas['utmx'].values, stas['utmy'].values,
+             'r^')  # plot all the stations
+    for ii in range(len(stas)):
+        plt.text(stas.iloc[kk]['utmx'], stas.iloc[kk]['utmy'],
+                 stas.iloc[kk]['station'], color='r')
+    plt.colorbar()
+    plt.axis('equal')
+    plt.show()
+
+    # plot depth slices
+    fig, ax = plt.subplots(nrows=1, ncols=3, figsize=((12, 8)))
+    low = evlocs[(evlocs['y'] > 5155500) & (evlocs['y'] <= 5155600)]
+    im = ax[0].scatter(low['x'].values, low['z'].values, s=15,
+                       c=low['error'].values, vmin=0, vmax=100)
+    low = evlocs[(evlocs['y'] > 5155600) & (evlocs['y'] <= 5155700)]
+    im = ax[1].scatter(low['x'].values, low['z'].values, s=15,
+                       c=low['error'].values, vmin=0, vmax=100)
+    low = evlocs[(evlocs['y'] > 5155700) & (evlocs['y'] <= 5155800)]
+    im = ax[2].scatter(low['x'].values, low['z'].values, s=15,
+                       c=low['error'].values, vmin=0, vmax=100)
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+    fig.colorbar(im, cax=cbar_ax)
+    ax[1].set_ylim((-81, 1))
+    ax[2].set_ylim((-81, 1))
+    plt.show()
+
+    # plot low error locs
+    evlocs = pd.DataFrame(evlocs, columns=['ID', 'x', 'y', 'z', 'amp', 'error',
+                                           'picks'])
+    plt.figure()
+    low = evlocs[(evlocs['error'] <= 30)]
+    plt.scatter(low['x'].values, low['y'].values, s=15, c=low['error'].values)
+    plt.plot(stas['utmx'].values, stas['utmy'].values,
+             'r^')  # plot all the stations
+    for ii in range(len(stas)):
+        plt.text(stas.iloc[kk]['utmx'], stas.iloc[kk]['utmy'],
+                 stas.iloc[kk]['station'], color='r')
+    plt.colorbar()
+    plt.axis('equal')
+    plt.show()
+
+    # plot low error depth slices
+    fig, ax = plt.subplots(nrows=1, ncols=3, figsize=((12, 8)))
+    low = evlocs[(evlocs['y'] > 5155500) & (evlocs['y'] <= 5155600) & (
+            evlocs['error'] <= 30)]
+    im = ax[0].scatter(low['x'].values, low['z'].values, s=15,
+                       c=low['error'].values, vmin=0, vmax=100)
+    ax[0].set_ylim((-81, 1))
+    low = evlocs[(evlocs['y'] > 5155600) & (evlocs['y'] <= 5155700) & (
+            evlocs['error'] <= 30)]
+    im = ax[1].scatter(low['x'].values, low['z'].values, s=15,
+                       c=low['error'].values, vmin=0, vmax=100)
+    ax[1].set_ylim((-81, 1))
+    low = evlocs[(evlocs['y'] > 5155700) & (evlocs['y'] <= 5155800) & (
+            evlocs['error'] <= 30)]
+    im = ax[2].scatter(low['x'].values, low['z'].values, s=15,
+                       c=low['error'].values, vmin=0, vmax=100)
+    ax[2].set_ylim((-81, 1))
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+    fig.colorbar(im, cax=cbar_ax)
+    plt.show()
+
+    evlocs.to_csv('res.locs', index=False)
+
+    # TODO: export files and plot in GMT
