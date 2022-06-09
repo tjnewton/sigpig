@@ -1171,6 +1171,49 @@ def dists_from_srrays():
         # fig.savefig('/Users/amt/Documents/rattlesnake_ridge/ray_tracing/dists_'+stas.iloc[ii]['station']+'.png')
 
 
+def srrays_to_pickle():
+    """ Converts srRays Stingray structures to pickle files.
+
+    # TODO: write docstring
+
+    """
+    # load positions
+    stas = pd.read_csv('crackattack_d1_locations_welev.csv', sep=',')
+    stas = stas.sort_values(by=['latitude'], ascending=False)
+    # stas=stas.reset_index(drop=True)
+    # stas=stas.drop([22])
+    # stas=stas.drop([29])
+
+    for refstaid in stas['station']:
+        print(refstaid)
+        if refstaid[:4] == "UGAP":
+            stingray_id = "10" + str(refstaid[4])
+            file = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
+                   '/srOutput/0.6-0.75/srRays_' + stingray_id + '_2.mat'
+        else:
+            file = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
+                   '/srOutput/0.6-0.75/srRays_' + str(refstaid) + '_2.mat'
+        refsta = sio.loadmat(file)
+        # reftts=np.empty((151,251,76))
+        reftts = refsta['srRays']['time'][0][0]
+
+        # # why is the depth grid truncated?
+        # reftts=reftts[:,:,:40]
+
+        with open('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
+                  '/amplitude_locations/ray_tracing/tts_' + str(
+            refstaid) + '.pkl', 'wb') as f:
+            pickle.dump(reftts, f)
+
+        # get dijkstra distances
+        refprec = refsta['srRays']['iprec'][0][0]
+
+        with open('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
+                  '/amplitude_locations/ray_tracing/dijkstra_dists_' + str(
+            refstaid) + '.pkl', 'wb') as f:
+            pickle.dump(refprec, f)
+
+
 def amplitude_locations():
     """ Driver function to calculate amplitude-based locations.
 
