@@ -1030,4 +1030,43 @@ def amplitude_locations():
 
     evlocs.to_csv('res.locs', index=False)
 
-    # TODO: export files and plot in GMT
+    # export files to plot in GMT
+    hypocenters = []
+    hypos = evlocs[['x', 'y', 'z', 'error']]
+    for index, entry in hypos.iterrows():
+        hypocenters.append([entry['x'], entry['y'], entry['z'],
+                            entry['error']])
+
+    # generate files for plotting hypocenters via gmt
+    with open(f"x_y_horizUncert_amplitudeLocs.csv", "w") as write_file:
+        # write header
+        write_file.write("LON LAT Z\n")
+
+        uncertys = np.asarray([hypocenter[3] for hypocenter in hypocenters])
+        uncerty_min = uncertys.min()
+        uncerty_max = uncertys.max()
+        uncerty_range = uncerty_max - uncerty_min
+        new_min = 1.3
+        new_max = 9.0
+        new_range = new_max - new_min
+
+        # write each hypocenter to file
+        for hypocenter in hypocenters:
+            lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
+
+            # scale horizontal uncertainty for plotting
+            transformed_uncerty = ((hypocenter[3] - uncerty_min) * new_range \
+                                   / uncerty_range) + new_min
+            line = f"{lon} {lat} {transformed_uncerty}\n"
+            write_file.write(line)
+
+    with open(f"x_z_amplitudeLocs.csv", "w") as write_file:
+        # write header
+        write_file.write("LON Z\n")
+
+        # write each hypocenter to file
+        for hypocenter in hypocenters:
+            lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
+
+            line = f"{lon} {hypocenter[2]}\n"
+            write_file.write(line)
