@@ -1189,10 +1189,10 @@ def srrays_to_pickle():
         if refstaid[:4] == "UGAP":
             stingray_id = "10" + str(refstaid[4])
             file = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
-                   '/srOutput/0.6-0.75/srRays_' + stingray_id + '_2.mat'
+                   '/srOutput/OSOS_0.5/srRays_' + stingray_id + '_2.mat'
         else:
             file = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
-                   '/srOutput/0.6-0.75/srRays_' + str(refstaid) + '_2.mat'
+                   '/srOutput/OSOS_0.5/srRays_' + str(refstaid) + '_2.mat'
         refsta = sio.loadmat(file)
         # reftts=np.empty((151,251,76))
         reftts = refsta['srRays']['time'][0][0]
@@ -1205,13 +1205,13 @@ def srrays_to_pickle():
             refstaid) + '.pkl', 'wb') as f:
             pickle.dump(reftts, f)
 
-        # get dijkstra distances
-        refprec = refsta['srRays']['iprec'][0][0]
-
-        with open('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-                  '/amplitude_locations/ray_tracing/dijkstra_dists_' + str(
-            refstaid) + '.pkl', 'wb') as f:
-            pickle.dump(refprec, f)
+        # # get dijkstra distances
+        # refprec = refsta['srRays']['iprec'][0][0]
+        #
+        # with open('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
+        #           '/amplitude_locations/ray_tracing/dijkstra_dists_' + str(
+        #     refstaid) + '.pkl', 'wb') as f:
+        #     pickle.dump(refprec, f)
 
 
 def amplitude_locations():
