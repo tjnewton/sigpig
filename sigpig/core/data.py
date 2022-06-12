@@ -26,6 +26,9 @@ from time_miner import build_unet_model, trace_arrival_prediction
 import base64
 import hashlib
 from tqdm import tqdm
+from eqcorrscan.utils.mag_calc import svd_moments
+from eqcorrscan.utils.clustering import svd
+from eqcorrscan import tests
 import tensorflow as tf
 # turn off verbose tensorflow logging
 tf.get_logger().setLevel('INFO')
@@ -2172,9 +2175,11 @@ def instantaneous_frequency(trace, plots=0):
 def calculate_magnitude():
     """ Function to generate magnitude estimates for the specified
     # TODO: events_dict? streams?
+    from EQcorrscan's singular-value decomposition relative moment estimation.
 
     Example:
 
     """
 
-    ...
+    magnitudes = ...
+    return magnitudes
