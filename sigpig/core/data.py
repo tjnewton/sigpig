@@ -2167,3 +2167,14 @@ def instantaneous_frequency(trace, plots=0):
         plt.show()
 
     return out
+
+
+def calculate_magnitude():
+    """ Function to generate magnitude estimates for the specified
+    # TODO: events_dict? streams?
+
+    Example:
+
+    """
+
+    ...
