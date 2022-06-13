@@ -1768,7 +1768,7 @@ def get_event_stream(event):
 
         # only consider 1.5 seconds of data (this is a busy dataset)
         st.trim(phase_time - 0.6, phase_time + 0.9, pad=True,
-                fill_value=0, nearest_sample=True)
+                fill_value=0, nearest_sample=False)
 
         # add the trace to the figure
         trace = st[0].copy()
@@ -1777,6 +1777,76 @@ def get_event_stream(event):
 
     return event_stream
 
+def get_network_stream(event):
+    """ Takes in an event from an events dict (as returned by
+    top_n_autopicked_events function) and returns a stream containing traces
+    corresponding to all station in the network at the time of the event.
+    This function is used in the calculate_magnitude function.
+
+    Example:
+        # define the file paths containing the autopicked .mrkr file
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+        # define the desired number of events to get
+        n = 100
+        events = top_n_autopicked_events(autopicked_file_path, n)
+
+        # define an event
+        # TODO:
+
+        # get stream containing all phases in the event
+        stream = get_event_stream(event)
+        # plot them
+        from figures import plot_event_picks
+        plot_event_picks(event, plot_curvature=False)
+        plt.show()
+    """
+    # initialize a stream to store traces
+    network_stream = Stream()
+
+    # set a reference phase to define time of interest
+    reference_phase = event[0]
+    # get the phase pick time
+    phase_time = reference_phase['time']
+
+    stations = project_stations("Rattlesnake Ridge", phase_time)
+
+    for station in stations:
+
+        # build the trace filepath
+        if isinstance(station, int):
+            channel = "DP1"
+        else:
+            channel = "EHN"
+        # station format constructed to match filenames sta..chan
+        phase_station = f"{station}..{channel}"
+
+        # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
+        trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
+        trace_file_path = f"5A.{phase_station}." \
+                          f"{phase_time.year}-" \
+                          f"{phase_time.month:02}-" \
+                          f"{phase_time.day:02}T00.00.00.ms"
+        # load the trace
+        st = read(trace_file_prefix + trace_file_path)
+
+        # get 1 minute of data to interpolate, de-trend, filter, and trim
+        st.trim(phase_time - 30, phase_time + 30, pad=True,
+                fill_value=0, nearest_sample=True)
+        st.interpolate(sampling_rate=250.0)
+        # detrend
+        st.detrend()
+        # st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+
+        # only consider 1.5 seconds of data (this is a busy dataset)
+        st.trim(phase_time - 0.6, phase_time + 0.9, pad=True,
+                fill_value=0, nearest_sample=False)
+
+        # add the trace to the figure
+        trace = st[0].copy()
+        # save the trace to the main stream for future work
+        network_stream += trace
+
+    return network_stream
 
 def events_dict_to_snuffler(events: dict):
     """ Takes in a dict of events as returned by the top_n_autopicked_events
@@ -2173,17 +2243,24 @@ def instantaneous_frequency(trace, plots=0):
 
 
 def calculate_magnitude():
-    """ Function to generate magnitude estimates for the specified
-    # TODO: events_dict? streams?
-    from EQcorrscan's singular-value decomposition relative moment estimation.
+    """ Function to generate magnitude estimates for the Rattlesnake
+    Ridge dataset, calculated from EQcorrscan's singular-value decomposition
+    relative moment estimation (
+    https://eqcorrscan.readthedocs.io/en/latest/tutorials/mag-calc.html?highlight=similar_events_processed)
+
+    # TODO: make function dynamic
 
     Example:
+        magnitudes = calculate_magnitude()
+
+        500 -> 40 magnitudes
+        20 -> error
 
     """
     # define the file paths containing the autopicked .mrkr file
     autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
     # define the desired number of events to get
-    n = 500
+    n = 20
     events = top_n_autopicked_events(autopicked_file_path, n)
 
     # make an empty list to store the streams for each event
@@ -2206,7 +2283,12 @@ def calculate_magnitude():
         stream_list.append(stream)
         index_list = []
         for trace in stream:
+            # if len(trace) != 375:
+            #     trace.trim(trace.stats.starttime, trace.stats.starttime + (
+            #         374 * trace.stats.delta))
+
             index_list.append(index)
+            print(len(trace))
         event_list.append(index_list)
 
     event_list = np.asarray(event_list).T.tolist()
