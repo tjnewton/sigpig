@@ -961,7 +961,7 @@ def plot_fits(ampinputs,err,staamps,predamps,weights):
 
 def get_coords():
     file='/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
-         '/srOutput/0.6-0.75/srRays_38_2.mat'
+         '/srOutput/OSOS_0.5/srRays_38_2.mat'
     sta=sio.loadmat(file) # this doesn't work for v7.3 mat files
 
     # import h5py
