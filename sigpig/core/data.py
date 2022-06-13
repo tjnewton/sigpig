@@ -2272,7 +2272,7 @@ def calculate_magnitude():
     for index in tqdm(range(len(event_keys))):
         # get stream containing all phases in the event
         event = events[event_keys[index]]
-        stream = get_event_stream(event)
+        stream = get_network_stream(event)
 
         # # plot them
         # from figures import plot_event_picks
