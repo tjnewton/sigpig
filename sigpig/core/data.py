@@ -2191,9 +2191,10 @@ def calculate_magnitude():
     event_list = []
 
     # loop over events and calculate magnitudes
-    for index, key in enumerate(events.keys()):
+    event_keys = list(events.keys())
+    for index in tqdm(range(len(event_keys))):
         # get stream containing all phases in the event
-        event = events[key]
+        event = events[event_keys[index]]
         stream = get_event_stream(event)
 
         # # plot them
