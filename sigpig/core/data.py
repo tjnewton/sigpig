@@ -2180,27 +2180,33 @@ def calculate_magnitude():
     Example:
 
     """
-    # get events dict
+    # define the file paths containing the autopicked .mrkr file
+    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+    # define the desired number of events to get
+    n = 500
+    events = top_n_autopicked_events(autopicked_file_path, n)
 
-    # get stream from events dict
-    # TODO:
-
-    # Get the path for the test-data so we can test this
-    testing_path = '/Users/human/git/EQcorrscan/eqcorrscan/tests/test_data/similar_events_processed'
-    stream_files = glob.glob(os.path.join(testing_path, '*'))
-    stream_list = [read(stream_file) for stream_file in stream_files]
+    # make an empty list to store the streams for each event
+    stream_list = []
     event_list = []
-    for i, stream in enumerate(stream_list):
-        st_list = []
-        for tr in stream:
-            # Only use the vertical channels of sites with known high similarity.
-            # You do not need to use this step for your data.
-            if (tr.stats.station, tr.stats.channel) not in [('WHAT2', 'SH1'),
-                                                 ('WV04', 'SHZ'), ('GCSZ', 'EHZ')]:
-                stream.remove(tr)
-                continue
-            st_list.append(i)
-        event_list.append(st_list)
+
+    # loop over events and calculate magnitudes
+    for index, key in enumerate(events.keys()):
+        # get stream containing all phases in the event
+        event = events[key]
+        stream = get_event_stream(event)
+
+        # # plot them
+        # from figures import plot_event_picks
+        # plot_event_picks(event, plot_curvature=False)
+        # plt.show()
+
+        # store the stream and add indices to index matrix needed by EQcorrscan
+        stream_list.append(stream)
+        index_list = []
+        for trace in stream:
+            index_list.append(index)
+        event_list.append(index_list)
 
     event_list = np.asarray(event_list).T.tolist()
     SVectors, SValues, Uvectors, stachans = svd(stream_list=stream_list)
