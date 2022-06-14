@@ -2289,7 +2289,6 @@ def calculate_magnitude():
                     374 * trace.stats.delta))
 
             index_list.append(index)
-            print(len(trace))
         event_list.append(index_list)
 
     event_list = np.asarray(event_list).T.tolist()
@@ -2319,7 +2318,6 @@ def calculate_magnitude():
                     374 * trace.stats.delta))
 
             index_list.append(index)
-            print(len(trace))
         event_list.append(index_list)
 
     event_list = np.asarray(event_list).T.tolist()
