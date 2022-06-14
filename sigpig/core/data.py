@@ -2256,12 +2256,11 @@ def calculate_magnitude():
         from figures import plot_distribution
         plot_moment_distribution(all_magnitudes, title="Relative moment distribution for top 500 events", save=True)
 
-
     """
     # define the file paths containing the autopicked .mrkr file
     autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
     # define the desired number of events to get
-    n = 400
+    n = -1
     events = top_n_autopicked_events(autopicked_file_path, n)
 
     relative_moments = []
