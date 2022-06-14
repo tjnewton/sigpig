@@ -2257,16 +2257,20 @@ def calculate_magnitude():
     # define the file paths containing the autopicked .mrkr file
     autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
     # define the desired number of events to get
-    n = 400
+    n = 500
     events = top_n_autopicked_events(autopicked_file_path, n)
 
     # make an empty list to store the streams for each event
     stream_list = []
     event_list = []
+    all_magnitudes = []
 
     # loop over events and calculate magnitudes
     event_keys = list(events.keys())
-    for index in tqdm(range(len(event_keys))):
+
+    # > 300 breaks function, so split mag calc in pieces
+    # TODO: make split dynamic
+    for index in tqdm(range(300)):
         # get stream containing all phases in the event
         event = events[event_keys[index]]
         stream = get_network_stream(event)
@@ -2292,4 +2296,38 @@ def calculate_magnitude():
     SVectors, SValues, Uvectors, stachans = svd(stream_list=stream_list)
     magnitudes, events_out = svd_moments(u=Uvectors, s=SValues, v=SVectors,
                                 stachans=stachans, event_list=event_list)
-    return magnitudes
+
+    for magnitude in magnitudes:
+        all_magnitudes.append(magnitude)
+
+    for index in tqdm(range(300, 500)):
+        # get stream containing all phases in the event
+        event = events[event_keys[index]]
+        stream = get_network_stream(event)
+
+        # # plot them
+        # from figures import plot_event_picks
+        # plot_event_picks(event, plot_curvature=False)
+        # plt.show()
+
+        # store the stream and add indices to index matrix needed by EQcorrscan
+        stream_list.append(stream)
+        index_list = []
+        for trace in stream:
+            if len(trace) != 375:
+                trace.trim(trace.stats.starttime, trace.stats.starttime + (
+                    374 * trace.stats.delta))
+
+            index_list.append(index)
+            print(len(trace))
+        event_list.append(index_list)
+
+    event_list = np.asarray(event_list).T.tolist()
+    SVectors, SValues, Uvectors, stachans = svd(stream_list=stream_list)
+    magnitudes, events_out = svd_moments(u=Uvectors, s=SValues, v=SVectors,
+                                stachans=stachans, event_list=event_list)
+
+    for magnitude in magnitudes:
+        all_magnitudes.append(magnitude)
+
+    return all_magnitudes
