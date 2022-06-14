@@ -2264,15 +2264,13 @@ def calculate_magnitude():
     n = 400
     events = top_n_autopicked_events(autopicked_file_path, n)
 
-    # make an empty list to store the streams for each event
-    stream_list = []
-    event_list = []
-    all_magnitudes = []
+    relative_moments = []
 
     # loop over events and calculate magnitudes
     event_keys = list(events.keys())
+    print(f"There are {len(event_keys)} total events.")
 
-    # > 300 breaks function, so split mag calc in chunks of 300
+    # > 300 breaks svd_moments function, so split mag calc in chunks of 300
     for start_index in range(0, len(event_keys), 300):
         # set the end index for this chunk
         end_index = start_index + 300
@@ -2281,6 +2279,9 @@ def calculate_magnitude():
 
         # loop over all items in this chunk
         for index in tqdm(range(start_index, end_index)):
+            # make an empty list to store the streams for each event
+            stream_list = []
+            event_list = []
             # get stream containing all phases in the event
             event = events[event_keys[index]]
             stream = get_network_stream(event)
@@ -2303,10 +2304,10 @@ def calculate_magnitude():
 
         event_list = np.asarray(event_list).T.tolist()
         SVectors, SValues, Uvectors, stachans = svd(stream_list=stream_list)
-        magnitudes, events_out = svd_moments(u=Uvectors, s=SValues, v=SVectors,
+        rel_moments, events_out = svd_moments(u=Uvectors, s=SValues, v=SVectors,
                                     stachans=stachans, event_list=event_list)
 
-        for magnitude in magnitudes:
-            all_magnitudes.append(magnitude)
+        for rel_moment in rel_moments:
+            relative_moments.append(rel_moment)
 
-    return all_magnitudes
+    return relative_moments
