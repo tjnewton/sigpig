@@ -1174,6 +1174,18 @@ def dists_from_srrays():
         # fig.savefig('/Users/amt/Documents/rattlesnake_ridge/ray_tracing/dists_'+stas.iloc[ii]['station']+'.png')
 
 
+def dijkstra_dists_from_srrays():
+    """ Calculates source-station Dijkstra distances from srRays iprec Stingray
+    structure and saves distances to pickle files.
+
+    # TODO:
+    Returns:
+
+    Example:
+
+    """
+    ...
+
 def srrays_to_pickle():
     """ Converts srRays Stingray structures to pickle files.
 
