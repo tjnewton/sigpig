@@ -1174,7 +1174,7 @@ def dists_from_srrays():
         # fig.savefig('/Users/amt/Documents/rattlesnake_ridge/ray_tracing/dists_'+stas.iloc[ii]['station']+'.png')
 
 
-def dijkstra_dists_from_srrays():
+def dijkstra_dists_from_srrays(plot=False):
     """ Calculates source-station Dijkstra distances from srRays iprec Stingray
     structure and saves distances to pickle files.
 
@@ -1184,6 +1184,8 @@ def dijkstra_dists_from_srrays():
     Example:
 
     """
+    plot=False
+
     # load positions
     stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
     stas = stas.sort_values(by=['latitude'], ascending=False)
@@ -1213,7 +1215,7 @@ def dijkstra_dists_from_srrays():
     stay = stas[stas['station'] == str(staid)]['utmy'].values[0]
     staz = stas[stas['station'] == str(staid)]['elev'].values[0]
 
-    if staid[:4] == "UGAP":
+    if isinstance(staid, str):
         stingray_id = "10" + str(staid[4])
         file = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
                '/srOutput/0.6-0.75/srRays_' + stingray_id + '_2.mat'
@@ -1225,11 +1227,13 @@ def dijkstra_dists_from_srrays():
     distances = np.empty((151, 251, 76))
     iprec = refsta['srRays']['iprec'][0][0]
 
-    # # trace paths
-    # fig,ax=plt.subplots(nrows=1,ncols=1,figsize=(6,12))
-    # tmp=ax.pcolor(x,y,node_ids[:,:,0].T,cmap='viridis',vmin=0,vmax=37901)
-    # ax.plot(stax,stay,'k^',markersize=10)
-    # ax.set_aspect('equal')
+    # plot trace paths
+    if plot:
+        fig,ax=plt.subplots(nrows=1,ncols=1,figsize=(6,12))
+        tmp=ax.pcolor(x,y,node_ids[:,:,0].T,cmap='viridis',vmin=0,vmax=37901)
+        ax.plot(stax,stay,'k^',markersize=10)
+        ax.set_aspect('equal')
+        plt.show()
 
     dds = np.zeros_like(iprec).astype('float')
     for current_node in range(1, iprec.size + 1):
