@@ -1294,11 +1294,13 @@ def dijkstra_dists_from_srrays(plot=False):
     with open(file, 'wb') as f:
         pickle.dump(dds, f)
 
-    # xc=np.array(xc)
-    # yc=np.array(yc)
-    # zc=np.array(zc)
-    # cbar=plt.scatter(xc,yc,s=20,c=dds,vmin=0,vmax=750,cmap='jet',zorder=10)
-    # plt.colorbar(cbar)
+    if plot:
+        xc=np.array(xc)
+        yc=np.array(yc)
+        zc=np.array(zc)
+        cbar=plt.scatter(xc,yc,s=20,c=dds,vmin=0,vmax=750,cmap='jet',zorder=10)
+        plt.colorbar(cbar)
+        plt.show()
 
     return None
 
