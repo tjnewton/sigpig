@@ -1205,6 +1205,25 @@ def dijkstra_dists_from_srrays():
                 node_ids[ii, jj, kk] = c
                 c += 1
 
+    # load station file
+    staid = 2
+    # TODO: loop over all stations
+    # for staid in stations:
+    stax = stas[stas['station'] == str(staid)]['utmx'].values[0]
+    stay = stas[stas['station'] == str(staid)]['utmy'].values[0]
+    staz = stas[stas['station'] == str(staid)]['elev'].values[0]
+
+    if staid[:4] == "UGAP":
+        stingray_id = "10" + str(staid[4])
+        file = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
+               '/srOutput/0.6-0.75/srRays_' + stingray_id + '_2.mat'
+    else:
+        file = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/stingray_rr' \
+               '/srOutput/0.6-0.75/srRays_' + str(staid) + '_2.mat'
+
+    refsta = sio.loadmat(file)
+    distances = np.empty((151, 251, 76))
+    iprec = refsta['srRays']['iprec'][0][0]
 
 
     ...
