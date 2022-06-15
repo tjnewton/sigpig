@@ -1184,7 +1184,8 @@ def dijkstra_dists_from_srrays(plot=False):
     Example:
 
     """
-    # FIXME: remove after testing
+    # FIXME: remove print statements
+    # FIXME: remove plot declaration after testing
     plot=False
 
     # load positions
