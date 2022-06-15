@@ -30,6 +30,7 @@ from lidar import elevations_from_raster
 import scipy.io as sio
 from matplotlib import cm
 from obspy.core import Stream, Trace
+import tqdm
 
 
 def picks_to_nonlinloc(marker_file_path, waveform_files_path):
@@ -1238,7 +1239,7 @@ def dijkstra_dists_from_srrays(plot=False):
         plt.show()
 
     dds = np.zeros_like(iprec).astype('float')
-    for current_node in range(1, iprec.size + 1):
+    for current_node in tqdm(range(1, iprec.size + 1)):
         ii0 = np.where(node_ids == current_node)[0][0]
         jj0 = np.where(node_ids == current_node)[1][0]
         kk0 = np.where(node_ids == current_node)[2][0]
