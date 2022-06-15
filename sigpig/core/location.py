@@ -1185,7 +1185,6 @@ def dijkstra_dists_from_srrays(plot=False):
     Example:
 
     """
-    # FIXME: remove print statements
     # FIXME: remove plot declaration after testing
     plot=False
 
@@ -1250,7 +1249,7 @@ def dijkstra_dists_from_srrays(plot=False):
         jss = []
         kss = []
         while current_node != 0:
-            print(current_node)
+            # print(current_node)
             # get current node index location and append
             ii = np.where(node_ids == current_node)[0][0]
             jj = np.where(node_ids == current_node)[1][0]
@@ -1263,8 +1262,8 @@ def dijkstra_dists_from_srrays(plot=False):
             yc.append(dn[jj])
             zc.append(dz[kk] + elev[ii, jj])
             if dds[ii, jj, kk] != 0:
-                print('distance for node ' + str(
-                    current_node) + ' is already calculated')
+                # print('distance for node ' + str(
+                #     current_node) + ' is already calculated')
                 break
             # get previous node
             prev_node = iprec[ii, jj, kk]
