@@ -1184,6 +1184,29 @@ def dijkstra_dists_from_srrays():
     Example:
 
     """
+    # load positions
+    stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
+    stas = stas.sort_values(by=['latitude'], ascending=False)
+    stas['utmz'] = stas['elev']
+
+    # load node locations
+    de, dn, dz, elev = get_coords()
+    de = np.round(de)
+    dn = np.round(dn)
+    dz = np.round(dz)
+    x, y = np.meshgrid(de, dn)
+
+    # make array of node ids (note node0 is the station so this starts from node 1)
+    node_ids = np.zeros((len(de), len(dn), len(dz)))
+    c = 1
+    for kk in range(len(dz)):
+        for jj in range(len(dn)):
+            for ii in range(len(de)):
+                node_ids[ii, jj, kk] = c
+                c += 1
+
+
+
     ...
 
 def srrays_to_pickle():
