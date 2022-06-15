@@ -30,7 +30,7 @@ from lidar import elevations_from_raster
 import scipy.io as sio
 from matplotlib import cm
 from obspy.core import Stream, Trace
-import tqdm
+from tqdm import tqdm
 
 
 def picks_to_nonlinloc(marker_file_path, waveform_files_path):
