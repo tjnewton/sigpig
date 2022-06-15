@@ -1225,8 +1225,78 @@ def dijkstra_dists_from_srrays():
     distances = np.empty((151, 251, 76))
     iprec = refsta['srRays']['iprec'][0][0]
 
+    # # trace paths
+    # fig,ax=plt.subplots(nrows=1,ncols=1,figsize=(6,12))
+    # tmp=ax.pcolor(x,y,node_ids[:,:,0].T,cmap='viridis',vmin=0,vmax=37901)
+    # ax.plot(stax,stay,'k^',markersize=10)
+    # ax.set_aspect('equal')
 
-    ...
+    dds = np.zeros_like(iprec).astype('float')
+    for current_node in range(1, iprec.size + 1):
+        ii0 = np.where(node_ids == current_node)[0][0]
+        jj0 = np.where(node_ids == current_node)[1][0]
+        kk0 = np.where(node_ids == current_node)[2][0]
+        xc = []
+        yc = []
+        zc = []
+        iss = []
+        jss = []
+        kss = []
+        while current_node != 0:
+            print(current_node)
+            # get current node index location and append
+            ii = np.where(node_ids == current_node)[0][0]
+            jj = np.where(node_ids == current_node)[1][0]
+            kk = np.where(node_ids == current_node)[2][0]
+            iss.append(ii)
+            jss.append(jj)
+            kss.append(kk)
+            # get current node physical location
+            xc.append(de[ii])
+            yc.append(dn[jj])
+            zc.append(dz[kk] + elev[ii, jj])
+            if dds[ii, jj, kk] != 0:
+                print('distance for node ' + str(
+                    current_node) + ' is already calculated')
+                break
+            # get previous node
+            prev_node = iprec[ii, jj, kk]
+            # make previous location current location
+            current_node = prev_node
+            # # trying to speed things up by checking we havent already counted the distance for this node
+        if current_node == 0:
+            # append station location
+            xc.append(stax)
+            yc.append(stay)
+            zc.append(staz)
+            # convert to arrays
+        xc = np.asarray(xc)
+        yc = np.asarray(yc)
+        zc = np.asarray(zc)
+        # calc distances between nodes
+        da = xc[1:] - xc[:-1]
+        db = yc[1:] - yc[:-1]
+        dc = zc[1:] - zc[:-1]
+        dds_along_path = np.cumsum(np.sqrt(da ** 2 + db ** 2 + dc ** 2)[::-1])[
+                         ::-1]
+        if dds[ii, jj, kk] != 0:
+            dds_along_path += dds[ii, jj, kk]
+        for a, b, c, d in zip(iss, jss, kss, dds_along_path):
+            dds[a, b, c] = d
+
+    # save results to a pickle file
+    file = f'/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+           f'/amplitude_locations/ray_tracing/dists_{staid}.pkl'
+    with open(file, 'wb') as f:
+        pickle.dump(dds, f)
+
+    # xc=np.array(xc)
+    # yc=np.array(yc)
+    # zc=np.array(zc)
+    # cbar=plt.scatter(xc,yc,s=20,c=dds,vmin=0,vmax=750,cmap='jet',zorder=10)
+    # plt.colorbar(cbar)
+
+    return None
 
 def srrays_to_pickle():
     """ Converts srRays Stingray structures to pickle files.
