@@ -1189,6 +1189,8 @@ def dijkstra_dists_from_srrays(plot=False):
     # FIXME: remove plot declaration after testing
     plot=False
 
+    start = time.time()
+
     # load positions
     stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
     stas = stas.sort_values(by=['latitude'], ascending=False)
@@ -1305,6 +1307,13 @@ def dijkstra_dists_from_srrays(plot=False):
         plt.colorbar(cbar)
         plt.show()
 
+    # display the runtime
+    end = time.time()
+    hours = int((end - start) / 60 / 60)
+    minutes = int(((end - start) / 60) - (hours * 60))
+    seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+    print(f"Runtime: {hours} h {minutes} m {seconds} s")
+
     return None
 
 def srrays_to_pickle():
@@ -1316,7 +1325,6 @@ def srrays_to_pickle():
         srrays_to_pickle()
 
     """
-    start = time.time()
 
     # load positions
     stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
@@ -1353,13 +1361,6 @@ def srrays_to_pickle():
         #           '/amplitude_locations/ray_tracing/dijkstra_dists_' + str(
         #     refstaid) + '.pkl', 'wb') as f:
         #     pickle.dump(refprec, f)
-
-    # display the runtime
-    end = time.time()
-    hours = int((end - start) / 60 / 60)
-    minutes = int(((end - start) / 60) - (hours * 60))
-    seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
-    print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
 
 def amplitude_locations():
