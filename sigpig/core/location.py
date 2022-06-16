@@ -31,6 +31,7 @@ import scipy.io as sio
 from matplotlib import cm
 from obspy.core import Stream, Trace
 from tqdm import tqdm
+import time
 
 
 def picks_to_nonlinloc(marker_file_path, waveform_files_path):
@@ -1315,6 +1316,8 @@ def srrays_to_pickle():
         srrays_to_pickle()
 
     """
+    start = time.time()
+
     # load positions
     stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
     stas = stas.sort_values(by=['latitude'], ascending=False)
@@ -1350,6 +1353,13 @@ def srrays_to_pickle():
         #           '/amplitude_locations/ray_tracing/dijkstra_dists_' + str(
         #     refstaid) + '.pkl', 'wb') as f:
         #     pickle.dump(refprec, f)
+
+    # display the runtime
+    end = time.time()
+    hours = int((end - start) / 60 / 60)
+    minutes = int(((end - start) / 60) - (hours * 60))
+    seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+    print(f"Runtime: {hours} h {minutes} m {seconds} s")
 
 
 def amplitude_locations():
