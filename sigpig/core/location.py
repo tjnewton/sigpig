@@ -1439,9 +1439,9 @@ def amplitude_locations():
 
     # load tylers phase picks -- phase.mrkr
     df = pd.read_csv("res.mrkr", skiprows=1, delim_whitespace=True,
-                     usecols=[1, 2, 4, 6, 7, 8],
+                     usecols=[1, 2, 4, 5, 6, 7, 8],
                      names=['pick date', 'pick time', 'station_channel',
-                            'marker date', 'marker time', 'phase'])
+                            'hash', 'marker date', 'marker time', 'phase'])
 
     # grab only P picks
     df = df[df['phase'] == 'P']
@@ -1456,12 +1456,14 @@ def amplitude_locations():
     df['picks'] = pd.to_datetime(df['pick date'] + ' ' + df['pick time'],
                                  errors='coerce', format='%Y-%m-%d %H:%M:%S')
     markers = pd.unique(df['markers'])
+    hashes = pd.unique(df['hash'])
 
     evlocs = []
     # # for each marker
     # markers=markers[:2]
     for ii, markertime in enumerate(markers):
         print(f'Processing marker {ii + 1} of {len(markers)}')
+
         # find all the picks that correspond to that marker
         evd = df[df['markers'] == markertime]
 
@@ -1539,8 +1541,8 @@ def amplitude_locations():
                 plot_fits(ampinputs, err, staamps, predamps,
                                          weights)
 
-            evlocs.append([ii, de[minind[0]], dn[minind[1]], dz[minind[2]],
-                           A0s[minind[3]], err, len(evd)])
+            evlocs.append([hashes[ii], de[minind[0]], dn[minind[1]],
+                           dz[minind[2]], A0s[minind[3]], err, len(evd)])
 
     # plot locs
     evlocs = pd.DataFrame(evlocs, columns=['ID', 'x', 'y', 'z', 'amp', 'error',
