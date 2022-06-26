@@ -2196,6 +2196,7 @@ def instantaneous_frequency(trace, plots=0):
 
             # get stream containing all phases in the event
             stream = get_event_stream(event)
+
             # # plot them
             # from figures import plot_event_picks
             # plot_event_picks(event, plot_curvature=False)
@@ -2210,30 +2211,33 @@ def instantaneous_frequency(trace, plots=0):
 
     Another Example:
         # get a dictionary of 214 verified and QC'd events
-        infile = open('/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/214_events_dict.pkl', 'rb')
+        infile = open('214_events_dict.pkl', 'rb')
         events_dict = pickle.load(infile)
         infile.close()
 
-        # get the keys from the dict and select the top event
+        # get the keys from the dict for traversing the dict
         keys = list(events_dict.keys())
 
         # loop over all events and get inst. freq. of every phase
-        freqs = []
+        event_freqs = {}
         for key in keys:
+            freqs = []
             event = events_dict[key]
 
             # get stream containing all phases in the event
             stream = get_event_stream(event)
+
             # # plot them
             # from figures import plot_event_picks
             # plot_event_picks(event, plot_curvature=False)
             # plt.show()
 
+            # get the inst. freq. of each phase pick in this event
             for trace in stream:
                 freqs.append(instantaneous_frequency(trace, plots=0))
 
-        from figures import plot_distribution
-        plot_distribution(freqs, title="Instantaneous frequency distribution for 214 events", save=True)
+            # append all phase inst. freqs. to event inst. freq. dict
+            event_freqs[key] = freqs
     """
     # store the time step duration
     dt = trace.stats.delta
