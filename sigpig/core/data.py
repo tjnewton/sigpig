@@ -2180,34 +2180,60 @@ def instantaneous_frequency(trace, plots=0):
     Calculates the instantaneous frequency of a time series trace.
 
     Example:
-    # get a dictionary of top 500 events (by phase count)
-    infile = open('/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/214_events_dict.pkl', 'rb')
-    # infile = open('top_events_dict.pkl', 'rb')
-    events_dict = pickle.load(infile)
-    infile.close()
 
-    # get the keys from the dict and select the top event
-    keys = list(events_dict.keys())
+        # get a dictionary of top 500 events (by phase count)
+        infile = open('top_events_dict.pkl', 'rb')
+        events_dict = pickle.load(infile)
+        infile.close()
 
-    # loop over all events and get inst. freq. of every phase
-    freqs = []
-    for key in keys:
-        event = events_dict[key]
+        # get the keys from the dict to loop over
+        keys = list(events_dict.keys())
 
-        # get stream containing all phases in the event
-        stream = get_event_stream(event)
-        # # plot them
-        # from figures import plot_event_picks
-        # plot_event_picks(event, plot_curvature=False)
-        # plt.show()
+        # loop over all events and get inst. freq. of every phase
+        freqs = []
+        for key in keys:
+            event = events_dict[key]
 
-        for trace in stream:
-            freqs.append(instantaneous_frequency(trace, plots=0))
+            # get stream containing all phases in the event
+            stream = get_event_stream(event)
+            # # plot them
+            # from figures import plot_event_picks
+            # plot_event_picks(event, plot_curvature=False)
+            # plt.show()
 
-    from figures import plot_distribution
-    plot_distribution(freqs, title="Instantaneous frequency distribution for 214 events", save=True)
+            for trace in stream:
+                freqs.append(instantaneous_frequency(trace, plots=0))
+
+        # plot the instantaneous frequency distribution
+        from figures import plot_distribution
+        plot_distribution(freqs, title="Instantaneous frequency distribution for 214 events", save=True)
 
     Another Example:
+        # get a dictionary of 214 verified and QC'd events
+        infile = open('/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/214_events_dict.pkl', 'rb')
+        events_dict = pickle.load(infile)
+        infile.close()
+
+        # get the keys from the dict and select the top event
+        keys = list(events_dict.keys())
+
+        # loop over all events and get inst. freq. of every phase
+        freqs = []
+        for key in keys:
+            event = events_dict[key]
+
+            # get stream containing all phases in the event
+            stream = get_event_stream(event)
+            # # plot them
+            # from figures import plot_event_picks
+            # plot_event_picks(event, plot_curvature=False)
+            # plt.show()
+
+            for trace in stream:
+                freqs.append(instantaneous_frequency(trace, plots=0))
+
+        from figures import plot_distribution
+        plot_distribution(freqs, title="Instantaneous frequency distribution for 214 events", save=True)
     """
     # store the time step duration
     dt = trace.stats.delta
