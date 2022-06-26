@@ -2219,6 +2219,7 @@ def instantaneous_frequency(trace, plots=0):
         keys = list(events_dict.keys())
 
         # loop over all events and get inst. freq. of every phase
+        event_streams = {}
         event_freqs = {}
         for key in keys:
             freqs = []
@@ -2232,12 +2233,23 @@ def instantaneous_frequency(trace, plots=0):
             # plot_event_picks(event, plot_curvature=False)
             # plt.show()
 
+            # save the stream to a dict
+            event_streams[key] = stream.copy()
+
             # get the inst. freq. of each phase pick in this event
             for trace in stream:
                 freqs.append(instantaneous_frequency(trace, plots=0))
 
             # append all phase inst. freqs. to event inst. freq. dict
             event_freqs[key] = freqs
+
+        # save the inst. frequency dict and stream dict to pkl files
+        outfile = open(f"event_freqs_dict.pkl", 'wb')
+        pickle.dump(event_freqs, outfile)
+        outfile.close()
+        outfile = open(f"event_streams_dict.pkl", 'wb')
+        pickle.dump(event_streams, outfile)
+        outfile.close()
     """
     # store the time step duration
     dt = trace.stats.delta
