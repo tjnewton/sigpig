@@ -19,8 +19,9 @@ Browse the repo directories and notebooks within Jupyter Lab :)
 
 ## Functionality:
 ### sigpig.core.data fetches, formats, and analyzes data:  
-# TODO: order and cleanup functions, move plot_trace_properties to core.figures
-Functions: snr, max_amplitude, get_Waveforms, get_Events, trim_Daily_Waveforms, process_gmap_file, project_stations, rattlesnake_Ridge_Station_Locations, dtm_to_grid, eqTransformer_Formatter, get_trace_properties, plot_trace_properties, top_n_autopicked_events, get_event_stream, get_network_stream, events_dict_to_snuffler, get_picked_uncertainties, process_autopicked_events, get_response_files
+TODO: order and cleanup functions, move plot_trace_properties to core.figures
+TODO: list functions for other modules
+Functions: snr, max_amplitude, get_Waveforms, get_Events, trim_Daily_Waveforms, process_gmap_file, project_stations, rattlesnake_Ridge_Station_Locations, dtm_to_grid, eqTransformer_Formatter, get_trace_properties, plot_trace_properties, top_n_autopicked_events, get_event_stream, get_network_stream, events_dict_to_snuffler, get_picked_uncertainties, process_autopicked_events, get_response_files, instantaneous_frequency, calculate_magnitude
 
 Download time series data from IRIS DMC  
 ```
