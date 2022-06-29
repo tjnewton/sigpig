@@ -1438,7 +1438,7 @@ def amplitude_locations():
     X, Y = np.meshgrid(de, dn)
 
     # load tylers phase picks -- phase.mrkr
-    df = pd.read_csv("res.mrkr", skiprows=1, delim_whitespace=True,
+    df = pd.read_csv("res_214.mrkr", skiprows=1, delim_whitespace=True,
                      usecols=[1, 2, 4, 5, 6, 7, 8],
                      names=['pick date', 'pick time', 'station_channel',
                             'hash', 'marker date', 'marker time', 'phase'])
@@ -1459,8 +1459,8 @@ def amplitude_locations():
     hashes = pd.unique(df['hash'])
 
     evlocs = []
-    # # for each marker
-    # markers=markers[:2]
+
+    # loop over each marker
     for ii, markertime in enumerate(markers):
         print(f'Processing marker {ii + 1} of {len(markers)}')
 
@@ -1518,7 +1518,8 @@ def amplitude_locations():
             # minind = np.unravel_index(np.argmin(resid, axis=None), resid.shape)
 
             # locate me with amplitudes
-            A0s = np.logspace(-5, -3, 11)
+            # A0s = np.logspace(-5, -3, 11)
+            A0s = np.logspace(-5, -3, 100)
             ampresid, staamps, predamps, err, weights \
                 = amplocate(ampinputs['station'].values,
                                            ampinputs['ampfac'].values,
@@ -1614,7 +1615,7 @@ def amplitude_locations():
     fig.colorbar(im, cax=cbar_ax)
     plt.show()
 
-    evlocs.to_csv('res.locs', index=False)
+    evlocs.to_csv('res_214_A0-1000.locs', index=False)
 
     # export files to plot in GMT
     hypocenters = []
