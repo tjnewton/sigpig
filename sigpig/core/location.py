@@ -1519,7 +1519,7 @@ def amplitude_locations():
 
             # locate me with amplitudes
             # A0s = np.logspace(-5, -3, 11)
-            A0s = np.logspace(-5, -3, 100)
+            A0s = np.logspace(-5, -3, 50)
             ampresid, staamps, predamps, err, weights \
                 = amplocate(ampinputs['station'].values,
                                            ampinputs['ampfac'].values,
@@ -1615,7 +1615,7 @@ def amplitude_locations():
     fig.colorbar(im, cax=cbar_ax)
     plt.show()
 
-    evlocs.to_csv('res_214_A0-1000.locs', index=False)
+    evlocs.to_csv('res_214_A0-50.locs', index=False)
 
     # export files to plot in GMT
     hypocenters = []
