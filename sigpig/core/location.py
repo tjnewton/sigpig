@@ -786,7 +786,7 @@ def generate_amplitude_station_file():
 
 
 def set_params():
-    beta=400 # m/s
+    beta=1020 # 400 m/s
     f=60 # frequency
     Q=50 # quality factor (??)
     return beta, f, Q
@@ -1132,7 +1132,7 @@ def dists_from_srrays():
     # plt.figure()
     # plt.scatter(X,Y,s=20, marker='o', c=elev)
 
-    beta = 400  # m/s
+    beta = 1020 # 400 m/s
     f = 40  # frequency
     Q = 50  # quality factor (??)
     B = np.pi * f / (Q * beta)  # 1/m
