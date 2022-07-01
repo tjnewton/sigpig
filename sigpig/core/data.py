@@ -2222,7 +2222,8 @@ def instantaneous_frequency(trace, plots=0):
         # loop over all events and get inst. freq. of every phase
         event_streams = {}
         event_freqs = {}
-        for key in keys:
+        for key_idx in tqdm(range(len(keys))):
+            key = keys[key_idx]
             freqs = []
             event = events_dict[key]
 
@@ -2235,7 +2236,7 @@ def instantaneous_frequency(trace, plots=0):
             # plt.show()
 
             # save the stream to a dict
-            event_streams[key] = stream.copy()
+            # event_streams[key] = stream.copy()
 
             # get the inst. freq. of each phase pick in this event
             for trace in stream:
@@ -2245,7 +2246,7 @@ def instantaneous_frequency(trace, plots=0):
             event_freqs[key] = freqs
 
         # save the inst. frequency dict and stream dict to pkl files
-        outfile = open(f"event_freqs_dict.pkl", 'wb')
+        outfile = open(f"03_13_18_event_freqs_dict.pkl", 'wb')
         pickle.dump(event_freqs, outfile)
         outfile.close()
         outfile = open(f"event_streams_dict.pkl", 'wb')
