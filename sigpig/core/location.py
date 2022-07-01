@@ -1372,6 +1372,8 @@ def amplitude_locations():
         amplitude_locations()
 
     """
+    start = time.time()
+
     # load positions
     stas = pd.read_csv('amplitude_station_locations.csv', sep=',')
     stas = stas.sort_values(by=['latitude'], ascending=False)
@@ -1438,7 +1440,7 @@ def amplitude_locations():
     X, Y = np.meshgrid(de, dn)
 
     # load tylers phase picks -- phase.mrkr
-    df = pd.read_csv("res_214.mrkr", skiprows=1, delim_whitespace=True,
+    df = pd.read_csv("res_03-13.mrkr", skiprows=1, delim_whitespace=True,
                      usecols=[1, 2, 4, 5, 6, 7, 8],
                      names=['pick date', 'pick time', 'station_channel',
                             'hash', 'marker date', 'marker time', 'phase'])
@@ -1615,7 +1617,7 @@ def amplitude_locations():
     fig.colorbar(im, cax=cbar_ax)
     plt.show()
 
-    evlocs.to_csv('res_214_A0-50.locs', index=False)
+    evlocs.to_csv('res_03_13_18_A0-50.locs', index=False)
 
     # export files to plot in GMT
     hypocenters = []
@@ -1657,3 +1659,10 @@ def amplitude_locations():
 
             line = f"{lon} {hypocenter[2]}\n"
             write_file.write(line)
+
+    # display the runtime
+    end = time.time()
+    hours = int((end - start) / 60 / 60)
+    minutes = int(((end - start) / 60) - (hours * 60))
+    seconds = int((end - start) - (minutes * 60) - (hours * 60 * 60))
+    print(f"Runtime: {hours} h {minutes} m {seconds} s")
