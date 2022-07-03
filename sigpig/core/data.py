@@ -2320,7 +2320,7 @@ def inst_freq_binning():
     # TODO:
 
     # bin the instantaneous frequency measurements by ...
-    # TODO: bin by latitude?
+    # TODO: bin by latitude? prob y.
     # TODO: loop over search bins with dataframe querying
 
     return inst_freq_bins
@@ -2334,6 +2334,9 @@ def roughness_binning():
 
     """
     # load point cloud with geometry statistics from csv
+    # FIXME: change to full scarp.csv file
+    roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
+                            '/data/lidar/scarp_subset.csv')
 
     # bin the roughness measurements along latitude?
 
