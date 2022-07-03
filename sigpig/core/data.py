@@ -2319,9 +2319,12 @@ def inst_freq_binning():
     # add event_freqs to event_locs dataframe
     # TODO:
 
-    # bin the instantaneous frequency measurements by ...
+    # bin the instantaneous frequency measurements by 10 m in Y coordinate
+    y_limits = [5155300, 5155990]
+    y_steps = np.linspace(y_limits[0], y_limits[1], y_limits[1] - y_limits[0]+1)
     # TODO: bin by latitude? prob y.
     # TODO: loop over search bins with dataframe querying
+        # how to bin data in dataframe efficiently?
 
     return inst_freq_bins
 
@@ -2338,7 +2341,12 @@ def roughness_binning():
     roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
                             '/data/lidar/scarp_subset.csv')
 
-    # bin the roughness measurements along latitude?
+    # bin the roughness measurements along 10 m of Y coordinate
+    y_limits = [5155300, 5155990]
+    y_steps = np.linspace(y_limits[0], y_limits[1],
+                          y_limits[1] - y_limits[0] + 1)
+    # TODO: loop over search bins with dataframe querying
+        # how to bin data in dataframe efficiently?
 
     return roughness_bins
 
