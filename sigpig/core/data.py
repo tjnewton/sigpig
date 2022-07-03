@@ -2358,7 +2358,9 @@ def roughness_binning():
                                                                y_stride]]
 
         # get data from dataframe that is in this bin
-        # TODO:
+        # TODO: how to best do this?
+        in_bin = roughness.iloc[roughness["Y"] > y_step_limits[0] and
+                                roughness["Y"] <= y_step_limits[1]]
 
     return roughness_bins
 
