@@ -2337,7 +2337,27 @@ def roughness_binning():
 
     # bin the roughness measurements along latitude?
 
-    return None
+    return roughness_bins
+
+
+def compare_inst_freq_and_roughness():
+    """
+    # TODO: write docstring
+
+    Example:
+
+    """
+    # get binned instantaneous frequency data
+    inst_freq_bins = inst_freq_binning()
+
+    # get binned roughness data
+    roughness_bins = roughness_binning()
+
+    # check for correlation between series
+    # TODO:
+
+    # plot inst. freq. and roughness series
+    # TODO:
 
 
 def calculate_magnitude():
