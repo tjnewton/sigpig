@@ -29,6 +29,7 @@ from tqdm import tqdm
 from eqcorrscan.utils.mag_calc import svd_moments
 from eqcorrscan.utils.clustering import svd
 from eqcorrscan import tests
+import pandas as pd
 import tensorflow as tf
 # turn off verbose tensorflow logging
 tf.get_logger().setLevel('INFO')
@@ -2289,6 +2290,40 @@ def instantaneous_frequency(trace, plots=0):
         plt.show()
 
     return out
+
+
+def inst_freq_binning():
+    """
+    #TODO: write docstring
+
+    Example:
+
+    """
+    # load dict constaining instaneous frequency of events
+    infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
+    freqs_dict = pickle.load(infile)
+    infile.close()
+
+    # load locations of events
+    # TODO: load from .locs files
+    event_locs = pd.read_csv('res_214_A0-50_1020ms.locs')
+    event_freqs = {}
+
+    # loop over all events with locations
+    for id in event_locs.ID:
+
+        # get and store the average inst. freq. of the phases as the event i.f.
+        event_freqs = np.asarray(freqs_dict[id])
+        event_freqs[id] = np.median(event_freqs)
+
+    # add event_freqs to event_locs dataframe
+    # TODO:
+
+    # bin the instantaneous frequency measurements by ...
+    # TODO: bin by latitude?
+    # TODO: loop over search bins with dataframe querying
+
+    return inst_freq_bins
 
 
 def calculate_magnitude():
