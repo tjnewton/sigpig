@@ -2362,6 +2362,9 @@ def roughness_binning():
         in_bin = roughness.iloc[roughness["Y"] > y_step_limits[0] and
                                 roughness["Y"] <= y_step_limits[1]]
 
+        # TODO: save some calculation from the binned data
+        #     : like average roughness scaled by z extent of data?
+
     return roughness_bins
 
 
