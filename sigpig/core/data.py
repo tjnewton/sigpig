@@ -2345,8 +2345,20 @@ def roughness_binning():
     y_limits = [5155300, 5155990]
     y_steps = np.linspace(y_limits[0], y_limits[1],
                           y_limits[1] - y_limits[0] + 1)
+    y_stride = 10 # meters
+
     # TODO: loop over search bins with dataframe querying
-        # how to bin data in dataframe efficiently?
+    for step in range(len(y_steps) // y_stride):
+        # TODO: how to bin data in dataframe efficiently?
+        if step == 0:
+            y_step_limits = [y_steps[0], y_steps[y_stride]]
+        else:
+            y_step_limits = [y_steps[step * y_stride], y_steps[step *
+                                                               y_stride +
+                                                               y_stride]]
+
+        # get data from dataframe that is in this bin
+        # TODO:
 
     return roughness_bins
 
