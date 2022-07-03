@@ -2326,6 +2326,20 @@ def inst_freq_binning():
     return inst_freq_bins
 
 
+def roughness_binning():
+    """
+    #TODO: write docstring
+
+    Returns:
+
+    """
+    # load point cloud with geometry statistics from csv
+
+    # bin the roughness measurements along latitude?
+
+    return None
+
+
 def calculate_magnitude():
     """ Function to generate magnitude estimates for the Rattlesnake
     Ridge dataset, calculated from EQcorrscan's singular-value decomposition
