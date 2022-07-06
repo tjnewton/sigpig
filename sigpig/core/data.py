@@ -2247,12 +2247,12 @@ def instantaneous_frequency(trace, plots=0):
             event_freqs[key] = freqs
 
         # save the inst. frequency dict and stream dict to pkl files
-        outfile = open(f"03_13_18_event_freqs_dict.pkl", 'wb')
+        outfile = open(f"214_event_freqs_dict.pkl", 'wb')
         pickle.dump(event_freqs, outfile)
         outfile.close()
-        outfile = open(f"event_streams_dict.pkl", 'wb')
-        pickle.dump(event_streams, outfile)
-        outfile.close()
+        # outfile = open(f"event_streams_dict.pkl", 'wb')
+        # pickle.dump(event_streams, outfile)
+        # outfile.close()
     """
     # store the time step duration
     dt = trace.stats.delta
@@ -2300,12 +2300,13 @@ def inst_freq_binning():
 
     """
     # load dict constaining instaneous frequency of events
-    infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
+    # infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
+    infile = open('214_event_freqs_dict.pkl', 'rb')
     freqs_dict = pickle.load(infile)
     infile.close()
 
     # load locations of events
-    # TODO: load from .locs files
+    # TODO: load from 03_13_18.locs files
     event_locs = pd.read_csv('res_214_A0-50_1020ms.locs')
     event_freqs = {}
 
@@ -2313,8 +2314,8 @@ def inst_freq_binning():
     for id in event_locs.ID:
 
         # get and store the average inst. freq. of the phases as the event i.f.
-        event_freqs = np.asarray(freqs_dict[id])
-        event_freqs[id] = np.median(event_freqs)
+        event_freqs_array = np.asarray(freqs_dict[id])
+        event_freqs[id] = np.median(event_freqs_array)
 
     # add event_freqs to event_locs dataframe
     # TODO:
