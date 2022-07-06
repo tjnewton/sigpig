@@ -2308,17 +2308,17 @@ def inst_freq_binning():
     # load locations of events
     # TODO: load from 03_13_18.locs files
     event_locs = pd.read_csv('res_214_A0-50_1020ms.locs')
-    event_freqs = {}
+    event_freqs = []
 
     # loop over all events with locations
     for id in event_locs.ID:
 
         # get and store the average inst. freq. of the phases as the event i.f.
         event_freqs_array = np.asarray(freqs_dict[id])
-        event_freqs[id] = np.median(event_freqs_array)
+        event_freqs.append(np.median(event_freqs_array))
 
     # add event_freqs to event_locs dataframe
-    # TODO:
+    event_locs['freq'] = event_freqs
 
     # bin the instantaneous frequency measurements by 10 m in Y coordinate
     y_limits = [5155300, 5155990]
