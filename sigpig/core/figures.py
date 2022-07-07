@@ -1664,10 +1664,39 @@ def plot_3d_array(array: np.ndarray):
     return fig
 
 
-def plot_scarp_bin_contents():
+def plot_scarp_bin_contents(binned_event_freqs, bins, bin_count, y_spacing):
     """Function to plot properties of the scarp or events on the Rattlesnake
     Ridge Landslide in scarp distance, which is 0 at the toe of the
     landslide, corresponding to UTM 5155300. """
 
+    # initialize figure and set the figure size
+    figureWidth = 3
+    figureHeight = 11
+    fig = plt.figure(figsize=(figureWidth, figureHeight))
 
-    ...
+    # # loop over bins and generate plot
+    # for index, bin_count in enumerate(bin_counts):
+    #
+    #     # only plot results if there are items in the bin
+    #     if bin_count > 0:
+    #         ...
+    #     else:
+
+
+    # max a box plot for each bin with data
+    plt.boxplot(binned_event_freqs, vert=False, patch_artist=True, labels=bins)
+
+    # set axes attributes
+    plt.ylabel('Distance from scarp (m)')
+    plt.xlabel('Instantaneous frequency (Hz)')
+    plt.title('Instantaneous Frequency Binning')
+    plt.show()
+
+    # plt.legend()
+    # plt.xlim([0.1, 100])
+    # # plt.ylim([40, 50000])
+    # plt.grid(b=True, which='both', axis='both')
+    # plt.tight_layout()
+    # plt.savefig(f"{}m_binned_inst_freq.png", dpi=200)
+
+    plt.show()
