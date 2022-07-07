@@ -1670,7 +1670,7 @@ def plot_scarp_bin_contents(binned_event_freqs, bins, bin_count, y_spacing):
     landslide, corresponding to UTM 5155300. """
 
     # initialize figure and set the figure size
-    figureWidth = 3
+    figureWidth = 4
     figureHeight = 11
     fig = plt.figure(figsize=(figureWidth, figureHeight))
 
@@ -1686,17 +1686,20 @@ def plot_scarp_bin_contents(binned_event_freqs, bins, bin_count, y_spacing):
     # max a box plot for each bin with data
     plt.boxplot(binned_event_freqs, vert=False, patch_artist=True, labels=bins)
 
+    # trim y limit to area with scarp (same as GMT events plot limits)
+    bottom, top = plt.ylim()
+    # define the project latitude limits in UTM meters
+    y_limits = [5155300, 5155990]
+    y_lim_step = (top / (y_limits[1] - y_limits[0])) * y_spacing
+    plt.ylim([(100 / y_spacing) * y_lim_step, (598 / y_spacing) * y_lim_step])
+
     # set axes attributes
-    plt.ylabel('Distance from scarp (m)')
+    plt.ylabel('Distance from experiment origin (m)')
     plt.xlabel('Instantaneous frequency (Hz)')
-    plt.title('Instantaneous Frequency Binning')
+    plt.title('Instantaneous Frequency Binning by Latitude')
+    plt.grid(b=True, which='both', axis='x')
+    plt.tight_layout()
+    plt.savefig(f"{y_spacing}m_binned_inst_freq.png", dpi=200)
     plt.show()
 
-    # plt.legend()
-    # plt.xlim([0.1, 100])
-    # # plt.ylim([40, 50000])
-    # plt.grid(b=True, which='both', axis='both')
-    # plt.tight_layout()
-    # plt.savefig(f"{}m_binned_inst_freq.png", dpi=200)
 
-    plt.show()
