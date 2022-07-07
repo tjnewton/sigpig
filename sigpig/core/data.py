@@ -2315,21 +2315,21 @@ def inst_freq_binning():
 
         # get and store the average inst. freq. of the phases as the event i.f.
         event_freqs_array = np.asarray(freqs_dict[id])
-        event_freqs.append(np.median(event_freqs_array))
+        event_freqs.append(np.nanmedian(event_freqs_array))
 
     # add event_freqs to event_locs dataframe
     event_locs['freq'] = event_freqs
 
-    # FIXME: why are there NaN's in inst freq?
-
     # bin the insantaneous frequency measurements by 10 m in Y coordinate
     y_limits = [5155300, 5155990]
     y_spacing = 10  # meters
-    y_steps = np.linspace(y_limits[0], y_limits[1], (y_limits[1] - y_limits[
-              0] + 1) // y_spacing)
+    # y_steps = np.linspace(y_limits[0], y_limits[1], (y_limits[1] - y_limits[
+    #           0] + 1) // y_spacing)
+    #
+    # # bin by latitude
+    # counts = pd.cut(event_locs['y'], bins=y_steps).value_counts()
 
-    # bin by latitude
-    counts = pd.cut(event_locs['y'], bins=y_steps).value_counts()
+    # store
 
     # TODO: loop over search bins with dataframe querying
         # how to bin data in dataframe efficiently?
