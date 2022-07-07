@@ -1662,3 +1662,12 @@ def plot_3d_array(array: np.ndarray):
     fig.savefig("velocity_model_slices_2.png")
 
     return fig
+
+
+def plot_scarp_bin_contents():
+    """Function to plot properties of the scarp or events on the Rattlesnake
+    Ridge Landslide in scarp distance, which is 0 at the toe of the
+    landslide, corresponding to UTM 5155300. """
+
+
+    ...
