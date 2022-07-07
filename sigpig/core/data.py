@@ -2320,9 +2320,11 @@ def inst_freq_binning():
     # add event_freqs to event_locs dataframe
     event_locs['freq'] = event_freqs
 
-    # bin the insantaneous frequency measurements by 10 m in Y coordinate
+    # definite the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
+    # bin the insantaneous frequency measurements by 10 m in Y coordinate
     y_spacing = 10  # meters
+
     # y_steps = np.linspace(y_limits[0], y_limits[1], (y_limits[1] - y_limits[
     #           0] + 1) // y_spacing)
     #
