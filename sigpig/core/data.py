@@ -2320,10 +2320,22 @@ def inst_freq_binning():
     # add event_freqs to event_locs dataframe
     event_locs['freq'] = event_freqs
 
-    # definite the project latitude limits in UTM meters
+    # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
     # bin the insantaneous frequency measurements by 10 m in Y coordinate
     y_spacing = 10  # meters
+    y_steps = (y_limits[1] - y_limits[0]) // y_spacing
+    # make structures to store lower limit of each bin
+    bins = []
+    binned_event_ids = []
+    binned_event_freqs = []
+
+    # loop over all bins
+    for bin in range(y_steps):
+        bins.append(bin * y_spacing)
+        print(f"bin: {bin * y_spacing}")
+
+        # store ID's and inst. freq's of events in each bin
 
     # y_steps = np.linspace(y_limits[0], y_limits[1], (y_limits[1] - y_limits[
     #           0] + 1) // y_spacing)
@@ -2331,10 +2343,6 @@ def inst_freq_binning():
     # # bin by latitude
     # counts = pd.cut(event_locs['y'], bins=y_steps).value_counts()
 
-    # store
-
-    # TODO: loop over search bins with dataframe querying
-        # how to bin data in dataframe efficiently?
 
     # TODO: plot in distance along scarp?
 
