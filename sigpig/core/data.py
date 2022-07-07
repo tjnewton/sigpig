@@ -2325,17 +2325,38 @@ def inst_freq_binning():
     # bin the insantaneous frequency measurements by 10 m in Y coordinate
     y_spacing = 10  # meters
     y_steps = (y_limits[1] - y_limits[0]) // y_spacing
-    # make structures to store lower limit of each bin
+    # make structures to store lower limit of each bin, bin counts,
+    # event id's in each bin, and inst. freq's in each bin
     bins = []
+    bin_counts = []
     binned_event_ids = []
     binned_event_freqs = []
 
     # loop over all bins
     for bin in range(y_steps):
-        bins.append(bin * y_spacing)
-        print(f"bin: {bin * y_spacing}")
+        meters = bin * y_spacing
+        bins.append(meters)
+        lower_limit = y_limits[0] + meters
+        upper_limit = lower_limit + y_spacing
 
-        # store ID's and inst. freq's of events in each bin
+        # find all events in this bin
+        bin_events = event_locs.loc[(event_locs['y'] >= lower_limit) & (
+                                     event_locs['y'] < upper_limit)]
+
+        # store the ID of all events in this bin
+        count = 0
+        ids = []
+        for id in bin_events.ID:
+            ids.append(id)
+            count += 1
+        binned_event_ids.append(ids)
+        bin_counts.append(count)
+
+        # store the instantaneous frequency of all events in this bin
+        freqs = []
+        for freq in bin_events.freq:
+            freqs.append(freq)
+        binned_event_freqs.append(freqs)
 
     # y_steps = np.linspace(y_limits[0], y_limits[1], (y_limits[1] - y_limits[
     #           0] + 1) // y_spacing)
