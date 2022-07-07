@@ -2323,7 +2323,7 @@ def inst_freq_binning():
     # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
     # bin the insantaneous frequency measurements by # meters in Y coordinate
-    y_spacing = 1  # meters
+    y_spacing = 5  # meters
     y_steps = (y_limits[1] - y_limits[0]) // y_spacing
     # make structures to store lower limit of each bin, bin counts,
     # event id's in each bin, and inst. freq's in each bin
@@ -2361,6 +2361,8 @@ def inst_freq_binning():
     bin_counts = np.asarray(bin_counts)
 
     # plot in distance along scarp, where 0 is the toe of the landslide
+    from figures import plot_scarp_bin_contents
+    plot_scarp_bin_contents(binned_event_freqs, bins, bin_count, y_spacing)
 
     return inst_freq_bins
 
