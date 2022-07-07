@@ -2360,7 +2360,7 @@ def inst_freq_binning():
 
     bin_counts = np.asarray(bin_counts)
 
-    # TODO: plot in distance along scarp, where 0 is the toe of the landslide
+    # plot in distance along scarp, where 0 is the toe of the landslide
 
     return inst_freq_bins
 
