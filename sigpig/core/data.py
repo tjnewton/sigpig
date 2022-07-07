@@ -2320,12 +2320,21 @@ def inst_freq_binning():
     # add event_freqs to event_locs dataframe
     event_locs['freq'] = event_freqs
 
-    # bin the instantaneous frequency measurements by 10 m in Y coordinate
+    # FIXME: why are there NaN's in inst freq?
+
+    # bin the insantaneous frequency measurements by 10 m in Y coordinate
     y_limits = [5155300, 5155990]
-    y_steps = np.linspace(y_limits[0], y_limits[1], y_limits[1] - y_limits[0]+1)
-    # TODO: bin by latitude? prob y.
+    y_spacing = 10  # meters
+    y_steps = np.linspace(y_limits[0], y_limits[1], (y_limits[1] - y_limits[
+              0] + 1) // y_spacing)
+
+    # bin by latitude
+    counts = pd.cut(event_locs['y'], bins=y_steps).value_counts()
+
     # TODO: loop over search bins with dataframe querying
         # how to bin data in dataframe efficiently?
+
+    # TODO: plot in distance along scarp?
 
     return inst_freq_bins
 
