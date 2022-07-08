@@ -2415,7 +2415,7 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
     # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
     y_lim_step = (top / (y_limits[1] - y_limits[0])) * y_spacing
-    plt.ylim([(100 / y_spacing) * y_lim_step, (598 / y_spacing) * y_lim_step])
+    # plt.ylim([(100 / y_spacing) * y_lim_step, (598 / y_spacing) * y_lim_step])
 
     # set axes attributes
     plt.ylabel('Distance from experiment origin (m)')
@@ -2427,6 +2427,9 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
     plt.show()
 
     return None
+
+    for item in enumerate(binned_event_roughs):
+        if len(item) > 0:
 
 
 def roughness_binning(y_limits, y_spacing):
@@ -2440,7 +2443,7 @@ def roughness_binning(y_limits, y_spacing):
     # FIXME: change to full scarp.csv file
     # FIXME: format headings for python access
     roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-                            '/data/lidar/scarp_subset.csv')
+                            '/data/lidar/roughness_0.05-1.0.txt')
 
     # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
@@ -2458,6 +2461,7 @@ def roughness_binning(y_limits, y_spacing):
     for bin in range(y_steps):
         meters = bin * y_spacing
         bins.append(meters)
+        print(f"Bin: {meters}")
         lower_limit = y_limits[0] + meters
         upper_limit = lower_limit + y_spacing
 
@@ -2476,8 +2480,9 @@ def roughness_binning(y_limits, y_spacing):
 
         # store the instantaneous frequency of all events in this bin
         roughs = []
-        for rough in bin_points["Roughness_0.12306"]:
-            roughs.append(rough)
+        for rough in bin_points["Roughness_0.05"]:
+            if not np.isnan(rough):
+                roughs.append(rough)
         binned_event_roughs.append(roughs)
 
     # plot inst. freq. bins in distance from experiment origin in meters
