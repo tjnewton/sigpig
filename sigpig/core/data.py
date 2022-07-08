@@ -2292,7 +2292,7 @@ def instantaneous_frequency(trace, plots=0):
     return out
 
 
-def inst_freq_binning():
+def inst_freq_binning(plot=False):
     """
     #TODO: write docstring
 
@@ -2358,13 +2358,52 @@ def inst_freq_binning():
             freqs.append(freq)
         binned_event_freqs.append(freqs)
 
-    bin_counts = np.asarray(bin_counts)
+    # plot inst. freq. bins in distance from experiment origin in meters
+    if plot:
+        plot_scarp_bin_contents(binned_event_freqs, bins, bin_count, y_spacing)
 
-    # plot in distance along scarp, where 0 is the toe of the landslide
-    from figures import plot_scarp_bin_contents
-    plot_scarp_bin_contents(binned_event_freqs, bins, bin_count, y_spacing)
+    return None
 
-    return inst_freq_bins
+
+def plot_scarp_bin_contents(binned_event_freqs, bins, y_spacing):
+    """Function to plot properties of the scarp or events on the Rattlesnake
+    Ridge Landslide in scarp distance, which is 0 at the toe of the
+    landslide, corresponding to UTM 5155300. """
+
+    # initialize figure and set the figure size
+    figureWidth = 4
+    figureHeight = 11
+    fig = plt.figure(figsize=(figureWidth, figureHeight))
+
+    # # loop over bins and generate plot
+    # for index, bin_count in enumerate(bin_counts):
+    #
+    #     # only plot results if there are items in the bin
+    #     if bin_count > 0:
+    #         ...
+    #     else:
+
+
+    # max a box plot for each bin with data
+    plt.boxplot(binned_event_freqs, vert=False, patch_artist=True, labels=bins)
+
+    # trim y limit to area with scarp (same as GMT events plot limits)
+    bottom, top = plt.ylim()
+    # define the project latitude limits in UTM meters
+    y_limits = [5155300, 5155990]
+    y_lim_step = (top / (y_limits[1] - y_limits[0])) * y_spacing
+    plt.ylim([(100 / y_spacing) * y_lim_step, (598 / y_spacing) * y_lim_step])
+
+    # set axes attributes
+    plt.ylabel('Distance from experiment origin (m)')
+    plt.xlabel('Instantaneous frequency (Hz)')
+    plt.title('Instantaneous Frequency Binning by Latitude')
+    plt.grid(b=True, which='both', axis='x')
+    plt.tight_layout()
+    plt.savefig(f"{y_spacing}m_binned_inst_freq.png", dpi=200)
+    plt.show()
+
+    return None
 
 
 def roughness_binning():
