@@ -2292,7 +2292,7 @@ def instantaneous_frequency(trace, plots=0):
     return out
 
 
-def inst_freq_binning(plot=False):
+def inst_freq_binning(y_limits, y_spacing, plot=False):
     """
     #TODO: write docstring
 
@@ -2323,7 +2323,7 @@ def inst_freq_binning(plot=False):
     # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
     # bin the insantaneous frequency measurements by # meters in Y coordinate
-    y_spacing = 5  # meters
+    y_spacing = 10  # meters
     y_steps = (y_limits[1] - y_limits[0]) // y_spacing
     # make structures to store lower limit of each bin, bin counts,
     # event id's in each bin, and inst. freq's in each bin
@@ -2397,7 +2397,7 @@ def plot_scarp_bin_contents(binned_event_freqs, bins, y_spacing):
     return None
 
 
-def roughness_binning():
+def roughness_binning(y_limits, y_spacing):
     """
     #TODO: write docstring
 
