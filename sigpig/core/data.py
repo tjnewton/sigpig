@@ -2360,7 +2360,7 @@ def inst_freq_binning(plot=False):
 
     # plot inst. freq. bins in distance from experiment origin in meters
     if plot:
-        plot_scarp_bin_contents(binned_event_freqs, bins, bin_count, y_spacing)
+        plot_scarp_bin_contents(binned_event_freqs, bins, y_spacing)
 
     return None
 
