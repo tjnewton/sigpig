@@ -2406,32 +2406,55 @@ def roughness_binning(y_limits, y_spacing):
     """
     # load point cloud with geometry statistics from csv
     # FIXME: change to full scarp.csv file
+    # FIXME: format headings for python access
     roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
                             '/data/lidar/scarp_subset.csv')
 
-    # bin the roughness measurements along 10 m of Y coordinate
+    # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
-    y_steps = np.linspace(y_limits[0], y_limits[1],
-                          y_limits[1] - y_limits[0] + 1)
-    y_stride = 10 # meters
+    # bin the roughness measurements by # meters in Y coordinate
+    y_spacing = 10  # meters
+    y_steps = (y_limits[1] - y_limits[0]) // y_spacing
+    # make structures to store lower limit of each bin, bin counts,
+    # event id's in each bin, and inst. freq's in each bin
+    bins = []
+    bin_counts = []
+    binned_event_ids = []
+    binned_event_roughs = []
 
-    # TODO: loop over search bins with dataframe querying
-    for step in range(len(y_steps) // y_stride):
-        # TODO: how to bin data in dataframe efficiently?
-        if step == 0:
-            y_step_limits = [y_steps[0], y_steps[y_stride]]
-        else:
-            y_step_limits = [y_steps[step * y_stride], y_steps[step *
-                                                               y_stride +
-                                                               y_stride]]
+    # loop over all bins
+    for bin in range(y_steps):
+        meters = bin * y_spacing
+        bins.append(meters)
+        lower_limit = y_limits[0] + meters
+        upper_limit = lower_limit + y_spacing
 
-        # get data from dataframe that is in this bin
-        # TODO: how to best do this?
-        in_bin = roughness.iloc[roughness["Y"] > y_step_limits[0] and
-                                roughness["Y"] <= y_step_limits[1]]
+        # find all events in this bin
+        bin_events = roughness.loc[(roughness['Y'] >= lower_limit) & (
+                     roughness['Y'] < upper_limit)]
 
-        # TODO: save some calculation from the binned data
-        #     : like average roughness scaled by z extent of data?
+        # # store the ID of all events in this bin
+        # count = 0
+        # ids = []
+        # for id in bin_events.ID:
+        #     ids.append(id)
+        #     count += 1
+        # binned_event_ids.append(ids)
+        # bin_counts.append(count)
+
+        # store the instantaneous frequency of all events in this bin
+        roughs = []
+        for rough in roughness["Roughness_0.12306"]:
+            roughs.append(rough)
+        binned_event_roughs.append(roughs)
+
+    # plot inst. freq. bins in distance from experiment origin in meters
+    if plot:
+        plot_scarp_bin_contents(binned_event_roughs, bins, y_spacing)
+
+
+    # TODO: save some calculation from the binned data
+    #     : like average roughness scaled by z extent of data?
 
     return roughness_bins
 
