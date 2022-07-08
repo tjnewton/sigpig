@@ -2428,9 +2428,6 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
 
     return None
 
-    for item in enumerate(binned_event_roughs):
-        if len(item) > 0:
-
 
 def roughness_binning(y_limits, y_spacing):
     """
