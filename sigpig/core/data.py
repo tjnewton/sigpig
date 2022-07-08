@@ -2397,6 +2397,38 @@ def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
     return None
 
 
+def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
+    """Function to plot properties of the scarp or events on the Rattlesnake
+    Ridge Landslide in scarp distance, which is 0 at the toe of the
+    landslide, corresponding to UTM 5155300. """
+
+    # initialize figure and set the figure size
+    figureWidth = 4
+    figureHeight = 11
+    fig = plt.figure(figsize=(figureWidth, figureHeight))
+
+    # max a box plot for each bin with data
+    plt.boxplot(binned_event_roughs, vert=False, patch_artist=True, labels=bins)
+
+    # trim y limit to area with scarp (same as GMT events plot limits)
+    bottom, top = plt.ylim()
+    # define the project latitude limits in UTM meters
+    y_limits = [5155300, 5155990]
+    y_lim_step = (top / (y_limits[1] - y_limits[0])) * y_spacing
+    plt.ylim([(100 / y_spacing) * y_lim_step, (598 / y_spacing) * y_lim_step])
+
+    # set axes attributes
+    plt.ylabel('Distance from experiment origin (m)')
+    plt.xlabel('Roughness')
+    plt.title('Scarp Roughness Binning by Latitude')
+    plt.grid(b=True, which='both', axis='x')
+    plt.tight_layout()
+    plt.savefig(f"{y_spacing}m_binned_roughness.png", dpi=200)
+    plt.show()
+
+    return None
+
+
 def roughness_binning(y_limits, y_spacing):
     """
     #TODO: write docstring
