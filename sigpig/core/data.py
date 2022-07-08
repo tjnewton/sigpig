@@ -2360,12 +2360,12 @@ def inst_freq_binning(y_limits, y_spacing, plot=False):
 
     # plot inst. freq. bins in distance from experiment origin in meters
     if plot:
-        plot_scarp_bin_contents(binned_event_freqs, bins, y_spacing)
+        plot_scarp_freqs(binned_event_freqs, bins, y_spacing)
 
     return None
 
 
-def plot_scarp_bin_contents(binned_event_freqs, bins, y_spacing):
+def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
     """Function to plot properties of the scarp or events on the Rattlesnake
     Ridge Landslide in scarp distance, which is 0 at the toe of the
     landslide, corresponding to UTM 5155300. """
@@ -2430,7 +2430,7 @@ def roughness_binning(y_limits, y_spacing):
         upper_limit = lower_limit + y_spacing
 
         # find all events in this bin
-        bin_events = roughness.loc[(roughness['Y'] >= lower_limit) & (
+        bin_points = roughness.loc[(roughness['Y'] >= lower_limit) & (
                      roughness['Y'] < upper_limit)]
 
         # # store the ID of all events in this bin
@@ -2444,13 +2444,13 @@ def roughness_binning(y_limits, y_spacing):
 
         # store the instantaneous frequency of all events in this bin
         roughs = []
-        for rough in roughness["Roughness_0.12306"]:
+        for rough in bin_points["Roughness_0.12306"]:
             roughs.append(rough)
         binned_event_roughs.append(roughs)
 
     # plot inst. freq. bins in distance from experiment origin in meters
     if plot:
-        plot_scarp_bin_contents(binned_event_roughs, bins, y_spacing)
+        plot_scarp_roughness(binned_event_roughs, bins, y_spacing)
 
 
     # TODO: save some calculation from the binned data
