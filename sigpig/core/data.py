@@ -2375,15 +2375,6 @@ def plot_scarp_bin_contents(binned_event_freqs, bins, y_spacing):
     figureHeight = 11
     fig = plt.figure(figsize=(figureWidth, figureHeight))
 
-    # # loop over bins and generate plot
-    # for index, bin_count in enumerate(bin_counts):
-    #
-    #     # only plot results if there are items in the bin
-    #     if bin_count > 0:
-    #         ...
-    #     else:
-
-
     # max a box plot for each bin with data
     plt.boxplot(binned_event_freqs, vert=False, patch_artist=True, labels=bins)
 
