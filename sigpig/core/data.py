@@ -2415,7 +2415,7 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
     # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
     y_lim_step = (top / (y_limits[1] - y_limits[0])) * y_spacing
-    # plt.ylim([(100 / y_spacing) * y_lim_step, (598 / y_spacing) * y_lim_step])
+    plt.ylim([(100 / y_spacing) * y_lim_step, (598 / y_spacing) * y_lim_step])
 
     # set axes attributes
     plt.ylabel('Distance from experiment origin (m)')
