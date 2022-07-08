@@ -2445,7 +2445,7 @@ def roughness_binning(y_limits, y_spacing):
     # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
     # bin the roughness measurements by # meters in Y coordinate
-    y_spacing = 10  # meters
+    y_spacing = 5  # meters
     y_steps = (y_limits[1] - y_limits[0]) // y_spacing
     # make structures to store lower limit of each bin, bin counts,
     # event id's in each bin, and inst. freq's in each bin
