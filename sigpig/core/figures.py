@@ -1665,20 +1665,19 @@ def plot_3d_array(array: np.ndarray):
     return fig
 
 
-def visualize_roughness():
+def visualize_roughness(filename):
     """
     # TODO: make docstring
 
-    Returns:
+    Example:
+        # define the file containing the point cloud and roughness calculations
+        # filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_test.csv'
+        filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_0.05-10.0.csv'
+        visualize_roughness(filename)
 
     """
     # load point cloud with geometry statistics from csv
-    roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-                            '/data/lidar/roughness_0.05-10.0.csv')
-    # roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-    #                         '/data/lidar/roughness_test.csv')
-
-    roughnesses = ["0.05", "0.1", "0.5", "1", "5", "10"]
+    roughness = pd.read_csv(filename)
 
     x = roughness["X"]
     y = roughness["Y"]
