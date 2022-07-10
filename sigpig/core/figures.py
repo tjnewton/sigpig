@@ -1671,7 +1671,9 @@ def visualize_roughness(filename):
 
     Example:
         # define the file containing the point cloud and roughness calculations
+        #    test file
         # filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_test.csv'
+        #    full file
         filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_0.05-10.0.csv'
         visualize_roughness(filename)
 
@@ -1683,6 +1685,7 @@ def visualize_roughness(filename):
     y = roughness["Y"]
     z = roughness["Z"]
     c = roughness["Roughness_0.05"]
+    c = np.log(c)
 
     from mpl_toolkits.mplot3d import proj3d
 
@@ -1703,7 +1706,7 @@ def visualize_roughness(filename):
     plt.ylabel('Elevation: 1.5x vertical exaggeration (meters)')
     ax.yaxis.set_label_coords(1.04, 0.83)
     plt.xlabel('Latitude (meters)')
-    plt.title('Scarp Roughness')
+    plt.title('Log of Scarp Roughness')
     # plt.colorbar(sc1)
 
     # flip x axis for viewing from west facing east
@@ -1742,6 +1745,7 @@ def visualize_roughness(filename):
 
     # plot roughness at r=0.1
     c = roughness["Roughness_0.1"]
+    c = np.log(c)
     # offset z
     z2 = z - 50
     sc2 = ax.scatter(y, z2, c=c, s=1)
@@ -1755,6 +1759,7 @@ def visualize_roughness(filename):
 
     # plot roughness at r=0.5
     c = roughness["Roughness_0.5"]
+    c = np.log(c)
     # offset z
     z3 = z2 - 50
     sc3 = ax.scatter(y, z3, c=c, s=1)
@@ -1768,6 +1773,7 @@ def visualize_roughness(filename):
 
     # plot roughness at r=1
     c = roughness["Roughness_1"]
+    c = np.log(c)
     # offset z
     z4 = z3 - 50
     sc4 = ax.scatter(y, z4, c=c, s=1)
@@ -1781,6 +1787,7 @@ def visualize_roughness(filename):
 
     # plot roughness at r=5
     c = roughness["Roughness_5"]
+    c = np.log(c)
     # offset z
     z5 = z4 - 50
     sc5 = ax.scatter(y, z5, c=c, s=1)
@@ -1794,6 +1801,7 @@ def visualize_roughness(filename):
 
     # plot roughness at r=10
     c = roughness["Roughness_10"]
+    c = np.log(c)
     # offset z
     z6 = z5 - 50
     sc6 = ax.scatter(y, z6, c=c, s=1)
@@ -1806,7 +1814,7 @@ def visualize_roughness(filename):
     fig.colorbar(sc6, cax=axins6, orientation="vertical")
 
     # save figure, then show figure
-    plt.savefig(f"roughness.png", dpi=300)
+    plt.savefig(f"roughness_log.png", dpi=300)
     plt.show()
 
     return None
