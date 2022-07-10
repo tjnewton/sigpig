@@ -9,6 +9,7 @@ from obspy.signal.util import _npts2nfft
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from matplotlib.dates import DateFormatter, AutoDateLocator
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import glob
 import numpy as np
 import scipy.signal as spsig
@@ -1672,10 +1673,54 @@ def visualize_roughness():
 
     """
     # load point cloud with geometry statistics from csv
+    # roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
+    #                         '/data/lidar/roughness_0.05-10.0.csv')
     roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-                            '/data/lidar/roughness_0.05-10.0.csv')
+                            '/data/lidar/roughness_test.csv')
 
 
+    x = roughness["X"]
+    y = roughness["Y"]
+    z = roughness["Z"]
+    c = roughness["Roughness_2"]
+
+    from mpl_toolkits.mplot3d import proj3d
+
+    fig = plt.figure(figsize=(15, 4))
+
+    # for 2d plotting
+    ax = fig.add_subplot(111)
+
+    # # for 3d plotting
+    # ax = fig.add_subplot(111, projection='3d')
+    # ax.scatter(x, y, z, c=c, s=1)
+    # ax.view_init(elev=0, azim=270)
+
+    # plot roughness at r=0.05
+    sc1 = ax.scatter(y, z, c=c, s=1)
+    ax.set_aspect("equal")
+    plt.ylabel('Elevation (meters)')
+    plt.xlabel('Latitude (meters)')
+    plt.title('Scarp Roughness')
+    # plt.colorbar(sc1)
+
+    # flip y axis for viewing from west facing east
+    # x1, x2 = plt.xlim()
+    # ax.set_xlim(x2, x1)
+
+    axins1 = inset_axes(ax, width="5%", height="50%", loc='upper left') #,
+                        # bbox_to_anchor=(0.5, 0.1, 1, 1),
+                        # bbox_transform=ax.transAxes,
+                        # borderpad=0)
+
+    fig.colorbar(sc1, cax=axins1, orientation="vertical") # , ticks=[1, 2, 3]
+    axins1.xaxis.set_ticks_position("bottom")
+
+
+    # plot roughness at r=0.1
+
+
+    plt.show()
 
 
     ...
