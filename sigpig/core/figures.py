@@ -1665,9 +1665,11 @@ def plot_3d_array(array: np.ndarray):
     return fig
 
 
-def visualize_roughness(filename):
+def visualize_roughness(filename, log=False):
     """
     # TODO: make docstring
+    if log=True, the natural logarithm of the scarp roughness at each radii
+    is plotted.
 
     Example:
         # define the file containing the point cloud and roughness calculations
@@ -1685,7 +1687,8 @@ def visualize_roughness(filename):
     y = roughness["Y"]
     z = roughness["Z"]
     c = roughness["Roughness_0.05"]
-    c = np.log(c)
+    if log:
+        c = np.log(c)
 
     from mpl_toolkits.mplot3d import proj3d
 
@@ -1699,13 +1702,8 @@ def visualize_roughness(filename):
     # ax.scatter(x, y, z, c=c, s=1)
     # ax.view_init(elev=0, azim=270)
 
-    # set common colorbar limits
-    vmin = 0
-    vmax = 1
-
     # plot roughness at r=0.05
     sc1 = ax.scatter(y, z, c=c, s=1)
-    sc1.set_clim(vmin, vmax)
     ax.text(5155830, z[0] + 70, "r=0.05 m", fontsize=14)
     ax.set_aspect(1.5)
     plt.ylabel('Elevation: 1.5x vertical exaggeration (meters)')
