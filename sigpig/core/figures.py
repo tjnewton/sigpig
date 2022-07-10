@@ -1699,6 +1699,7 @@ def visualize_roughness():
 
     # plot roughness at r=0.05
     sc1 = ax.scatter(y, z, c=c, s=1)
+    ax.text(5155830, z[0] + 70, "r=0.05 m", fontsize=14)
     ax.set_aspect("equal")
     plt.ylabel('Elevation (meters)')
     plt.xlabel('Latitude (meters)')
@@ -1708,6 +1709,8 @@ def visualize_roughness():
     # flip y axis for viewing from west facing east
     x1, x2 = plt.xlim()
     ax.set_xlim(x2, x1)
+
+    # set a reference axis for positioning colorbars
     ax_ref = ax
 
     # put the colorbar in a custom spot to the left of the plotted point cloud
@@ -1723,6 +1726,7 @@ def visualize_roughness():
     # offset z
     z2 = z - 50
     sc2 = ax.scatter(y, z2, c=c, s=1)
+    ax.text(5155830, z2[0] + 70, "r=0.1 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins2 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
                         bbox_to_anchor=(0.01, -0.14, 1, 1),
@@ -1735,6 +1739,7 @@ def visualize_roughness():
     # offset z
     z3 = z2 - 50
     sc3 = ax.scatter(y, z3, c=c, s=1)
+    ax.text(5155830, z3[0] + 70, "r=0.5 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins3 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
                         bbox_to_anchor=(0.01, -0.27, 1, 1),
@@ -1747,6 +1752,7 @@ def visualize_roughness():
     # offset z
     z4 = z3 - 50
     sc4 = ax.scatter(y, z4, c=c, s=1)
+    ax.text(5155830, z4[0] + 70, "r=1 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins4 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
                         bbox_to_anchor=(0.01, -0.40, 1, 1),
@@ -1759,6 +1765,7 @@ def visualize_roughness():
     # offset z
     z5 = z4 - 50
     sc5 = ax.scatter(y, z5, c=c, s=1)
+    ax.text(5155830, z5[0] + 70, "r=5 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins5 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
                         bbox_to_anchor=(0.01, -0.53, 1, 1),
@@ -1771,6 +1778,7 @@ def visualize_roughness():
     # offset z
     z6 = z5 - 50
     sc6 = ax.scatter(y, z6, c=c, s=1)
+    ax.text(5155830, z6[0] + 70, "r=10 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins6 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
                         bbox_to_anchor=(0.01, -0.66, 1, 1),
