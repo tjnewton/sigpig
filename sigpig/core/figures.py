@@ -1702,13 +1702,33 @@ def visualize_roughness():
     ax.text(5155830, z[0] + 70, "r=0.05 m", fontsize=14)
     ax.set_aspect("equal")
     plt.ylabel('Elevation (meters)')
+    ax.yaxis.set_label_coords(1.05, 0.85)
     plt.xlabel('Latitude (meters)')
     plt.title('Scarp Roughness')
     # plt.colorbar(sc1)
 
-    # flip y axis for viewing from west facing east
+    # flip x axis for viewing from west facing east
     x1, x2 = plt.xlim()
     ax.set_xlim(x2, x1)
+    ax.set_ylim(115, 479)
+
+    # turn grid on
+    plt.grid(visible=True, which='major', axis='both')
+    plt.grid(visible=True, which='minor', axis='x')
+    # set y-ticks to right side
+    ax.yaxis.tick_right()
+    ax.yaxis.set_label_position("right")
+
+    # set the y labels so they don't show all the way down
+    ax.set_yticks((120, 130, 140, 150, 160, 170, 180, 190, 200, 210,
+                   220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320,
+                   330, 340, 350, 360,
+                   370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470))
+    ax.set_yticklabels(("", "", "", "", "", "", "", "", "", "",
+                        "", "", "", "", "", "", "", "", "", "", "",
+                        "", "", "", "",
+                        370, 380, 390, 400, 410, 420, 430, 440, 450, 460,
+                        470))
 
     # set a reference axis for positioning colorbars
     ax_ref = ax
@@ -1785,7 +1805,8 @@ def visualize_roughness():
                         bbox_transform=ax_ref.transAxes,
                         borderpad=0)
     fig.colorbar(sc6, cax=axins6, orientation="vertical")
-    # plt.tight_layout()
+
+    # save figure, then show figure
     plt.savefig(f"roughness.png", dpi=300)
     plt.show()
 
