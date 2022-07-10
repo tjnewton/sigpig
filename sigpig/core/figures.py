@@ -1708,11 +1708,12 @@ def visualize_roughness():
     # flip y axis for viewing from west facing east
     x1, x2 = plt.xlim()
     ax.set_xlim(x2, x1)
+    ax_ref = ax
 
     # put the colorbar in a custom spot to the left of the plotted point cloud
-    axins1 = inset_axes(ax, width="2%", height="30%", loc='upper left',
-                        bbox_to_anchor=(0.01, 0.0, 1, 1),
-                        bbox_transform=ax.transAxes,
+    axins1 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.01, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
                         borderpad=0)
     fig.colorbar(sc1, cax=axins1, orientation="vertical") # , ticks=[1, 2, 3]
     # axins1.xaxis.set_ticks_position("bottom")
@@ -1723,9 +1724,9 @@ def visualize_roughness():
     z2 = z - 50
     sc2 = ax.scatter(y, z2, c=c, s=1)
     # put the colorbar in a custom spot to the left of the plotted point cloud
-    axins2 = inset_axes(ax, width="2%", height="30%", loc='upper left',
-                        bbox_to_anchor=(0.01, -0.5, 1, 1),
-                        bbox_transform=ax.transAxes,
+    axins2 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.14, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
                         borderpad=0)
     fig.colorbar(sc2, cax=axins2, orientation="vertical")
 
@@ -1735,49 +1736,49 @@ def visualize_roughness():
     z3 = z2 - 50
     sc3 = ax.scatter(y, z3, c=c, s=1)
     # put the colorbar in a custom spot to the left of the plotted point cloud
-    axins3 = inset_axes(ax, width="2%", height="30%", loc='upper left',
-                        bbox_to_anchor=(0.01, -0.5, 1, 1),
-                        bbox_transform=ax.transAxes,
+    axins3 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.27, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
                         borderpad=0)
     fig.colorbar(sc3, cax=axins3, orientation="vertical")
 
     # plot roughness at r=1
-    c = roughness["Roughness_3"]
+    c = roughness["Roughness_4"]
     # offset z
     z4 = z3 - 50
     sc4 = ax.scatter(y, z4, c=c, s=1)
     # put the colorbar in a custom spot to the left of the plotted point cloud
-    axins4 = inset_axes(ax, width="2%", height="30%", loc='upper left',
-                        bbox_to_anchor=(0.01, -0.5, 1, 1),
-                        bbox_transform=ax.transAxes,
+    axins4 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.40, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
                         borderpad=0)
     fig.colorbar(sc4, cax=axins4, orientation="vertical")
 
     # plot roughness at r=5
-    c = roughness["Roughness_3"]
+    c = roughness["Roughness_5"]
     # offset z
     z5 = z4 - 50
     sc5 = ax.scatter(y, z5, c=c, s=1)
     # put the colorbar in a custom spot to the left of the plotted point cloud
-    axins5 = inset_axes(ax, width="2%", height="30%", loc='upper left',
-                        bbox_to_anchor=(0.01, -0.5, 1, 1),
-                        bbox_transform=ax.transAxes,
+    axins5 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.53, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
                         borderpad=0)
     fig.colorbar(sc5, cax=axins5, orientation="vertical")
 
     # plot roughness at r=10
-    c = roughness["Roughness_3"]
+    c = roughness["Roughness_6"]
     # offset z
     z6 = z5 - 50
     sc6 = ax.scatter(y, z6, c=c, s=1)
     # put the colorbar in a custom spot to the left of the plotted point cloud
-    axins6 = inset_axes(ax, width="2%", height="30%", loc='upper left',
-                        bbox_to_anchor=(0.01, -0.5, 1, 1),
-                        bbox_transform=ax.transAxes,
+    axins6 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.66, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
                         borderpad=0)
     fig.colorbar(sc6, cax=axins6, orientation="vertical")
-
+    # plt.tight_layout()
+    plt.savefig(f"roughness.png", dpi=300)
     plt.show()
 
-
-    ...
+    return None
