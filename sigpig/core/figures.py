@@ -1700,9 +1700,9 @@ def visualize_roughness():
     # plot roughness at r=0.05
     sc1 = ax.scatter(y, z, c=c, s=1)
     ax.text(5155830, z[0] + 70, "r=0.05 m", fontsize=14)
-    ax.set_aspect("equal")
-    plt.ylabel('Elevation (meters)')
-    ax.yaxis.set_label_coords(1.05, 0.85)
+    ax.set_aspect(1.5)
+    plt.ylabel('Elevation: 1.5x vertical exaggeration (meters)')
+    ax.yaxis.set_label_coords(1.04, 0.83)
     plt.xlabel('Latitude (meters)')
     plt.title('Scarp Roughness')
     # plt.colorbar(sc1)
