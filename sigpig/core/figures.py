@@ -1699,8 +1699,13 @@ def visualize_roughness(filename):
     # ax.scatter(x, y, z, c=c, s=1)
     # ax.view_init(elev=0, azim=270)
 
+    # set common colorbar limits
+    vmin = 0
+    vmax = 1
+
     # plot roughness at r=0.05
     sc1 = ax.scatter(y, z, c=c, s=1)
+    sc1.set_clim(vmin, vmax)
     ax.text(5155830, z[0] + 70, "r=0.05 m", fontsize=14)
     ax.set_aspect(1.5)
     plt.ylabel('Elevation: 1.5x vertical exaggeration (meters)')
