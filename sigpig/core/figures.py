@@ -1677,7 +1677,7 @@ def visualize_roughness(filename, log=False):
         # filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_test.csv'
         #    full file
         filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_0.05-10.0.csv'
-        visualize_roughness(filename)
+        visualize_roughness(filename, log=False)
 
     """
     # load point cloud with geometry statistics from csv
