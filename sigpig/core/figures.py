@@ -1748,7 +1748,8 @@ def visualize_roughness(filename, log=False):
 
     # plot roughness at r=0.1
     c = roughness["Roughness_0.1"]
-    c = np.log(c)
+    if log:
+        c = np.log(c)
     # offset z
     z2 = z - 50
     sc2 = ax.scatter(y, z2, c=c, s=1)
@@ -1762,7 +1763,8 @@ def visualize_roughness(filename, log=False):
 
     # plot roughness at r=0.5
     c = roughness["Roughness_0.5"]
-    c = np.log(c)
+    if log:
+        c = np.log(c)
     # offset z
     z3 = z2 - 50
     sc3 = ax.scatter(y, z3, c=c, s=1)
@@ -1776,7 +1778,8 @@ def visualize_roughness(filename, log=False):
 
     # plot roughness at r=1
     c = roughness["Roughness_1"]
-    c = np.log(c)
+    if log:
+        c = np.log(c)
     # offset z
     z4 = z3 - 50
     sc4 = ax.scatter(y, z4, c=c, s=1)
@@ -1790,7 +1793,8 @@ def visualize_roughness(filename, log=False):
 
     # plot roughness at r=5
     c = roughness["Roughness_5"]
-    c = np.log(c)
+    if log:
+        c = np.log(c)
     # offset z
     z5 = z4 - 50
     sc5 = ax.scatter(y, z5, c=c, s=1)
@@ -1804,7 +1808,8 @@ def visualize_roughness(filename, log=False):
 
     # plot roughness at r=10
     c = roughness["Roughness_10"]
-    c = np.log(c)
+    if log:
+        c = np.log(c)
     # offset z
     z6 = z5 - 50
     sc6 = ax.scatter(y, z6, c=c, s=1)
