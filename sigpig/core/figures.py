@@ -1673,17 +1673,17 @@ def visualize_roughness():
 
     """
     # load point cloud with geometry statistics from csv
-    # roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-    #                         '/data/lidar/roughness_0.05-10.0.csv')
     roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-                            '/data/lidar/roughness_test.csv')
+                            '/data/lidar/roughness_0.05-10.0.csv')
+    # roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
+    #                         '/data/lidar/roughness_test.csv')
 
     roughnesses = ["0.05", "0.1", "0.5", "1", "5", "10"]
 
     x = roughness["X"]
     y = roughness["Y"]
     z = roughness["Z"]
-    c = roughness["Roughness_1"]
+    c = roughness["Roughness_0.05"]
 
     from mpl_toolkits.mplot3d import proj3d
 
@@ -1742,7 +1742,7 @@ def visualize_roughness():
     # axins1.xaxis.set_ticks_position("bottom")
 
     # plot roughness at r=0.1
-    c = roughness["Roughness_2"]
+    c = roughness["Roughness_0.1"]
     # offset z
     z2 = z - 50
     sc2 = ax.scatter(y, z2, c=c, s=1)
@@ -1755,7 +1755,7 @@ def visualize_roughness():
     fig.colorbar(sc2, cax=axins2, orientation="vertical")
 
     # plot roughness at r=0.5
-    c = roughness["Roughness_3"]
+    c = roughness["Roughness_0.5"]
     # offset z
     z3 = z2 - 50
     sc3 = ax.scatter(y, z3, c=c, s=1)
@@ -1768,7 +1768,7 @@ def visualize_roughness():
     fig.colorbar(sc3, cax=axins3, orientation="vertical")
 
     # plot roughness at r=1
-    c = roughness["Roughness_4"]
+    c = roughness["Roughness_1"]
     # offset z
     z4 = z3 - 50
     sc4 = ax.scatter(y, z4, c=c, s=1)
@@ -1794,7 +1794,7 @@ def visualize_roughness():
     fig.colorbar(sc5, cax=axins5, orientation="vertical")
 
     # plot roughness at r=10
-    c = roughness["Roughness_6"]
+    c = roughness["Roughness_10"]
     # offset z
     z6 = z5 - 50
     sc6 = ax.scatter(y, z6, c=c, s=1)
