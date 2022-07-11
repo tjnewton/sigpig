@@ -2423,7 +2423,7 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
     plt.title('Scarp Roughness Binning by Latitude')
     plt.grid(b=True, which='both', axis='x')
     plt.tight_layout()
-    plt.savefig(f"{y_spacing}m_binned_roughness_10.png", dpi=200)
+    plt.savefig(f"{y_spacing}m_binned_roughness_5.png", dpi=200)
     plt.show()
 
     return None
@@ -2444,7 +2444,7 @@ def roughness_binning(y_limits, y_spacing):
     # define the project latitude limits in UTM meters
     y_limits = [5155300, 5155990]
     # bin the roughness measurements by # meters in Y coordinate
-    y_spacing = 2  # meters
+    y_spacing = 5  # meters
     y_steps = (y_limits[1] - y_limits[0]) // y_spacing
     # make structures to store lower limit of each bin, bin counts,
     # event id's in each bin, and inst. freq's in each bin
@@ -2476,7 +2476,7 @@ def roughness_binning(y_limits, y_spacing):
 
         # store the instantaneous frequency of all events in this bin
         roughs = []
-        for rough in bin_points["Roughness_10"]:
+        for rough in bin_points["Roughness_5"]:
             if not np.isnan(rough):
                 roughs.append(rough)
         binned_event_roughs.append(roughs)
