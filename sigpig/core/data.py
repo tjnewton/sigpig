@@ -2433,9 +2433,10 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing,
 
 def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
     """
-    #TODO: write docstring
+    Bins roughness values of a point cloud and optionally generates a box
+    plot of the roughness values in each bin.
 
-    Example: #TODO:
+    Example:
         # define the project latitude limits in UTM meters
         y_limits = [5155300, 5155990]
 
