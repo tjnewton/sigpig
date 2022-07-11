@@ -2485,7 +2485,7 @@ def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
 
         # store the instantaneous frequency of all events in this bin
         roughs = []
-        for rough in bin_points[f"Roughness_{roughness_radii}"]:
+        for rough in bin_points[f"Roughness_{roughness_radius}"]:
             if not np.isnan(rough):
                 roughs.append(rough)
         binned_event_roughs.append(roughs)
@@ -2493,13 +2493,9 @@ def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
     # plot inst. freq. bins in distance from experiment origin in meters
     if plot:
         plot_scarp_roughness(binned_event_roughs, bins, y_spacing,
-                             roughness_radii)
+                             roughness_radius)
 
-
-    # TODO: save some calculation from the binned data
-    #     : like average roughness scaled by z extent of data?
-
-    return roughness_bins
+    return binned_event_roughs
 
 
 def compare_inst_freq_and_roughness():
