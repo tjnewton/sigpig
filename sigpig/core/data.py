@@ -2444,7 +2444,10 @@ def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
 
         # define the roughness neighborhood radii
         roughness_radii = [10, 5, 1, 0.5, 0.1, 0.05]
-        roughness_binning(y_limits, y_spacing, roughness_radius, plot=True)
+
+        # do the roughness binning and plot it for each radii
+        for roughness_radius in roughness_radii:
+            roughness_binning(y_limits, y_spacing, roughness_radius, plot=True)
 
     """
     # load point cloud with geometry statistics from csv
