@@ -2397,7 +2397,8 @@ def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
     return None
 
 
-def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
+def plot_scarp_roughness(binned_event_roughs, bins, y_spacing,
+                         roughness_radius):
     """Function to plot properties of the scarp or events on the Rattlesnake
     Ridge Landslide in scarp distance, which is 0 at the toe of the
     landslide, corresponding to UTM 5155300. """
@@ -2423,13 +2424,14 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
     plt.title('Scarp Roughness Binning by Latitude')
     plt.grid(b=True, which='both', axis='x')
     plt.tight_layout()
-    plt.savefig(f"{y_spacing}m_binned_roughness_5.png", dpi=200)
+    plt.savefig(f"{y_spacing}m_binned_roughness_r{roughness_radius}.png",
+                dpi=200)
     plt.show()
 
     return None
 
 
-def roughness_binning(y_limits, y_spacing, roughness_radii, plot=False):
+def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
     """
     #TODO: write docstring
 
@@ -2441,8 +2443,8 @@ def roughness_binning(y_limits, y_spacing, roughness_radii, plot=False):
         y_spacing = 5  # meters
 
         # define the roughness neighborhood radii
-        roughness_radii = 1
-        roughness_binning(y_limits, y_spacing, roughness_radii, plot=True)
+        roughness_radii = [10, 5, 1, 0.5, 0.1, 0.05]
+        roughness_binning(y_limits, y_spacing, roughness_radius, plot=True)
 
     """
     # load point cloud with geometry statistics from csv
@@ -2487,7 +2489,8 @@ def roughness_binning(y_limits, y_spacing, roughness_radii, plot=False):
 
     # plot inst. freq. bins in distance from experiment origin in meters
     if plot:
-        plot_scarp_roughness(binned_event_roughs, bins, y_spacing)
+        plot_scarp_roughness(binned_event_roughs, bins, y_spacing,
+                             roughness_radii)
 
 
     # TODO: save some calculation from the binned data
