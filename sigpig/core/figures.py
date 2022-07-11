@@ -1697,19 +1697,22 @@ def visualize_roughness(filename, log=False):
     # for 2d plotting
     ax = fig.add_subplot(111)
 
+    # define the marker size
+    m_size = 0.05
+
     # # for 3d plotting
     # ax = fig.add_subplot(111, projection='3d')
     # ax.scatter(x, y, z, c=c, s=1)
     # ax.view_init(elev=0, azim=270)
 
     # plot roughness at r=0.05
-    sc1 = ax.scatter(y, z, c=c, s=1)
+    sc1 = ax.scatter(y, z, c=c, s=m_size)
     ax.text(5155830, z[0] + 70, "r=0.05 m", fontsize=14)
     ax.set_aspect(1.5)
     plt.ylabel('Elevation: 1.5x vertical exaggeration (meters)')
     ax.yaxis.set_label_coords(1.04, 0.83)
     plt.xlabel('Latitude (meters)')
-    plt.title('Log of Scarp Roughness')
+    plt.title('Scarp Roughness')
     # plt.colorbar(sc1)
 
     # flip x axis for viewing from west facing east
@@ -1752,7 +1755,7 @@ def visualize_roughness(filename, log=False):
         c = np.log(c)
     # offset z
     z2 = z - 50
-    sc2 = ax.scatter(y, z2, c=c, s=1)
+    sc2 = ax.scatter(y, z2, c=c, s=m_size)
     ax.text(5155830, z2[0] + 70, "r=0.1 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins2 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
@@ -1767,7 +1770,7 @@ def visualize_roughness(filename, log=False):
         c = np.log(c)
     # offset z
     z3 = z2 - 50
-    sc3 = ax.scatter(y, z3, c=c, s=1)
+    sc3 = ax.scatter(y, z3, c=c, s=m_size)
     ax.text(5155830, z3[0] + 70, "r=0.5 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins3 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
@@ -1782,7 +1785,7 @@ def visualize_roughness(filename, log=False):
         c = np.log(c)
     # offset z
     z4 = z3 - 50
-    sc4 = ax.scatter(y, z4, c=c, s=1)
+    sc4 = ax.scatter(y, z4, c=c, s=m_size)
     ax.text(5155830, z4[0] + 70, "r=1 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins4 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
@@ -1797,7 +1800,7 @@ def visualize_roughness(filename, log=False):
         c = np.log(c)
     # offset z
     z5 = z4 - 50
-    sc5 = ax.scatter(y, z5, c=c, s=1)
+    sc5 = ax.scatter(y, z5, c=c, s=m_size)
     ax.text(5155830, z5[0] + 70, "r=5 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins5 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
@@ -1812,7 +1815,7 @@ def visualize_roughness(filename, log=False):
         c = np.log(c)
     # offset z
     z6 = z5 - 50
-    sc6 = ax.scatter(y, z6, c=c, s=1)
+    sc6 = ax.scatter(y, z6, c=c, s=m_size)
     ax.text(5155830, z6[0] + 70, "r=10 m", fontsize=14)
     # put the colorbar in a custom spot to the left of the plotted point cloud
     axins6 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
@@ -1822,7 +1825,7 @@ def visualize_roughness(filename, log=False):
     fig.colorbar(sc6, cax=axins6, orientation="vertical")
 
     # save figure, then show figure
-    plt.savefig(f"roughness_log.png", dpi=300)
+    plt.savefig(f"roughness.png", dpi=300)
     plt.show()
 
     return None
