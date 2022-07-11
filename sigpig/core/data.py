@@ -2441,7 +2441,7 @@ def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
         y_limits = [5155300, 5155990]
 
         # bin the roughness measurements by # meters in Y coordinate
-        y_spacing = 5  # meters
+        y_spacing = 10  # meters
 
         # define the roughness neighborhood radii
         roughness_radii = [10, 5, 1, 0.5, 0.1, 0.05]
