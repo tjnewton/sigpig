@@ -2438,8 +2438,6 @@ def roughness_binning(y_limits, y_spacing):
 
     """
     # load point cloud with geometry statistics from csv
-    # FIXME: change to full scarp.csv file
-    # FIXME: format headings for python access
     roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
                             '/data/lidar/roughness_0.05-10.0.csv')
 
