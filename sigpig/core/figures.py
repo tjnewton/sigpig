@@ -1024,9 +1024,27 @@ def plot_distribution(data, bins=False, title=False, save=False):
 
     Example:
         plot_distribution(snrs, title="SNR distribution", save=True)
+
+    Another example:
+        # load RR event instantaneous frequency values from pickle file
+        infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
+        events_freqs = pickle.load(infile)
+        infile.close()
+
+        # get the keys of the dict to traverse the dict and store a list of
+        # values
+        keys = list(events_freqs.keys())
+        freqs = []
+        for key in keys:
+            event_freqs = events_freqs[key]
+            freqs.append(np.nanmedian(event_freqs))
+
+        # plot the distribution of median phase inst. freq. for each event
+        # from March 13, 2018 at the RRL
+        plot_distribution(freqs, title="Instantaneous Frequency of Events on March 13, 2018", save=True)
     """
     df = pd.Series(data)
-    fig = plt.figure(figsize=(9, 5))
+    fig = plt.figure(figsize=(9, 4))
     if bins == False:
         bins = 100
     n, bins, patches = plt.hist(data, bins=bins, facecolor="darkred",
@@ -1035,8 +1053,8 @@ def plot_distribution(data, bins=False, title=False, save=False):
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'Value (100 bins)')
-    plt.ylabel("Counts per bin")
+    plt.xlabel(f'Instantaneous Frequency (Hz)')
+    plt.ylabel("Events per bin")
     # set plot limits
     # plt.ylim(0, 50)
     ax.set_xlim([bins[0], bins[-1]])
@@ -1073,7 +1091,7 @@ def plot_distribution(data, bins=False, title=False, save=False):
     if title != False:
         ax.set_title(title, y=0.9999)
         if save:
-            fig.savefig(f"{title}.png", dpi=100)
+            fig.savefig(f"new_histogram.png", dpi=100)
 
     plt.tight_layout()
     plt.show()
