@@ -9,6 +9,7 @@ from obspy.signal.util import _npts2nfft
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from matplotlib.dates import DateFormatter, AutoDateLocator
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import glob
 import numpy as np
 import scipy.signal as spsig
@@ -1681,3 +1682,168 @@ def plot_3d_array(array: np.ndarray):
 
     return fig
 
+
+def visualize_roughness(filename, log=False):
+    """
+    # TODO: make docstring
+    if log=True, the natural logarithm of the scarp roughness at each radii
+    is plotted.
+
+    Example:
+        # define the file containing the point cloud and roughness calculations
+        #    test file
+        # filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_test.csv'
+        #    full file
+        filename = '/Users/human/Dropbox/Research/Rattlesnake_Ridge/data/lidar/roughness_0.05-10.0.csv'
+        visualize_roughness(filename, log=False)
+
+    """
+    # load point cloud with geometry statistics from csv
+    roughness = pd.read_csv(filename)
+
+    x = roughness["X"]
+    y = roughness["Y"]
+    z = roughness["Z"]
+    c = roughness["Roughness_0.05"]
+    if log:
+        c = np.log(c)
+
+    from mpl_toolkits.mplot3d import proj3d
+
+    fig = plt.figure(figsize=(15, 20))
+
+    # for 2d plotting
+    ax = fig.add_subplot(111)
+
+    # define the marker size
+    m_size = 0.05
+
+    # # for 3d plotting
+    # ax = fig.add_subplot(111, projection='3d')
+    # ax.scatter(x, y, z, c=c, s=1)
+    # ax.view_init(elev=0, azim=270)
+
+    # plot roughness at r=0.05
+    sc1 = ax.scatter(y, z, c=c, s=m_size)
+    ax.text(5155830, z[0] + 70, "r=0.05 m", fontsize=14)
+    ax.set_aspect(1.5)
+    plt.ylabel('Elevation: 1.5x vertical exaggeration (meters)')
+    ax.yaxis.set_label_coords(1.04, 0.83)
+    plt.xlabel('Latitude (meters)')
+    plt.title('Scarp Roughness')
+    # plt.colorbar(sc1)
+
+    # flip x axis for viewing from west facing east
+    x1, x2 = plt.xlim()
+    ax.set_xlim(x2, x1)
+    ax.set_ylim(115, 479)
+
+    # turn grid on
+    plt.grid(visible=True, which='major', axis='both')
+    plt.grid(visible=True, which='minor', axis='x')
+    # set y-ticks to right side
+    ax.yaxis.tick_right()
+    ax.yaxis.set_label_position("right")
+
+    # set the y labels so they don't show all the way down
+    ax.set_yticks((120, 130, 140, 150, 160, 170, 180, 190, 200, 210,
+                   220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320,
+                   330, 340, 350, 360,
+                   370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470))
+    ax.set_yticklabels(("", "", "", "", "", "", "", "", "", "",
+                        "", "", "", "", "", "", "", "", "", "", "",
+                        "", "", "", "",
+                        370, 380, 390, 400, 410, 420, 430, 440, 450, 460,
+                        470))
+
+    # set a reference axis for positioning colorbars
+    ax_ref = ax
+
+    # put the colorbar in a custom spot to the left of the plotted point cloud
+    axins1 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.01, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
+                        borderpad=0)
+    fig.colorbar(sc1, cax=axins1, orientation="vertical") # , ticks=[1, 2, 3]
+    # axins1.xaxis.set_ticks_position("bottom")
+
+    # plot roughness at r=0.1
+    c = roughness["Roughness_0.1"]
+    if log:
+        c = np.log(c)
+    # offset z
+    z2 = z - 50
+    sc2 = ax.scatter(y, z2, c=c, s=m_size)
+    ax.text(5155830, z2[0] + 70, "r=0.1 m", fontsize=14)
+    # put the colorbar in a custom spot to the left of the plotted point cloud
+    axins2 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.14, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
+                        borderpad=0)
+    fig.colorbar(sc2, cax=axins2, orientation="vertical")
+
+    # plot roughness at r=0.5
+    c = roughness["Roughness_0.5"]
+    if log:
+        c = np.log(c)
+    # offset z
+    z3 = z2 - 50
+    sc3 = ax.scatter(y, z3, c=c, s=m_size)
+    ax.text(5155830, z3[0] + 70, "r=0.5 m", fontsize=14)
+    # put the colorbar in a custom spot to the left of the plotted point cloud
+    axins3 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.27, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
+                        borderpad=0)
+    fig.colorbar(sc3, cax=axins3, orientation="vertical")
+
+    # plot roughness at r=1
+    c = roughness["Roughness_1"]
+    if log:
+        c = np.log(c)
+    # offset z
+    z4 = z3 - 50
+    sc4 = ax.scatter(y, z4, c=c, s=m_size)
+    ax.text(5155830, z4[0] + 70, "r=1 m", fontsize=14)
+    # put the colorbar in a custom spot to the left of the plotted point cloud
+    axins4 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.40, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
+                        borderpad=0)
+    fig.colorbar(sc4, cax=axins4, orientation="vertical")
+
+    # plot roughness at r=5
+    c = roughness["Roughness_5"]
+    if log:
+        c = np.log(c)
+    # offset z
+    z5 = z4 - 50
+    sc5 = ax.scatter(y, z5, c=c, s=m_size)
+    ax.text(5155830, z5[0] + 70, "r=5 m", fontsize=14)
+    # put the colorbar in a custom spot to the left of the plotted point cloud
+    axins5 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.53, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
+                        borderpad=0)
+    fig.colorbar(sc5, cax=axins5, orientation="vertical")
+
+    # plot roughness at r=10
+    c = roughness["Roughness_10"]
+    if log:
+        c = np.log(c)
+    # offset z
+    z6 = z5 - 50
+    sc6 = ax.scatter(y, z6, c=c, s=m_size)
+    ax.text(5155830, z6[0] + 70, "r=10 m", fontsize=14)
+    # put the colorbar in a custom spot to the left of the plotted point cloud
+    axins6 = inset_axes(ax_ref, width="2%", height="11%", loc='upper left',
+                        bbox_to_anchor=(0.01, -0.66, 1, 1),
+                        bbox_transform=ax_ref.transAxes,
+                        borderpad=0)
+    fig.colorbar(sc6, cax=axins6, orientation="vertical")
+
+    # save figure, then show figure
+    plt.savefig(f"roughness.png", dpi=300)
+    plt.show()
+
+    return None

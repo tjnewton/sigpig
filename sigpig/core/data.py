@@ -2397,7 +2397,8 @@ def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
     return None
 
 
-def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
+def plot_scarp_roughness(binned_event_roughs, bins, y_spacing,
+                         roughness_radius):
     """Function to plot properties of the scarp or events on the Rattlesnake
     Ridge Landslide in scarp distance, which is 0 at the toe of the
     landslide, corresponding to UTM 5155300. """
@@ -2423,29 +2424,37 @@ def plot_scarp_roughness(binned_event_roughs, bins, y_spacing):
     plt.title('Scarp Roughness Binning by Latitude')
     plt.grid(b=True, which='both', axis='x')
     plt.tight_layout()
-    plt.savefig(f"{y_spacing}m_binned_roughness.png", dpi=200)
+    plt.savefig(f"{y_spacing}m_binned_roughness_r{roughness_radius}.png",
+                dpi=200)
     plt.show()
 
     return None
 
 
-def roughness_binning(y_limits, y_spacing):
+def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
     """
-    #TODO: write docstring
+    Bins roughness values of a point cloud and optionally generates a box
+    plot of the roughness values in each bin.
 
-    Returns:
+    Example:
+        # define the project latitude limits in UTM meters
+        y_limits = [5155300, 5155990]
+
+        # bin the roughness measurements by # meters in Y coordinate
+        y_spacing = 10  # meters
+
+        # define the roughness neighborhood radii
+        roughness_radii = [10, 5, 1, 0.5, 0.1, 0.05]
+
+        # do the roughness binning and plot it for each radii
+        for roughness_radius in roughness_radii:
+            roughness_binning(y_limits, y_spacing, roughness_radius, plot=True)
 
     """
     # load point cloud with geometry statistics from csv
-    # FIXME: change to full scarp.csv file
-    # FIXME: format headings for python access
     roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
-                            '/data/lidar/roughness_0.05-1.0.txt')
+                            '/data/lidar/roughness_0.05-10.0.csv')
 
-    # define the project latitude limits in UTM meters
-    y_limits = [5155300, 5155990]
-    # bin the roughness measurements by # meters in Y coordinate
-    y_spacing = 5  # meters
     y_steps = (y_limits[1] - y_limits[0]) // y_spacing
     # make structures to store lower limit of each bin, bin counts,
     # event id's in each bin, and inst. freq's in each bin
@@ -2477,20 +2486,17 @@ def roughness_binning(y_limits, y_spacing):
 
         # store the instantaneous frequency of all events in this bin
         roughs = []
-        for rough in bin_points["Roughness_0.05"]:
+        for rough in bin_points[f"Roughness_{roughness_radius}"]:
             if not np.isnan(rough):
                 roughs.append(rough)
         binned_event_roughs.append(roughs)
 
     # plot inst. freq. bins in distance from experiment origin in meters
     if plot:
-        plot_scarp_roughness(binned_event_roughs, bins, y_spacing)
+        plot_scarp_roughness(binned_event_roughs, bins, y_spacing,
+                             roughness_radius)
 
-
-    # TODO: save some calculation from the binned data
-    #     : like average roughness scaled by z extent of data?
-
-    return roughness_bins
+    return binned_event_roughs
 
 
 def compare_inst_freq_and_roughness():
