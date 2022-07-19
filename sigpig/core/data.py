@@ -2421,10 +2421,45 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
             event_freqs.append(np.nan)
 
     # now write hypocenter and inst. freq to file for plotting
-    # TODO:
+    # export files to plot in GMT
+    hypocenters = []
+    hypos = locations[['x', 'y', 'z', 'error']]
+    for index, entry in hypos.iterrows():
+        hypocenters.append([entry['x'], entry['y'], entry['z'],
+                            entry['freq']])
 
-    ...
+    # generate files for plotting hypocenters via gmt
+    with open(f"x_y_horizUncert_amplitudeLocs.csv", "w") as write_file:
+        # write header
+        write_file.write("LON LAT Z\n")
 
+        uncertys = np.asarray(
+            [hypocenter[3] for hypocenter in hypocenters])
+        uncerty_min = uncertys.min()
+        uncerty_max = uncertys.max()
+        uncerty_range = uncerty_max - uncerty_min
+        new_min = 1.3
+        new_max = 9.0
+        new_range = new_max - new_min
+
+        # write each hypocenter to file
+        for hypocenter in hypocenters:
+            lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
+            line = f"{lon} {lat} {hypocenter[3]}\n"
+            write_file.write(line)
+
+    with open(f"x_z_amplitudeLocs.csv", "w") as write_file:
+        # write header
+        write_file.write("LON Z\n")
+
+        # write each hypocenter to file
+        for hypocenter in hypocenters:
+            lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
+
+            line = f"{lon} {hypocenter[2]} {hypocenter[3]}\n"
+            write_file.write(line)
+
+    return None
 
 
 def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
