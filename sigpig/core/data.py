@@ -2410,20 +2410,21 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
     infile = open(frequencies_path, 'rb')
     frequencies = pickle.load(infile)
     infile.close()
+    freq_keys = list(frequencies.keys())
 
     # loop over all events with locations and get the median instantaneous
     # frequency of all phases comprising that event
     event_freqs = []
-    for event_id in locations["ID"]:
-        try:
-            event_freqs.append(np.nanmedian(frequencies[event_id]))
-        except Exception:
-            event_freqs.append(np.nan)
+    for index, event_id in enumerate(locations["ID"]):
+        event_freqs.append(np.nanmedian(frequencies[freq_keys[index]]))
+
+    # add freqs column to dataframe
+    locations["freqs"] = event_freqs
 
     # now write hypocenter and inst. freq to file for plotting
     # export files to plot in GMT
     hypocenters = []
-    hypos = locations[['x', 'y', 'z', 'error']]
+    hypos = locations[['x', 'y', 'z', 'freqs']]
     for index, entry in hypos.iterrows():
         hypocenters.append([entry['x'], entry['y'], entry['z'],
                             entry['freq']])
@@ -2432,15 +2433,6 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
     with open(f"x_y_horizUncert_amplitudeLocs.csv", "w") as write_file:
         # write header
         write_file.write("LON LAT Z\n")
-
-        uncertys = np.asarray(
-            [hypocenter[3] for hypocenter in hypocenters])
-        uncerty_min = uncertys.min()
-        uncerty_max = uncertys.max()
-        uncerty_range = uncerty_max - uncerty_min
-        new_min = 1.3
-        new_max = 9.0
-        new_range = new_max - new_min
 
         # write each hypocenter to file
         for hypocenter in hypocenters:
