@@ -2397,6 +2397,36 @@ def inst_freq_binning(y_limits, y_spacing, plot=False):
     return None
 
 
+def inst_freq_plotting_files(locations_path, frequencies_path):
+    """
+    Generates files to plot event location and instantaneous frequency in GMT.
+
+    Example:
+        locations_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_5000_A0-11/res_03_13_5000_A0-11.locs"
+        frequencies_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_5000_A0-11/5004_event_freqs_dict.pkl"
+    """
+    # get the event locations and instantaneous frequencies
+    locations = pd.read_csv(locations_path)
+    infile = open(frequencies_path, 'rb')
+    frequencies = pickle.load(infile)
+    infile.close()
+
+    # loop over all events with locations and get the median instantaneous
+    # frequency of all phases comprising that event
+    event_freqs = []
+    for event_id in locations["ID"]:
+        try:
+            event_freqs.append(np.nanmedian(frequencies[event_id]))
+        except Exception:
+            event_freqs.append(np.nan)
+
+    # now write hypocenter and inst. freq to file for plotting
+    # TODO:
+
+    ...
+
+
+
 def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
     """Function to plot properties of the scarp or events on the Rattlesnake
     Ridge Landslide in scarp distance, which is 0 at the toe of the
