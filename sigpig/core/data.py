@@ -1861,7 +1861,7 @@ def events_dict_to_snuffler(events: dict):
         # define the file paths containing the autopicked .mrkr file
         autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
         # define the desired number of events to get
-        n = 500
+        n = 5004
         events = top_n_autopicked_events(autopicked_file_path, n)
 
         # write the events to a snuffler format file
@@ -1920,7 +1920,7 @@ def events_dict_to_snuffler(events: dict):
             content_list.append(pick_line)
 
     # append contents to file
-    f = open('res.mrkr', "a")
+    f = open('res_03-13_5000.mrkr', "a")
     f.writelines(content_list)
     f.close()
 
