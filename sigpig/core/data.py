@@ -133,8 +133,8 @@ def get_Waveforms(network, stations, location, channels, start_Time,
         stations = ["UGAP3", "UGAP5", "UGAP6"]
         location = "**"
         channels = ["EHN", "EHE", "EHZ"]
-        start_Time = UTCDateTime("2018-05-08T00:00:00.0Z")
-        end_Time =   UTCDateTime("2018-05-08T23:59:59.999999999999999Z") # 6/4
+        start_Time = UTCDateTime("2018-05-17T00:00:00.0Z")
+        end_Time =   UTCDateTime("2018-05-17T23:59:59.999999999999999Z") # 6/4
         get_Waveforms(network, stations, location, channels, start_Time, end_Time)
 
     Example: download UGAP3, UGAP5, UGAP6  :  EHN, format for RR talapas runs
@@ -2213,7 +2213,7 @@ def instantaneous_frequency(trace, plots=0):
 
     Another Example:
         # get a dictionary of 214 verified and QC'd events
-        infile = open('214_events_dict.pkl', 'rb')
+        infile = open('top_5004_events_dict.pkl', 'rb')
         events_dict = pickle.load(infile)
         infile.close()
 
@@ -2247,12 +2247,44 @@ def instantaneous_frequency(trace, plots=0):
             event_freqs[key] = freqs
 
         # save the inst. frequency dict and stream dict to pkl files
-        outfile = open(f"214_event_freqs_dict.pkl", 'wb')
+        outfile = open(f"5004_event_freqs_dict.pkl", 'wb')
         pickle.dump(event_freqs, outfile)
         outfile.close()
         # outfile = open(f"event_streams_dict.pkl", 'wb')
         # pickle.dump(event_streams, outfile)
         # outfile.close()
+
+    Another example:
+        # get inst. freqs. of events from busiest day of RRL experiment
+        # first define the file paths containing the autopicked .mrkr file
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_05_17_2018.mrkr"
+
+        # define the desired number of events to get, -1 = all events
+        n = -1
+        events = top_n_autopicked_events(autopicked_file_path, n)
+
+        # get the keys from the dict to loop over
+        keys = list(events.keys())
+
+        # loop over all events and get inst. freq. of every phase
+        freqs = []
+        for index, key in enumerate(keys):
+            print(index)
+            event = events[key]
+            event_freqs = []
+
+            # get stream containing all phases in the event
+            stream = get_event_stream(event)
+
+            for trace in stream:
+                event_freqs.append(instantaneous_frequency(trace, plots=0))
+
+            # save the median instantaneous frequency for each event
+            freqs.append(np.nanmedian(event_freqs))
+
+        # plot the instantaneous frequency distribution
+        from figures import plot_distribution
+        plot_distribution(freqs, title="Instantaneous Frequency of Events on May 17, 2018", save=True)
     """
     # store the time step duration
     dt = trace.stats.delta
