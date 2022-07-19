@@ -1028,7 +1028,7 @@ def plot_distribution(data, bins=False, title=False, save=False):
 
     Another example:
         # load RR event instantaneous frequency values from pickle file
-        infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
+        infile = open('05_17_18_event_freqs_dict.pkl', 'rb')
         events_freqs = pickle.load(infile)
         infile.close()
 
@@ -1042,19 +1042,19 @@ def plot_distribution(data, bins=False, title=False, save=False):
 
         # plot the distribution of median phase inst. freq. for each event
         # from March 13, 2018 at the RRL
-        plot_distribution(freqs, title="Instantaneous Frequency of Events on March 13, 2018", save=True)
+        plot_distribution(freqs, title="Instantaneous Frequency of Events on May 17, 2018", save=True)
     """
     df = pd.Series(data)
     fig = plt.figure(figsize=(9, 4))
     if bins == False:
-        bins = 100
+        bins = 500
     n, bins, patches = plt.hist(data, bins=bins, facecolor="darkred",
                                 alpha=0.6)
     ax = plt.axes()
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'Instantaneous Frequency (Hz)')
+    plt.xlabel(f'Amplitude (A0)')
     plt.ylabel("Events per bin")
     # set plot limits
     # plt.ylim(0, 50)
@@ -1062,32 +1062,32 @@ def plot_distribution(data, bins=False, title=False, save=False):
 
     plt.grid(True)
 
-    # plot kde and quantiles on a different y axis
-    ax2 = ax.twinx()
-    # plot kde
-    df.plot(kind="kde", ax=ax2)
-    # quantile lines
-    quant_5, quant_25, quant_50, quant_75, quant_95 = df.quantile(0.05), \
-                                                      df.quantile(0.25), \
-                                                      df.quantile(0.5), \
-                                                      df.quantile(0.75), \
-                                                      df.quantile(0.95)
-    quants = [[quant_5, 0.6, 0.16], [quant_25, 0.8, 0.26], [quant_50, 1, 0.36],
-              [quant_75, 0.8, 0.46], [quant_95, 0.6, 0.56]]
-    for i in quants:
-        ax2.axvline(i[0], alpha=i[1], ymax=i[2], linestyle=":", c="k")
-
-    # set ax2 y labels and ticks
-    ax2.set_ylim(0, 1)
-    ax2.set_yticklabels([])
-    ax2.set_ylabel("")
-
-    # quantilennotations
-    ax2.text(quant_5 - .1, 0.17, "5th", size=10, alpha=0.8)
-    ax2.text(quant_25 - .13, 0.27, "25th", size=11, alpha=0.85)
-    ax2.text(quant_50 - .13, 0.37, "50th", size=12, alpha=1)
-    ax2.text(quant_75 - .13, 0.47, "75th", size=11, alpha=0.85)
-    ax2.text(quant_95 - .25, 0.57, "95th Percentile", size=10, alpha=.8)
+    # # plot kde and quantiles on a different y axis
+    # ax2 = ax.twinx()
+    # # plot kde
+    # df.plot(kind="kde", ax=ax2)
+    # # quantile lines
+    # quant_5, quant_25, quant_50, quant_75, quant_95 = df.quantile(0.05), \
+    #                                                   df.quantile(0.25), \
+    #                                                   df.quantile(0.5), \
+    #                                                   df.quantile(0.75), \
+    #                                                   df.quantile(0.95)
+    # quants = [[quant_5, 0.6, 0.16], [quant_25, 0.8, 0.26], [quant_50, 1, 0.36],
+    #           [quant_75, 0.8, 0.46], [quant_95, 0.6, 0.56]]
+    # for i in quants:
+    #     ax2.axvline(i[0], alpha=i[1], ymax=i[2], linestyle=":", c="k")
+    #
+    # # set ax2 y labels and ticks
+    # ax2.set_ylim(0, 1)
+    # ax2.set_yticklabels([])
+    # ax2.set_ylabel("")
+    #
+    # # quantilennotations
+    # ax2.text(quant_5 - .1, 0.17, "5th", size=10, alpha=0.8)
+    # ax2.text(quant_25 - .13, 0.27, "25th", size=11, alpha=0.85)
+    # ax2.text(quant_50 - .13, 0.37, "50th", size=12, alpha=1)
+    # ax2.text(quant_75 - .13, 0.47, "75th", size=11, alpha=0.85)
+    # ax2.text(quant_95 - .25, 0.57, "95th Percentile", size=10, alpha=.8)
 
     if title != False:
         ax.set_title(title, y=0.9999)
@@ -1113,7 +1113,7 @@ def plot_moment_distribution(data, bins=False, title=False, save=False):
         plot_moment_distribution(snrs, title="SNR distribution", save=True)
     """
     df = pd.Series(data)
-    fig = plt.figure(figsize=(9, 5))
+    fig = plt.figure(figsize=(9, 4))
     if bins == False:
         bins = 100
     n, bins, patches = plt.hist(data, bins=bins, facecolor="darkred",
