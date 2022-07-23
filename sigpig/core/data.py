@@ -2402,8 +2402,8 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
     Generates files to plot event location and instantaneous frequency in GMT.
 
     Example:
-        locations_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_5000_A0-11/res_03_13_5000_A0-11.locs"
-        frequencies_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_5000_A0-11/5004_event_freqs_dict.pkl"
+        locations_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/res_03_13_18_A0-20.locs"
+        frequencies_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/03_13_18_event_freqs_dict.pkl"
     """
     # get the event locations and instantaneous frequencies
     locations = pd.read_csv(locations_path)
@@ -2437,7 +2437,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
         # write each hypocenter to file
         for hypocenter in hypocenters:
             lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
-            line = f"{lon} {lat} {hypocenter[3]}\n"
+            line = f"{lon} {lat} {hypocenter[3]:.5f}\n"
             write_file.write(line)
 
     with open(f"x_z_amplitudeLocs.csv", "w") as write_file:
@@ -2448,7 +2448,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
         for hypocenter in hypocenters:
             lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
 
-            line = f"{lon} {hypocenter[2]} {hypocenter[3]}\n"
+            line = f"{lon} {hypocenter[2]} {hypocenter[3]:.5f}\n"
             write_file.write(line)
 
     with open(f"freqs.csv", "w") as write_file:
@@ -2459,7 +2459,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
         for hypocenter in hypocenters:
             lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
 
-            line = f"{hypocenter[3]}\n"
+            line = f"{hypocenter[3]:.5f}\n"
             write_file.write(line)
 
     return None
@@ -2597,6 +2597,74 @@ def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
                              roughness_radius)
 
     return binned_event_roughs
+
+
+def freq_binning(y_limits, y_spacing, roughness_radius, plot=False):
+    """
+    # FIXME: adapt for freq
+    Bins roughness values of a point cloud and optionally generates a box
+    plot of the roughness values in each bin.
+
+    Example:
+        # define the project latitude limits in UTM meters
+        y_limits = [5155300, 5155990]
+
+        # bin the roughness measurements by # meters in Y coordinate
+        y_spacing = 2  # meters
+
+        # define the roughness neighborhood radii
+        roughness_radii = [10, 5, 1, 0.5, 0.1, 0.05]
+
+        # do the roughness binning and plot it for each radii
+        for roughness_radius in roughness_radii:
+            roughness_binning(y_limits, y_spacing, roughness_radius, plot=True)
+
+    """
+    # load point cloud with geometry statistics from csv
+    roughness = pd.read_csv('/Users/human/Dropbox/Research/Rattlesnake_Ridge'
+                            '/data/lidar/roughness_0.05-10.0.csv')
+
+    y_steps = (y_limits[1] - y_limits[0]) // y_spacing
+    # make structures to store lower limit of each bin, bin counts,
+    # event id's in each bin, and inst. freq's in each bin
+    bins = []
+    bin_counts = []
+    binned_event_ids = []
+    binned_event_freqs = []
+
+    # loop over all bins
+    for bin in range(y_steps):
+        meters = bin * y_spacing
+        bins.append(meters)
+        print(f"Bin: {meters}")
+        lower_limit = y_limits[0] + meters
+        upper_limit = lower_limit + y_spacing
+
+        # find all events in this bin
+        bin_points = locations.loc[(locations['y'] >= lower_limit) & (
+                     locations['y'] < upper_limit)]
+
+        # # store the ID of all events in this bin
+        # count = 0
+        # ids = []
+        # for id in bin_events.ID:
+        #     ids.append(id)
+        #     count += 1
+        # binned_event_ids.append(ids)
+        # bin_counts.append(count)
+
+        # store the instantaneous frequency of all events in this bin
+        freqs = []
+        for freq in bin_points["freqs"]:
+            if not np.isnan(freq):
+                freqs.append(freq)
+        binned_event_freqs.append(freqs)
+
+    # plot inst. freq. bins in distance from experiment origin in meters
+    if plot:
+        plot_scarp_freqs(binned_event_freqs, bins, y_spacing)
+
+    return binned_event_freqs
 
 
 def compare_inst_freq_and_roughness():
