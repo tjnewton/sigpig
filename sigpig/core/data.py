@@ -2402,8 +2402,12 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
     Generates files to plot event location and instantaneous frequency in GMT.
 
     Example:
+        # define the path to the locations file and the frequencies dict pickle
         locations_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/res_03_13_18_A0-20.locs"
         frequencies_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/03_13_18_event_freqs_dict.pkl"
+
+        # generate the files
+        inst_freq_plotting_files(locations_path, frequencies_path)
     """
     # get the event locations and instantaneous frequencies
     locations = pd.read_csv(locations_path)
