@@ -2441,7 +2441,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
         # write each hypocenter to file
         for hypocenter in hypocenters:
             lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
-            line = f"{lon} {lat} {hypocenter[3]:.5f}\n"
+            line = f"{lon} {lat} {hypocenter[3]:.5f} \n"
             write_file.write(line)
 
     with open(f"x_z_amplitudeLocs.csv", "w") as write_file:
@@ -2452,7 +2452,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
         for hypocenter in hypocenters:
             lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
 
-            line = f"{lon} {hypocenter[2]} {hypocenter[3]:.5f}\n"
+            line = f"{lon} {hypocenter[2]} {hypocenter[3]:.5f} \n"
             write_file.write(line)
 
     with open(f"freqs.csv", "w") as write_file:
@@ -2463,7 +2463,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
         for hypocenter in hypocenters:
             lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
 
-            line = f"{hypocenter[3]:.5f}\n"
+            line = f"{hypocenter[3]:.5f},\n"
             write_file.write(line)
 
     return None
