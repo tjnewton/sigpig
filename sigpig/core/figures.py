@@ -1091,10 +1091,12 @@ def plot_distribution(data, bins=False, title=False, save=False):
 
     if title != False:
         ax.set_title(title, y=0.9999)
-        if save:
-            fig.savefig(f"new_histogram.png", dpi=100)
 
     plt.tight_layout()
+
+    if save:
+        fig.savefig(f"new_histogram.png", dpi=100)
+
     plt.show()
 
     return fig
