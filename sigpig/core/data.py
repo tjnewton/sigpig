@@ -2428,10 +2428,10 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
     # now write hypocenter and inst. freq to file for plotting
     # export files to plot in GMT
     hypocenters = []
-    hypos = locations[['x', 'y', 'z', 'freqs']]
+    hypos = locations[['x', 'y', 'z', 'amp']]
     for index, entry in hypos.iterrows():
         hypocenters.append([entry['x'], entry['y'], entry['z'],
-                            entry['freqs']])
+                            entry['amp']])
 
     # generate files for plotting hypocenters via gmt
     with open(f"x_y_horizUncert_amplitudeLocs.csv", "w") as write_file:
@@ -2463,7 +2463,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
         for hypocenter in hypocenters:
             lat, lon = utm.to_latlon(hypocenter[0], hypocenter[1], 10, 'N')
 
-            line = f"{hypocenter[3]:.5f},\n"
+            line = f"{float(20)}\n" #  {hypocenter[3]:.5f}
             write_file.write(line)
 
     return None
