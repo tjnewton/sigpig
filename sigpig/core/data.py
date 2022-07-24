@@ -2324,7 +2324,7 @@ def instantaneous_frequency(trace, plots=0):
     return out
 
 
-def day_freqs_plot():
+def day_freqs_plot(title=False, bins=False, save=False):
     """ Plots a stacked histogram with the event instantaneous frequency
     estimates for all events on the two days.
 
@@ -2355,7 +2355,66 @@ def day_freqs_plot():
         event_freqs_array = np.asarray(freqs_dict[key])
         freqs_2.append(np.nanmedian(event_freqs_array))
 
-    ...
+    df_1 = pd.Series(freqs_1)
+    df_2 = pd.Series(freqs_2)
+
+    fig = plt.figure(figsize=(9, 4))
+    if bins == False:
+        bins = 500
+    n, bins, patches = plt.hist([df_1, df_2], bins=bins, color=["darkred",
+                                "black"], alpha=0.6, label=["March 13, "
+                                "2018", "May 17, 2018"])
+    ax = plt.axes()
+    # set background color
+    ax.set_facecolor("dimgrey")
+    # set plot labels
+    plt.xlabel(f'Instantaneous Frequency (Hz)')
+    plt.ylabel("Events per Bin")
+    # set plot limits
+    # plt.ylim(0, 50)
+    ax.set_xlim([bins[0], bins[-1]])
+
+    plt.grid(True)
+
+    # # plot kde and quantiles on a different y axis
+    # ax2 = ax.twinx()
+    # # plot kde
+    # df.plot(kind="kde", ax=ax2)
+    # # quantile lines
+    # quant_5, quant_25, quant_50, quant_75, quant_95 = df.quantile(0.05), \
+    #                                                   df.quantile(0.25), \
+    #                                                   df.quantile(0.5), \
+    #                                                   df.quantile(0.75), \
+    #                                                   df.quantile(0.95)
+    # quants = [[quant_5, 0.6, 0.16], [quant_25, 0.8, 0.26], [quant_50, 1, 0.36],
+    #           [quant_75, 0.8, 0.46], [quant_95, 0.6, 0.56]]
+    # for i in quants:
+    #     ax2.axvline(i[0], alpha=i[1], ymax=i[2], linestyle=":", c="k")
+    #
+    # # set ax2 y labels and ticks
+    # ax2.set_ylim(0, 1)
+    # ax2.set_yticklabels([])
+    # ax2.set_ylabel("")
+    #
+    # # quantilennotations
+    # ax2.text(quant_5 - .1, 0.17, "5th", size=10, alpha=0.8)
+    # ax2.text(quant_25 - .13, 0.27, "25th", size=11, alpha=0.85)
+    # ax2.text(quant_50 - .13, 0.37, "50th", size=12, alpha=1)
+    # ax2.text(quant_75 - .13, 0.47, "75th", size=11, alpha=0.85)
+    # ax2.text(quant_95 - .25, 0.57, "95th Percentile", size=10, alpha=.8)
+
+    if title != False:
+        ax.set_title(title, y=0.9999)
+
+    plt.legend(loc="upper left")
+    plt.tight_layout()
+
+    if save:
+        fig.savefig(f"new_freq_histogram.png", dpi=100)
+
+    plt.show()
+
+    return fig
 
 
 def inst_freq_binning(y_limits, y_spacing, plot=False):
