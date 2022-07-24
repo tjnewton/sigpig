@@ -2324,6 +2324,40 @@ def instantaneous_frequency(trace, plots=0):
     return out
 
 
+def day_freqs_plot():
+    """ Plots a stacked histogram with the event instantaneous frequency
+    estimates for all events on the two days.
+
+    # TODO:
+
+    """
+    # load the inst. freqs for the first day of the experiment
+    infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
+    freqs_dict = pickle.load(infile)
+    infile.close()
+
+    # get the median instantaneous frequency for each event
+    keys = list(freqs_dict.keys())
+    freqs_1 = []
+    for key in keys:
+        event_freqs_array = np.asarray(freqs_dict[key])
+        freqs_1.append(np.nanmedian(event_freqs_array))
+
+    # load the inst. freqs for a different day of the experiment
+    infile = open('05_17_18_event_freqs_dict.pkl', 'rb')
+    freqs_dict = pickle.load(infile)
+    infile.close()
+
+    # get the median instantaneous frequency for each event
+    keys = list(freqs_dict.keys())
+    freqs_2 = []
+    for key in keys:
+        event_freqs_array = np.asarray(freqs_dict[key])
+        freqs_2.append(np.nanmedian(event_freqs_array))
+
+    ...
+
+
 def inst_freq_binning(y_limits, y_spacing, plot=False):
     """
     #TODO: write docstring
