@@ -2798,7 +2798,7 @@ def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
         for rough in bin_points[f"Roughness_{roughness_radius}"]:
             if not np.isnan(rough):
                 roughs.append(rough)
-        binned_event_roughs.append(roughs)
+        binned_event_roughs.append(np.nanmedian(roughs))
 
     # plot inst. freq. bins in distance from experiment origin in meters
     if plot:
