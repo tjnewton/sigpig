@@ -2563,7 +2563,8 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
     return None
 
 
-def compare_inst_freq_and_roughness(locations_path, frequencies_path):
+def compare_inst_freq_and_roughness(locations_path, frequencies_path,
+                                    y_limits, y_spacing):
     """
     # TODO: write docstring
 
@@ -2572,6 +2573,10 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path):
         locations_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/res_03_13_18_A0-20.locs"
         frequencies_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/03_13_18_event_freqs_dict.pkl"
 
+        # define the project latitude limits in UTM meters
+        y_limits = [5155300, 5155990]
+        # bin the insantaneous frequency measurements by # meters in Y coordinate
+        y_spacing = 1  # meters
 
     """
     # get the event locations and instantaneous frequencies
@@ -2588,12 +2593,52 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path):
         event_freqs.append(np.nanmedian(frequencies[freq_keys[index]]))
 
     # add freqs column to dataframe
-    locations["freqs"] = event_freqs
+    locations["freq"] = event_freqs
 
+    y_steps = (y_limits[1] - y_limits[0]) // y_spacing
+    # make structures to store lower limit of each bin, bin counts,
+    # event id's in each bin, and inst. freq's in each bin
+    bins = []
+    bin_counts = []
+    binned_event_ids = []
+    binned_event_freqs = []
 
+    # loop over all bins
+    for bin in range(y_steps):
+        meters = bin * y_spacing
+        bins.append(meters)
+        lower_limit = y_limits[0] + meters
+        upper_limit = lower_limit + y_spacing
 
-    # get binned instantaneous frequency data
-    inst_freq_bins = inst_freq_binning()
+        # find all events in this bin
+        bin_events = locations.loc[(locations['y'] >= lower_limit) & (
+                locations['y'] < upper_limit)]
+
+        # store the ID of all events in this bin
+        count = 0
+        ids = []
+        for id in bin_events.ID:
+            ids.append(id)
+            count += 1
+        binned_event_ids.append(ids)
+        bin_counts.append(count)
+
+        # store the instantaneous frequency of all events in this bin
+        freqs = []
+        for freq in bin_events.freq:
+            freqs.append(freq)
+        binned_event_freqs.append(np.nanmedian(freqs))
+
+    # generate first subplot with y vs median inst freq
+    fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(1, 7)
+    fig, (ax1) = plt.subplots(1, 1)
+    fig.suptitle('Horizontally stacked subplots')
+    ax1.plot(binned_event_freqs, bins)
+    plt.show()
+    ax2.plot(x, -y)
+
+    # # get binned instantaneous frequency data
+    # inst_freq_bins = inst_freq_binning()
 
     # get binned roughness data
     roughness_bins = roughness_binning()
