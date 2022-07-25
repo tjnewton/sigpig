@@ -2564,7 +2564,7 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
 
 
 def compare_inst_freq_and_roughness(locations_path, frequencies_path,
-                                    y_limits, y_spacing):
+                                    roughness_radii, y_limits, y_spacing):
     """
     # TODO: write docstring
 
@@ -2577,6 +2577,9 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         y_limits = [5155300, 5155990]
         # bin the insantaneous frequency measurements by # meters in Y coordinate
         y_spacing = 2  # meters
+        # define the roughness neighborhood radii
+        roughness_radii = [10, 5, 1, 0.5, 0.1, 0.05]
+
 
     """
     # get the event locations and instantaneous frequencies
@@ -2644,7 +2647,11 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
     ax1.set_ylabel("Latitude in UTM Zone 10N (m)")
     ax1.set_xlabel("Instantaneous Frequency (Hz)")
 
-
+    # do the roughness binning and plot it for each radii
+    for roughness_radius in roughness_radii:
+        roughness_bins, binned_event_roughnesses = roughness_binning(y_limits,
+                                                   y_spacing, roughness_radius,
+                                                   plot=False)
 
 
 
@@ -2798,7 +2805,7 @@ def roughness_binning(y_limits, y_spacing, roughness_radius, plot=False):
         plot_scarp_roughness(binned_event_roughs, bins, y_spacing,
                              roughness_radius)
 
-    return binned_event_roughs
+    return bins, binned_event_roughs
 
 
 def freq_binning(y_limits, y_spacing, roughness_radius, plot=False):
