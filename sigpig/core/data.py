@@ -2576,7 +2576,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         # define the project latitude limits in UTM meters
         y_limits = [5155300, 5155990]
         # bin the insantaneous frequency measurements by # meters in Y coordinate
-        y_spacing = 1  # meters
+        y_spacing = 2  # meters
 
     """
     # get the event locations and instantaneous frequencies
@@ -2629,13 +2629,30 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
             freqs.append(freq)
         binned_event_freqs.append(np.nanmedian(freqs))
 
+    # transform bins back into UTM y coordinates
+    y_bins = np.asarray(bins)
+    y_bins = y_bins + y_limits[0]
+
     # generate first subplot with y vs median inst freq
-    fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(1, 7)
-    fig, (ax1) = plt.subplots(1, 1)
-    fig.suptitle('Horizontally stacked subplots')
-    ax1.plot(binned_event_freqs, bins)
-    plt.show()
+    figureWidth = 13
+    figureHeight = 7
+    fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(1, 7, figsize=(figureWidth, figureHeight))
+    # fig, (ax1) = plt.subplots(1, 1, figsize=(figureWidth, figureHeight))
+    fig.suptitle('Latitude Binning of Properties')
+    ax1.plot(binned_event_freqs, y_bins)
+    # ax1.set_title("Instantaneous Frequency")
+    ax1.set_ylabel("Latitude in UTM Zone 10N (m)")
+    ax1.set_xlabel("Instantaneous Frequency (Hz)")
+
+
+
+
+
+
+
+
     ax2.plot(x, -y)
+    plt.show()
 
     # # get binned instantaneous frequency data
     # inst_freq_bins = inst_freq_binning()
