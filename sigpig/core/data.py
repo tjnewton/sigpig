@@ -2646,7 +2646,6 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
     fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(1, 7, figsize=(
         figureWidth, figureHeight), sharey=True)
     # fig, (ax1) = plt.subplots(1, 1, figsize=(figureWidth, figureHeight))
-    fig.suptitle('Latitude Binning of Properties')
     ax1.plot(binned_event_freqs, y_bins, color='blue')
     # ax1.set_title("Instantaneous Frequency")
     ax1.set_ylabel("Latitude in UTM Zone 10N (m)")
@@ -2729,7 +2728,10 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
             # ax2x.set_xticks([])
             # ax2x.set_xticklabels([])
 
-    plt.tight_layout()
+    # plt.tight_layout()
+    fig.suptitle('Latitude Binning of Properties')
+    # remove the space between the subplots
+    plt.subplots_adjust(wspace=0.14, hspace=0)
     plt.savefig(f"{y_spacing}m_binned_properties.png", dpi=200)
     plt.show()
 
