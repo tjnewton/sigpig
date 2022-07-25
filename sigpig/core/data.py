@@ -2581,7 +2581,10 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         # define the roughness neighborhood radii
         roughness_radii = [10, 5, 1, 0.5, 0.1, 0.05]
 
-
+        # do the analysis and generate the figure
+        fig = compare_inst_freq_and_roughness(locations_path, frequencies_path,
+                                              roughness_radii, y_limits,
+                                              y_spacing)
     """
     # get the event locations and instantaneous frequencies
     locations = pd.read_csv(locations_path)
