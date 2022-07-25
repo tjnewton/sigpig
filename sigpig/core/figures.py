@@ -319,11 +319,27 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
                                                bandpass=bandpass,
                                                time_markers=time_markers)
 
+    Another example:
+        # define time period
+        doi = UTCDateTime("2018-03-13T09:31:00.0Z") # period start
+        doi_end = doi + 17
+
+        # define time series files path
+        files_path = "/Users/human/Desktop/RR_plot"
+
+        # bandpass filter from 2-8 Hz
+        filter = False
+        bandpass = [20, 60]
+
+        fig = plot_Time_Series_And_Spectrogram(doi, doi_end, files_path,
+                                               filter=filter,
+                                               bandpass=bandpass,
+                                               time_markers=[])
     """
 
     # find all files for specified day
     day_file_list = sorted(glob.glob(f"{files_path}/*.{doi.year}"
-                                     f"-{doi.month:02}-{doi.day:02}.ms"))
+                                     f"-{doi.month:02}-{doi.day:02}*.ms"))
     # load files into stream
     st = Stream()
     for file in day_file_list:
@@ -342,7 +358,7 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
     # st.write("WASW_MCR2_N25K_templates.mseed", format="MSEED")
 
     # initialize figure and set the figure size
-    figureWidth = 50
+    figureWidth = 7
     figureHeight = 3.5 * len(st)  # 0.6 for all stations # 3.5
     fig = plt.figure(figsize=(figureWidth, figureHeight))
     gs = fig.add_gridspec(3, 1)
@@ -358,14 +374,14 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
     y_labels = []
     for index, trace in enumerate(st):
         # find max trace value for normalization
-        maxTraceValue, _ = max_amplitude(trace)
+        # maxTraceValue, _ = max_amplitude(trace)
+        maxTraceValue = 1
 
         # define data to work with
         time = trace.times("matplotlib")
         trace_start = trace.stats.starttime
-        norm_amplitude = (trace.data - np.min(trace.data)) / (maxTraceValue -
-                                                              np.min(
-                                                                  trace.data)) * 1.25 + index
+        norm_amplitude = (trace.data - np.min(trace.data)) /    (
+                maxTraceValue - np.min(trace.data)) * 1.25 + index - 0.7
         # add trace to waveform plot
         amplitude_plot.plot_date(time, norm_amplitude, fmt="k-", linewidth=0.7)
 
@@ -437,13 +453,13 @@ def plot_Time_Series_And_Spectrogram(doi, doi_end, files_path, filter=False,
     amplitude_plot.set_yticklabels(y_labels)
     amplitude_plot.set_ylabel('Station.Channel')
     amplitude_plot.set_xlim([doi.matplotlib_date, doi_end.matplotlib_date])
-    amplitude_plot.set_xlabel(f'Time: Hr:Min:Sec of {doi.month:02}-'
+    amplitude_plot.set_xlabel(f'Time on {doi.month:02}-'
                               f'{doi.day:02}-{doi.year}')
     myFmt = DateFormatter("%H:%M:%S")  # "%H:%M:%S.f"
     amplitude_plot.xaxis.set_major_formatter(myFmt)
-    locator_x = AutoDateLocator(minticks=10, maxticks=35)
+    locator_x = AutoDateLocator(minticks=5, maxticks=10)
     amplitude_plot.xaxis.set_major_locator(locator_x)
-    amplitude_plot.set_ylim((0, len(st) + 0.5))
+    amplitude_plot.set_ylim((-0.5, len(st) + 0.3))
     # frequency_plot.set_ylabel('Frequency (Hz)')
     # frequency_plot.set_xlabel('Time (s)')
     frequency_plot.set_yticks([])
