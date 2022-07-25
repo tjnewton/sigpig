@@ -2422,17 +2422,22 @@ def inst_freq_binning(y_limits, y_spacing, plot=False):
     #TODO: write docstring
 
     Example:
+        # define the project latitude limits in UTM meters
+        y_limits = [5155300, 5155990]
+        # bin the insantaneous frequency measurements by # meters in Y coordinate
+        y_spacing = 10  # meters
 
     """
     # load dict constaining instaneous frequency of events
-    # infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
-    infile = open('214_event_freqs_dict.pkl', 'rb')
+    infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
+    # infile = open('214_event_freqs_dict.pkl', 'rb')
     freqs_dict = pickle.load(infile)
     infile.close()
 
     # load locations of events
     # TODO: load from 03_13_18.locs files
-    event_locs = pd.read_csv('res_214_A0-50_1020ms.locs')
+    # event_locs = pd.read_csv('res_214_A0-50_1020ms.locs')
+    event_locs = pd.read_csv('res_03_13_18_A0-20.locs')
     event_freqs = []
 
     # loop over all events with locations
@@ -2445,10 +2450,6 @@ def inst_freq_binning(y_limits, y_spacing, plot=False):
     # add event_freqs to event_locs dataframe
     event_locs['freq'] = event_freqs
 
-    # define the project latitude limits in UTM meters
-    y_limits = [5155300, 5155990]
-    # bin the insantaneous frequency measurements by # meters in Y coordinate
-    y_spacing = 10  # meters
     y_steps = (y_limits[1] - y_limits[0]) // y_spacing
     # make structures to store lower limit of each bin, bin counts,
     # event id's in each bin, and inst. freq's in each bin
@@ -2560,6 +2561,48 @@ def inst_freq_plotting_files(locations_path, frequencies_path):
             write_file.write(line)
 
     return None
+
+
+def compare_inst_freq_and_roughness(locations_path, frequencies_path):
+    """
+    # TODO: write docstring
+
+    Example:
+        # define the path to the locations file and the frequencies dict pickle
+        locations_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/res_03_13_18_A0-20.locs"
+        frequencies_path = "/Users/human/Dropbox/Research/Rattlesnake_Ridge/amplitude_locations/gmt/03_13_24115_A0-20/03_13_18_event_freqs_dict.pkl"
+
+
+    """
+    # get the event locations and instantaneous frequencies
+    locations = pd.read_csv(locations_path)
+    infile = open(frequencies_path, 'rb')
+    frequencies = pickle.load(infile)
+    infile.close()
+    freq_keys = list(frequencies.keys())
+
+    # loop over all events with locations and get the median instantaneous
+    # frequency of all phases comprising that event
+    event_freqs = []
+    for index, event_id in enumerate(locations["ID"]):
+        event_freqs.append(np.nanmedian(frequencies[freq_keys[index]]))
+
+    # add freqs column to dataframe
+    locations["freqs"] = event_freqs
+
+
+
+    # get binned instantaneous frequency data
+    inst_freq_bins = inst_freq_binning()
+
+    # get binned roughness data
+    roughness_bins = roughness_binning()
+
+    # check for correlation between series
+    # TODO:
+
+    # plot inst. freq. and roughness series
+    # TODO:
 
 
 def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
@@ -2762,26 +2805,6 @@ def freq_binning(y_limits, y_spacing, roughness_radius, plot=False):
         plot_scarp_freqs(binned_event_freqs, bins, y_spacing)
 
     return binned_event_freqs
-
-
-def compare_inst_freq_and_roughness():
-    """
-    # TODO: write docstring
-
-    Example:
-
-    """
-    # get binned instantaneous frequency data
-    inst_freq_bins = inst_freq_binning()
-
-    # get binned roughness data
-    roughness_bins = roughness_binning()
-
-    # check for correlation between series
-    # TODO:
-
-    # plot inst. freq. and roughness series
-    # TODO:
 
 
 def calculate_magnitude():
