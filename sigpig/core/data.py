@@ -2643,7 +2643,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         figureWidth, figureHeight), sharey=True)
     # fig, (ax1) = plt.subplots(1, 1, figsize=(figureWidth, figureHeight))
     fig.suptitle('Latitude Binning of Properties')
-    ax1.plot(binned_event_freqs, y_bins)
+    ax1.plot(binned_event_freqs, y_bins, color='black')
     # ax1.set_title("Instantaneous Frequency")
     ax1.set_ylabel("Latitude in UTM Zone 10N (m)")
     ax1.set_xlabel("Instantaneous Frequency (Hz)")
@@ -2655,15 +2655,35 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
                                                         plot=False)
 
         if index == 0:
-            ax2.plot(binned_event_roughnesses, y_bins)
+            ax2.plot(binned_event_roughnesses, y_bins, color='black')
             ax2.set_xlabel(f"Roughness r={roughness_radius} (m)")
 
+        if index == 1:
+            ax3.plot(binned_event_roughnesses, y_bins, color='black')
+            ax3.set_xlabel(f"Roughness r={roughness_radius} (m)")
+
+        if index == 2:
+            ax4.plot(binned_event_roughnesses, y_bins, color='black')
+            ax4.set_xlabel(f"Roughness r={roughness_radius} (m)")
+
+        if index == 3:
+            ax5.plot(binned_event_roughnesses, y_bins, color='black')
+            ax5.set_xlabel(f"Roughness r={roughness_radius} (m)")
+
+        if index == 4:
+            ax6.plot(binned_event_roughnesses, y_bins, color='black')
+            ax6.set_xlabel(f"Roughness r={roughness_radius} (m)")
+
+        if index == 5:
+            ax7.plot(binned_event_roughnesses, y_bins, color='black')
+            ax7.set_xlabel(f"Roughness r={roughness_radius} (m)")
 
 
 
 
 
-    ax2.plot(x, -y)
+
+
     plt.show()
 
     # # get binned instantaneous frequency data
