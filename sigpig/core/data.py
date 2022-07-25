@@ -2651,6 +2651,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
     # ax1.set_title("Instantaneous Frequency")
     ax1.set_ylabel("Latitude in UTM Zone 10N (m)")
     ax1.set_xlabel("Instantaneous Frequency (Hz)")
+    ax1.set_ylim([5155400, 5155900])
 
     # do the roughness binning and plot it for each radii
     for index, roughness_radius in enumerate(roughness_radii):
@@ -2671,63 +2672,65 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         roughs = roughs[11:]
         freqs = freqs[11:]
         corr_coeffs = pearsonr(roughs, freqs)
-        correlation = np.correlate(roughs, freqs, "same")
+        # correlation = np.correlate(roughs, freqs, "same")
 
         # make the plots
         if index == 0:
             ax7.plot(binned_event_roughnesses, y_bins, color='black')
             ax7.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax7.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
-            ax7x = ax7.twiny()
-            ax7x.plot(correlation, y_values, color='red')
-            ax7x.set_xticks([])
-            ax7x.set_xticklabels([])
+            ax7.set_title(f"CC={corr_coeffs[0]:.2f}")
+            # ax7x = ax7.twiny()
+            # ax7x.plot(correlation, y_values, color='red')
+            # ax7x.set_xticks([])
+            # ax7x.set_xticklabels([])
 
         if index == 1:
             ax6.plot(binned_event_roughnesses, y_bins, color='black')
             ax6.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax6.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
-            ax6x = ax6.twiny()
-            ax6x.plot(correlation, y_values, color='red')
-            ax6x.set_xticks([])
-            ax6x.set_xticklabels([])
+            ax6.set_title(f"CC={corr_coeffs[0]:.2f}")
+            # ax6x = ax6.twiny()
+            # ax6x.plot(correlation, y_values, color='red')
+            # ax6x.set_xticks([])
+            # ax6x.set_xticklabels([])
 
         if index == 2:
             ax5.plot(binned_event_roughnesses, y_bins, color='black')
             ax5.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax5.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
-            ax5x = ax5.twiny()
-            ax5x.plot(correlation, y_values, color='red')
-            ax5x.set_xticks([])
-            ax5x.set_xticklabels([])
+            ax5.set_title(f"CC={corr_coeffs[0]:.2f}")
+            # ax5x = ax5.twiny()
+            # ax5x.plot(correlation, y_values, color='red')
+            # ax5x.set_xticks([])
+            # ax5x.set_xticklabels([])
 
         if index == 3:
             ax4.plot(binned_event_roughnesses, y_bins, color='black')
             ax4.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax4.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
-            ax4x = ax4.twiny()
-            ax4x.plot(correlation, y_values, color='red')
-            ax4x.set_xticks([])
-            ax4x.set_xticklabels([])
+            ax4.set_title(f"CC={corr_coeffs[0]:.2f}")
+            # ax4x = ax4.twiny()
+            # ax4x.plot(correlation, y_values, color='red')
+            # ax4x.set_xticks([])
+            # ax4x.set_xticklabels([])
 
         if index == 4:
             ax3.plot(binned_event_roughnesses, y_bins, color='black')
             ax3.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax3.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
-            ax3x = ax3.twiny()
-            ax3x.plot(correlation, y_values, color='red')
-            ax3x.set_xticks([])
-            ax3x.set_xticklabels([])
+            ax3.set_title(f"CC={corr_coeffs[0]:.2f}")
+            # ax3x = ax3.twiny()
+            # ax3x.plot(correlation, y_values, color='red')
+            # ax3x.set_xticks([])
+            # ax3x.set_xticklabels([])
 
         if index == 5:
             ax2.plot(binned_event_roughnesses, y_bins, color='black')
             ax2.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax2.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
-            ax2x = ax2.twiny()
-            ax2x.plot(correlation, y_values, color='red')
-            ax2x.set_xticks([])
-            ax2x.set_xticklabels([])
+            ax2.set_title(f"CC={corr_coeffs[0]:.2f}")
+            # ax2x = ax2.twiny()
+            # ax2x.plot(correlation, y_values, color='red')
+            # ax2x.set_xticks([])
+            # ax2x.set_xticklabels([])
 
+    plt.tight_layout()
+    plt.savefig(f"{y_spacing}m_binned_properties.png", dpi=200)
     plt.show()
 
     return fig
