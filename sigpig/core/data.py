@@ -2651,8 +2651,6 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
 
     # do the roughness binning and plot it for each radii
     for index, roughness_radius in enumerate(roughness_radii):
-        if index > 0:
-            break
 
         _, binned_event_roughnesses = roughness_binning(y_limits, y_spacing,
                                                         roughness_radius,
@@ -2672,12 +2670,11 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         corr_coeffs = pearsonr(roughs, freqs)
         correlation = np.correlate(roughs, freqs, "same")
 
-
-
+        # make the plots
         if index == 0:
             ax7.plot(binned_event_roughnesses, y_bins, color='black')
             ax7.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax7.set_title(f"Correlation coefficient={corr_coeffs[0]:.2f}")
+            ax7.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
             ax7x = ax7.twiny()
             ax7x.plot(correlation, y_values, color='red')
             ax7x.set_xticks([])
@@ -2686,7 +2683,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         if index == 1:
             ax6.plot(binned_event_roughnesses, y_bins, color='black')
             ax6.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax6.set_title(f"Correlation coefficient={corr_coeffs[0]:.2f}")
+            ax6.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
             ax6x = ax6.twiny()
             ax6x.plot(correlation, y_values, color='red')
             ax6x.set_xticks([])
@@ -2695,7 +2692,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         if index == 2:
             ax5.plot(binned_event_roughnesses, y_bins, color='black')
             ax5.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax5.set_title(f"Correlation coefficient={corr_coeffs[0]:.2f}")
+            ax5.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
             ax5x = ax5.twiny()
             ax5x.plot(correlation, y_values, color='red')
             ax5x.set_xticks([])
@@ -2704,7 +2701,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         if index == 3:
             ax4.plot(binned_event_roughnesses, y_bins, color='black')
             ax4.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax4.set_title(f"Correlation coefficient={corr_coeffs[0]:.2f}")
+            ax4.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
             ax4x = ax4.twiny()
             ax4x.plot(correlation, y_values, color='red')
             ax4x.set_xticks([])
@@ -2713,7 +2710,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         if index == 4:
             ax3.plot(binned_event_roughnesses, y_bins, color='black')
             ax3.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax3.set_title(f"Correlation coefficient={corr_coeffs[0]:.2f}")
+            ax3.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
             ax3x = ax3.twiny()
             ax3x.plot(correlation, y_values, color='red')
             ax3x.set_xticks([])
@@ -2722,7 +2719,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         if index == 5:
             ax2.plot(binned_event_roughnesses, y_bins, color='black')
             ax2.set_xlabel(f"Roughness r={roughness_radius} (m)")
-            ax2.set_title(f"Correlation coefficient={corr_coeffs[0]:.2f}")
+            ax2.set_title(f"Corr. coefficient={corr_coeffs[0]:.2f}")
             ax2x = ax2.twiny()
             ax2x.plot(correlation, y_values, color='red')
             ax2x.set_xticks([])
