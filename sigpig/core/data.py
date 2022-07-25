@@ -2644,15 +2644,16 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         figureWidth, figureHeight), sharey=True)
     # fig, (ax1) = plt.subplots(1, 1, figsize=(figureWidth, figureHeight))
     fig.suptitle('Latitude Binning of Properties')
-    ax1.plot(binned_event_freqs, y_bins, color='black')
+    ax1.plot(binned_event_freqs, y_bins, color='blue')
     # ax1.set_title("Instantaneous Frequency")
     ax1.set_ylabel("Latitude in UTM Zone 10N (m)")
     ax1.set_xlabel("Instantaneous Frequency (Hz)")
 
-    # c=pearsonr(a, b)
-
     # do the roughness binning and plot it for each radii
     for index, roughness_radius in enumerate(roughness_radii):
+        if index > 0:
+            break
+
         _, binned_event_roughnesses = roughness_binning(y_limits, y_spacing,
                                                         roughness_radius,
                                                         plot=False)
@@ -2663,10 +2664,24 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
         r_value_indices = np.where(~np.isnan(binned_event_roughnesses))
         roughs = np.asarray(binned_event_roughnesses)[r_value_indices]
         freqs = np.asarray(binned_event_freqs)[r_value_indices]
+        # chop off NaNs in freqs array
+        r_value_indices = r_value_indices[0][11:]
+        y_values = y_bins[r_value_indices]
+        roughs = roughs[11:]
+        freqs = freqs[11:]
+        corr_coeffs = pearsonr(roughs, freqs)
+        correlation = np.correlate(roughs, freqs, "same")
+
+
 
         if index == 0:
             ax7.plot(binned_event_roughnesses, y_bins, color='black')
             ax7.set_xlabel(f"Roughness r={roughness_radius} (m)")
+            ax7.set_title(f"Correlation coefficient={corr_coeffs[0]:.2f}")
+            ax7x = ax7.twiny()
+            ax7x.plot(correlation, y_values, color='red')
+            ax7x.set_xticks([])
+            ax7x.set_xticklabels([])
 
         if index == 1:
             ax6.plot(binned_event_roughnesses, y_bins, color='black')
@@ -2696,17 +2711,7 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
 
     plt.show()
 
-    # # get binned instantaneous frequency data
-    # inst_freq_bins = inst_freq_binning()
-
-    # get binned roughness data
-    roughness_bins = roughness_binning()
-
-    # check for correlation between series
-    # TODO:
-
-    # plot inst. freq. and roughness series
-    # TODO:
+    return fig
 
 
 def plot_scarp_freqs(binned_event_freqs, bins, y_spacing):
