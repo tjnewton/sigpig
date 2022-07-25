@@ -2639,7 +2639,8 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
     # generate first subplot with y vs median inst freq
     figureWidth = 13
     figureHeight = 7
-    fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(1, 7, figsize=(figureWidth, figureHeight))
+    fig, (ax1, ax2, ax3, ax4, ax5, ax6, ax7) = plt.subplots(1, 7, figsize=(
+        figureWidth, figureHeight), sharey=True)
     # fig, (ax1) = plt.subplots(1, 1, figsize=(figureWidth, figureHeight))
     fig.suptitle('Latitude Binning of Properties')
     ax1.plot(binned_event_freqs, y_bins)
@@ -2648,10 +2649,14 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
     ax1.set_xlabel("Instantaneous Frequency (Hz)")
 
     # do the roughness binning and plot it for each radii
-    for roughness_radius in roughness_radii:
-        roughness_bins, binned_event_roughnesses = roughness_binning(y_limits,
-                                                   y_spacing, roughness_radius,
-                                                   plot=False)
+    for index, roughness_radius in enumerate(roughness_radii):
+        _, binned_event_roughnesses = roughness_binning(y_limits, y_spacing,
+                                                        roughness_radius,
+                                                        plot=False)
+
+        if index == 0:
+            ax2.plot(binned_event_roughnesses, y_bins)
+            ax2.set_xlabel(f"Roughness r={roughness_radius} (m)")
 
 
 
