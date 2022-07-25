@@ -30,6 +30,7 @@ from eqcorrscan.utils.mag_calc import svd_moments
 from eqcorrscan.utils.clustering import svd
 from eqcorrscan import tests
 import pandas as pd
+from scipy.stats.stats import pearsonr
 import tensorflow as tf
 # turn off verbose tensorflow logging
 tf.get_logger().setLevel('INFO')
@@ -2648,35 +2649,44 @@ def compare_inst_freq_and_roughness(locations_path, frequencies_path,
     ax1.set_ylabel("Latitude in UTM Zone 10N (m)")
     ax1.set_xlabel("Instantaneous Frequency (Hz)")
 
+    # c=pearsonr(a, b)
+
     # do the roughness binning and plot it for each radii
     for index, roughness_radius in enumerate(roughness_radii):
         _, binned_event_roughnesses = roughness_binning(y_limits, y_spacing,
                                                         roughness_radius,
                                                         plot=False)
 
+        # get the pearson correlation coefficient between the roughness and
+        # instantaneous frequency, first find all continuous indices without
+        # NaN values to succussfully correlate
+        r_value_indices = np.where(~np.isnan(binned_event_roughnesses))
+        roughs = np.asarray(binned_event_roughnesses)[r_value_indices]
+        freqs = np.asarray(binned_event_freqs)[r_value_indices]
+
         if index == 0:
-            ax2.plot(binned_event_roughnesses, y_bins, color='black')
-            ax2.set_xlabel(f"Roughness r={roughness_radius} (m)")
+            ax7.plot(binned_event_roughnesses, y_bins, color='black')
+            ax7.set_xlabel(f"Roughness r={roughness_radius} (m)")
 
         if index == 1:
-            ax3.plot(binned_event_roughnesses, y_bins, color='black')
-            ax3.set_xlabel(f"Roughness r={roughness_radius} (m)")
-
-        if index == 2:
-            ax4.plot(binned_event_roughnesses, y_bins, color='black')
-            ax4.set_xlabel(f"Roughness r={roughness_radius} (m)")
-
-        if index == 3:
-            ax5.plot(binned_event_roughnesses, y_bins, color='black')
-            ax5.set_xlabel(f"Roughness r={roughness_radius} (m)")
-
-        if index == 4:
             ax6.plot(binned_event_roughnesses, y_bins, color='black')
             ax6.set_xlabel(f"Roughness r={roughness_radius} (m)")
 
+        if index == 2:
+            ax5.plot(binned_event_roughnesses, y_bins, color='black')
+            ax5.set_xlabel(f"Roughness r={roughness_radius} (m)")
+
+        if index == 3:
+            ax4.plot(binned_event_roughnesses, y_bins, color='black')
+            ax4.set_xlabel(f"Roughness r={roughness_radius} (m)")
+
+        if index == 4:
+            ax3.plot(binned_event_roughnesses, y_bins, color='black')
+            ax3.set_xlabel(f"Roughness r={roughness_radius} (m)")
+
         if index == 5:
-            ax7.plot(binned_event_roughnesses, y_bins, color='black')
-            ax7.set_xlabel(f"Roughness r={roughness_radius} (m)")
+            ax2.plot(binned_event_roughnesses, y_bins, color='black')
+            ax2.set_xlabel(f"Roughness r={roughness_radius} (m)")
 
 
 
