@@ -1705,7 +1705,7 @@ def top_n_autopicked_events(autopicked_file_path, n):
     return top_events
 
 
-def get_event_stream(event):
+def get_event_stream(event, filter=True):
     """ Takes in an event from an events dict (as returned by
     top_n_autopicked_events function) and returns a stream
     containing traces corresponding to the phases of the event.
@@ -1768,7 +1768,8 @@ def get_event_stream(event):
         st.interpolate(sampling_rate=250.0)
         # detrend then bandpass filter
         st.detrend()
-        st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+        if filter:
+            st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
 
         # only consider 1.5 seconds of data (this is a busy dataset)
         st.trim(phase_time - 0.6, phase_time + 0.9, pad=True,
@@ -2258,6 +2259,7 @@ def instantaneous_frequency(trace, plots=0):
     Another example:
         # get inst. freqs. of events from busiest day of RRL experiment
         # first define the file paths containing the autopicked .mrkr file
+        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
         autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_05_17_2018.mrkr"
 
         # define the desired number of events to get, -1 = all events
