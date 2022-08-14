@@ -3017,3 +3017,58 @@ def calculate_magnitude():
             relative_moments.append(rel_moment)
 
     return relative_moments
+
+
+def amplitude_distance_figure():
+    """
+    # TODO: docstring
+
+    """
+    fig, ax = plt.subplots(1, 1, num=0, figsize=(7, 6))
+    r = np.logspace(0, 2)
+    A0 = 1
+    freq = 40
+    for beta in [1020]:
+        for Q in [4, 40, 400]:
+            B = np.pi * freq / (Q * beta)
+            A = A0 * np.exp(-B * r) / r
+            ax.plot(r, A, label=r'$\beta$=' + str(beta) + ' m/s, '
+                                                'Q=' + str(Q))
+    ax.set_xlabel('Distance (m)', fontsize=14)
+    ax.set_ylabel('Amplitude (m)', fontsize=14)
+    ax.legend()
+
+    # make some fake data
+    N = 20
+    r_data = np.min(r) + (np.max(r) - np.min(r)) * np.random.uniform(0, 1, N)
+    A_data = A0 * np.exp(-B * r_data) / r_data
+    A_data += np.random.normal(0, 0.4 * A_data)
+    # ax.plot(r_data, A_data, 'ro', markersize=1)
+    # ax[0].text(40, 0.8, r'$A=\frac{A_0e^-\frac{\pi f r}{Q\beta}}{r}$',fontsize=24)
+    ax.set_xlim((0, 100))
+    ax.set_ylim((0, 1))
+
+    # subplot on log scale
+    beta = 1020  # m/s
+    Q = 40
+    B = np.pi * freq / (Q * beta)
+    A = A0 * np.exp(-B * r) / r
+
+    # ax[1].plot(r, A, color="k")
+    # ax[1].set_xlabel('Distance (m)', fontsize=14)
+    # ax[1].set_ylabel('Amplitude (m)', fontsize=14)
+    # ax[1].plot(r_data, A_data, 'ro')
+    # ax[1].set_yscale('log')
+    # ax[1].set_xscale('log')
+    # ax[1].set_xlim((0, 100))
+    # ax[1].set_ylim((0, 1))
+
+    # plt.grid(b=True, which='both', axis='x')
+    plt.tight_layout()
+    plt.savefig(f"hurst.png", dpi=200)
+
+    plt.show()
+
+
+    return None
+
