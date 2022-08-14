@@ -1070,7 +1070,7 @@ def plot_distribution(data, bins=False, title=False, save=False):
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'Amplitude (A0)')
+    plt.xlabel(f'Instantaneous Frequency (Hz)')
     plt.ylabel("Events per bin")
     # set plot limits
     # plt.ylim(0, 50)
