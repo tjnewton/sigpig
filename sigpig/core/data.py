@@ -2277,17 +2277,18 @@ def instantaneous_frequency(trace, plots=0):
             event_freqs = []
 
             # get stream containing all phases in the event
-            stream = get_event_stream(event)
+            stream = get_event_stream(event, filter=False)
 
             for trace in stream:
-                event_freqs.append(instantaneous_frequency(trace, plots=0))
+                # event_freqs.append(instantaneous_frequency(trace, plots=0))
+                freqs.append(instantaneous_frequency(trace, plots=0))
 
             # save the median instantaneous frequency for each event
-            freqs.append(np.nanmedian(event_freqs))
+            # freqs.append(np.nanmedian(event_freqs))
 
         # plot the instantaneous frequency distribution
-        from figures import plot_distribution
-        plot_distribution(freqs, title="Instantaneous Frequency of Events on May 17, 2018", save=True)
+        # from figures import plot_distribution
+        plot_distribution(freqs, title="Unfiltered Instantaneous Frequency of Events on May 17, 2018", save=True)
     """
     # store the time step duration
     dt = trace.stats.delta
@@ -2344,7 +2345,7 @@ def day_freqs_plot(title=False, bins=False, save=False):
     freqs_1 = []
     for key in keys:
         event_freqs_array = np.asarray(freqs_dict[key])
-        freqs_1.append(np.nanmedian(event_freqs_array))
+        freqs_1.append(300/np.nanmedian(event_freqs_array))
 
     # load the inst. freqs for a different day of the experiment
     infile = open('05_17_18_event_freqs_dict.pkl', 'rb')
@@ -2356,23 +2357,31 @@ def day_freqs_plot(title=False, bins=False, save=False):
     freqs_2 = []
     for key in keys:
         event_freqs_array = np.asarray(freqs_dict[key])
-        freqs_2.append(np.nanmedian(event_freqs_array))
+        freqs_2.append(300/np.nanmedian(event_freqs_array))
 
     df_1 = pd.Series(freqs_1)
     df_2 = pd.Series(freqs_2)
+    # df_3 = pd.Series(freqs_3)
+    # df_4 = pd.Series(freqs_4)
 
-    fig = plt.figure(figsize=(9, 4))
+    fig = plt.figure(figsize=(7, 4))
     if bins == False:
         bins = 500
     n, bins, patches = plt.hist([df_1, df_2], bins=bins, color=["darkred",
                                 "black"], alpha=0.6, label=["March 13, "
                                 "2018", "May 17, 2018"])
+    # n, bins, patches = plt.hist([df_3, df_4, df_1, df_2, ], bins=bins, color=[
+    #     "yellow", "blue", "red", "cyan"], alpha=0.9, label=["Unfiltered phases",
+    #     "Bandpassed 20-60 Hz phases", "Unfiltered medians", "Bandpassed 20-60 Hz medians"])
+
     ax = plt.axes()
     # set background color
     ax.set_facecolor("dimgrey")
     # set plot labels
-    plt.xlabel(f'Instantaneous Frequency (Hz)')
-    plt.ylabel("Events per Bin")
+    # plt.xlabel(f'Event instantaneous frequency (Hz)')
+    # plt.xlabel(f'Event duration (s)')
+    plt.xlabel(f'Characteristic event size (m)')
+    plt.ylabel("Events per bin")
     # set plot limits
     # plt.ylim(0, 50)
     ax.set_xlim([bins[0], bins[-1]])
@@ -2409,7 +2418,7 @@ def day_freqs_plot(title=False, bins=False, save=False):
     if title != False:
         ax.set_title(title, y=0.9999)
 
-    plt.legend(loc="upper left")
+    plt.legend(loc="upper right")
     plt.tight_layout()
 
     if save:
