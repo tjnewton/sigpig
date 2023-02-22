@@ -10,7 +10,7 @@ from datetime import datetime
 import glob
 import numpy as np
 import utm
-from obspy import read, Stream, Inventory
+from obspy import read, Stream, Inventory, read_inventory
 from obspy.core.utcdatetime import UTCDateTime
 import os
 from lidar import grids_from_raster
@@ -1842,8 +1842,12 @@ def get_network_stream(event):
         st.detrend()
         # st.filter("bandpass", freqmin=20, freqmax=60, corners=4)
 
-        # only consider 1.5 seconds of data (this is a busy dataset)
-        st.trim(phase_time - 0.6, phase_time + 0.9, pad=True,
+        # # only consider 1.5 seconds of data (this is a busy dataset)
+        # st.trim(phase_time - 0.6, phase_time + 0.9, pad=True,
+        #         fill_value=0, nearest_sample=False)
+
+        # start with 5 seconds for amplitude calculation function
+        st.trim(phase_time - 2.5, phase_time + 2.5, pad=True,
                 fill_value=0, nearest_sample=False)
 
         # add the trace to the figure
@@ -3019,56 +3023,101 @@ def calculate_magnitude():
     return relative_moments
 
 
-def amplitude_distance_figure():
-    """
-    # TODO: docstring
+def calculate_amplitude():
+    """ Function to calculate the amplitude at the pick time for each phase
+        detection in the Rattlesnake Ridge dataset.
 
-    """
-    fig, ax = plt.subplots(1, 1, num=0, figsize=(7, 6))
-    r = np.logspace(0, 2)
-    A0 = 1
-    freq = 40
-    for beta in [1020]:
-        for Q in [4, 40, 400]:
-            B = np.pi * freq / (Q * beta)
-            A = A0 * np.exp(-B * r) / r
-            ax.plot(r, A, label=r'$\beta$=' + str(beta) + ' m/s, '
-                                                'Q=' + str(Q))
-    ax.set_xlabel('Distance (m)', fontsize=14)
-    ax.set_ylabel('Amplitude (m)', fontsize=14)
-    ax.legend()
+        Example:
+            amplitudes = calculate_amplitude()
 
-    # make some fake data
-    N = 20
-    r_data = np.min(r) + (np.max(r) - np.min(r)) * np.random.uniform(0, 1, N)
-    A_data = A0 * np.exp(-B * r_data) / r_data
-    A_data += np.random.normal(0, 0.4 * A_data)
-    # ax.plot(r_data, A_data, 'ro', markersize=1)
-    # ax[0].text(40, 0.8, r'$A=\frac{A_0e^-\frac{\pi f r}{Q\beta}}{r}$',fontsize=24)
-    ax.set_xlim((0, 100))
-    ax.set_ylim((0, 1))
+            from figures import plot_moment_distribution
+            plot_moment_distribution(all_magnitudes, title="Relative moment distribution for top 500 events", save=True)
 
-    # subplot on log scale
-    beta = 1020  # m/s
-    Q = 40
-    B = np.pi * freq / (Q * beta)
-    A = A0 * np.exp(-B * r) / r
+        """
+    # define the file paths containing the autopicked .mrkr file
+    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+    # define the desired number of events to get
+    n = -1
+    events = top_n_autopicked_events(autopicked_file_path, n)
 
-    # ax[1].plot(r, A, color="k")
-    # ax[1].set_xlabel('Distance (m)', fontsize=14)
-    # ax[1].set_ylabel('Amplitude (m)', fontsize=14)
-    # ax[1].plot(r_data, A_data, 'ro')
-    # ax[1].set_yscale('log')
-    # ax[1].set_xscale('log')
-    # ax[1].set_xlim((0, 100))
-    # ax[1].set_ylim((0, 1))
+    event_amplitudes = {}
 
-    # plt.grid(b=True, which='both', axis='x')
-    plt.tight_layout()
-    plt.savefig(f"hurst.png", dpi=200)
+    # loop over events and calculate magnitudes
+    event_keys = list(events.keys())
+    print(f"There are {len(event_keys)} total events.")
 
-    plt.show()
+    # loop over all items in this chunk
+    for index in tqdm(range(0, len(event_keys))):
+        # make an empty list to store the streams for each event
+        stream_list = []
+        event_list = []
+        # get stream containing all phases in the event
+        event = events[event_keys[index]]
+        stream = get_network_stream(event)
 
+        # # plot them
+        # from figures import plot_event_picks
+        # plot_event_picks(event, plot_curvature=False)
+        # plt.show()
 
-    return None
+        # set a reference phase to define time of interest
+        reference_phase = event[0]
+        # get the phase pick time
+        phase_time = reference_phase['time']
+
+        trace_amplitudes = {}
+        for trace in stream:
+            # apply instrument response correction, filtering, and detrending
+            if trace.stats.network == 'UW':
+                invfile = '/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+                          '/amplitude_locations/resp/RESP.' + trace.stats.station + '.'\
+                          + trace.stats.network + '..' + trace.stats.channel
+            else:
+                invfile = '/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+                          '/amplitude_locations/resp/RESP.' + \
+                          trace.stats.network + '.' + \
+                          trace.stats.station + '..' + trace.stats.channel
+            inv = read_inventory(path_or_file_object=invfile, format="RESP")
+            try:
+                trace.remove_response(inventory=inv, output='VEL')
+            except:
+                print('cannot correct for resp')
+
+            trace = trace.filter("bandpass", freqmin=20, freqmax=60, corners=4)
+            trace = trace.detrend('linear')
+
+            # 0.36 seconds for amplitude calculation
+            trace.trim(phase_time - 0.18, phase_time + 0.18, pad=True,
+                       fill_value=0, nearest_sample=False)
+
+            trace_amplitudes[trace.stats.station] = max_amplitude(trace)
+
+        event_amplitudes[event_keys[index]] = trace_amplitudes
+
+    # save the dict
+    outfile = open(f"event_amplitudes_dict.pkl", 'wb')
+    pickle.dump(event_amplitudes, outfile)
+    outfile.close()
+
+    event_locs = pd.read_csv('res_03_13_18_A0-20.locs')
+
+    found = []
+    # determine if each key in event_amplitudes exists in the ID column of event_locs
+    for key in event_amplitudes.keys():
+        if key in event_locs.ID.values:
+            found.append(True)
+        else:
+            found.append(False)
+
+    return event_amplitudes
+
+def location_regression():
+    # load and split the data
+    x_train, y_train = ...
+    x_test, y_test = ...
+
+    # build a multi-output regressor, train it, and score it
+    model = MultiOutputRegressor(GradientBoostingRegressor(random_state=777))
+    model.fit(x_train, y_train)
+    y_pred = model.predict(x_test)
 
