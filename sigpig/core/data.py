@@ -13,7 +13,7 @@ import utm
 from obspy import read, Stream, Inventory, read_inventory
 from obspy.core.utcdatetime import UTCDateTime
 import os
-from lidar import grids_from_raster
+# from lidar import grids_from_raster
 import netCDF4 as nc
 import geopy
 import proplot as pplt
@@ -26,9 +26,9 @@ from time_miner import build_unet_model, trace_arrival_prediction
 import base64
 import hashlib
 from tqdm import tqdm
-from eqcorrscan.utils.mag_calc import svd_moments
-from eqcorrscan.utils.clustering import svd
-from eqcorrscan import tests
+# from eqcorrscan.utils.mag_calc import svd_moments
+# from eqcorrscan.utils.clustering import svd
+# from eqcorrscan import tests
 import pandas as pd
 from scipy.stats.stats import pearsonr
 import tensorflow as tf
@@ -1826,7 +1826,7 @@ def get_network_stream(event):
         phase_station = f"{station}..{channel}"
 
         # trace_file_prefix = '/Volumes/newton_6TB/RR_MSEED/'
-        trace_file_prefix = '/Users/human/Desktop/RR_MSEED/'
+        trace_file_prefix = '/Users/tyler/Desktop/RR_MSEED/'
         trace_file_path = f"5A.{phase_station}." \
                           f"{phase_time.year}-" \
                           f"{phase_time.month:02}-" \
@@ -1865,7 +1865,7 @@ def events_dict_to_snuffler(events: dict):
 
     Example:
         # define the file paths containing the autopicked .mrkr file
-        autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+        autopicked_file_path = "/Users/tyler/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
         # define the desired number of events to get
         n = 5004
         events = top_n_autopicked_events(autopicked_file_path, n)
@@ -1893,9 +1893,10 @@ def events_dict_to_snuffler(events: dict):
                                                                 '%H:%M:%S.%f')
         # chop microseconds to five digits per snuffler format
         event_time = event_time[:-1]
-        # generate event hash
-        event_hash = str(base64.urlsafe_b64encode(hashlib.sha1(
-            event_time.encode('utf8')).digest()).decode('ascii'))
+        # # generate event hash
+        # event_hash = str(base64.urlsafe_b64encode(hashlib.sha1(
+        #     event_time.encode('utf8')).digest()).decode('ascii'))
+        event_hash = event
 
         # build the event line for the file
         event_line = f"event: {event_time}  0 {event_hash}          0.0          0.0 None         None None  Event None\n"
@@ -2969,9 +2970,10 @@ def calculate_magnitude():
 
     """
     # define the file paths containing the autopicked .mrkr file
-    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+    # autopicked_file_path = "/Users/tyler/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+    autopicked_file_path = "res_03-13.mrkr"
     # define the desired number of events to get
-    n = 3000
+    n = -1
     events = top_n_autopicked_events(autopicked_file_path, n)
 
     relative_moments = []
@@ -3035,7 +3037,8 @@ def calculate_amplitude():
 
         """
     # define the file paths containing the autopicked .mrkr file
-    autopicked_file_path = "/Users/human/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+    # autopicked_file_path = "/Users/tyler/Dropbox/Programs/unet/autopicked_events_03_13_2018.mrkr"
+    autopicked_file_path = "res_03-13.mrkr"
     # define the desired number of events to get
     n = -1
     events = top_n_autopicked_events(autopicked_file_path, n)
@@ -3069,11 +3072,11 @@ def calculate_amplitude():
         for trace in stream:
             # apply instrument response correction, filtering, and detrending
             if trace.stats.network == 'UW':
-                invfile = '/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+                invfile = '/Users/tyler/Dropbox/Research/Rattlesnake_Ridge' \
                           '/amplitude_locations/resp/RESP.' + trace.stats.station + '.'\
                           + trace.stats.network + '..' + trace.stats.channel
             else:
-                invfile = '/Users/human/Dropbox/Research/Rattlesnake_Ridge' \
+                invfile = '/Users/tyler/Dropbox/Research/Rattlesnake_Ridge' \
                           '/amplitude_locations/resp/RESP.' + \
                           trace.stats.network + '.' + \
                           trace.stats.station + '..' + trace.stats.channel
@@ -3099,25 +3102,163 @@ def calculate_amplitude():
     pickle.dump(event_amplitudes, outfile)
     outfile.close()
 
-    event_locs = pd.read_csv('res_03_13_18_A0-20.locs')
-
-    found = []
-    # determine if each key in event_amplitudes exists in the ID column of event_locs
-    for key in event_amplitudes.keys():
-        if key in event_locs.ID.values:
-            found.append(True)
-        else:
-            found.append(False)
-
     return event_amplitudes
 
 def location_regression():
-    # load and split the data
-    x_train, y_train = ...
-    x_test, y_test = ...
+    # load the event locations and amplitudes from files
+    infile = open(f"event_amplitudes_dict.pkl", 'rb')
+    event_amplitudes = pickle.load(infile)
+    infile.close()
+    event_locations = pd.read_csv('res_03_13_18_A0-20.locs')
 
-    # build a multi-output regressor, train it, and score it
-    model = MultiOutputRegressor(GradientBoostingRegressor(random_state=777))
-    model.fit(x_train, y_train)
-    y_pred = model.predict(x_test)
+    found = []
+    # determine if each key in event_amplitudes exists in the ID column of event_locs, if so store the data
+    event_amplitudes_keys = list(event_amplitudes.keys())
+    event_locs_keys = event_locations.ID.values.tolist()
+    features, labels = [], []
+    for key in event_amplitudes_keys:
+        if key in event_locs_keys:
+            found.append(True)
+            # store the features and labels for regression
+            feature_values = []
+            for feature_value in list(event_amplitudes[key].values()):
+                feature_values.append(feature_value[0])
+            features.append(feature_values)
+            labels.append(event_locations[event_locations.ID == key][['x', 'y', 'z']].values[0])
 
+        else:
+            found.append(False)
+    # from collections import Counter
+    # print(Counter(found)) # print the number of common IDs found
+
+    features = np.asarray(features)
+    labels = np.asarray(labels)
+    print("Finished loading data.")
+
+    from sklearn.model_selection import train_test_split
+    from keras.models import Sequential
+    from keras.layers import Dense
+    from keras.optimizers import Adam
+    from sklearn.multioutput import MultiOutputRegressor
+    from sklearn.ensemble import GradientBoostingRegressor
+    from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+    # split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+    # build a simple neural network model
+    model = Sequential()
+    model.add(Dense(128, kernel_initializer='he_uniform', activation='relu', input_dim=40))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dense(3))
+    model.compile(optimizer='adam', loss='mae')
+
+    # train and test the model
+    history = model.fit(X_train, y_train, epochs=100, batch_size=32)
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    mae = mean_absolute_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    # create a gradient boosting model
+    gb_model = MultiOutputRegressor(GradientBoostingRegressor(random_state=42))
+    # train and test the model
+    gb_model.fit(X_train, y_train)
+    y_pred_gb = gb_model.predict(X_test)
+    mse_gb = mean_squared_error(y_test, y_pred_gb)
+    rmse_gb = mean_squared_error(y_test, y_pred_gb, squared=False)
+    mae_gb = mean_absolute_error(y_test, y_pred_gb)
+    r2_gb = r2_score(y_test, y_pred_gb)
+
+    # print the models stats for comparison
+    print(f'NN MSE: {mse:.4f}')   #13172.1306 for 2x 64 dense layers
+    print(f'NN RMSE: {rmse:.4f}') #92.1912
+    print(f'NN MAE: {mae:.4f}')   #65.1303
+    print(f'NN R2: {r2:.4f}')     #-2.0417
+    print(f'GB MSE: {mse_gb:.4f}')
+    print(f'GB RMSE: {rmse_gb:.4f}')
+    print(f'GB MAE: {mae_gb:.4f}')
+    print(f'GB R2: {r2_gb:.4f}')
+
+    # TODO: these only work for 1D data, need to adapt for 3D
+    # # instantiate a visualizer for the residuals plot
+    # from yellowbrick.regressor import ResidualsPlot, PredictionError, CooksDistance
+    # visualizer = ResidualsPlot(gb_model)
+    # visualizer.fit(X_train, y_train)
+    # visualizer.score(X_test, y_test)
+    # visualizer.show()
+    # # the prediction error plot
+    # visualizer = PredictionError(gb_model)
+    # visualizer.fit(X_train, y_train)
+    # visualizer.score(X_test, y_test)
+    # visualizer.show()
+    # # Cook's Distance plot
+    # visualizer = CooksDistance()
+    # # fit the visualizer on all features and labels
+    # visualizer.fit(np.vstack((X_train, X_test)), np.vstack((y_train, y_test)))
+    # visualizer.show()
+
+    plot=False
+    if plot:
+        # generate a 3D plot of the predicted and actual locations
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(y_test[:, 0], y_test[:, 1], y_test[:, 2], c='r', marker='o', label='Actual')
+        ax.scatter(y_pred_gb[:, 0], y_pred_gb[:, 1], y_pred_gb[:, 2], c='b', marker='^', label='Predicted')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title('GB Predicted vs Actual Event Locations')
+        # change the viewing angle
+        # ax.view_init(azim=-90, elev=90)
+        ax.view_init(azim=-90, elev=0)
+        ax.legend()
+        plt.show()
+
+        # generate a 3D plot of the trainng locations and the predicted test locations
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        # plot the test data and set the marker size to 0.5
+        ax.scatter(y_train[:, 0], y_train[:, 1], y_train[:, 2], c='r', marker='o', label='Train', alpha=0.5, s=1.5)
+        ax.scatter(y_pred_gb[:, 0], y_pred_gb[:, 1], y_pred_gb[:, 2], c='b', marker='^', label='Predicted (Test)')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title('GB Train Set vs Predicted Test Set Event Locations')
+        # change the viewing angle
+        ax.view_init(azim=-90, elev=90)
+        # ax.view_init(azim=-90, elev=0)
+        ax.legend()
+        plt.show()
+
+        # generate a 3D plot of the predicted and actual locations
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(y_test[:, 0], y_test[:, 1], y_test[:, 2], c='r', marker='o', label='Actual')
+        ax.scatter(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], c='b', marker='^', label='Predicted')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title('NN Predicted vs Actual Event Locations')
+        # change the viewing angle
+        ax.view_init(azim=-90, elev=90)
+        # ax.view_init(azim=-90, elev=0)
+        ax.legend()
+        plt.show()
+
+        # generate a 3D plot of the trainng locations and the predicted test locations
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        # plot the test data and set the marker size to 0.5
+        ax.scatter(y_train[:, 0], y_train[:, 1], y_train[:, 2], c='r', marker='o', label='Train', alpha=0.5, s=1.5)
+        ax.scatter(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], c='b', marker='^', label='Predicted (Test)')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.set_title('NN Train Set vs Predicted Test Set Event Locations')
+        # change the viewing angle
+        ax.view_init(azim=-90, elev=90)
+        # ax.view_init(azim=-90, elev=0)
+        ax.legend()
+        plt.show()
