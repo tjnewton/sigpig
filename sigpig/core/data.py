@@ -2335,6 +2335,7 @@ def day_freqs_plot(title=False, bins=False, save=False):
     # TODO:
 
     """
+    bins = False
     # load the inst. freqs for the first day of the experiment
     infile = open('03_13_18_event_freqs_dict.pkl', 'rb')
     freqs_dict = pickle.load(infile)
@@ -2345,7 +2346,7 @@ def day_freqs_plot(title=False, bins=False, save=False):
     freqs_1 = []
     for key in keys:
         event_freqs_array = np.asarray(freqs_dict[key])
-        freqs_1.append(300/np.nanmedian(event_freqs_array))
+        freqs_1.append(1/np.nanmedian(event_freqs_array))
 
     # load the inst. freqs for a different day of the experiment
     infile = open('05_17_18_event_freqs_dict.pkl', 'rb')
@@ -2357,7 +2358,7 @@ def day_freqs_plot(title=False, bins=False, save=False):
     freqs_2 = []
     for key in keys:
         event_freqs_array = np.asarray(freqs_dict[key])
-        freqs_2.append(300/np.nanmedian(event_freqs_array))
+        freqs_2.append(1/np.nanmedian(event_freqs_array))
 
     df_1 = pd.Series(freqs_1)
     df_2 = pd.Series(freqs_2)
@@ -2379,12 +2380,13 @@ def day_freqs_plot(title=False, bins=False, save=False):
     ax.set_facecolor("dimgrey")
     # set plot labels
     # plt.xlabel(f'Event instantaneous frequency (Hz)')
-    # plt.xlabel(f'Event duration (s)')
-    plt.xlabel(f'Characteristic event size (m)')
+    plt.xlabel(f'Event duration (s)')
+    # plt.xlabel(f'Characteristic event size (m)')
     plt.ylabel("Events per bin")
     # set plot limits
     # plt.ylim(0, 50)
     ax.set_xlim([bins[0], bins[-1]])
+    ax.set_yscale('log')
 
     plt.grid(True)
 
