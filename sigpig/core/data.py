@@ -3135,36 +3135,53 @@ def location_regression():
     labels = np.asarray(labels)
     print("Finished loading data.")
 
-    from sklearn.model_selection import train_test_split
-    from keras.models import Sequential
-    from keras.layers import Dense
-    from keras.optimizers import Adam
+    from sklearn.model_selection import train_test_split, GridSearchCV
+    # from keras.models import Sequential
+    # from keras.layers import Dense
+    # from keras.optimizers import Adam
     from sklearn.multioutput import MultiOutputRegressor
-    from sklearn.ensemble import GradientBoostingRegressor
+    from sklearn.experimental import enable_hist_gradient_boosting
+    from sklearn.ensemble import HistGradientBoostingRegressor
     from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
     # split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
 
-    # build a simple neural network model
-    model = Sequential()
-    model.add(Dense(128, kernel_initializer='he_uniform', activation='relu', input_dim=40))
-    model.add(Dense(128, activation='relu'))
-    model.add(Dense(3))
-    model.compile(optimizer='adam', loss='mae')
-
-    # train and test the model
-    history = model.fit(X_train, y_train, epochs=100, batch_size=32)
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = mean_squared_error(y_test, y_pred, squared=False)
-    mae = mean_absolute_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
+    # # build a simple neural network model
+    # model = Sequential()
+    # model.add(Dense(128, kernel_initializer='he_uniform', activation='relu', input_dim=40))
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(3))
+    # model.compile(optimizer='adam', loss='mae')
+    #
+    # # train and test the model
+    # history = model.fit(X_train, y_train, epochs=100, batch_size=32)
+    # y_pred = model.predict(X_test)
+    # mse = mean_squared_error(y_test, y_pred)
+    # rmse = mean_squared_error(y_test, y_pred, squared=False)
+    # mae = mean_absolute_error(y_test, y_pred)
+    # r2 = r2_score(y_test, y_pred)
 
     # create a gradient boosting model
-    gb_model = MultiOutputRegressor(GradientBoostingRegressor(random_state=42))
-    # train and test the model
-    gb_model.fit(X_train, y_train)
+    gb_model = MultiOutputRegressor(HistGradientBoostingRegressor(random_state=42, verbose=0))
+    # # train the model directly
+    # gb_model.fit(X_train, y_train)
+    # run a hyperparameter search over the model
+    param_grid = {"estimator__learning_rate": [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+                  "estimator__max_iter": [50, 100, 200, 300, 400, 500, 1000],
+                  "estimator__max_leaf_nodes": [10, 15, 20, 25, 30, 35, 40, 45, 50, 100],
+                  "estimator__max_depth": [None, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50],
+                  "estimator__min_samples_leaf": [5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 50, 100],
+                  "estimator__l2_regularization": [0, 0.01, 0.05, 0.1, 0.5, 1, 2, 3],
+                  "estimator__max_bins": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 250, 300, 400, 500, 1000],
+                  }
+    gs_gb_model = GridSearchCV(gb_model, param_grid=param_grid, scoring="r2", n_jobs=-1, cv=None, verbose=1)
+    gs_gb_model.fit(X_train, y_train)
+
+    score = gs_gb_model.best_score_
+    estimator = gs_gb_model.best_estimator_
+    best_hyperparameters = dict(sorted(gs_gb_model.best_params_.items()))
+
     y_pred_gb = gb_model.predict(X_test)
     mse_gb = mean_squared_error(y_test, y_pred_gb)
     rmse_gb = mean_squared_error(y_test, y_pred_gb, squared=False)
@@ -3172,10 +3189,10 @@ def location_regression():
     r2_gb = r2_score(y_test, y_pred_gb)
 
     # print the models stats for comparison
-    print(f'NN MSE: {mse:.4f}')   #13172.1306 for 2x 64 dense layers
-    print(f'NN RMSE: {rmse:.4f}') #92.1912
-    print(f'NN MAE: {mae:.4f}')   #65.1303
-    print(f'NN R2: {r2:.4f}')     #-2.0417
+    # print(f'NN MSE: {mse:.4f}')   #13172.1306 for 2x 64 dense layers
+    # print(f'NN RMSE: {rmse:.4f}') #92.1912
+    # print(f'NN MAE: {mae:.4f}')   #65.1303
+    # print(f'NN R2: {r2:.4f}')     #-2.0417
     print(f'GB MSE: {mse_gb:.4f}')
     print(f'GB RMSE: {rmse_gb:.4f}')
     print(f'GB MAE: {mae_gb:.4f}')
@@ -3199,7 +3216,7 @@ def location_regression():
     # visualizer.fit(np.vstack((X_train, X_test)), np.vstack((y_train, y_test)))
     # visualizer.show()
 
-    plot=False
+    plot=True
     if plot:
         # generate a 3D plot of the predicted and actual locations
         fig = plt.figure()
@@ -3232,33 +3249,42 @@ def location_regression():
         ax.legend()
         plt.show()
 
-        # generate a 3D plot of the predicted and actual locations
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(y_test[:, 0], y_test[:, 1], y_test[:, 2], c='r', marker='o', label='Actual')
-        ax.scatter(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], c='b', marker='^', label='Predicted')
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        ax.set_title('NN Predicted vs Actual Event Locations')
-        # change the viewing angle
-        ax.view_init(azim=-90, elev=90)
-        # ax.view_init(azim=-90, elev=0)
-        ax.legend()
-        plt.show()
+        # # generate a 3D plot of the predicted and actual locations
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+        # ax.scatter(y_test[:, 0], y_test[:, 1], y_test[:, 2], c='r', marker='o', label='Actual')
+        # ax.scatter(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], c='b', marker='^', label='Predicted')
+        # ax.set_xlabel('X')
+        # ax.set_ylabel('Y')
+        # ax.set_zlabel('Z')
+        # ax.set_title('NN Predicted vs Actual Event Locations')
+        # # change the viewing angle
+        # ax.view_init(azim=-90, elev=90)
+        # # ax.view_init(azim=-90, elev=0)
+        # ax.legend()
+        # plt.show()
 
-        # generate a 3D plot of the trainng locations and the predicted test locations
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        # plot the test data and set the marker size to 0.5
-        ax.scatter(y_train[:, 0], y_train[:, 1], y_train[:, 2], c='r', marker='o', label='Train', alpha=0.5, s=1.5)
-        ax.scatter(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], c='b', marker='^', label='Predicted (Test)')
-        ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
-        ax.set_title('NN Train Set vs Predicted Test Set Event Locations')
-        # change the viewing angle
-        ax.view_init(azim=-90, elev=90)
-        # ax.view_init(azim=-90, elev=0)
-        ax.legend()
-        plt.show()
+        # # generate a 3D plot of the trainng locations and the predicted test locations
+        # fig = plt.figure()
+        # ax = fig.add_subplot(111, projection='3d')
+        # # plot the test data and set the marker size to 0.5
+        # ax.scatter(y_train[:, 0], y_train[:, 1], y_train[:, 2], c='r', marker='o', label='Train', alpha=0.5, s=1.5)
+        # ax.scatter(y_pred[:, 0], y_pred[:, 1], y_pred[:, 2], c='b', marker='^', label='Predicted (Test)')
+        # ax.set_xlabel('X')
+        # ax.set_ylabel('Y')
+        # ax.set_zlabel('Z')
+        # ax.set_title('NN Train Set vs Predicted Test Set Event Locations')
+        # # change the viewing angle
+        # ax.view_init(azim=-90, elev=90)
+        # # ax.view_init(azim=-90, elev=0)
+        # ax.legend()
+        # plt.show()
+
+    # TODO: add A0 to targets
+    # TODO: check RMS for each target and vizualize metrics
+    # TODO: correct amplitudes for RMS noise level (are these saved somewhere? per station?)
+
+
+    # then:
+    # TODO: hyperparameter search over MultiOutputRegressor
+
