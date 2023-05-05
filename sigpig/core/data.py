@@ -3107,34 +3107,39 @@ def calculate_amplitude():
     return event_amplitudes
 
 def location_regression():
-    # load the event locations and amplitudes from files
-    infile = open(f"event_amplitudes_dict.pkl", 'rb')
-    event_amplitudes = pickle.load(infile)
-    infile.close()
-    event_locations = pd.read_csv('res_03_13_18_A0-20.locs')
+    # # load the event locations and amplitudes from files
+    # infile = open(f"event_amplitudes_dict.pkl", 'rb')
+    # event_amplitudes = pickle.load(infile)
+    # infile.close()
+    # event_locations = pd.read_csv('res_03_13_18_A0-20.locs')
+    #
+    # found = []
+    # # determine if each key in event_amplitudes exists in the ID column of event_locs, if so store the data
+    # event_amplitudes_keys = list(event_amplitudes.keys())
+    # event_locs_keys = event_locations.ID.values.tolist()
+    # features, labels = [], []
+    # for key in event_amplitudes_keys:
+    #     if key in event_locs_keys:
+    #         found.append(True)
+    #         # store the features and labels for regression
+    #         feature_values = []
+    #         for feature_value in list(event_amplitudes[key].values()):
+    #             feature_values.append(feature_value[0])
+    #         features.append(feature_values)
+    #         labels.append(event_locations[event_locations.ID == key][['x', 'y', 'z']].values[0])
+    #
+    #     else:
+    #         found.append(False)
+    # # from collections import Counter
+    # # print(Counter(found)) # print the number of common IDs found
+    # features = np.asarray(features)
+    # labels = np.asarray(labels)
 
-    found = []
-    # determine if each key in event_amplitudes exists in the ID column of event_locs, if so store the data
-    event_amplitudes_keys = list(event_amplitudes.keys())
-    event_locs_keys = event_locations.ID.values.tolist()
-    features, labels = [], []
-    for key in event_amplitudes_keys:
-        if key in event_locs_keys:
-            found.append(True)
-            # store the features and labels for regression
-            feature_values = []
-            for feature_value in list(event_amplitudes[key].values()):
-                feature_values.append(feature_value[0])
-            features.append(feature_values)
-            labels.append(event_locations[event_locations.ID == key][['x', 'y', 'z']].values[0])
+    # load in the features and labels from .npy files
+    features = np.load('rr_features.npy')
+    labels = np.load('rr_targets.npy')
+    station_order = np.load('staorder.npy')
 
-        else:
-            found.append(False)
-    # from collections import Counter
-    # print(Counter(found)) # print the number of common IDs found
-
-    features = np.asarray(features)
-    labels = np.asarray(labels)
     print("Finished loading data.")
 
     from sklearn.model_selection import train_test_split, GridSearchCV
@@ -3168,15 +3173,19 @@ def location_regression():
     gb_model = MultiOutputRegressor(HistGradientBoostingRegressor(random_state=42, verbose=0))
     # # train the model directly
     # gb_model.fit(X_train, y_train)
-    # run a hyperparameter search over the model
-    param_grid = {"estimator__learning_rate": [0.001, 0.005, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-                  "estimator__max_iter": [50, 100, 200, 300, 400, 500, 1000],
-                  "estimator__max_leaf_nodes": [10, 15, 20, 25, 30, 35, 40, 45, 50, 100],
-                  "estimator__max_depth": [None, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50],
-                  "estimator__min_samples_leaf": [5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 40, 50, 100],
-                  "estimator__l2_regularization": [0, 0.01, 0.05, 0.1, 0.5, 1, 2, 3],
-                  "estimator__max_bins": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 250, 300, 400, 500, 1000],
+    # # run a hyperparameter search over the model
+    param_grid = {"estimator__learning_rate": [0.01, 0.1, 1],
+                  "estimator__max_iter": [50, 100, 1000],
+                  "estimator__max_leaf_nodes": [None, 10, 30],
+                  "estimator__max_depth": [None, 3, 9, 30],
+                  "estimator__min_samples_leaf": [10, 50, 100],
+                  "estimator__l2_regularization": [0, 0.1, 1],
+                  "estimator__max_bins": [20, 100, 255],
                   }
+    # param_grid = {"estimator__learning_rate": [0.001, 0.01, 0.1],
+    #               "estimator__max_depth": [None, 30],
+    #               "estimator__min_samples_leaf": [5, 20, 100],
+    #               }
     gs_gb_model = GridSearchCV(gb_model, param_grid=param_grid, scoring="r2", n_jobs=-1, cv=None, verbose=1)
     gs_gb_model.fit(X_train, y_train)
 
@@ -3184,7 +3193,8 @@ def location_regression():
     estimator = gs_gb_model.best_estimator_
     best_hyperparameters = dict(sorted(gs_gb_model.best_params_.items()))
 
-    y_pred_gb = gb_model.predict(X_test)
+    estimator.fit(X_train, y_train)
+    y_pred_gb = estimator.predict(X_test)
     mse_gb = mean_squared_error(y_test, y_pred_gb)
     rmse_gb = mean_squared_error(y_test, y_pred_gb, squared=False)
     mae_gb = mean_absolute_error(y_test, y_pred_gb)
@@ -3200,55 +3210,63 @@ def location_regression():
     print(f'GB MAE: {mae_gb:.4f}')
     print(f'GB R2: {r2_gb:.4f}')
 
-    # TODO: these only work for 1D data, need to adapt for 3D
-    # # instantiate a visualizer for the residuals plot
-    # from yellowbrick.regressor import ResidualsPlot, PredictionError, CooksDistance
-    # visualizer = ResidualsPlot(gb_model)
-    # visualizer.fit(X_train, y_train)
-    # visualizer.score(X_test, y_test)
-    # visualizer.show()
-    # # the prediction error plot
-    # visualizer = PredictionError(gb_model)
-    # visualizer.fit(X_train, y_train)
-    # visualizer.score(X_test, y_test)
-    # visualizer.show()
-    # # Cook's Distance plot
-    # visualizer = CooksDistance()
-    # # fit the visualizer on all features and labels
-    # visualizer.fit(np.vstack((X_train, X_test)), np.vstack((y_train, y_test)))
-    # visualizer.show()
+    # instantiate a visualizer for the residuals plot, for each target regressor
+    from yellowbrick.regressor import ResidualsPlot, PredictionError, CooksDistance
+    for index, estimator_ in enumerate(estimator.estimators_):
+        visualizer = ResidualsPlot(estimator_)
+        visualizer.fit(X_train, y_train[:, index])
+        visualizer.score(X_test, y_test[:, index])
+        visualizer.show(outpath=f"residuals_plot_{index}.png")
+        plt.close()
+        # the prediction error plot
+        visualizer = PredictionError(estimator_)
+        visualizer.fit(X_train, y_train[:, index])
+        visualizer.score(X_test, y_test[:, index])
+        visualizer.show(outpath=f"prediction_error_{index}.png")
+        plt.close()
+
+        # Cook's Distance plot
+        visualizer = CooksDistance()
+        # fit the visualizer on all features and labels
+        visualizer.fit(np.vstack((X_train, X_test)), np.hstack((y_train[:, index], y_test[:, index])))
+        visualizer.show(outpath=f"cooks_distance_{index}.png")
+        plt.close()
 
     plot=True
     if plot:
+        import matplotlib
+        matplotlib.use('macosx')
         # generate a 3D plot of the predicted and actual locations
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(y_test[:, 0], y_test[:, 1], y_test[:, 2], c='r', marker='o', label='Actual')
-        ax.scatter(y_pred_gb[:, 0], y_pred_gb[:, 1], y_pred_gb[:, 2], c='b', marker='^', label='Predicted')
+        ax.scatter(y_test[:, 0], y_test[:, 1], y_test[:, 2], c='r', marker='o', label='Test Actual', s=1)
+        ax.scatter(y_pred_gb[:, 0], y_pred_gb[:, 1], y_pred_gb[:, 2], c='b', marker='^', label='Test Predicted', s=5)
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
-        ax.set_title('GB Predicted vs Actual Event Locations')
+        ax.set_title('Test Set: Predicted vs Actual Event Locations')
         # change the viewing angle
         # ax.view_init(azim=-90, elev=90)
         ax.view_init(azim=-90, elev=0)
         ax.legend()
+        plt.savefig('test_predicted_vs_actual.png', dpi=300)
         plt.show()
 
         # generate a 3D plot of the trainng locations and the predicted test locations
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         # plot the test data and set the marker size to 0.5
-        ax.scatter(y_train[:, 0], y_train[:, 1], y_train[:, 2], c='r', marker='o', label='Train', alpha=0.5, s=1.5)
-        ax.scatter(y_pred_gb[:, 0], y_pred_gb[:, 1], y_pred_gb[:, 2], c='b', marker='^', label='Predicted (Test)')
+        ax.scatter(y_train[:, 0], y_train[:, 1], y_train[:, 2], c='r', marker='o', label='Train', alpha=0.5, s=1)
+        ax.scatter(y_pred_gb[:, 0], y_pred_gb[:, 1], y_pred_gb[:, 2], c='b', marker='^', label='Predicted (Test)', s=5)
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
-        ax.set_title('GB Train Set vs Predicted Test Set Event Locations')
+        ax.set_title('Train Set vs Predicted Test Set Event Locations')
         # change the viewing angle
         ax.view_init(azim=-90, elev=90)
         # ax.view_init(azim=-90, elev=0)
         ax.legend()
+        plt.savefig('train_vs_testPredictions.png', dpi=300)
         plt.show()
 
         # # generate a 3D plot of the predicted and actual locations
@@ -3281,12 +3299,3 @@ def location_regression():
         # # ax.view_init(azim=-90, elev=0)
         # ax.legend()
         # plt.show()
-
-    # TODO: add A0 to targets
-    # TODO: check RMS for each target and vizualize metrics
-    # TODO: correct amplitudes for RMS noise level (are these saved somewhere? per station?)
-
-
-    # then:
-    # TODO: hyperparameter search over MultiOutputRegressor
-
