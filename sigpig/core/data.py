@@ -1,5 +1,5 @@
 """
-Functions to fetch data. 
+Functions to fetch data and interact with it.
 """
 
 import obspy
@@ -3173,7 +3173,7 @@ def location_regression():
     gb_model = MultiOutputRegressor(HistGradientBoostingRegressor(random_state=42, verbose=0))
     # # train the model directly
     # gb_model.fit(X_train, y_train)
-    # # run a hyperparameter search over the model
+    # run a hyperparameter search over the model
     param_grid = {"estimator__learning_rate": [0.01, 0.1, 1],
                   "estimator__max_iter": [50, 100, 1000],
                   "estimator__max_leaf_nodes": [None, 10, 30],
@@ -3189,9 +3189,16 @@ def location_regression():
     gs_gb_model = GridSearchCV(gb_model, param_grid=param_grid, scoring="r2", n_jobs=-1, cv=None, verbose=1)
     gs_gb_model.fit(X_train, y_train)
 
+    # save the model
+    import joblib
+    joblib.dump(gs_gb_model, 'gb_model.joblib')
+
     score = gs_gb_model.best_score_
     estimator = gs_gb_model.best_estimator_
     best_hyperparameters = dict(sorted(gs_gb_model.best_params_.items()))
+    # save the best estimator and hyperparameters
+    save_object = {"estimator": estimator, "hyperparameters": best_hyperparameters, "score": score}
+    joblib.dump(save_object, 'gb_model_best.joblib')
 
     estimator.fit(X_train, y_train)
     y_pred_gb = estimator.predict(X_test)
